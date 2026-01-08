@@ -1,13 +1,98 @@
 <!DOCTYPE html><html lang="en">
 
 <head>
-<title>Libeks web</title>
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+	<title>Triangular Grid Math</title>
+	<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+	<style>
+	      body {
+	          --diagram-width: 60rem;
+	      }
+
+	      figure {
+	      	box-sizing: border-box;
+	      }
+
+	      text {
+	      	font-size: 1.2em;
+
+	      	.x-coord {
+	      		fill:red;
+	      	}
+
+	      	.y-coord {
+	      		fill: green;
+	      	}
+
+	      	.r-coord {
+	      		fill: black;
+	      	}
+	      }
+	</style>
+	<!-- <script setup>
+		import { reactive } from 'vue'
+
+		const intervals = reactive([0,1,2,3]);
+	</script> -->
 </head>
 
 <body>
-<header><h1>Libeks web</h1></header>
-<h2>Some other text</h2>
+	
+	<header><h1>Triangular Grid Math</h1></header>
+	<div id="app">
+		<figure style="width:var(--diagram-width)">
+			<svg viewBox="0 0 1200 800">
+				<text y="20" style="font-size:14px">Figure text</text>
+				<g v-for="j in n" v-bind:style="{transform: `translate(${50*(j%2)}px,${10+j*86.6}px)`}">
+					<g v-for="i in n" v-bind:style="{transform: `translate(${100*i}px,10px)`}">
+						<g>
+							<polygon points="0,0 -50,86.6 50,86.6" style="fill:hsl(147, 0%, 80%);stroke:black;stroke-width:1" />
+							<text x="0" y="70" text-anchor="middle">
+								<tspan class="x-coord">{{j-offset}}</tspan>
+								, 
+								<tspan class="y-coord">{{i-offset}}</tspan>
+								,
+								<tspan class="r-coord">0</tspan>
+							</text>
+						</g>
+					</g>
+					<g v-for="i in n" v-bind:style="{transform: `translate(${100*i+50}px,10px)`}">
+						<g>
+							<polygon points="0,86.6 -50,0 50,0" style="fill:hsl(147, 0%, 90%);stroke:black;stroke-width:1" />
+							<text x="0" y="20" text-anchor="middle">
+								<tspan class="x-coord">{{j-offset}}</tspan>
+								, 
+								<tspan class="y-coord">{{i-offset}}</tspan>
+								,
+								<tspan class="r-coord">1</tspan>
+							</text>
+						</g>
+					</g>
+				</g>
+			</svg>
+		</figure>
+		<p v-for="i in n">
+			{{ i }} and so on
+		</p>
+	</div>
+
+
+	<script>
+	  const { createApp, ref } = Vue
+
+	  createApp({
+	    setup() {
+	      const message = ref('Hello vue!')
+	      return {
+	        message:message,
+	        intervals:[0,1,2,3],
+	        n:6,
+	        offset:3,
+	      }
+	    }
+	  }).mount('#app')
+	</script>
+
 
 
 </body>

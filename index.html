@@ -7,6 +7,7 @@
 	<style>
 				body {
 						--diagram-width: 60rem;
+						--sans-serif: "Avenir Next", Candara, Ubuntu, "Fira Sans", system-ui, "Segoe UI", sans-serif;
 				}
 
 				figure {
@@ -17,6 +18,7 @@
 					font-size: 1.2em;
 					pointer-events: none;
 					fill: black;
+					font-family: var(--sans-serif);
 
 					.x-coord {
 						fill:hsl(0, 80%, 40%);
@@ -33,7 +35,7 @@
 
 				svg {
 					polygon {
-						stroke:black;
+						stroke:hsl(0,0%,70%);
 						stroke-width:1;
 					}
 
@@ -71,26 +73,29 @@
 		<figure style="width:var(--diagram-width)">
 			<svg viewBox="0 0 1200 800" border-box>
 				<rect x="0" y="0" width="100%" height="100%" fill="none" stroke="black" stroke-width="3" /><!-- bounding box boundary -->
-					<g v-for="tri in grid.upTriangles()" :style="{transform: `translate(${mapTriangle(tri).x}px,${mapTriangle(tri).y}px)`}" :class="className(tri, selected)" :data-tri="tri.string()" @mousemove="mouse">
-							<polygon @click="click"  points="0,0 -50,86.6 50,86.6" />
-							<text x="0" y="70" text-anchor="middle">
-								<tspan class="x-coord">{{tri.x}}</tspan>
-								, 
-								<tspan class="y-coord">{{tri.y}}</tspan>
-								,
-								<tspan class="r-coord">{{tri.R}}</tspan>
-							</text>
-					</g>
-					<g v-for="tri in grid.downTriangles()" :style="{transform: `translate(${mapTriangle(tri).x}px,${mapTriangle(tri).y}px)`}" :class="className(tri, selected)" :data-tri="tri.string()" @mousemove="mouse">
-							<polygon points="0,86.6 -50,0 50,0"/>
-							<text x="0" y="20" text-anchor="middle">
-								<tspan class="x-coord">{{tri.x}}</tspan>
-								, 
-								<tspan class="y-coord">{{tri.y}}</tspan>
-								,
-								<tspan class="r-coord">{{tri.R}}</tspan>
-							</text>
-					</g>
+				<g :style="{transform: `translate(${1100-selected.y*50}px, ${selected.y*86.6 + 60}px)`}">
+					<text>y = <tspan class="y-coord">{{selected.y}}</tspan></text>
+					<!-- ${selected.y * 100} -->
+				</g>
+				<g v-for="tri in grid.upTriangles()" :style="{transform: `translate(${mapTriangle(tri).x}px,${mapTriangle(tri).y}px)`}" :class="className(tri, selected)" :data-tri="tri.string()" @mousemove="mouse">
+						<polygon @click="click"  points="0,0 -50,86.6 50,86.6" />
+						<text x="0" y="75" text-anchor="middle">
+							<tspan class="x-coord">{{tri.x}}</tspan>
+							, 
+							<tspan class="y-coord">{{tri.y}}</tspan>
+							,
+							<tspan class="r-coord">{{tri.R}}</tspan>
+						</text>
+				</g>
+				<g v-for="tri in grid.downTriangles()" :style="{transform: `translate(${mapTriangle(tri).x}px,${mapTriangle(tri).y}px)`}" :class="className(tri, selected)" :data-tri="tri.string()" @mousemove="mouse">
+						<polygon points="0,86.6 -50,0 50,0"/>
+						<text x="0" y="25" text-anchor="middle">
+							<tspan class="x-coord">{{tri.x}}</tspan>
+							, 
+							<tspan class="y-coord">{{tri.y}}</tspan>
+							,
+							<tspan class="r-coord">{{tri.R}}</tspan>
+						</text>
 				</g>
 			</svg>
 		</figure>
@@ -133,6 +138,7 @@
 				return this.x + "," + this.y + "," + this.R
 			}
 		}
+
 		let grid = ref(new Grid(6,6));
 		let data = {
 			selected: grid.value.triangles[0],
@@ -141,23 +147,19 @@
 
 		function mapTriangle(tri) {
 			return {
-					x: 50*(tri.y%2) + tri.x * 100 + 50*tri.R,
-					y: 10+tri.y*86.6,
+					x: 400 + -50*(tri.y%2) + (tri.x - Math.floor(tri.y/2)) * 100 + 50*tri.R,
+					y: 10 + tri.y * 86.6,
 				}
 		}
 
 		function className(tri, selected) {
-			
 			if (this.selected === null) {
 				return {
 					uptriangle: tri.R==0,
 					downtriangle: tri.R==1,
 				}
 			}
-			let highlight = tri.string() == this.selected.string()
-			// console.log("className", tri.x,tri.y, this.data.selected.value.x, highlight);
-			
-			console.log("className", tri.string(), this.selected.string(), highlight);
+			const highlight = tri.string() == this.selected.string()
 			return {
 				highlight,
 				sameX: tri.x==this.selected.x && !highlight,
@@ -168,63 +170,17 @@
 			}
 		}
 
-		// var app = new Vue({
-		// 	el: "#app",
-		// 	data: data,
-		// 	methods: {
-		// 		click: function(event) {
-		// 			console.log(event);
-		// 		}
-		// 	}
-		// });
-
-		// function screenToHexPosition(position) {
-		// 	let point = this.$el.ownerSVGElement.createSVGPoint();
-		// 	point.x = position.clientX;
-		// 	point.y = position.clientY;
-		// 	let localCoords = point.matrixTransform(this.$el.getScreenCTM().inverse());
-		// 	let fractionalHex = layouts.flat.pixelToHexFractional(localCoords);
-		// 	let roundedHex = fractionalHex.round();
-		// 	/* NOTE: It's possible we end up picking a hex that's not 
-		// 		 in the original grid. This causes corner cases with many
-		// 		 diagrams, so we want to skip them. Look for a hex in the
-		// 		 original grid data instead of returning roundedHex. This
-		// 		 also handles cases where the original grid is annotated
-		// 		 with additional data. */
-		// 	let hex = this.hexes.find(hex => hex_equal(hex, roundedHex));
-		// 	return {fractionalHex, hex};
-		// }
-
 		function setActiveTriangle(triString) {
-			console.log(triString, this);
-			// console.log(event.target.parentElement.dataset.tri);
-
 			for (const tri of grid.value.triangles) {
 				if (tri.string() == triString) {
-					this.selected.value = tri;
-					console.log("set selected triangle to", tri)
+					this.selected = tri;
 					return
 				}
 			}
-
-			// let point = this.$el.ownerSVGElement.createSVGPoint();
-			// point.x = position.clientX;
-			// point.y = position.clientY;
-			// let localCoords = point.matrixTransform(this.$el.getScreenCTM().inverse());
 		}
 
 		function mouse(event) {
-			console.log(event.target.parentElement.dataset.tri);
-			// this.setActiveTriangle(event.target.parentElement.dataset.tri);
-			const triString = event.target.parentElement.dataset.tri;
-			for (const tri of grid.value.triangles) {
-				if (tri.string() == triString) {
-					// console.log(this);
-					this.selected = tri;
-					// console.log("set selected triangle to", tri)
-					return
-				}
-			}
+			this.setActiveTriangle(event.target.parentElement.dataset.tri);
 		}
 
 		function click(event) {

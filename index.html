@@ -5,35 +5,63 @@
 	<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
 	<style>
-	      body {
-	          --diagram-width: 60rem;
-	      }
+				body {
+						--diagram-width: 60rem;
+				}
 
-	      figure {
-	      	box-sizing: border-box;
-	      }
+				figure {
+					box-sizing: border-box;
+				}
 
-	      text {
-	      	font-size: 1.2em;
+				text {
+					font-size: 1.2em;
+					pointer-events: none;
+					fill: black;
 
-	      	.x-coord {
-	      		fill:red;
-	      	}
+					.x-coord {
+						fill:hsl(0, 80%, 40%);
+					}
 
-	      	.y-coord {
-	      		fill: green;
-	      	}
+					.y-coord {
+						fill:hsl(240, 80%, 40%);
+					}
 
-	      	.r-coord {
-	      		fill: black;
-	      	}
-	      }
+					.r-coord {
+						fill:hsl(280, 80%, 40%);
+					}
+				}
+
+				svg {
+					polygon {
+						stroke:black;
+						stroke-width:1;
+					}
+
+					.sameX polygon {
+						fill: hsl(0, 50%, 90%);
+					}
+
+					.sameY polygon {
+						fill: hsl(240, 50%, 90%);
+					}
+
+					/*.sameR polygon {
+						fill: hsl(280, 50%, 90%);
+					}*/
+
+					.uptriangle {
+						fill:hsl(147, 0%, 80%);
+					}
+
+					.downtriangle {
+						fill:hsl(147, 0%, 85%);
+					}
+
+					.highlight polygon {
+						fill: hsl(147, 50%, 50%);
+					}
+				}
 	</style>
-	<!-- <script setup>
-		import { reactive } from 'vue'
-
-		const intervals = reactive([0,1,2,3]);
-	</script> -->
 </head>
 
 <body>
@@ -41,32 +69,27 @@
 	<header><h1>Triangular Grid Math</h1></header>
 	<div id="app">
 		<figure style="width:var(--diagram-width)">
-			<svg viewBox="0 0 1200 800">
-				<text y="20" style="font-size:14px">Figure text</text>
-				<g v-for="j in n" v-bind:style="{transform: `translate(${50*(j%2)}px,${10+j*86.6}px)`}">
-					<g v-for="i in n" v-bind:style="{transform: `translate(${100*i}px,10px)`}">
-						<g>
-							<polygon points="0,0 -50,86.6 50,86.6" style="fill:hsl(147, 0%, 80%);stroke:black;stroke-width:1" />
+			<svg viewBox="0 0 1200 800" border-box @mousemove="mouse">
+				<rect x="0" y="0" width="100%" height="100%" fill="none" stroke="black" stroke-width="3" /><!-- bounding box boundary -->
+					<g v-for="tri in grid.upTriangles()" :style="{transform: `translate(${mapTriangle(tri).x}px,${mapTriangle(tri).y}px)`}" :class="className(tri)">
+							<polygon @click="click"  points="0,0 -50,86.6 50,86.6" />
 							<text x="0" y="70" text-anchor="middle">
-								<tspan class="x-coord">{{j-offset}}</tspan>
+								<tspan class="x-coord">{{tri.x}}</tspan>
 								, 
-								<tspan class="y-coord">{{i-offset}}</tspan>
+								<tspan class="y-coord">{{tri.y}}</tspan>
 								,
-								<tspan class="r-coord">0</tspan>
+								<tspan class="r-coord">{{tri.R}}</tspan>
 							</text>
-						</g>
 					</g>
-					<g v-for="i in n" v-bind:style="{transform: `translate(${100*i+50}px,10px)`}">
-						<g>
-							<polygon points="0,86.6 -50,0 50,0" style="fill:hsl(147, 0%, 90%);stroke:black;stroke-width:1" />
+					<g v-for="tri in grid.downTriangles()" :style="{transform: `translate(${mapTriangle(tri).x}px,${mapTriangle(tri).y}px)`}" :class="className(tri)">
+							<polygon points="0,86.6 -50,0 50,0"/>
 							<text x="0" y="20" text-anchor="middle">
-								<tspan class="x-coord">{{j-offset}}</tspan>
+								<tspan class="x-coord">{{tri.x}}</tspan>
 								, 
-								<tspan class="y-coord">{{i-offset}}</tspan>
+								<tspan class="y-coord">{{tri.y}}</tspan>
 								,
-								<tspan class="r-coord">1</tspan>
+								<tspan class="r-coord">{{tri.R}}</tspan>
 							</text>
-						</g>
 					</g>
 				</g>
 			</svg>
@@ -78,23 +101,138 @@
 
 
 	<script>
-	  const { createApp, ref } = Vue
+		const { createApp, ref } = Vue
 
-	  createApp({
-	    setup() {
-	      const message = ref('Hello vue!')
-	      return {
-	        message:message,
-	        intervals:[0,1,2,3],
-	        n:6,
-	        offset:3,
-	      }
-	    }
-	  }).mount('#app')
+		class Grid {
+			constructor(nX, nY) {
+				this.triangles = [];
+				for (let x = 0; x <= nX; x++) {
+					for (let y = 0; y <= nY; y++) {
+						for (const R of [0, 1]) {
+							this.triangles.push(new Triangle(x,y,R));
+						}
+					}
+				}
+			}
+
+			upTriangles() {
+				return this.triangles.filter((tri) => tri.R==0)
+			}
+
+			downTriangles() {
+				return this.triangles.filter((tri) => tri.R==1)
+			}
+		}
+
+		class Triangle {
+			constructor(x,y,R) {
+				this.x = x;
+				this.y = y;
+				this.R = R;
+			}
+
+			string() {
+				return this.x + "," + this.y + "," + this.R
+			}
+		}
+
+		const message = ref('Hello vue!')
+		const selected = ref({x:3, y:3, R:0});
+		let grid = ref(new Grid(6,6));
+		console.log(grid.value);
+		// const selectedY = ref(3);
+		let data = {
+			message,
+			intervals:[0,1,2,3],
+			n:6,
+			offset:3,
+			mouse,
+			click,
+			className,
+			selected,
+			grid,
+			mapTriangle,
+			// selectedY,
+		};
+
+		function mapTriangle(tri) {
+			if (tri.R==0) {
+				return {
+					x: 50*(tri.y%2) + tri.x * 100,
+					y: 10+tri.y*86.6,
+				}
+			} else {
+				return {
+					x: 50*(tri.y%2) + tri.x * 100 + 50,
+					y: 10+tri.y*86.6,
+				}
+			}
+		}
+
+		function className(tri) {
+			let highlight = (tri.x==selected.value.x) && (tri.y==selected.value.y) && (tri.R==selected.value.R)
+			console.log(tri.x,tri.y, data.selected.value.x, highlight);
+			
+			return {
+				highlight,
+				sameX: tri.x==selected.value.x && !highlight,
+				sameY: tri.y==selected.value.y && !highlight,
+				sameR: tri.R==selected.value.R && !highlight,
+				uptriangle: tri.R==0,
+				downtriangle: tri.R==1,
+			}
+		}
+
+		// var app = new Vue({
+		// 	el: "#app",
+		// 	data: data,
+		// 	methods: {
+		// 		click: function(event) {
+		// 			console.log(event);
+		// 		}
+		// 	}
+		// });
+
+		// function screenToHexPosition(position) {
+		// 	let point = this.$el.ownerSVGElement.createSVGPoint();
+		// 	point.x = position.clientX;
+		// 	point.y = position.clientY;
+		// 	let localCoords = point.matrixTransform(this.$el.getScreenCTM().inverse());
+		// 	let fractionalHex = layouts.flat.pixelToHexFractional(localCoords);
+		// 	let roundedHex = fractionalHex.round();
+		// 	/* NOTE: It's possible we end up picking a hex that's not 
+		// 		 in the original grid. This causes corner cases with many
+		// 		 diagrams, so we want to skip them. Look for a hex in the
+		// 		 original grid data instead of returning roundedHex. This
+		// 		 also handles cases where the original grid is annotated
+		// 		 with additional data. */
+		// 	let hex = this.hexes.find(hex => hex_equal(hex, roundedHex));
+		// 	return {fractionalHex, hex};
+		// }
+
+		function setActiveTriangle({ clientX: x, clientY: y }) {
+			console.log(x,y);
+			// let point = this.$el.ownerSVGElement.createSVGPoint();
+			// point.x = position.clientX;
+			// point.y = position.clientY;
+			// let localCoords = point.matrixTransform(this.$el.getScreenCTM().inverse());
+		}
+
+		function mouse(event) {
+			// console.log(event);
+			setActiveTriangle(event);
+		}
+
+		function click(event) {
+			console.log(event);
+		}
+
+		createApp({
+			setup() {
+				return data
+			}
+		}).mount('#app')
 	</script>
-
-
-
 </body>
 
 </html>

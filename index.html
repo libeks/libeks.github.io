@@ -38,11 +38,11 @@
 					}
 
 					.sameX polygon {
-						fill: hsl(0, 50%, 90%);
+						fill: hsl(0, 50%, 70%);
 					}
 
 					.sameY polygon {
-						fill: hsl(240, 50%, 90%);
+						fill: hsl(240, 50%, 70%);
 					}
 
 					/*.sameR polygon {
@@ -69,9 +69,9 @@
 	<header><h1>Triangular Grid Math</h1></header>
 	<div id="app">
 		<figure style="width:var(--diagram-width)">
-			<svg viewBox="0 0 1200 800" border-box @mousemove="mouse">
+			<svg viewBox="0 0 1200 800" border-box>
 				<rect x="0" y="0" width="100%" height="100%" fill="none" stroke="black" stroke-width="3" /><!-- bounding box boundary -->
-					<g v-for="tri in grid.upTriangles()" :style="{transform: `translate(${mapTriangle(tri).x}px,${mapTriangle(tri).y}px)`}" :class="className(tri)">
+					<g v-for="tri in grid.upTriangles()" :style="{transform: `translate(${mapTriangle(tri).x}px,${mapTriangle(tri).y}px)`}" :class="className(tri, selected)" :data-tri="tri.string()" @mousemove="mouse">
 							<polygon @click="click"  points="0,0 -50,86.6 50,86.6" />
 							<text x="0" y="70" text-anchor="middle">
 								<tspan class="x-coord">{{tri.x}}</tspan>
@@ -81,7 +81,7 @@
 								<tspan class="r-coord">{{tri.R}}</tspan>
 							</text>
 					</g>
-					<g v-for="tri in grid.downTriangles()" :style="{transform: `translate(${mapTriangle(tri).x}px,${mapTriangle(tri).y}px)`}" :class="className(tri)">
+					<g v-for="tri in grid.downTriangles()" :style="{transform: `translate(${mapTriangle(tri).x}px,${mapTriangle(tri).y}px)`}" :class="className(tri, selected)" :data-tri="tri.string()" @mousemove="mouse">
 							<polygon points="0,86.6 -50,0 50,0"/>
 							<text x="0" y="20" text-anchor="middle">
 								<tspan class="x-coord">{{tri.x}}</tspan>
@@ -94,9 +94,7 @@
 				</g>
 			</svg>
 		</figure>
-		<p v-for="i in n">
-			{{ i }} and so on
-		</p>
+		<p> Selected is {{selected}} </p>
 	</div>
 
 
@@ -135,49 +133,36 @@
 				return this.x + "," + this.y + "," + this.R
 			}
 		}
-
-		const message = ref('Hello vue!')
-		const selected = ref({x:3, y:3, R:0});
 		let grid = ref(new Grid(6,6));
-		console.log(grid.value);
-		// const selectedY = ref(3);
 		let data = {
-			message,
-			intervals:[0,1,2,3],
-			n:6,
-			offset:3,
-			mouse,
-			click,
-			className,
-			selected,
+			selected: grid.value.triangles[0],
 			grid,
-			mapTriangle,
-			// selectedY,
 		};
 
 		function mapTriangle(tri) {
-			if (tri.R==0) {
-				return {
-					x: 50*(tri.y%2) + tri.x * 100,
+			return {
+					x: 50*(tri.y%2) + tri.x * 100 + 50*tri.R,
 					y: 10+tri.y*86.6,
 				}
-			} else {
-				return {
-					x: 50*(tri.y%2) + tri.x * 100 + 50,
-					y: 10+tri.y*86.6,
-				}
-			}
 		}
 
-		function className(tri) {
-			let highlight = (tri.x==selected.value.x) && (tri.y==selected.value.y) && (tri.R==selected.value.R)
-			console.log(tri.x,tri.y, data.selected.value.x, highlight);
+		function className(tri, selected) {
 			
+			if (this.selected === null) {
+				return {
+					uptriangle: tri.R==0,
+					downtriangle: tri.R==1,
+				}
+			}
+			let highlight = tri.string() == this.selected.string()
+			// console.log("className", tri.x,tri.y, this.data.selected.value.x, highlight);
+			
+			console.log("className", tri.string(), this.selected.string(), highlight);
 			return {
 				highlight,
-				sameX: tri.x==selected.value.x && !highlight,
-				sameY: tri.y==selected.value.y && !highlight,
-				sameR: tri.R==selected.value.R && !highlight,
+				sameX: tri.x==this.selected.x && !highlight,
+				sameY: tri.y==this.selected.y && !highlight,
+				sameR: tri.R==this.selected.R && !highlight,
 				uptriangle: tri.R==0,
 				downtriangle: tri.R==1,
 			}
@@ -210,8 +195,18 @@
 		// 	return {fractionalHex, hex};
 		// }
 
-		function setActiveTriangle({ clientX: x, clientY: y }) {
-			console.log(x,y);
+		function setActiveTriangle(triString) {
+			console.log(triString, this);
+			// console.log(event.target.parentElement.dataset.tri);
+
+			for (const tri of grid.value.triangles) {
+				if (tri.string() == triString) {
+					this.selected.value = tri;
+					console.log("set selected triangle to", tri)
+					return
+				}
+			}
+
 			// let point = this.$el.ownerSVGElement.createSVGPoint();
 			// point.x = position.clientX;
 			// point.y = position.clientY;
@@ -219,8 +214,17 @@
 		}
 
 		function mouse(event) {
-			// console.log(event);
-			setActiveTriangle(event);
+			console.log(event.target.parentElement.dataset.tri);
+			// this.setActiveTriangle(event.target.parentElement.dataset.tri);
+			const triString = event.target.parentElement.dataset.tri;
+			for (const tri of grid.value.triangles) {
+				if (tri.string() == triString) {
+					// console.log(this);
+					this.selected = tri;
+					// console.log("set selected triangle to", tri)
+					return
+				}
+			}
 		}
 
 		function click(event) {
@@ -228,8 +232,15 @@
 		}
 
 		createApp({
-			setup() {
+			data() {
 				return data
+			},
+			methods: {
+				mouse,
+				click,
+				className,
+				setActiveTriangle,
+				mapTriangle,
 			}
 		}).mount('#app')
 	</script>

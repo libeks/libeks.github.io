@@ -6,8 +6,8 @@
 
 	<style>
 				body {
-						--diagram-width: 60rem;
-						--sans-serif: "Avenir Next", Candara, Ubuntu, "Fira Sans", system-ui, "Segoe UI", sans-serif;
+					--diagram-width: 60rem;
+					--sans-serif: "Avenir Next", Candara, Ubuntu, "Fira Sans", system-ui, "Segoe UI", sans-serif;
 				}
 
 				figure {
@@ -15,7 +15,7 @@
 				}
 
 				text {
-					font-size: 1.2em;
+					font-size: 1.1em;
 					pointer-events: none;
 					fill: black;
 					font-family: var(--sans-serif);
@@ -31,18 +31,42 @@
 					.r-coord {
 						fill:hsl(280, 80%, 40%);
 					}
+
+					.z-coord {
+						fill:hsl(120, 80%, 30%);
+					}
+				}
+
+				.x-y-z-coord {
+					/*display: none;*/
+				}
+
+				.x-y-r-coord {
+					display: none;
 				}
 
 				.sameX text .x-coord {
-					font-weight: bold;
+					font-weight: 600;
 				}
 
 				.sameY text .y-coord {
-					font-weight: bold;
+					font-weight: 600;
+				}
+
+				.sameZ text .z-coord {
+					font-weight: 600;
+				}
+
+				.x-y-r-coords {
+					.x-coord, .y-coord {
+						font-weight: 600;
+					}
 				}
 
 				.highlight text {
-					font-weight: bold;
+					.x-coord, .y-coord, .r-coord {
+						font-weight: bold;
+					}
 				}
 
 				svg {
@@ -59,6 +83,10 @@
 						fill: hsl(240, 50%, 70%);
 					}
 
+					.sameZ polygon {
+						fill: hsl(120, 50%, 70%);
+					}
+
 					.uptriangle {
 						fill:hsl(147, 0%, 80%);
 					}
@@ -68,7 +96,7 @@
 					}
 
 					.highlight polygon {
-						fill: hsl(147, 50%, 50%);
+						fill: hsl(40, 100%, 80%);
 					}
 				}
 	</style>
@@ -81,31 +109,54 @@
 		<figure style="width:var(--diagram-width)">
 			<svg viewBox="0 0 1200 800" border-box>
 				<rect x="0" y="0" width="100%" height="100%" fill="none" stroke="black" stroke-width="3" /><!-- bounding box boundary -->
-				<g class="y-coord" :style="toTransform(positioner.mapYCoord(selected))">
-					<text>y = <tspan class="y-coord">{{selected ? selected.y : 0}}</tspan></text>
-				</g>
-				<g class="x-coord" :style="toTransform(positioner.mapXCoord(selected))">
-					<text>x = <tspan class="x-coord">{{selected ? selected.x : 0}}</tspan></text>
+				<g class="coord-labels">
+					<g class="x-y-r-coords">
+						<g class="y-coord" :style="toTransform(positioner.mapYCoord(selected))">
+							<text>y = <tspan class="y-coord">{{selected ? selected.y : 0}}</tspan></text>
+						</g>
+						<g class="x-coord" :style="toTransform(positioner.mapXCoord(selected))">
+							<text>x = <tspan class="x-coord">{{selected ? selected.x : 0}}</tspan></text>
+						</g>
+					</g>
 				</g>
 				<g class="grid">
-					<g v-for="tri in grid.upTriangles()" :style="toTransform(positioner.mapTriangle(tri))" :class="className(tri, selected)" :data-tri="tri.string()" @mousemove="mouse">
+					<g v-for="tri in grid.upTriangles()" :style="toTransform(positioner.mapTriangle(tri))" :class="className(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
 							<polygon @click="click"  points="0,0 -50,86.6 50,86.6" />
 							<text x="0" y="75" text-anchor="middle">
-								<tspan class="x-coord">{{tri.x}}</tspan>
-								, 
-								<tspan class="y-coord">{{tri.y}}</tspan>
-								,
-								<tspan class="r-coord">{{tri.R}}</tspan>
+								<tspan class="x-y-r-coord" >
+									<tspan class="x-coord">{{tri.x}}</tspan>
+									, 
+									<tspan class="y-coord">{{tri.y}}</tspan>
+									,
+									<tspan class="r-coord">{{tri.R}}</tspan>
+								</tspan>
+								<tspan class="x-y-z-coord" >
+									<tspan class="x-coord">{{tri.x}}</tspan>
+									, 
+									<tspan class="y-coord">{{tri.y}}</tspan>
+									,
+									<tspan class="z-coord">{{tri.z}}</tspan>
+								</tspan>
+								<!-- <xyz :tri="tri" /> -->
 							</text>
 					</g>
-					<g v-for="tri in grid.downTriangles()" :style="toTransform(positioner.mapTriangle(tri))" :class="className(tri, selected)" :data-tri="tri.string()" @mousemove="mouse">
+					<g v-for="tri in grid.downTriangles()" :style="toTransform(positioner.mapTriangle(tri))" :class="className(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
 							<polygon points="0,86.6 -50,0 50,0"/>
 							<text x="0" y="25" text-anchor="middle">
-								<tspan class="x-coord">{{tri.x}}</tspan>
-								, 
-								<tspan class="y-coord">{{tri.y}}</tspan>
-								,
-								<tspan class="r-coord">{{tri.R}}</tspan>
+								<tspan class="x-y-r-coord" >
+									<tspan class="x-coord">{{tri.x}}</tspan>
+									, 
+									<tspan class="y-coord">{{tri.y}}</tspan>
+									,
+									<tspan class="r-coord">{{tri.R}}</tspan>
+								</tspan>
+								<tspan class="x-y-z-coord" >
+									<tspan class="x-coord">{{tri.x}}</tspan>
+									, 
+									<tspan class="y-coord">{{tri.y}}</tspan>
+									,
+									<tspan class="z-coord">{{tri.z}}</tspan>
+								</tspan>
 							</text>
 					</g>
 				</g>
@@ -116,18 +167,31 @@
 
 
 	<script>
-		const { createApp, ref } = Vue
+		const { createApp, ref, defineComponent } = Vue
 
 		class Grid {
-			constructor(nX, nY) {
+			constructor({nX, nY, filter}) {
 				this.triangles = [];
 				for (let x = 0; x <= nX; x++) {
 					for (let y = 0; y <= nY; y++) {
 						for (const R of [0, 1]) {
+							if (filter && filter(x,y,R)) { // Remove triangles that should be filtered out, to get the right output shape
+								continue
+							}
 							this.triangles.push(new Triangle(x,y,R));
 						}
 					}
 				}
+			}
+
+			widthByY(y) {
+				let n = 0;
+				for (const tri of this.triangles) {
+					if (tri.y == y) {
+						n ++
+					}
+				}
+				return n;
 			}
 
 			upTriangles() {
@@ -144,6 +208,12 @@
 				this.x = x;
 				this.y = y;
 				this.R = R;
+				// derived coordinates
+				// x-y-z coordinates
+				this.z = x-y + R; // uses the same x, y coords as above
+				// y-b coordinates
+				// this.a = y;
+				this.b = x + this.z;
 			}
 
 			string() {
@@ -170,8 +240,8 @@
 					return {x:0, y:0};
 				}
 				let ret = {
-					x: this.padding.x + 700 -coord.y*this.size/2, 
-					y: coord.y*86.6 + 60 + this.padding.y,
+					x: this.padding.x + this.size * this.grid.widthByY(coord.y)/2 + 40, 
+					y: coord.y*86.6 + 50 + this.padding.y,
 				};
 				return ret;
 			}
@@ -182,16 +252,21 @@
 				}
 				let ret = {
 					x: this.padding.x + 50 + coord.x*this.size, 
-					y: this.padding.y -30,
-					rotate: 60,
+					y: this.padding.y - 25,
+					rotate: -60,
 				};
 				return ret;
 			}
 		}
 
-		let grid = ref(new Grid(6,6));
+		let grid = ref(new Grid({
+			nX: 12, 
+			nY: 7, 
+			filter: (x,y,R) => (x + R/2 < y/2) || (x + R/2 - y/2 > 9),
+			// filter: (x,y,R) => (x + R/2 < y/2), 
+		}));
 		let positioner = new Positioner(
-			{x: 400, y: 100},
+			{x: 100, y: 100},
 			grid,
 			100,
 		);
@@ -199,12 +274,13 @@
 			selected: null,
 			grid,
 			positioner,
+			coordinates:"xyzCoordinate",
 		};
 
 		function toTransform(offsetVect) {
 			if (offsetVect.rotate) {
 				return {
-					transform: "translate("+offsetVect.x+"px,"+offsetVect.y+"px) rotate(-60deg)",
+					transform: "translate("+offsetVect.x+"px,"+offsetVect.y+"px) rotate("+offsetVect.rotate+"deg)",
 				}
 			}
 			return {
@@ -225,6 +301,7 @@
 				sameX: tri.x==this.selected.x && !highlight,
 				sameY: tri.y==this.selected.y && !highlight,
 				sameR: tri.R==this.selected.R && !highlight,
+				sameZ: tri.z==this.selected.z && !highlight,
 				uptriangle: tri.R==0,
 				downtriangle: tri.R==1,
 			}
@@ -244,24 +321,48 @@
 		}
 
 		function click(event) {
-			console.log(event);
+			this.setActiveTriangle(event.target.parentElement.dataset.tri);
 		}
 
-		createApp({
+		// const xyz = defineComponent('xyz', {
+		// 	template: '<tspan class="x-y-z-coord"><tspan class="x-coord">{{tri.x}}</tspan>, <tspan class="y-coord">{{tri.y}}</tspan>, <tspan class="z-coord">{{tri.z}}</tspan></tspan>',
+		//   // data() {
+		//   // },
+		//   props: ['tri'],
+		// });
+
+		// console.log(xyzCoordinate);
+
+		const app = createApp({
 			data() {
 				return data
 			},
 			methods: {
 				mouse,
+				// xyzCoordinate,
 				click,
 				className,
 				setActiveTriangle,
 				toTransform,
 			},
-			// computed: {
-			// 	yCoordLabelOffset: toTransform(positioner.mapYCoord(this.selected)),
-			// },
-		}).mount('#app')
+			// components: {
+			// 	"XYZ":xyz,
+			// 	// xyz,
+
+			// }
+		})
+		
+
+		// const xyzCoordinate = defineComponent('XYZCoordinate', {
+		// 	template: '<tspan class="x-y-z-coord"><tspan class="x-coord">{{tri.x}}</tspan>, <tspan class="y-coord">{{tri.y}}</tspan>, <tspan class="z-coord">{{tri.z}}</tspan></tspan>',
+		//   // data() {
+		//   // },
+		//   props: ['tri'],
+		// });
+		// app.component(
+		// 	'xyz', xyz,
+		// 	);
+		app.mount('#app');
 	</script>
 </body>
 

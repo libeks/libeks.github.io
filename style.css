@@ -1,0 +1,150 @@
+body {
+	--diagram-width: 60rem;
+	--diagram-width-small: 20rem;
+
+	/* font choices inspired by www.redblobgames.com */
+	--sans-serif: "Avenir Next", Candara, Ubuntu, "Fira Sans", system-ui, "Segoe UI", sans-serif;
+	--serif: "Iowan Old Style", Cambria, Georgia, serif;
+
+	font-family: var(--sans-serif);
+	font-size: 1.1em;
+	margin: 0;
+	
+}
+
+.body {
+	margin-top: 5em;
+	margin-left: 10em;
+	margin-right: 20em;
+}
+
+header {
+	display: block;
+	text-align: center;
+	background-color: hsl(0, 0%, 80%);
+	height: 6em;
+	font-size: 2.5em;
+	padding-top: 0.5em;
+}
+
+h2 {
+	font-size: 2em;
+}
+
+figure {
+	box-sizing: border-box;
+}
+
+footer {
+	display: block;
+	text-align: center;
+	height: 3em;
+	background-color: hsl(0, 0%, 80%);
+	padding-top: 2em;
+}
+
+p {
+	font-family: var(--serif);
+	padding-left: 1em;
+}
+
+text {
+	font-size: 1.1em;
+	pointer-events: none;
+	fill: black;
+	font-family: var(--sans-serif);
+
+	.x-coord {
+		fill:hsl(0, 80%, 40%);
+	}
+
+	.y-coord {
+		fill:hsl(240, 80%, 40%);
+	}
+
+	.r-coord {
+		fill:hsl(280, 80%, 40%);
+	}
+
+	.z-coord {
+		fill:hsl(120, 80%, 30%);
+	}
+
+	.b-coord {
+		fill:hsl(40, 80%, 30%);
+	}
+}
+
+.sameX text .x-coord,
+.sameY text .y-coord,
+.sameZ text .z-coord,
+.sameB text .b-coord {
+	font-weight: 600;
+}
+
+.coord-labels {
+	.numeric  {
+		font-weight: 600;
+	}
+	.coord:not(.visible) {
+		display: none;
+	}
+}
+
+.highlight text {
+	.x-coord, .y-coord, .r-coord, .b-coord {
+		font-weight: 600;
+	}
+}
+
+figure {
+	border: 1px solid black;
+}
+
+svg {
+	polygon {
+		stroke:hsl(0,0%,70%);
+		stroke-width:1;
+	}
+
+	.sameX polygon {
+		fill: hsl(0, 50%, 70%);
+	}
+
+	.sameY polygon {
+		fill: hsl(240, 50%, 70%);
+	}
+
+	.sameZ polygon {
+		fill: hsl(120, 50%, 70%);
+	}
+
+	.sameB polygon {
+		fill: hsl(280, 50%, 70%);
+	}
+
+	.uptriangle {
+		fill:hsl(147, 0%, 80%);
+	}
+
+	.downtriangle {
+		fill:hsl(147, 0%, 85%);
+	}
+
+	.highlight polygon {
+		fill: hsl(40, 100%, 80%);
+	}
+}
+
+.coordinate-buttons button {
+	padding: 15px 30px;
+	border:none;
+	margin: 0 10px;
+	text-align: center;
+	font-size: 1.2em;
+	background-color: hsl(0, 0, 70%);
+
+	&.active {
+		background-color: yellow;
+	}
+}

@@ -68,17 +68,21 @@
 			.z-coord {
 				fill:hsl(120, 80%, 30%);
 			}
+
+			.b-coord {
+				fill:hsl(40, 80%, 30%);
+			}
 		}
 
 		.sameX text .x-coord,
 		.sameY text .y-coord,
 		.sameZ text .z-coord,
-		.sameB text .b-coord, {
+		.sameB text .b-coord {
 			font-weight: 600;
 		}
 
 		.coord-labels {
-			.x-coord, .y-coord {
+			.numeric  {
 				font-weight: 600;
 			}
 			.coord:not(.visible) {
@@ -161,63 +165,78 @@
 			<p>While working on <a href="https://en.wikipedia.org/wiki/Truchet_tile">Truchet tiles</a> and <a href="https://en.wikipedia.org/wiki/Marching_squares">Marching Squares</a> implementations, I found myself quite comfortable with a square grid. Take any rectangle, and subdivide it into squares (rectangles with all sides the same), and use their Cartesian (x,y) coordinates to refer to each individual square. Since I was working on plotting the results, and the pen starts at the upper left corner of the page, I found that this was a convenient origin point, with x-coordinate increasing left-to-right, and the y-coordinate increasing downwards.</p>
 			<p>I then wanted to extend these approaches to other regular grids. Surprisingly, what coordinate system to use is not a trivial decision. As mentioned above, the choices for hexagons are many, one should choose the coordinate system that works best.</p>
 			<p>What about triangles though? The plane can be divided up into equilateral triangles trivially, but how do we index them? Specifically, I am looking for a unique integer-based coordinate for each triangle, and an easy mapping between the coordinate and the corresponding triangle. Ideally, the coordinate system should be translation-invariant (the coordinates should change between adjacent triangles under the same pattern, no matter where in the grid the triangle exists), and it should lead to easy human interpretability.</p>
-			<figure style="width:var(--diagram-width-small)">
+			<figure id="square-grid" style="width:var(--diagram-width-small)">
 				<svg viewBox="0 0 1000 1000">
-
+					<g class="coord-labels">
+						<g class="x-coord coord" :style="toTransform(positioner.mapXCoord(selected))" :class="{visible: coordinates=='xyz' || coordinates=='xyr'}">
+							<text>x = <tspan class="x-coord numeric">{{selected ? selected.x : 0}}</tspan></text>
+						</g>
+						<g class="y-coord coord" :style="toTransform(positioner.mapYCoord(selected))" :class="{visible: true}">
+							<text>y = <tspan class="y-coord numeric">{{selected ? selected.y : 0}}</tspan></text>
+						</g>
+					</g>
+					<g class="grid">
+						<g v-for="sq in grid" :style="toTransform(positioner.mapTriangle(tri))" :class="className(sq, selected)" :data-tri="sq.string()" @mousemove="mouse" @click="click">
+							<polygon @click="click"  points="0,0 0,100 100,100 100,0" />
+							<text x="0" y="50" text-anchor="middle">
+								<xy :sq="sq" />
+							</text>
+						</g>
+					</g>
 				</svg>
 			</figure>
 		</section>
 
-
-		<figure id="app" style="width:var(--diagram-width)">
-			<svg viewBox="0 0 1200 800" border-box>
-				<g class="coord-labels">
-					<g class="x-coord coord" :style="toTransform(positioner.mapXCoord(selected))" :class="{visible: coordinates=='xyz' || coordinates=='xyr'}">
-						<text>x = <tspan class="x-coord">{{selected ? selected.x : 0}}</tspan></text>
+		<section>
+			<figure id="triangle-grid-complete" style="width:var(--diagram-width)">
+				<svg viewBox="0 0 1200 800" border-box>
+					<g class="coord-labels">
+						<g class="x-coord coord" :style="toTransform(positioner.mapXCoord(selected))" :class="{visible: coordinates=='xyz' || coordinates=='xyr'}">
+							<text>x = <tspan class="x-coord numeric">{{selected ? selected.x : 0}}</tspan></text>
+						</g>
+						<g class="y-coord coord" :style="toTransform(positioner.mapYCoord(selected))" :class="{visible: true}">
+							<text>y = <tspan class="y-coord numeric">{{selected ? selected.y : 0}}</tspan></text>
+						</g>
+						<g class="z-coord coord" :style="toTransform(positioner.mapZCoord(selected))" :class="{visible: coordinates=='xyz'}">
+							<text>z = <tspan class="z-coord numeric">{{selected ? selected.z : 0}}</tspan></text>
+						</g>
+						<g class="b-coord coord" :style="toTransform(positioner.mapBCoord(selected))" :class="{visible: coordinates=='yb'}">
+							<text>b = <tspan class="b-coord numeric">{{selected ? selected.b : 0}}</tspan></text>
+						</g>
+						
 					</g>
-					<g class="y-coord coord" :style="toTransform(positioner.mapYCoord(selected))" :class="{visible: true}">
-						<text>y = <tspan class="y-coord">{{selected ? selected.y : 0}}</tspan></text>
-					</g>
-					<g class="z-coord coord" :style="toTransform(positioner.mapZCoord(selected))" :class="{visible: coordinates=='xyz'}">
-						<text>z = <tspan class="y-coord">{{selected ? selected.z : 0}}</tspan></text>
-					</g>
-					<g class="b-coord coord" :style="toTransform(positioner.mapBCoord(selected))" :class="{visible: coordinates=='yb'}">
-						<text>b = <tspan class="y-coord">{{selected ? selected.b : 0}}</tspan></text>
-					</g>
-					
-				</g>
-				<g class="grid">
-					<g v-for="tri in grid.upTriangles()" :style="toTransform(positioner.mapTriangle(tri))" :class="className(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
+					<g class="grid">
+						<g v-for="tri in grid.upTriangles()" :style="toTransform(positioner.mapTriangle(tri))" :class="className(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
 							<polygon @click="click"  points="0,0 -50,86.6 50,86.6" />
 							<text x="0" y="75" text-anchor="middle">
 								<component :is="coordinates" :tri="tri"></component>
 							</text>
-					</g>
-					<g v-for="tri in grid.downTriangles()" :style="toTransform(positioner.mapTriangle(tri))" :class="className(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
+						</g>
+						<g v-for="tri in grid.downTriangles()" :style="toTransform(positioner.mapTriangle(tri))" :class="className(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
 							<polygon points="0,86.6 -50,0 50,0"/>
 							<text x="0" y="25" text-anchor="middle">
 								<component :is="coordinates" :tri="tri"></component>
 							</text>
+						</g>
 					</g>
-				</g>
-				
-
-				</g>
-			</svg>
-			<div class="coordinate-buttons">
-				<button @click='coordinates = "xyr"' :class="{ active: coordinates=='xyr'}">XYR</button>
-				<button @click='coordinates = "xyz"' :class="{ active: coordinates=='xyz'}">XYZ</button>
-				<button @click='coordinates = "yb"' :class="{ active: coordinates=='yb'}">YB</button>
-			</div>
-		</figure>
-		<!-- <p> Selected is {{selected}} </p> -->
+				</svg>
+				<div class="coordinate-buttons">
+					<button @click='coordinates = "xyr"' :class="{ active: coordinates=='xyr'}">XYR</button>
+					<button @click='coordinates = "xyz"' :class="{ active: coordinates=='xyz'}">XYZ</button>
+					<button @click='coordinates = "yb"' :class="{ active: coordinates=='yb'}">YB</button>
+				</div>
+			</figure>
+		</section>
 	</div>
+	<footer>
+		© 2026 Jānis Lībeks
+	</footer>
 
 
 	<script>
 		const { createApp, ref, defineComponent } = Vue
 
-		class Grid {
+		class TriangleGrid {
 			constructor({nX, nY, filter}) {
 				this.triangles = [];
 				for (let x = 0; x <= nX; x++) {
@@ -253,15 +272,17 @@
 
 		class Triangle {
 			constructor(x,y,R) {
+				// raw coordinates, these are used to identify a triangle
 				this.x = x;
 				this.y = y;
 				this.R = R;
+				
 				// derived coordinates
 
 				// x-y-z coordinates
 				this.z = x-y + R; // uses the same x, y coords as above
 				// y-b coordinates
-				this.b = x + this.z;
+				this.b = x + this.z; // corresponds to the "column" of the triangle
 			}
 
 			string() {
@@ -269,7 +290,7 @@
 			}
 		}
 
-		class Positioner {
+		class TrianglePositioner {
 			constructor(padding, grid, size) {
 				this.padding = padding
 				this.grid = grid
@@ -294,6 +315,7 @@
 			}
 
 			mapXCoord(coord) {
+				// TODO: lower label when possible
 				if (!coord) {
 					return {x:0, y:0};
 				}
@@ -305,6 +327,7 @@
 			}
 
 			mapZCoord(coord) {
+				// TODO: lower label when possible
 				if (!coord) {
 					return {x:0, y:0};
 				}
@@ -326,25 +349,7 @@
 				};
 			}
 		}
-
-		let grid = ref(new Grid({
-			nX: 12, 
-			nY: 7, 
-			filter: (x,y,R) => (x + R/2 < y/2) || (x + R/2 - y/2 > 9),
-			// filter: (x,y,R) => (x + R/2 < y/2), 
-		}));
-		let positioner = new Positioner(
-			{x: 100, y: 100},
-			grid,
-			100,
-		);
-		let data = {
-			selected: null,
-			grid,
-			positioner,
-			coordinates:"xyzCoordinate",
-		};
-
+		
 		function toTransform(offsetVect) {
 			if (offsetVect.rotate) {
 				return {
@@ -377,7 +382,7 @@
 		}
 
 		function setActiveTriangle(triString) {
-			for (const tri of grid.value.triangles) {
+			for (const tri of this.grid.triangles) {
 				if (tri.string() == triString) {
 					this.selected = tri;
 					return
@@ -393,6 +398,8 @@
 			this.setActiveTriangle(event.target.parentElement.dataset.tri);
 		}
 
+		// Components to display triangle coordinates, in the three coordinate systems
+
 		const xyz = {
 			template: `<tspan class="x-y-z-coord"><tspan class="x-coord">{{tri.x}}</tspan>, <tspan class="y-coord">{{tri.y}}</tspan>, <tspan class="z-coord">{{tri.z}}</tspan></tspan>`,
 		  props: ['tri'],
@@ -406,13 +413,23 @@
 		  props: ['tri'],
 		};
 
+		let triangleGrid = new TriangleGrid({
+			nX: 12, 
+			nY: 7, 
+			filter: (x,y,R) => (x + R/2 < y/2) || (x + R/2 - y/2 > 9),
+			// filter: (x,y,R) => (x + R/2 < y/2), 
+		});
 
-		const app = createApp({
+		const fullTriangleApp = createApp({
 			data() {
 				return {
 					selected: null,
-					grid,
-					positioner,
+					grid:triangleGrid,
+					positioner: new TrianglePositioner(
+						{x: 100, y: 100},
+						triangleGrid,
+						100,
+					),
 					coordinates: "xyr",
 				}
 			},
@@ -428,8 +445,41 @@
 				xyr,
 				yb,
 			}
-		})
-		app.mount('#app');
+		}).mount('#triangle-grid-complete');
+
+		let squareGrid = new TriangleGrid({
+			nX: 12, 
+			nY: 7, 
+			filter: (x,y,R) => (x + R/2 < y/2) || (x + R/2 - y/2 > 9),
+			// filter: (x,y,R) => (x + R/2 < y/2), 
+		});
+
+		const squareApp = createApp({
+			data() {
+				return {
+					selected: null,
+					grid: squareGrid,// grid, 
+					positioner: new TrianglePositioner(
+						{x: 100, y: 100},
+						squareGrid,
+						100,
+					),
+					coordinates: "xyr",
+				}
+			},
+			methods: {
+				mouse,
+				click,
+				className,
+				setActiveTriangle,
+				toTransform,
+			},
+			components: {
+				xyz,
+				xyr,
+				yb,
+			}
+		}).mount('#square-grid');
 	</script>
 </body>
 

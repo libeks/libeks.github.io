@@ -1,6 +1,11 @@
 body {
-	--diagram-width: 60rem;
+	--body-width: min(80rem, 90vw);
+	--gutter: 1.125rem;
+
+	--diagram-width-wide: 60rem;
 	--diagram-width-small: 20rem;
+
+	--margin-left: calc((100vw - var(--body-width) - var(--gutter))/2);
 
 	/* font choices inspired by www.redblobgames.com */
 	--sans-serif: "Avenir Next", Candara, Ubuntu, "Fira Sans", system-ui, "Segoe UI", sans-serif;
@@ -14,8 +19,11 @@ body {
 
 main {
 	margin-top: 5em;
-	margin-left: 20em;
-	margin-right: 30em;
+	margin-left: var(--margin-left);
+	/*margin-right: 30em;*/
+	/*width: calc(var(--body-width) + var(--gutter) + var(--diagram-width-small));*/
+	width: var(--body-width);
+	max-width: inherit;
 }
 
 header {
@@ -27,6 +35,12 @@ header {
 	padding-top: 0.5em;
 	border-bottom: 50px solid hsl(0, 0%, 90%);
 }
+
+/*section > * {
+	float:left;
+	clear: left;
+	width: var(--body-width);
+}*/
 
 h2 {
 	font-size: 2em;
@@ -49,6 +63,7 @@ footer {
 p {
 	font-family: var(--serif);
 	padding-left: 1em;
+	font-size: 1.2em;
 }
 
 figure {

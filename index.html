@@ -7,11 +7,44 @@
 	<style>
 		body {
 			--diagram-width: 60rem;
+			--diagram-width-small: 20rem;
+
+			/* font choices inspired by www.redblobgames.com */
 			--sans-serif: "Avenir Next", Candara, Ubuntu, "Fira Sans", system-ui, "Segoe UI", sans-serif;
+			--serif: "Iowan Old Style", Cambria, Georgia, serif;
+
+			font-family: var(--sans-serif);
+			font-size: 1.1em;
+			margin: 0;
+			
+		}
+
+		.body {
+			margin-top: 5em;
+			margin-left: 10em;
+			margin-right: 20em;
+		}
+
+		header {
+			display: block;
+			text-align: center;
+			background-color: hsl(0, 0%, 80%);
+			height: 6em;
+			font-size: 2.5em;
+			padding-top: 0.5em;
+		}
+
+		h2 {
+			font-size: 2em;
 		}
 
 		figure {
 			box-sizing: border-box;
+		}
+
+		p {
+			font-family: var(--serif);
+			padding-left: 1em;
 		}
 
 		text {
@@ -59,6 +92,10 @@
 			}
 		}
 
+		figure {
+			border: 1px solid black;
+		}
+
 		svg {
 			polygon {
 				stroke:hsl(0,0%,70%);
@@ -96,10 +133,11 @@
 
 		.coordinate-buttons button {
 			padding: 15px 30px;
+			border:none;
 			margin: 0 10px;
 			text-align: center;
 			font-size: 1.2em;
-			background-color: white;
+			background-color: hsl(0, 0, 70%);
 
 			&.active {
 				background-color: yellow;
@@ -111,16 +149,28 @@
 <body>
 	
 	<header><h1>Triangular Grid Math</h1></header>
-	<div>
-		<h2> (Jan 2026) WORK IN PROGRESS! </h2>
-		<p>This little applet is inspired by <a href="https://www.redblobgames.com/grids/hexagons/#coordinates">this Amit/RedBlobGames blog post</a> on hexagonal grids. It also follows up on an <a href="https://simblob.blogspot.com/2007/06/distances-on-triangular-grid.html">earlier blogpost of theirs</a> about Triangle Grids, which sadly doesn't include any interactivity.</p>
-		<p>I wanted to better familiarize myself with Vue and Javascript rendering, to extend my graphics work for a <a href="https://github.com/libeks/go-plotter-svg">Pen Plotter</a> and <a href="https://github.com/libeks/go-scene-renderer">3D CPU Renderer</a>.</p>
+	<div class="body">
+		<section>
+			<h2> (Jan 2026) WORK IN PROGRESS! </h2>
+			<p>This little applet is inspired by <a href="https://www.redblobgames.com/grids/hexagons/#coordinates">this Amit/RedBlobGames blog post</a> on hexagonal grids. It also follows up on an <a href="https://simblob.blogspot.com/2007/06/distances-on-triangular-grid.html">earlier blogpost of theirs</a> about Triangle Grids, which sadly doesn't include any interactivity.</p>
+			<p>I wanted to better familiarize myself with Vue and Javascript rendering, to extend my graphics work for a <a href="https://github.com/libeks/go-plotter-svg">Pen Plotter</a> and <a href="https://github.com/libeks/go-scene-renderer">3D CPU Renderer</a>.</p>
+		</section>
+		<section>
+			<h2>Purpose</h2>
+			<div class="float-container">
+			<p>While working on <a href="https://en.wikipedia.org/wiki/Truchet_tile">Truchet tiles</a> and <a href="https://en.wikipedia.org/wiki/Marching_squares">Marching Squares</a> implementations, I found myself quite comfortable with a square grid. Take any rectangle, and subdivide it into squares (rectangles with all sides the same), and use their Cartesian (x,y) coordinates to refer to each individual square. Since I was working on plotting the results, and the pen starts at the upper left corner of the page, I found that this was a convenient origin point, with x-coordinate increasing left-to-right, and the y-coordinate increasing downwards.</p>
+			<p>I then wanted to extend these approaches to other regular grids. Surprisingly, what coordinate system to use is not a trivial decision. As mentioned above, the choices for hexagons are many, one should choose the coordinate system that works best.</p>
+			<p>What about triangles though? The plane can be divided up into equilateral triangles trivially, but how do we index them? Specifically, I am looking for a unique integer-based coordinate for each triangle, and an easy mapping between the coordinate and the corresponding triangle. Ideally, the coordinate system should be translation-invariant (the coordinates should change between adjacent triangles under the same pattern, no matter where in the grid the triangle exists), and it should lead to easy human interpretability.</p>
+			<figure style="width:var(--diagram-width-small)">
+				<svg viewBox="0 0 1000 1000">
+
+				</svg>
+			</figure>
+		</section>
 
 
 		<figure id="app" style="width:var(--diagram-width)">
-			<!-- <xyz> </xyz> -->
 			<svg viewBox="0 0 1200 800" border-box>
-				<rect x="0" y="0" width="100%" height="100%" fill="none" stroke="black" stroke-width="3" /><!-- bounding box boundary -->
 				<g class="coord-labels">
 					<g class="x-coord coord" :style="toTransform(positioner.mapXCoord(selected))" :class="{visible: coordinates=='xyz' || coordinates=='xyr'}">
 						<text>x = <tspan class="x-coord">{{selected ? selected.x : 0}}</tspan></text>

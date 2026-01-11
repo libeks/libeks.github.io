@@ -3,6 +3,9 @@
 <head>
 	<title>Triangular Grid Math</title>
 	<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+	<script src="./triangles.js">
+		// import { TriangleGrid } from './triangles.js';
+	</script>
 
 	<link href='style.css' rel='stylesheet' />
 	<link href='triangles.css' rel='stylesheet' />
@@ -34,10 +37,10 @@
 						</g>
 					</g>
 					<g class="grid">
-						<g v-for="sq in grid" :style="toTransform(positioner.mapTriangle(tri))" :class="className(sq, selected)" :data-tri="sq.string()" @mousemove="mouse" @click="click">
+						<g v-for="sq in grid" :style="toTransform(positioner.mapSquare(sq))" :class="className(sq, selected)" :data-tri="sq.string()" @mousemove="mouse" @click="click">
 							<polygon @click="click"  points="0,0 0,100 100,100 100,0" />
 							<text x="0" y="50" text-anchor="middle">
-								<xy :sq="sq" />
+								<tspan class="x-y-coord"><tspan class="x-coord">{{tri.x}}</tspan>, <tspan class="y-coord">{{tri.y}}</tspan></tspan>
 							</text>
 						</g>
 					</g>
@@ -91,8 +94,10 @@
 	</footer>
 
 
-	<script>
+	<script type="module">
 		const { createApp, ref, defineComponent } = Vue
+
+		// import { sTriangleGrid } from './triangles.js';
 
 		class TriangleGrid {
 			constructor({nX, nY, filter}) {
@@ -128,6 +133,34 @@
 			}
 		}
 
+// export {TriangleGrid};
+		
+
+		class SquareGrid {
+			constructor({nX, nY, filter}) {
+				this.squares = [];
+				for (let x = 0; x <= nX; x++) {
+					for (let y = 0; y <= nY; y++) {
+						if (filter && filter(x,y)) { // Remove triangles that should be filtered out, to get the right output shape
+								continue
+							}
+							this.squares.push(new Square(x,y));
+					}
+				}
+			}
+		}
+
+		class Square {
+			constructor(x,y) {
+				this.x = x;
+				this.y = y;
+			}
+
+			string() {
+				return `${this.x},${this.y}`;
+			}
+		}
+
 		class Triangle {
 			constructor(x,y,R) {
 				// raw coordinates, these are used to identify a triangle
@@ -144,7 +177,7 @@
 			}
 
 			string() {
-				return this.x + "," + this.y + "," + this.R
+				return `${this.x},${this.y},${this.R}`;
 			}
 		}
 
@@ -211,11 +244,11 @@
 		function toTransform(offsetVect) {
 			if (offsetVect.rotate) {
 				return {
-					transform: "translate("+offsetVect.x+"px,"+offsetVect.y+"px) rotate("+offsetVect.rotate+"deg)",
+					transform: `translate(${offsetVect.x}px,${offsetVect.y}px) rotate(${offsetVect.rotate}deg)`,
 				}
 			}
 			return {
-				transform: "translate("+offsetVect.x+"px,"+offsetVect.y+"px)",
+				transform: `translate(${offsetVect.x}px,${offsetVect.y}px)`,
 			}
 		}
 
@@ -271,6 +304,7 @@
 		  props: ['tri'],
 		};
 
+
 		let triangleGrid = new TriangleGrid({
 			nX: 12, 
 			nY: 7, 
@@ -305,11 +339,9 @@
 			}
 		}).mount('#triangle-grid-complete');
 
-		let squareGrid = new TriangleGrid({
-			nX: 12, 
-			nY: 7, 
-			filter: (x,y,R) => (x + R/2 < y/2) || (x + R/2 - y/2 > 9),
-			// filter: (x,y,R) => (x + R/2 < y/2), 
+		let squareGrid = new SquareGrid({
+			nX: 6, 
+			nY: 6, 
 		});
 
 		const squareApp = createApp({

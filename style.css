@@ -25,6 +25,7 @@ header {
 	height: 6em;
 	font-size: 2.5em;
 	padding-top: 0.5em;
+	border-bottom: 50px solid hsl(0, 0%, 90%);
 }
 
 h2 {
@@ -40,6 +41,7 @@ footer {
 	text-align: center;
 	height: 3em;
 	background-color: hsl(0, 0%, 80%);
+	border-top: 50px solid hsl(0, 0%, 90%);
 	padding-top: 2em;
 	margin-top: 5em;
 }

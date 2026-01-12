@@ -1,9 +1,13 @@
+/*html {
+	font-size: 16px;
+}
+*/
 body {
 	--body-width: min(80rem, 90vw);
 	--gutter: 1.125rem;
 
 	--diagram-width-wide: 60rem;
-	--diagram-width-small: 20rem;
+	--diagram-width-small: 30rem;
 
 	--margin-left: calc((100vw - var(--body-width) - var(--gutter))/2);
 
@@ -36,36 +40,42 @@ header {
 	border-bottom: 50px solid hsl(0, 0%, 90%);
 }
 
-/*section > * {
-	float:left;
-	clear: left;
-	width: var(--body-width);
-}*/
+.flex-container {
+	display: inline-flex;
+	gap: 2em;
+}
 
 h2 {
 	font-size: 2em;
 }
 
-figure {
-	box-sizing: border-box;
-}
-
 footer {
 	display: block;
 	text-align: center;
-	height: 3em;
+	height: 3rem;
 	background-color: hsl(0, 0%, 80%);
 	border-top: 50px solid hsl(0, 0%, 90%);
-	padding-top: 2em;
-	margin-top: 5em;
+	padding-top: 2rem;
+	margin-top: 5rem;
 }
 
 p {
 	font-family: var(--serif);
-	padding-left: 1em;
+	/*padding-left:s 1em;*/
 	font-size: 1.2em;
 }
 
 figure {
+	box-sizing: border-box;
 	border: 1px solid black;
+	flex-basis: auto;
+	margin: 0;
+
+	&.small {
+		min-width: var(--diagram-width-small);
+		/*width: 400px;*/
+	}
+	figcaption {
+		text-align: center;
+	}
 }

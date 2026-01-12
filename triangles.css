@@ -1,5 +1,5 @@
 text {
-	font-size: 1.1em;
+	font-size: 1.1rem;
 	pointer-events: none;
 	fill: black;
 	font-family: var(--sans-serif);
@@ -42,7 +42,7 @@ text {
 }
 
 .highlight text {
-	.x-coord, .y-coord, .r-coord, .b-coord {
+	.x-coord, .y-coord, .r-coord, .z-coord, .b-coord {
 		font-weight: 600;
 	}
 }
@@ -69,11 +69,12 @@ svg {
 		fill: hsl(280, 50%, 70%);
 	}
 
-	.uptriangle {
+	.grid.triangles .uptriangle,
+	.grid.square .square {
 		fill:hsl(147, 0%, 80%);
 	}
 
-	.downtriangle {
+	.grid.triangles .downtriangle {
 		fill:hsl(147, 0%, 85%);
 	}
 

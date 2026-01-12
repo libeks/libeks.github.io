@@ -1,37 +1,3 @@
-text {
-	font-size: 1.1rem;
-	pointer-events: none;
-	fill: black;
-	font-family: var(--sans-serif);
-
-	.x-coord {
-		fill:hsl(0, 80%, 40%);
-	}
-
-	.y-coord {
-		fill:hsl(240, 80%, 40%);
-	}
-
-	.r-coord {
-		fill:hsl(280, 80%, 40%);
-	}
-
-	.z-coord {
-		fill:hsl(120, 80%, 30%);
-	}
-
-	.b-coord {
-		fill:hsl(40, 80%, 30%);
-	}
-}
-
-.sameX text .x-coord,
-.sameY text .y-coord,
-.sameZ text .z-coord,
-.sameB text .b-coord {
-	font-weight: 600;
-}
-
 .coord-labels {
 	.numeric  {
 		font-weight: 600;
@@ -53,6 +19,45 @@ svg {
 		stroke-width:1;
 	}
 
+	text {
+		font-size: 1.1rem;
+		pointer-events: none;
+		fill: black;
+		font-family: var(--sans-serif);
+
+		.x-coord {
+			fill:hsl(0, 80%, 40%);
+		}
+
+		.y-coord {
+			fill:hsl(240, 80%, 40%);
+		}
+
+		.r-coord {
+			fill:hsl(280, 80%, 40%);
+		}
+
+		.z-coord {
+			fill:hsl(120, 80%, 30%);
+		}
+
+		.b-coord {
+			fill:hsl(40, 80%, 30%);
+		}
+
+		&.annotation {
+			font-size:0.8em;
+		}
+	}
+
+	.sameX text .x-coord,
+	.sameY text .y-coord,
+	.sameZ text .z-coord,
+	.sameB text .b-coord {
+		font-weight: 600;
+	}
+
+
 	.sameX polygon {
 		fill: hsl(0, 50%, 70%);
 	}
@@ -70,11 +75,12 @@ svg {
 	}
 
 	.grid.triangles .uptriangle,
-	.grid.square .square {
+	.grid.square .square.odd {
 		fill:hsl(147, 0%, 80%);
 	}
 
-	.grid.triangles .downtriangle {
+	.grid.triangles .downtriangle,
+	.grid.square .square.even {
 		fill:hsl(147, 0%, 85%);
 	}
 

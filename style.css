@@ -8,6 +8,7 @@ body {
 
 	--diagram-width-wide: 60rem;
 	--diagram-width-small: 30rem;
+	--diagram-width-smaller: 20rem;
 
 	--margin-left: calc((100vw - var(--body-width) - var(--gutter))/2);
 
@@ -43,6 +44,7 @@ header {
 .flex-container {
 	display: inline-flex;
 	gap: 2em;
+	flex-direction: row;
 }
 
 h2 {
@@ -67,14 +69,18 @@ p {
 
 figure {
 	box-sizing: border-box;
-	/*border: 1px solid black;*/
+	/*bordser: 1px solid black;*/
 	flex-basis: auto;
 	margin: 0;
 
 	&.small {
 		min-width: var(--diagram-width-small);
-		/*width: 400px;*/
 	}
+
+	&.smaller {
+		min-width: var(--diagram-width-smaller);
+	}
+
 	figcaption {
 		text-align: center;
 	}

@@ -35,10 +35,18 @@ header {
 	display: block;
 	text-align: center;
 	background-color: hsl(0, 0%, 80%);
-	height: 6em;
+	height: 6.5em;
 	font-size: 2.5em;
 	padding-top: 0.5em;
 	border-bottom: 50px solid hsl(0, 0%, 90%);
+
+	.subhead {
+		font-size: 1.5rem;
+
+		a {
+			text-decoration: none;
+		}
+	}
 }
 
 div.flex-container {

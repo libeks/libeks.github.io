@@ -8,7 +8,10 @@
 </head>
 
 <body>
-	<header><h1>Triangular Grid Math</h1></header>
+	<header>
+		<h1>Triangular Grid Math</h1>
+		<div class="subhead"><a href="index.html">Home</a></div>
+	</header>
 	<main>
 		<section>
 			<!-- <h2> (Jan 2026) WORK IN PROGRESS! </h2> -->
@@ -156,7 +159,7 @@
 				</div>
 				<figure class="smaller" style="width:var(--small-diagram-width)">
 					<svg viewBox="0 0 300 300" border-box>
-						<g class="grid triangles" style="transform: translate(50px, 0px)">
+						<g class="grid triangles" style="transform: translate(50px, 20px)">
 							<g style="transform: translate(50px, 0px)" class="uptriangle">
 								<polygon points="0,0 -50,86.6 50,86.6" />
 								<text x="0" y="75" text-anchor="middle">
@@ -182,7 +185,7 @@
 								</text>
 							</g>
 						</g>
-						<g class="grid triangles" style="transform: translate(150px, 100px)">
+						<g class="grid triangles" style="transform: translate(150px, 120px)">
 							<g style="transform: translate(50px, 100px)" class="downtriangle">
 								<polygon points="0,86.6 -50,0 50,0"/>
 								<text x="0" y="25" text-anchor="middle">
@@ -228,7 +231,7 @@
 				</div>
 				<figure class="smaller" style="width:var(--small-diagram-width)">
 					<svg viewBox="0 0 300 300" border-box>
-						<g class="grid triangles" style="transform: translate(50px, 0px)">
+						<g class="grid triangles" style="transform: translate(50px, 20px)">
 							<g style="transform: translate(50px, 0px)" class="uptriangle">
 								<polygon points="0,0 -50,86.6 50,86.6" />
 								<text x="0" y="75" text-anchor="middle">
@@ -254,7 +257,7 @@
 								</text>
 							</g>
 						</g>
-						<g class="grid triangles" style="transform: translate(150px, 100px)">
+						<g class="grid triangles" style="transform: translate(150px, 120px)">
 							<g style="transform: translate(50px, 100px)" class="downtriangle">
 								<polygon points="0,86.6 -50,0 50,0"/>
 								<text x="0" y="25" text-anchor="middle">
@@ -383,7 +386,7 @@
 				<p>Just as before, we want to consider adjacency. Notice that triangles along a b-column vary in the y-coordinate by one, whereas the distance changes more than that. Specifically, consider two triangles trouching vertically at a point, their distance is 3, whereas their coordinates differ only by 1. This makes distance math convoluted. It is best to convert to the xyz coordinate system to compute distance.</p>
 				<figure class="smaller" style="width:var(--small-diagram-width)">
 					<svg viewBox="0 0 300 300" border-box>
-						<g class="grid triangles" style="transform: translate(50px, 0px)">
+						<g class="grid triangles" style="transform: translate(50px, 20px)">
 							<g style="transform: translate(50px, 0px)" class="uptriangle">
 								<polygon points="0,0 -50,86.6 50,86.6" />
 								<text x="0" y="75" text-anchor="middle">
@@ -409,7 +412,7 @@
 								</text>
 							</g>
 						</g>
-						<g class="grid triangles" style="transform: translate(150px, 100px)">
+						<g class="grid triangles" style="transform: translate(150px, 120px)">
 							<g style="transform: translate(50px, 100px)" class="downtriangle">
 								<polygon points="0,86.6 -50,0 50,0"/>
 								<text x="0" y="25" text-anchor="middle">
@@ -852,7 +855,6 @@
 		let fullTriangleGrid = new TriangleGrid({
 			nB: 18, 
 			nY: 7, 
-			// filter: (x,y,R) => (x + R/2 < y/2) || (x + R/2 - y/2 > 9),
 		});
 
 		const fullTriangleApp = createApp({

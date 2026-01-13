@@ -217,7 +217,7 @@
 			<div class="flex-container">
 				<p>Another idea is to notice that each triangle lives on three separate axis. As shown above, the triangles with the same x-value appear on a diagonal, whereas triangles with the same y-value appear on the same horizontal row. There is a third diagonal, which we can denote with the value z.</p>
 			</div>
-			<p>So let's redefine our grid using this x,y,z system. There is a simple conversion from the xyR coordinates to xyz coordinates, given by  <code>z:=x-y+R</code>. But there is a bit of a catch. We can't just loop over all x-, y-, and z- values to get the resulting grid, since not all combinations of these values produce a valid triangle coordinate. Just like with the xyR coordinates above, we don't really have a full <math><msup><mi>ℤ</mi><mn>3</mn></msup></math> space; the dimensions have to have a constraint.
+			<p>So let's redefine our grid using this x,y,z system. There is a simple conversion from the xyR coordinates to xyz coordinates, given by  <code>z:=x-y+R</code>. But there is a bit of a catch. We can't just loop over all x-, y-, and z- values to get the resulting grid, since not all combinations of these values produce a valid triangle coordinate. Just like with the xyR coordinates above, we don't really have a full <math><msup> <mi>ℤ</mi> <mn>3</mn> </msup></math> space; the dimensions have to have a constraint.
 			</p>
 			<div class="flex-container">
 				<div>
@@ -375,12 +375,12 @@
 			<div class="flex-container">
 				<p>However, while this representation is very easy to loop over, we might want to translate back to the xyR or xyz coordinate system for other purposes. Turns out that this conversion is not very pretty looking. Not pretty at all!</p>
 				<div class="sidebar small">
-					<math class="block">(x, y, R) := (&lfloor;<mfrac><mn>b+y</mn><msup>2</msup></mfrac>&rfloor;, y, (b+y) mod 2)</math>
-					<math class="block">(x, y, z) := (&lfloor;<mfrac><mn>b+y</mn><msup>2</msup></mfrac>&rfloor;, y, &lfloor;<mfrac><mn>b+y</mn><msup>2</msup></mfrac>&rfloor; -y + (b+y) mod 2)</math>
+					<math class="block">(x, y, R) := (&lfloor;<mfrac><mn>b+y</mn> 2</mfrac>&rfloor;, y, (b+y) mod 2)</math>
+					<math class="block">(x, y, z) := (&lfloor;<mfrac><mn>b+y</mn> 2</mfrac>&rfloor;, y, &lfloor;<mfrac> <mn>b+y</mn> 2</mfrac>&rfloor; -y + (b+y) mod 2)</math>
 				</div>
 			</div>
 			<div class="flex-container">
-				<p>Just as before, we want to consider adjacency. Notice that the coordinates are not inverted between up- and down-triangles. This, again, makes distance computation nontrivial. It is best to convert to the xyz coordinate system to compute distance.</p>
+				<p>Just as before, we want to consider adjacency. Notice that triangles along a b-column vary in the y-coordinate by one, whereas the distance changes more than that. Specifically, consider two triangles trouching vertically at a point, their distance is 3, whereas their coordinates differ only by 1. This makes distance math convoluted. It is best to convert to the xyz coordinate system to compute distance.</p>
 				<figure class="smaller" style="width:var(--small-diagram-width)">
 					<svg viewBox="0 0 300 300" border-box>
 						<g class="grid triangles" style="transform: translate(50px, 0px)">
@@ -425,13 +425,13 @@
 							<g style="transform: translate(0px, 100px)" class="uptriangle">
 								<polygon points="0,0 -50,86.6 50,86.6" />
 								<text x="0" y="75" text-anchor="middle">
-									<tspan class="y-b-coord"><tspan class="y-coord">0</tspan>, <tspan class="b-coord">+1</tspan>
+									<tspan class="y-b-coord"><tspan class="y-coord">0</tspan>, <tspan class="b-coord">-1</tspan>
 								</text>
 							</g>
 							<g style="transform: translate(100px, 100px)" class="uptriangle">
 								<polygon points="0,0 -50,86.6 50,86.6" />
 								<text x="0" y="75" text-anchor="middle">
-									<tspan class="y-b-coord"><tspan class="y-coord">0</tspan>, <tspan class="b-coord">-1</tspan>
+									<tspan class="y-b-coord"><tspan class="y-coord">0</tspan>, <tspan class="b-coord">+1</tspan>
 								</text>
 							</g>
 						</g>
@@ -458,13 +458,13 @@
 							<td>to xyR</td>
 							<td class="empty"></td>
 							<td><math>(x, y, R) := (x, y, z-x+y)</math></td>
-							<td><math>(x, y, R) := (&lfloor;<mfrac><mn>b+y</mn><msup>2</msup></mfrac>&rfloor;, y, (b+y) mod 2)</math></td>
+							<td><math>(x, y, R) := (&lfloor;<mfrac><mn>b+y</mn> 2</mfrac>&rfloor;, y, (b+y) mod 2)</math></td>
 						</tr>
 						<tr>
 							<td>to xyz</td>
 							<td><math>(x, y, z) := (x, y, x-y+R)</math></td>
 							<td class="empty"></td>
-							<td><math>(x, y, z) := (&lfloor;<mfrac><mn>b+y</mn><msup>2</msup></mfrac>&rfloor;, y, &lfloor;<mfrac><mn>b+y</mn><msup>2</msup></mfrac>&rfloor; -y + (b+y) mod 2)</math></td>
+							<td><math>(x, y, z) := (&lfloor;<mfrac><mn>b+y</mn> 2</mfrac>&rfloor;, y, &lfloor;<mfrac><mn>b+y</mn> 2</mfrac>&rfloor; -y + (b+y) mod 2)</math></td>
 						</tr>
 						<tr>
 							<td>to yb</td>
@@ -524,17 +524,28 @@
 		const { createApp, ref, defineComponent } = Vue;
 
 		class TriangleGrid {
-			constructor({nX, nY, filter}) {
+			constructor({nX, nY, nB, filter}) {
 				this.triangles = [];
-				for (let x = 0; x <= nX; x++) {
-					for (let y = 0; y <= nY; y++) {
-						for (const R of [0, 1]) {
-							if (filter && filter(x,y,R)) { // Remove triangles that should be filtered out, to get the right output shape
-								continue
+				if (nX !== undefined && nY !== undefined) {
+					for (let x = 0; x <= nX; x++) {
+						for (let y = 0; y <= nY; y++) {
+							for (const R of [0, 1]) {
+								if (filter && filter(x,y,R)) { // Remove triangles that should be filtered out, to get the right output shape
+									continue
+								}
+								this.triangles.push(new Triangle({x,y,R}));
 							}
-							this.triangles.push(new Triangle(x,y,R));
 						}
 					}
+				} else if (nY !== undefined && nB !== undefined) {
+					for (let b = 0; b <= nB; b++) {
+						for (let y = 0; y <= nY; y++) {
+							//TODO: add filter option back in
+							this.triangles.push(new Triangle({b,y}));
+						}
+					}
+				} else {
+					throw "Unknown parameters to TriangleGrid";
 				}
 			}
 
@@ -587,18 +598,38 @@
 		}
 
 		class Triangle {
-			constructor(x,y,R) {
-				// raw coordinates, these are used to identify a triangle
-				this.x = x;
-				this.y = y;
-				this.R = R;
-				
-				// derived coordinates
+			constructor({x,y,z,R,b}) {
+				if (x!==undefined && y!==undefined && R!==undefined) {
+					// raw coordinates, these are used to identify a triangle
+					this.x = x;
+					this.y = y;
+					this.R = R;
+					
+					// derived coordinates
 
-				// x-y-z coordinates
-				this.z = x-y + R; // uses the same x, y coords as above
-				// y-b coordinates
-				this.b = x + this.z; // corresponds to the "column" of the triangle
+					// x-y-z coordinates
+					this.z = this.x-this.y + this.R; // uses the same x, y coords as above
+					// y-b coordinates
+					this.b = this.x + this.z; // corresponds to the "column" of the triangle
+				} else if (x!==undefined && y!==undefined && z!==undefined) {
+					this.x = x;
+					this.y = y;
+					this.z = z;
+
+					// derived coords
+					this.R = this.z - this.x + this.y;
+					this.b = this.x + this.z;
+				} else if (y!==undefined && b!=undefined) {
+					this.y = y;
+					this.b = b;
+
+					// derived coords
+					this.x = Math.floor((b+y)/2);
+					this.R = (b+y)%2;
+					this.z = this.x - this.y + this.R;
+				} else {
+					throw "Unknown triangle type with parameters";
+				}
 			}
 
 			string() {
@@ -819,9 +850,9 @@
 		};
  
 		let fullTriangleGrid = new TriangleGrid({
-			nX: 12, 
+			nB: 18, 
 			nY: 7, 
-			filter: (x,y,R) => (x + R/2 < y/2) || (x + R/2 - y/2 > 9),
+			// filter: (x,y,R) => (x + R/2 < y/2) || (x + R/2 - y/2 > 9),
 		});
 
 		const fullTriangleApp = createApp({
@@ -911,7 +942,7 @@
 			}
 		}).mount('#triangle-grid-xyz');
 
-	let triangleGridAnonymous = new TriangleGrid({
+		let triangleGridAnonymous = new TriangleGrid({
 			nX: 12,
 			nY: 12,
 		});
@@ -938,7 +969,7 @@
 		const triangleDistanceApp = createApp({
 			data() {
 				return {
-					selected: null,
+					selected: triangleGridAnonymous.triangles[55], // pick a triangle somewhere in the middle
 					grid:triangleGridAnonymous,
 					positioner: new TrianglePositioner(
 						{x: 0, y: 0},
@@ -966,9 +997,8 @@
 
 
 		let triangleGridYB = new TriangleGrid({
-			nX: 4, 
-			nY: 3, 
-			filter: (x,y,R) => (x + R/2 < y/2) || (x + R/2 - y/2 > 3),
+			nB: 6,
+			nY: 3,
 		});
 
 		const triangleYBApp = createApp({

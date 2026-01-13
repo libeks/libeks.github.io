@@ -161,7 +161,7 @@
 					<p>We notice that multiple coordinates can change when moving across and edge, depending on the direction. This makes adjacency logic somewhat cumbersome, and we might need to move to a different coordinate system to solve that problem.</p>
 				</div>
 				<figure class="smaller" style="width:var(--small-diagram-width)">
-					<svg viewBox="0 0 300 300" border-box>
+					<svg viewBox="0 0 300 320" border-box>
 						<g class="grid triangles" style="transform: translate(50px, 20px)">
 							<g style="transform: translate(50px, 0px)" class="uptriangle">
 								<polygon points="0,0 -50,86.6 50,86.6" />
@@ -233,7 +233,7 @@
 					<p>Another critical observation is that moving across the grid, we keep alternating between upwards- and downwards-pointing triangles. So the value of <math>-x+y+z</math> keeps flipping back and forth by one value. Consequently, that is our constraint; the value of <math>-x+y+z</math> is restricted to only two values — 0 or 1. So we have that <math>-x+y+z∈{0,1}</math>.
 				</div>
 				<figure class="smaller" style="width:var(--small-diagram-width)">
-					<svg viewBox="0 0 300 300" border-box>
+					<svg viewBox="0 0 300 320" border-box>
 						<g class="grid triangles" style="transform: translate(50px, 20px)">
 							<g style="transform: translate(50px, 0px)" class="uptriangle">
 								<polygon points="0,0 -50,86.6 50,86.6" />
@@ -388,7 +388,7 @@
 			<div class="flex-container">
 				<p>Just as before, we want to consider adjacency. Notice that triangles along a b-column vary in the y-coordinate by one, whereas the distance changes more than that. Specifically, consider two triangles trouching vertically at a point, their distance is 3, whereas their coordinates differ only by 1. This makes distance math convoluted. It is best to convert to the xyz coordinate system to compute distance.</p>
 				<figure class="smaller" style="width:var(--small-diagram-width)">
-					<svg viewBox="0 0 300 300" border-box>
+					<svg viewBox="0 0 300 320" border-box>
 						<g class="grid triangles" style="transform: translate(50px, 20px)">
 							<g style="transform: translate(50px, 0px)" class="uptriangle">
 								<polygon points="0,0 -50,86.6 50,86.6" />

@@ -150,9 +150,12 @@
 			</div>
 			<p>An obvious observation is that while x- and y- coordinates can vary over all integers <math>ℤ</math>, the R-value can only be chosen from the set <math>{<mn>0</mn>,<mn>1</mn>}</math>. So we have produced a coordinate system that spans <math>ℤ⨯ℤ⨯{<mn>0</mn>,<mn>1</mn>}</math>.</p>
 			<div class="flex-container">
-				<p>What about determining whether two triangles are next to each other? For this we look at how the coordinates change when crossing from one triangle to another. We have to consider the case of the upwards-pointing triangle separately from the downwards-pointing triangle.</p>
+				<div>
+					<p>What about determining whether two triangles are next to each other? For this we look at how the coordinates change when crossing from one triangle to another. We have to consider the case of the upwards-pointing triangle separately from the downwards-pointing triangle.</p>
+					<p>We notice that multiple coordinates can change when moving across and edge, depending on the direction. This makes adjacency logic somewhat cumbersome, and we might need to move to a different coordinate system to solve that problem.</p>
+				</div>
 				<figure class="smaller" style="width:var(--small-diagram-width)">
-					<svg viewBox="0 0 300 400" border-box>
+					<svg viewBox="0 0 300 300" border-box>
 						<g class="grid triangles" style="transform: translate(50px, 0px)">
 							<g style="transform: translate(50px, 0px)" class="uptriangle">
 								<polygon points="0,0 -50,86.6 50,86.6" />
@@ -224,7 +227,7 @@
 					<p>Another critical observation is that moving across the grid, we keep alternating between upwards- and downwards-pointing triangles. So the value of <math>-x+y+z</math> keeps flipping back and forth by one value. Consequently, that is our constraint; the value of <math>-x+y+z</math> is restricted to only two values — 0 or 1. So we have that <math>-x+y+z∈{0,1}</math>.
 				</div>
 				<figure class="smaller" style="width:var(--small-diagram-width)">
-					<svg viewBox="0 0 300 400" border-box>
+					<svg viewBox="0 0 300 300" border-box>
 						<g class="grid triangles" style="transform: translate(50px, 0px)">
 							<g style="transform: translate(50px, 0px)" class="uptriangle">
 								<polygon points="0,0 -50,86.6 50,86.6" />
@@ -282,7 +285,9 @@
 			</div>
 			
 			<div class="flex-container">
-				<p>Here is the resulting grid.</p>
+				<div>
+					<p>Here is the resulting grid, rendered using the xyR for-loop above, then converting the coordinates to xyz.</p>
+				</div>
 				<figure id="triangle-grid-xyz" class="small" style="width:var(--small-diagram-width)">
 					<svg viewBox="0 0 700 420" border-box>
 						<g class="coord-labels">
@@ -313,11 +318,33 @@
 					</svg>
 				</figure>
 			</div>
+			<div class="flex-container">
+				<p>What is great about this representation is that calculating the distance between two triangles (defined as the minimum number of edges one needs to cross) is trivial in the xyz system. We merely need to count how many times each coordinate has changed. In other words, <math>distance(t<sub>1</sub>,t<sub>2</sub>) := |t<sub>1</sub>.x - t<sub>2</sub>.x| + |t<sub>1</sub>.y - t<sub>2</sub>.y| + |t<sub>1</sub>.z - t<sub>2</sub>.z|</math>.</p>
+				<figure id="triangle-grid-distance" class="small">
+					<svg viewBox="0 0 700 420" border-box>
+						<g class="grid triangles">
+							<g v-for="tri in grid.upTriangles()" :style="toTransform(positioner.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
+								<polygon  points="0,0 -50,86.6 50,86.6" />
+								<text x="0" y="75" text-anchor="middle">
+									<tspan>{{distance(tri,selected)}}</tspan>
+								</text>
+							</g>
+							<g v-for="tri in grid.downTriangles()" :style="toTransform(positioner.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
+								<polygon points="0,86.6 -50,0 50,0"/>
+								<text x="0" y="25" text-anchor="middle">
+									<tspan>{{distance(tri,selected)}}</tspan>
+								</text>
+							</g>
+						</g>
+					</svg>
+					<figcaption>Distance measure</figcaption>
+				</figure>
+			</div>
 		</section>
 		<section>
 			<h2>The row-column coordinate system: yb</h2>
 			<div class="flex-container">
-				<p> Finally, we notice that our triangles are arranged in diamond-shaped columns, so we wonder if there is a way to express the coordinates of a triangle with a two-dimensional (row, column) coordinate. Turns out this is possible if we preserve the y-coordinate from the previous sections, but we define a new coordinate <code>b=x+z</code>. Since we have removed a whole dimension, we should be free to loop over the y- and b-values in a for loop, to produce a very neat looking grid of triangles.</p>
+				<p> Finally, we notice that our triangles are arranged in diamond-shaped columns, so we wonder if there is a way to express the coordinates of a triangle with a two-dimensional (row, column) coordinate. Turns out this is possible if we preserve the y-coordinate from the previous sections, but we define a new coordinate <code>b := x + z</code>. Since we have removed a whole dimension, we should be free to loop over the y- and b-values in a for-loop, to produce a very neat looking grid of triangles.</p>
 				<figure id="triangle-grid-yb" class="small" style="width:var(--diagram-width)">
 				<svg viewBox="0 0 700 420" border-box>
 					<g class="coord-labels">
@@ -345,9 +372,110 @@
 				</svg>
 			</figure>
 			</div>
+			<div class="flex-container">
+				<p>However, while this representation is very easy to loop over, we might want to translate back to the xyR or xyz coordinate system for other purposes. Turns out that this conversion is not very pretty looking. Not pretty at all!</p>
+				<div class="sidebar small">
+					<math class="block">(x, y, R) := (&lfloor;<mfrac><mn>b+y</mn><msup>2</msup></mfrac>&rfloor;, y, (b+y) mod 2)</math>
+					<math class="block">(x, y, z) := (&lfloor;<mfrac><mn>b+y</mn><msup>2</msup></mfrac>&rfloor;, y, &lfloor;<mfrac><mn>b+y</mn><msup>2</msup></mfrac>&rfloor; -y + (b+y) mod 2)</math>
+				</div>
+			</div>
+			<div class="flex-container">
+				<p>Just as before, we want to consider adjacency. Notice that the coordinates are not inverted between up- and down-triangles. This, again, makes distance computation nontrivial. It is best to convert to the xyz coordinate system to compute distance.</p>
+				<figure class="smaller" style="width:var(--small-diagram-width)">
+					<svg viewBox="0 0 300 300" border-box>
+						<g class="grid triangles" style="transform: translate(50px, 0px)">
+							<g style="transform: translate(50px, 0px)" class="uptriangle">
+								<polygon points="0,0 -50,86.6 50,86.6" />
+								<text x="0" y="75" text-anchor="middle">
+									<tspan class="y-b-coord"><tspan class="y-coord">y</tspan>, <tspan class="b-coord">b</tspan>
+								</text>
+							</g>
+							<g style="transform: translate(0px, 0px)" class="downtriangle">
+								<polygon points="0,86.6 -50,0 50,0"/>
+								<text x="0" y="25" text-anchor="middle">
+									<tspan class="y-b-coord"><tspan class="y-coord">0</tspan>, <tspan class="b-coord">-1</tspan>
+								</text>
+							</g>
+							<g style="transform: translate(100px, 0px)" class="downtriangle">
+								<polygon points="0,86.6 -50,0 50,0"/>
+								<text x="0" y="25" text-anchor="middle">
+									<tspan class="y-b-coord"><tspan class="y-coord">0</tspan>, <tspan class="b-coord">+1</tspan>
+								</text>
+							</g>
+							<g style="transform: translate(50px, 86.6px)" class="downtriangle">
+								<polygon points="0,86.6 -50,0 50,0"/>
+								<text x="0" y="25" text-anchor="middle">
+									<tspan class="y-b-coord"><tspan class="y-coord">+1</tspan>, <tspan class="b-coord">0</tspan>
+								</text>
+							</g>
+						</g>
+						<g class="grid triangles" style="transform: translate(150px, 100px)">
+							<g style="transform: translate(50px, 100px)" class="downtriangle">
+								<polygon points="0,86.6 -50,0 50,0"/>
+								<text x="0" y="25" text-anchor="middle">
+									<tspan class="y-b-coord"><tspan class="y-coord">y</tspan>, <tspan class="b-coord">b</tspan>
+								</text>
+							</g>
+							<g style="transform: translate(50px, 13.4px)" class="uptriangle">
+								<polygon points="0,0 -50,86.6 50,86.6" />
+								<text x="0" y="75" text-anchor="middle">
+									<tspan class="y-b-coord"><tspan class="y-coord">-1</tspan>, <tspan class="b-coord">0</tspan>
+								</text>
+							</g>
+							<g style="transform: translate(0px, 100px)" class="uptriangle">
+								<polygon points="0,0 -50,86.6 50,86.6" />
+								<text x="0" y="75" text-anchor="middle">
+									<tspan class="y-b-coord"><tspan class="y-coord">0</tspan>, <tspan class="b-coord">+1</tspan>
+								</text>
+							</g>
+							<g style="transform: translate(100px, 100px)" class="uptriangle">
+								<polygon points="0,0 -50,86.6 50,86.6" />
+								<text x="0" y="75" text-anchor="middle">
+									<tspan class="y-b-coord"><tspan class="y-coord">0</tspan>, <tspan class="b-coord">-1</tspan>
+								</text>
+							</g>
+						</g>
+					</svg>
+				</figure>
 		</section>
 		<section>
 			<h2>All Three Coordinates In One</h2>
+			<p>Let's do an overview of the three coordinate systems. We care about translating between them, so here is a conversion table.</p>
+			<div class="center">
+				<table>
+					<caption>Coordinate conversions between the three systems</caption>
+					<thead>
+						<tr>
+							<th scope="col"></th>
+							<th scope="col">From xyR</th>
+							<th scope="col">From xyz</th>
+							<th scope="col">From yb</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						<tr>
+							<td>to xyR</td>
+							<td class="empty"></td>
+							<td><math>(x, y, R) := (x, y, z-x+y)</math></td>
+							<td><math>(x, y, R) := (&lfloor;<mfrac><mn>b+y</mn><msup>2</msup></mfrac>&rfloor;, y, (b+y) mod 2)</math></td>
+						</tr>
+						<tr>
+							<td>to xyz</td>
+							<td><math>(x, y, z) := (x, y, x-y+R)</math></td>
+							<td class="empty"></td>
+							<td><math>(x, y, z) := (&lfloor;<mfrac><mn>b+y</mn><msup>2</msup></mfrac>&rfloor;, y, &lfloor;<mfrac><mn>b+y</mn><msup>2</msup></mfrac>&rfloor; -y + (b+y) mod 2)</math></td>
+						</tr>
+						<tr>
+							<td>to yb</td>
+							<td><math>(y, b) := (y, 2x-y+R)</math></td>
+							<td><math>(y, b) := (y, x+z)</math></td>
+							<td class="empty"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<p>As outlined above, generating the grid is easiest in yb coordinate system, since in most applications we want to display discrete rows and columns of triangles. We will benefit most by using the xyz coordiante system to compute distances between triangles. Finally, the xyR coordinate system makes it trivial to figure out whether a certain triangle points upwards or downwards, by referring to the R-coordinate.
 			<figure id="triangle-grid-complete" style="width:var(--diagram-width)">
 				<svg viewBox="0 0 1200 800" border-box>
 					<g class="coord-labels">
@@ -606,6 +734,22 @@
 			}
 		}
 
+		function triSimpleClassName(tri, selected) {
+			if (this.selected === null) {
+				return {
+					uptriangle: tri.R==0,
+					downtriangle: tri.R==1,
+				}
+			}
+			const highlight = tri.string() == this.selected.string()
+			return {
+				highlight,
+				uptriangle: tri.R==0,
+				downtriangle: tri.R==1,
+			}
+		}
+
+
 		function sqClassName(sq, selected) {
 			if (this.selected === null) {
 				return {
@@ -686,7 +830,7 @@
 					selected: null,
 					grid:fullTriangleGrid,
 					positioner: new TrianglePositioner(
-						{x: 100, y: 100},
+						{x: 100, y: 70},
 						fullTriangleGrid,
 						100,
 					),
@@ -708,9 +852,8 @@
 		}).mount('#triangle-grid-complete');
 
 		let triangleGridXYR = new TriangleGrid({
-			nX: 3, 
-			nY: 3, 
-			// filter: (x,y,R) => (x + R/2 < y/2) || (x + R/2 - y/2 > 9),
+			nX: 3,
+			nY: 3,
 		});
 
 		const triangleXYRApp = createApp({
@@ -741,7 +884,6 @@
 		let triangleGridXYZ = new TriangleGrid({
 			nX: 3, 
 			nY: 3, 
-			// filter: (x,y,R) => (x + R/2 < y/2) || (x + R/2 - y/2 > 9),
 		});
 
 		const triangleXYZApp = createApp({
@@ -770,9 +912,8 @@
 		}).mount('#triangle-grid-xyz');
 
 	let triangleGridAnonymous = new TriangleGrid({
-			nX: 12, 
-			nY: 12, 
-			// filter: (x,y,R) => (x + R/2 < y/2) || (x + R/2 - y/2 > 3),
+			nX: 12,
+			nY: 12,
 		});
 
 		const triangleAnonymousApp = createApp({
@@ -789,16 +930,38 @@
 				}
 			},
 			methods: {
-				// mouse:mouseTriangle,
-				// click:clickTriangle,
 				triClassName,
-				// setActiveTriangle,
 				toTransform,
 			},
-			components: {
-				// yb,
-			}
 		}).mount('#triangular-grid-anonymous');
+
+		const triangleDistanceApp = createApp({
+			data() {
+				return {
+					selected: null,
+					grid:triangleGridAnonymous,
+					positioner: new TrianglePositioner(
+						{x: 0, y: 0},
+						triangleGridAnonymous,
+						100,
+					),
+					coordinates: "yb",
+				}
+			},
+			methods: {
+				mouse:mouseTriangle,
+				click:clickTriangle,
+				triClassName:triSimpleClassName,
+				setActiveTriangle,
+				toTransform,
+				distance:function(t1, t2) {
+					if (t2===null) {
+						return "";
+					}
+					return Math.abs(t1.x - t2.x) + Math.abs(t1.y - t2.y) + Math.abs(t1.z - t2.z)
+				}
+			},
+		}).mount('#triangle-grid-distance');
 
 
 

@@ -41,10 +41,15 @@ header {
 	border-bottom: 50px solid hsl(0, 0%, 90%);
 }
 
-.flex-container {
+div.flex-container {
 	display: inline-flex;
 	gap: 2em;
 	flex-direction: row;
+}
+
+div.center {
+	display:flex;
+	justify-content:center;
 }
 
 h2 {
@@ -67,7 +72,7 @@ p {
 	font-size: 1.2em;
 }
 
-figure {
+figure, .sidebar {
 	box-sizing: border-box;
 	/*bordser: 1px solid black;*/
 	flex-basis: auto;
@@ -83,5 +88,34 @@ figure {
 
 	figcaption {
 		text-align: center;
+	}
+}
+
+.block {
+	padding-top: 2em;
+	display: block;
+}
+
+table {
+	border-collapse: collapse;
+  	border: 2px solid rgb(140 140 140);
+
+	caption {
+	  caption-side: bottom;
+	  padding: 10px;
+	  /*font-weight: bold;*/
+	}
+
+	th {
+		font-weight:normal;
+	}
+
+	th, td {
+		border: 1px solid rgb(160 160 160);
+		padding: 5px;
+	}
+
+	td.empty {
+		background-color: hsl(0, 0%, 90%);
 	}
 }

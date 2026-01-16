@@ -1,0 +1,25 @@
+{
+  "name": "libeks.github.io",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/libeks/libeks.github.io#readme",
+  "bugs": {
+    "url": "https://github.com/libeks/libeks.github.io/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/libeks/libeks.github.io.git"
+  },
+  "license": "ISC",
+  "author": "Jānis Lībeks",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npx http-server ./ -p 5173",
+    "format": "prettier --write --experimental-cli ."
+  },
+  "dependencies": {
+    "prettier": "^3.8.0"
+  }
+}

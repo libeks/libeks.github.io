@@ -8,6 +8,7 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+	<script src="./triangles.js" type="module"></script>
 </head>
 
 <body>
@@ -28,15 +29,15 @@
 				<figure id="square-grid" class="float-right small">
 					<svg viewBox="0 0 600 550">
 						<g class="coord-labels">
-							<g class="x-coord coord" :style="toTransform(positioner.mapXCoord(selected))" :class="{visible: selected}">
+							<g class="x-coord coord" :style="toTransform(grid.mapXCoord(selected))" :class="{visible: selected}">
 								<text>x = <tspan class="x-coord numeric">{{selected ? selected.x : 0}}</tspan></text>
 							</g>
-							<g class="y-coord coord" :style="toTransform(positioner.mapYCoord(selected))" :class="{visible: selected}">
+							<g class="y-coord coord" :style="toTransform(grid.mapYCoord(selected))" :class="{visible: selected}">
 								<text>y = <tspan class="y-coord numeric">{{selected ? selected.y : 0}}</tspan></text>
 							</g>
 						</g>
 						<g class="grid square">
-							<g v-for="sq in grid.squares" :style="toTransform(positioner.mapSquare(sq))" :class="sqClassName(sq, selected)" :data-sq="sq.string()"  @mousemove="mouse" @click="click">
+							<g v-for="sq in grid.grid.squares" :style="toTransform(grid.mapSquare(sq))" :class="sqClassName(sq, selected)" :data-sq="sq.string()"  @mousemove="mouse" @click="click">
 								<polygon points="0,0 0,100 100,100 100,0" />
 								<text x="50" y="60" text-anchor="middle">
 									<tspan class="x-y-coord"><tspan class="x-coord">{{sq.x}}</tspan>, <tspan class="y-coord">{{sq.y}}</tspan></tspan>
@@ -55,10 +56,10 @@
 				<figure id="triangular-grid-anonymous" class="float-right small">
 					<svg viewBox="0 0 600 550">
 						<g class="grid triangles">
-							<g v-for="tri in grid.upTriangles()" :style="toTransform(positioner.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()">
+							<g v-for="tri in grid.grid.upTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()">
 								<polygon points="0,0 -50,86.6 50,86.6" />
 							</g>
-							<g v-for="tri in grid.downTriangles()" :style="toTransform(positioner.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()">
+							<g v-for="tri in grid.grid.downTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()">
 								<polygon points="0,86.6 -50,0 50,0"/>
 							</g>
 						</g>
@@ -130,21 +131,21 @@
 				<figure id="triangle-grid-xyr" class="small" style="width:var(--small-diagram-width)">
 					<svg viewBox="0 0 700 420" border-box>
 						<g class="coord-labels">
-							<g class="x-coord coord" :style="toTransform(positioner.mapXCoord(selected))" :class="{visible: selected && (coordinates=='xyz' || coordinates=='xyr')}">
+							<g class="x-coord coord" :style="toTransform(grid.mapXCoord(selected))" :class="{visible: selected && (coordinates=='xyz' || coordinates=='xyr')}">
 								<text>x = <tspan class="x-coord numeric">{{selected ? selected.x : 0}}</tspan></text>
 							</g>
-							<g class="y-coord coord" :style="toTransform(positioner.mapYCoord(selected))" :class="{visible: selected}">
+							<g class="y-coord coord" :style="toTransform(grid.mapYCoord(selected))" :class="{visible: selected}">
 								<text>y = <tspan class="y-coord numeric">{{selected ? selected.y : 0}}</tspan></text>
 							</g>
 						</g>
 						<g class="grid triangles">
-							<g v-for="tri in grid.upTriangles()" :style="toTransform(positioner.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
+							<g v-for="tri in grid.grid.upTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
 								<polygon points="0,0 -50,86.6 50,86.6" />
 								<text x="0" y="75" text-anchor="middle">
 									<component :is="coordinates" :tri="tri"></component>
 								</text>
 							</g>
-							<g v-for="tri in grid.downTriangles()" :style="toTransform(positioner.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
+							<g v-for="tri in grid.grid.downTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
 								<polygon points="0,86.6 -50,0 50,0"/>
 								<text x="0" y="25" text-anchor="middle">
 									<component :is="coordinates" :tri="tri"></component>
@@ -297,24 +298,24 @@
 				<figure id="triangle-grid-xyz" class="small" style="width:var(--small-diagram-width)">
 					<svg viewBox="0 0 700 420" border-box>
 						<g class="coord-labels">
-							<g class="x-coord coord" :style="toTransform(positioner.mapXCoord(selected))" :class="{visible: selected && (coordinates=='xyz' || coordinates=='xyr')}">
+							<g class="x-coord coord" :style="toTransform(grid.mapXCoord(selected))" :class="{visible: selected && (coordinates=='xyz' || coordinates=='xyr')}">
 								<text>x = <tspan class="x-coord numeric">{{selected ? selected.x : 0}}</tspan></text>
 							</g>
-							<g class="y-coord coord" :style="toTransform(positioner.mapYCoord(selected))" :class="{visible: selected}">
+							<g class="y-coord coord" :style="toTransform(grid.mapYCoord(selected))" :class="{visible: selected}">
 								<text>y = <tspan class="y-coord numeric">{{selected ? selected.y : 0}}</tspan></text>
 							</g>
-							<g class="z-coord coord" :style="toTransform(positioner.mapZCoord(selected))" :class="{visible: selected && coordinates=='xyz'}">
+							<g class="z-coord coord" :style="toTransform(grid.mapZCoord(selected))" :class="{visible: selected && coordinates=='xyz'}">
 								<text>z = <tspan class="z-coord numeric">{{selected ? selected.z : 0}}</tspan></text>
 							</g>
 						</g>
 						<g class="grid triangles">
-							<g v-for="tri in grid.upTriangles()" :style="toTransform(positioner.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
+							<g v-for="tri in grid.grid.upTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
 								<polygon  points="0,0 -50,86.6 50,86.6" />
 								<text x="0" y="75" text-anchor="middle">
 									<component :is="coordinates" :tri="tri"></component>
 								</text>
 							</g>
-							<g v-for="tri in grid.downTriangles()" :style="toTransform(positioner.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
+							<g v-for="tri in grid.grid.downTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
 								<polygon points="0,86.6 -50,0 50,0"/>
 								<text x="0" y="25" text-anchor="middle">
 									<component :is="coordinates" :tri="tri"></component>
@@ -329,13 +330,13 @@
 				<figure id="triangle-grid-distance" class="small">
 					<svg viewBox="0 0 700 420" border-box>
 						<g class="grid triangles">
-							<g v-for="tri in grid.upTriangles()" :style="toTransform(positioner.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
+							<g v-for="tri in grid.grid.upTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
 								<polygon  points="0,0 -50,86.6 50,86.6" />
 								<text x="0" y="75" text-anchor="middle">
 									<tspan>{{distance(tri,selected)}}</tspan>
 								</text>
 							</g>
-							<g v-for="tri in grid.downTriangles()" :style="toTransform(positioner.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
+							<g v-for="tri in grid.grid.downTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
 								<polygon points="0,86.6 -50,0 50,0"/>
 								<text x="0" y="25" text-anchor="middle">
 									<tspan>{{distance(tri,selected)}}</tspan>
@@ -354,21 +355,21 @@
 				<figure id="triangle-grid-yb" class="small" style="width:var(--diagram-width)">
 				<svg viewBox="0 0 700 420" border-box>
 					<g class="coord-labels">
-						<g class="y-coord coord" :style="toTransform(positioner.mapYCoord(selected))" :class="{visible: selected}">
+						<g class="y-coord coord" :style="toTransform(grid.mapYCoord(selected))" :class="{visible: selected}">
 							<text>y = <tspan class="y-coord numeric">{{selected ? selected.y : 0}}</tspan></text>
 						</g>
-						<g class="b-coord coord" :style="toTransform(positioner.mapBCoord(selected))" :class="{visible: selected && coordinates=='yb'}">
+						<g class="b-coord coord" :style="toTransform(grid.mapBCoord(selected))" :class="{visible: selected && coordinates=='yb'}">
 							<text>b = <tspan class="b-coord numeric">{{selected ? selected.b : 0}}</tspan></text>
 						</g>
 					</g>
 					<g class="grid triangles">
-						<g v-for="tri in grid.upTriangles()" :style="toTransform(positioner.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
+						<g v-for="tri in grid.grid.upTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
 							<polygon  points="0,0 -50,86.6 50,86.6" />
 							<text x="0" y="75" text-anchor="middle">
 								<component :is="coordinates" :tri="tri"></component>
 							</text>
 						</g>
-						<g v-for="tri in grid.downTriangles()" :style="toTransform(positioner.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
+						<g v-for="tri in grid.grid.downTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
 							<polygon points="0,86.6 -50,0 50,0"/>
 							<text x="0" y="25" text-anchor="middle">
 								<component :is="coordinates" :tri="tri"></component>
@@ -485,27 +486,27 @@
 			<figure id="triangle-grid-complete" style="width:var(--diagram-width)">
 				<svg viewBox="0 0 1200 800" border-box>
 					<g class="coord-labels">
-						<g class="x-coord coord" :style="toTransform(positioner.mapXCoord(selected))" :class="{visible: selected && (coordinates=='xyz' || coordinates=='xyr')}">
+						<g class="x-coord coord" :style="toTransform(grid.mapXCoord(selected))" :class="{visible: selected && (coordinates=='xyz' || coordinates=='xyr')}">
 							<text>x = <tspan class="x-coord numeric">{{selected ? selected.x : 0}}</tspan></text>
 						</g>
-						<g class="y-coord coord" :style="toTransform(positioner.mapYCoord(selected))" :class="{visible: selected}">
+						<g class="y-coord coord" :style="toTransform(grid.mapYCoord(selected))" :class="{visible: selected}">
 							<text>y = <tspan class="y-coord numeric">{{selected ? selected.y : 0}}</tspan></text>
 						</g>
-						<g class="z-coord coord" :style="toTransform(positioner.mapZCoord(selected))" :class="{visible: selected && coordinates=='xyz'}">
+						<g class="z-coord coord" :style="toTransform(grid.mapZCoord(selected))" :class="{visible: selected && coordinates=='xyz'}">
 							<text>z = <tspan class="z-coord numeric">{{selected ? selected.z : 0}}</tspan></text>
 						</g>
-						<g class="b-coord coord" :style="toTransform(positioner.mapBCoord(selected))" :class="{visible: selected && coordinates=='yb'}">
+						<g class="b-coord coord" :style="toTransform(grid.mapBCoord(selected))" :class="{visible: selected && coordinates=='yb'}">
 							<text>b = <tspan class="b-coord numeric">{{selected ? selected.b : 0}}</tspan></text>
 						</g>
 					</g>
 					<g class="grid triangles">
-						<g v-for="tri in grid.upTriangles()" :style="toTransform(positioner.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
+						<g v-for="tri in grid.grid.upTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
 							<polygon points="0,0 -50,86.6 50,86.6" />
 							<text x="0" y="75" text-anchor="middle">
 								<component :is="coordinates" :tri="tri"></component>
 							</text>
 						</g>
-						<g v-for="tri in grid.downTriangles()" :style="toTransform(positioner.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
+						<g v-for="tri in grid.grid.downTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
 							<polygon points="0,86.6 -50,0 50,0"/>
 							<text x="0" y="25" text-anchor="middle">
 								<component :is="coordinates" :tri="tri"></component>
@@ -528,217 +529,8 @@
 
 	<script type="module">
 		const { createApp, ref, defineComponent } = Vue;
-
-		class TriangleGrid {
-			constructor({nX, nY, nB, filter}) {
-				this.triangles = [];
-				if (nX !== undefined && nY !== undefined) {
-					for (let x = 0; x <= nX; x++) {
-						for (let y = 0; y <= nY; y++) {
-							for (const R of [0, 1]) {
-								if (filter && filter(x,y,R)) { // Remove triangles that should be filtered out, to get the right output shape
-									continue
-								}
-								this.triangles.push(new Triangle({x,y,R}));
-							}
-						}
-					}
-				} else if (nY !== undefined && nB !== undefined) {
-					for (let b = 0; b <= nB; b++) {
-						for (let y = 0; y <= nY; y++) {
-							//TODO: add filter option back in
-							this.triangles.push(new Triangle({b,y}));
-						}
-					}
-				} else {
-					throw "Unknown parameters to TriangleGrid";
-				}
-			}
-
-			widthByY(y) {
-				let n = 0;
-				for (const tri of this.triangles) {
-					if (tri.y == y) {
-						n ++
-					}
-				}
-				return n;
-			}
-
-			upTriangles() {
-				return this.triangles.filter((tri) => tri.R==0)
-			}
-
-			downTriangles() {
-				return this.triangles.filter((tri) => tri.R==1)
-			}
-		}
-
-		class SquareGrid {
-			constructor({nX, nY, filter}) {
-				this.squares = [];
-				for (let x = 0; x <= nX; x++) {
-					for (let y = 0; y <= nY; y++) {
-						if (filter && filter(x,y)) { // Remove triangles that should be filtered out, to get the right output shape
-							continue
-						}
-						this.squares.push(new Square(x,y));
-					}
-				}
-			}
-
-			getSquares() {
-				return this.squares
-			}
-		}
-
-		class Square {
-			constructor(x,y) {
-				this.x = x;
-				this.y = y;
-			}
-
-			string() {
-				return `${this.x},${this.y}`;
-			}
-		}
-
-		class Triangle {
-			constructor({x,y,z,R,b}) {
-				if (x!==undefined && y!==undefined && R!==undefined) {
-					// raw coordinates, these are used to identify a triangle
-					this.x = x;
-					this.y = y;
-					this.R = R;
-					
-					// derived coordinates
-
-					// x-y-z coordinates
-					this.z = this.x-this.y + this.R; // uses the same x, y coords as above
-					// y-b coordinates
-					this.b = this.x + this.z; // corresponds to the "column" of the triangle
-				} else if (x!==undefined && y!==undefined && z!==undefined) {
-					this.x = x;
-					this.y = y;
-					this.z = z;
-
-					// derived coords
-					this.R = this.z - this.x + this.y;
-					this.b = this.x + this.z;
-				} else if (y!==undefined && b!=undefined) {
-					this.y = y;
-					this.b = b;
-
-					// derived coords
-					this.x = Math.floor((b+y)/2);
-					this.R = (b+y)%2;
-					this.z = this.x - this.y + this.R;
-				} else {
-					throw "Unknown triangle type with parameters";
-				}
-			}
-
-			string() {
-				return `${this.x},${this.y},${this.R}`;
-			}
-		}
-
-		class SquarePositioner {
-			constructor(padding, grid, size) {
-				this.padding = padding
-				this.grid = grid
-				this.size = size
-			}
-
-			mapSquare(sq) {
-				return {
-					x: this.padding.x + sq.x * this.size,
-					y: this.padding.y + sq.y * this.size,
-				}
-			}
-
-			mapXCoord(coord) {
-				// TODO: lower label when possible
-				if (!coord) {
-					return {x:0, y:0};
-				}
-				return {
-					x: this.padding.x + 30 + coord.x*this.size, 
-					y: this.padding.y - 25,
-					// rotate: -90,
-				};
-			}
-
-			mapYCoord(coord) {
-				if (!coord) {
-					return {x:0, y:0};
-				}
-				return {
-					x: this.padding.x + 500 +  30, 
-					y: this.padding.y + coord.y * this.size + 60,
-				};
-			}
-		}
-
-		class TrianglePositioner {
-			constructor(padding, grid, size) {
-				this.padding = padding
-				this.grid = grid
-				this.size = size
-			}
-
-			mapTriangle(tri) {
-				return {
-					x: this.padding.x + -this.size/2*(tri.y%2) + (tri.x - Math.floor(tri.y/2)) * this.size + (this.size/2)*tri.R,
-					y: this.padding.y + tri.y * 86.6,
-				}
-			}
-
-			mapYCoord(coord) {
-				if (!coord) {
-					return {x:0, y:0};
-				}
-				return {
-					x: this.padding.x + this.size * this.grid.widthByY(coord.y)/2 + 40, 
-					y: coord.y*86.6 + 50 + this.padding.y,
-				};
-			}
-
-			mapXCoord(coord) {
-				// TODO: lower label when possible
-				if (!coord) {
-					return {x:0, y:0};
-				}
-				return {
-					x: this.padding.x + 50 + coord.x*this.size, 
-					y: this.padding.y - 25,
-					rotate: -60,
-				};
-			}
-
-			mapZCoord(coord) {
-				// TODO: lower label when possible
-				if (!coord) {
-					return {x:0, y:0};
-				}
-				return {
-					x: this.padding.x + coord.z*this.size  - this.size, 
-					y: this.padding.y - 50,
-					rotate: 60,
-				};
-			}
-
-			mapBCoord(coord) {
-				if (!coord) {
-					return {x:0, y:0};
-				}
-				return {
-					x: this.padding.x + coord.b*this.size/2, 
-					y: this.padding.y - 25,
-					rotate: -90,
-				};
-			}
-		}
+		import { TriangleGrid, TrianglePositioner, setActiveTriangle, triClassName, triSimpleClassName, xyz, xyr, yb } from "./triangles.js";
+		import { SquareGrid, SquarePositioner, setActiveSquare, sqClassName } from "./squares.js";
 		
 		function toTransform(offsetVect) {
 			if (offsetVect.rotate) {
@@ -751,123 +543,24 @@
 			}
 		}
 
-		function triClassName(tri, selected) {
-			if (this.selected === null) {
-				return {
-					uptriangle: tri.R==0,
-					downtriangle: tri.R==1,
-				}
-			}
-			const highlight = tri.string() == this.selected.string()
-			return {
-				highlight,
-				...(this.coordinates == "xyz" || this.coordinates == "xyr") && {sameX: tri.x==this.selected.x && !highlight},
-				sameY: tri.y==this.selected.y && !highlight, // y coordinate is used in call coordinate systems
-				...(this.coordinates == "xyr") && {sameR: tri.R==this.selected.R && !highlight},
-				...(this.coordinates == "xyz") && {sameZ: tri.z==this.selected.z && !highlight},
-				...(this.coordinates == "yb") && {sameB: tri.b==this.selected.b && !highlight},
-				uptriangle: tri.R==0,
-				downtriangle: tri.R==1,
-			}
-		}
-
-		function triSimpleClassName(tri, selected) {
-			if (this.selected === null) {
-				return {
-					uptriangle: tri.R==0,
-					downtriangle: tri.R==1,
-				}
-			}
-			const highlight = tri.string() == this.selected.string()
-			return {
-				highlight,
-				uptriangle: tri.R==0,
-				downtriangle: tri.R==1,
-			}
-		}
-
-
-		function sqClassName(sq, selected) {
-			if (this.selected === null) {
-				return {
-					square: true,
-					odd: (sq.x+sq.y)%2 == 1,
-					even: (sq.x+sq.y)%2 == 0,
-				}
-			}
-			const highlight = sq.string() == this.selected.string()
-			return {
-				highlight,
-				sameX: sq.x==this.selected.x && !highlight,
-				sameY: sq.y==this.selected.y && !highlight,
-				square: true,
-				odd: (sq.x+sq.y)%2 == 1,
-				even: (sq.x+sq.y)%2 == 0,
-			}
-		}
-
-		function setActiveTriangle(triString) {
-			for (const tri of this.grid.triangles) {
-				if (tri.string() == triString) {
-					this.selected = tri;
-					return
-				}
-			}
-		}
-
-		function setActiveSquare(sqString) {
-			for (const sq of this.grid.squares) {
-				if (sq.string() == sqString) {
-					this.selected = sq;
-					return
-				}
-			}
-		}
-
 		function mouseTriangle(event) {
-			this.setActiveTriangle(event.target.parentElement.dataset.tri);
-		}
-
-		function clickTriangle(event) {
 			this.setActiveTriangle(event.target.parentElement.dataset.tri);
 		}
 
 		function mouseSquare(event) {
 			this.setActiveSquare(event.target.parentElement.dataset.sq);
 		}
-
-		function clickSquare(event) {
-			this.setActiveSquare(event.target.parentElement.dataset.sq);
-		}
-
-		// Components to display triangle coordinates, in the three coordinate systems
-
-		const xyz = {
-			template: `<tspan class="x-y-z-coord"><tspan class="x-coord">{{tri.x}}</tspan>, <tspan class="y-coord">{{tri.y}}</tspan>, <tspan class="z-coord">{{tri.z}}</tspan></tspan>`,
-		  props: ['tri'],
-		};
-		const xyr = {
-			template: `<tspan class="x-y-r-coord"><tspan class="x-coord">{{tri.x}}</tspan>, <tspan class="y-coord">{{tri.y}}</tspan>, <tspan class="r-coord">{{tri.R}}</tspan></tspan>`,
-		  props: ['tri'],
-		};
-		const yb = {
-			template: `<tspan class="y-b-coord"><tspan class="y-coord">{{tri.y}}</tspan>, <tspan class="b-coord">{{tri.b}}</tspan></tspan>`,
-		  props: ['tri'],
-		};
  
-		let fullTriangleGrid = new TriangleGrid({
-			nB: 18, 
-			nY: 7, 
-		});
-
 		const fullTriangleApp = createApp({
 			data() {
 				return {
 					selected: null,
-					grid:fullTriangleGrid,
-					positioner: new TrianglePositioner(
+					grid: new TrianglePositioner(
 						{x: 100, y: 70},
-						fullTriangleGrid,
+						new TriangleGrid({
+							nB: 18, 
+							nY: 7, 
+						}),
 						100,
 					),
 					coordinates: "xyr",
@@ -875,7 +568,7 @@
 			},
 			methods: {
 				mouse:mouseTriangle,
-				click:clickTriangle,
+				click:mouseTriangle,
 				triClassName,
 				setActiveTriangle,
 				toTransform,
@@ -887,19 +580,16 @@
 			}
 		}).mount('#triangle-grid-complete');
 
-		let triangleGridXYR = new TriangleGrid({
-			nX: 3,
-			nY: 3,
-		});
-
 		const triangleXYRApp = createApp({
 			data() {
 				return {
 					selected: null,
-					grid:triangleGridXYR,
-					positioner: new TrianglePositioner(
+					grid: new TrianglePositioner(
 						{x: 200, y: 70},
-						triangleGridXYR,
+							new TriangleGrid({
+							nX: 3,
+							nY: 3,
+						}),
 						100,
 					),
 					coordinates: "xyr",
@@ -907,7 +597,7 @@
 			},
 			methods: {
 				mouse:mouseTriangle,
-				click:clickTriangle,
+				click:mouseTriangle,
 				triClassName,
 				setActiveTriangle,
 				toTransform,
@@ -917,19 +607,16 @@
 			}
 		}).mount('#triangle-grid-xyr');
 
-		let triangleGridXYZ = new TriangleGrid({
-			nX: 3, 
-			nY: 3, 
-		});
-
 		const triangleXYZApp = createApp({
 			data() {
 				return {
 					selected: null,
-					grid:triangleGridXYZ,
-					positioner: new TrianglePositioner(
+					grid: new TrianglePositioner(
 						{x: 200, y: 70},
-						triangleGridXYZ,
+						new TriangleGrid({
+							nX: 3, 
+							nY: 3, 
+						}),
 						100,
 					),
 					coordinates: "xyz",
@@ -937,7 +624,7 @@
 			},
 			methods: {
 				mouse:mouseTriangle,
-				click:clickTriangle,
+				click:mouseTriangle,
 				triClassName,
 				setActiveTriangle,
 				toTransform,
@@ -947,6 +634,7 @@
 			}
 		}).mount('#triangle-grid-xyz');
 
+		// grid that should span the whole svg viewport
 		let triangleGridAnonymous = new TriangleGrid({
 			nX: 12,
 			nY: 12,
@@ -956,8 +644,7 @@
 			data() {
 				return {
 					selected: null,
-					grid:triangleGridAnonymous,
-					positioner: new TrianglePositioner(
+					grid: new TrianglePositioner(
 						{x: 0, y: 0},
 						triangleGridAnonymous,
 						100,
@@ -975,8 +662,7 @@
 			data() {
 				return {
 					selected: triangleGridAnonymous.triangles[55], // pick a triangle somewhere in the middle
-					grid:triangleGridAnonymous,
-					positioner: new TrianglePositioner(
+					grid: new TrianglePositioner(
 						{x: 0, y: 0},
 						triangleGridAnonymous,
 						100,
@@ -986,7 +672,7 @@
 			},
 			methods: {
 				mouse:mouseTriangle,
-				click:clickTriangle,
+				click:mouseTriangle,
 				triClassName:triSimpleClassName,
 				setActiveTriangle,
 				toTransform,
@@ -999,21 +685,16 @@
 			},
 		}).mount('#triangle-grid-distance');
 
-
-
-		let triangleGridYB = new TriangleGrid({
-			nB: 6,
-			nY: 3,
-		});
-
 		const triangleYBApp = createApp({
 			data() {
 				return {
 					selected: null,
-					grid:triangleGridYB,
-					positioner: new TrianglePositioner(
+					grid: new TrianglePositioner(
 						{x: 200, y: 70},
-						triangleGridYB,
+						new TriangleGrid({
+							nB: 6,
+							nY: 3,
+						}),
 						100,
 					),
 					coordinates: "yb",
@@ -1021,7 +702,7 @@
 			},
 			methods: {
 				mouse:mouseTriangle,
-				click:clickTriangle,
+				click:mouseTriangle,
 				triClassName,
 				setActiveTriangle,
 				toTransform,
@@ -1040,8 +721,7 @@
 			data() {
 				return {
 					selected: null,
-					grid: squareGrid, 
-					positioner: new SquarePositioner(
+					grid: new SquarePositioner(
 						{x: 0, y: 50},
 						squareGrid,
 						100,
@@ -1051,7 +731,7 @@
 			},
 			methods: {
 				mouse:mouseSquare,
-				click:clickSquare,
+				click:mouseSquare,
 				sqClassName,
 				setActiveSquare,
 				toTransform,

@@ -3,134 +3,139 @@
 }
 */
 body {
-	--body-width: min(80rem, 90vw);
-	--gutter: 1.125rem;
+  --body-width: min(80rem, 90vw);
+  --gutter: 1.125rem;
 
-	--diagram-width-wide: 60rem;
-	--diagram-width-small: 30rem;
-	--diagram-width-smaller: 20rem;
+  --diagram-width-wide: 60rem;
+  --diagram-width-small: 30rem;
+  --diagram-width-smaller: 20rem;
 
-	--margin-left: calc((100vw - var(--body-width) - var(--gutter))/2);
+  --margin-left: calc((100vw - var(--body-width) - var(--gutter)) / 2);
 
-	/* font choices inspired by www.redblobgames.com */
-	--sans-serif: "Avenir Next", Candara, Ubuntu, "Fira Sans", system-ui, "Segoe UI", sans-serif;
-	--serif: "Iowan Old Style", Cambria, Georgia, serif;
-	--header-font: "STIX Two Text", serif;
+  /* font choices inspired by www.redblobgames.com */
+  --sans-serif: 'Avenir Next', Candara, Ubuntu, 'Fira Sans', system-ui, 'Segoe UI', sans-serif;
+  --serif: 'Iowan Old Style', Cambria, Georgia, serif;
+  --header-font: 'STIX Two Text', serif;
 
-	font-family: var(--sans-serif);
-	font-size: 1.1em;
-	margin: 0;
-	
+  font-family: var(--sans-serif);
+  font-size: 1.1em;
+  margin: 0;
 }
 
 main {
-	margin-top: 5em;
-	margin-left: var(--margin-left);
-	/*margin-right: 30em;*/
-	/*width: calc(var(--body-width) + var(--gutter) + var(--diagram-width-small));*/
-	width: var(--body-width);
-	max-width: inherit;
+  margin-top: 5em;
+  margin-left: var(--margin-left);
+  /*margin-right: 30em;*/
+  /*width: calc(var(--body-width) + var(--gutter) + var(--diagram-width-small));*/
+  width: var(--body-width);
+  max-width: inherit;
 }
 
 header {
-	display: block;
-	text-align: center;
-	font-family: var(--header-font);
-	background-color: hsl(0, 0%, 80%);
-	height: 6.5em;
-	font-size: 2.5em;
-	padding-top: 0.5em;
-	border-bottom: 50px solid hsl(0, 0%, 90%);
+  display: block;
+  text-align: center;
+  font-family: var(--header-font);
+  background-color: hsl(0, 0%, 80%);
+  height: 6.5em;
+  font-size: 2.5em;
+  padding-top: 0.5em;
+  border-bottom: 50px solid hsl(0, 0%, 90%);
 
-	.subhead {
-		font-size: 1.5rem;
+  .subhead {
+    font-size: 1.5rem;
 
-		a {
-			text-decoration: none;
-		}
-	}
+    a {
+      text-decoration: none;
+    }
+  }
+}
+
+section {
+  padding-bottom: 3em;
 }
 
 div.flex-container {
-	display: inline-flex;
-	gap: 2em;
-	flex-direction: row;
+  display: inline-flex;
+  gap: 2em;
+  flex-direction: row;
 }
 
 div.center {
-	display:flex;
-	justify-content:center;
+  display: flex;
+  justify-content: center;
 }
 
 h2 {
-	font-size: 2em;
-	font-family: var(--header-font);
+  font-size: 2em;
+  font-family: var(--header-font);
 }
 
-h2::before{
-	content: "△ ";
+h2::before {
+  content: '△ ';
 }
 
 footer {
-	display: block;
-	text-align: center;
-	height: 3rem;
-	background-color: hsl(0, 0%, 80%);
-	border-top: 50px solid hsl(0, 0%, 90%);
-	padding-top: 2rem;
-	margin-top: 5rem;
+  display: block;
+  text-align: center;
+  height: 3rem;
+  background-color: hsl(0, 0%, 80%);
+  border-top: 50px solid hsl(0, 0%, 90%);
+  padding-top: 2rem;
+  margin-top: 5rem;
 }
 
 p {
-	font-family: var(--serif);
-	/*padding-left:s 1em;*/
-	font-size: 1.2em;
+  font-family: var(--serif);
+  /*padding-left:s 1em;*/
+  font-size: 1.2em;
 }
 
-figure, .sidebar {
-	box-sizing: border-box;
-	/*bordser: 1px solid black;*/
-	flex-basis: auto;
-	margin: 0;
+figure,
+.sidebar {
+  box-sizing: border-box;
+  /*bordser: 1px solid black;*/
+  flex-basis: auto;
+  margin: 0;
 
-	&.small {
-		min-width: var(--diagram-width-small);
-	}
+  &.small {
+    min-width: var(--diagram-width-small);
+  }
 
-	&.smaller {
-		min-width: var(--diagram-width-smaller);
-	}
+  &.smaller {
+    min-width: var(--diagram-width-smaller);
+  }
 
-	figcaption {
-		text-align: center;
-	}
+  figcaption {
+    text-align: center;
+  }
 }
 
 .block {
-	padding-top: 2em;
-	display: block;
+  padding-top: 2em;
+  display: block;
 }
 
 table {
-	border-collapse: collapse;
-  	border: 2px solid rgb(140 140 140);
+  border-collapse: collapse;
+  border: 2px solid rgb(140 140 140);
 
-	caption {
-	  caption-side: bottom;
-	  padding: 10px;
-	  /*font-weight: bold;*/
-	}
+  caption {
+    caption-side: bottom;
+    padding: 10px;
+    /*font-weight: bold;*/
+  }
 
-	th {
-		font-weight:normal;
-	}
+  th {
+    font-weight: normal;
+  }
 
-	th, td {
-		border: 1px solid rgb(160 160 160);
-		padding: 5px;
-	}
+  th,
+  td {
+    border: 1px solid rgb(160 160 160);
+    padding: 5px;
+  }
 
-	td.empty {
-		background-color: hsl(0, 0%, 90%);
-	}
+  td.empty {
+    background-color: hsl(0, 0%, 90%);
+  }
 }

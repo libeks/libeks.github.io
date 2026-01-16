@@ -97,6 +97,11 @@ figure,
   flex-basis: auto;
   margin: 0;
 
+  &.full-width {
+  	padding-top: 2em;
+  	padding-bottom: 2em;
+  }
+
   &.small {
     min-width: var(--diagram-width-small);
   }

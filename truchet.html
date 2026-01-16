@@ -57,7 +57,7 @@
           </figure>
         </div>
         <p>For the grid, we randomly choose from either of the two tiles. Lovely, isn't it?</p>
-        <figure id="square-grid-two-tile" style="width: var(--diagram-width)">
+        <figure id="square-grid-two-tile" class="full-width">
           <svg viewBox="0 0 3000 1500" border-box>
             <g class="grid squares">
               <g
@@ -135,6 +135,62 @@
             <figcaption>Some other tiles added for fun</figcaption>
           </figure>
         </div>
+        <p>
+          <figure id="square-grid-five-tile" class="full-width">
+            <svg viewBox="0 0 3000 1500" border-box>
+              <g class="grid squares">
+                <g
+                  v-for="sq in grid.grid.squares"
+                  :style="toTransform(grid.mapSquare(sq))"
+                  :class="sqClassName(sq, selected)"
+                  :data-sq="sq.string()"
+                >
+                  <g v-if="sq.data==0" class="square">
+                    <!-- Two quarter circles -->
+                    <g class="tile">
+                      <polygon points="0,0 0,100 100,100 100,0" />
+                      <path class="stroke" d="M 0 50 A 50 50 1 0 0 50 0" />
+                      <path class="stroke" d="M 100 50 A 50 50 1 0 0 50 100" />
+                    </g>
+                  </g>
+                  <g v-if="sq.data==1" class="square">
+                    <!-- Two quarter circles, turned 90 degrees -->
+                    <g class="tile rot90deg">
+                      <polygon points="0,0 0,100 100,100 100,0" />
+                      <path class="stroke" d="M 0 50 A 50 50 1 0 0 50 0" />
+                      <path class="stroke" d="M 100 50 A 50 50 1 0 0 50 100" />
+                    </g>
+                  </g>
+                  <g v-if="sq.data==2" class="square">
+                    <!-- Cross -->
+                    <g class="tile">
+                      <polygon points="0,0 0,100 100,100 100,0" />
+                      <path class="stroke" d="M 0 50 L 100 50" />
+                      <path class="stroke" d="M 50 0 L 50 100" />
+                    </g>
+                  </g>
+                  <g v-if="sq.data==3" class="square">
+                    <!-- Cross under -->
+                    <g class="tile">
+                      <polygon points="0,0 0,100 100,100 100,0" />
+                      <path class="stroke" d="M 0 50 L 30 50 M 70 50 L 100 50" />
+                      <path class="stroke" d="M 50 0 L 50 100" />
+                    </g>
+                  </g>
+                  <g v-if="sq.data==4" class="square">
+                    <!-- Cross over -->
+                    <g class="tile rot90deg">
+                      <polygon points="0,0 0,100 100,100 100,0" />
+                      <path class="stroke" d="M 0 50 L 30 50 M 70 50 L 100 50" />
+                      <path class="stroke" d="M 50 0 L 50 100" />
+                    </g>
+                  </g>
+                  <!-- <text>{{sq.data}}</text> -->
+                </g>
+              </g>
+            </svg>
+          </figure>
+        </p>
       </section>
     </main>
     <footer>© 2026 Jānis Lībeks</footer>
@@ -164,7 +220,7 @@
         }
       }
 
-      const squareApp = createApp({
+      const squareTwoApp = createApp({
         data() {
           return {
             selected: null,
@@ -185,6 +241,28 @@
           toTransform,
         },
       }).mount('#square-grid-two-tile')
+
+      const squareFiveApp = createApp({
+        data() {
+          return {
+            selected: null,
+            grid: new SquarePositioner(
+              { x: 0, y: 0 },
+              new SquareGrid({
+                nX: 30,
+                nY: 15,
+              }),
+              100,
+            ).randomize([0, 1, 2, 3, 4]),
+            coordinates: 'xyr',
+          }
+        },
+        methods: {
+          sqClassName,
+          setActiveSquare,
+          toTransform,
+        },
+      }).mount('#square-grid-five-tile')
     </script>
   </body>
 </html>

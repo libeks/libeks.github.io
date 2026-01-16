@@ -23,6 +23,12 @@ svg {
     stroke-width: 1;
   }
 
+  .stroke {
+    fill: none;
+    stroke-width: 10px;
+    stroke: black;
+  }
+
   text {
     font-size: 1.1rem;
     pointer-events: none;
@@ -85,6 +91,15 @@ svg {
   .grid.triangles .downtriangle,
   .grid.square .square.even {
     fill: hsl(147, 0%, 85%);
+  }
+
+  .grid .square .tile {
+    transform-origin: 50px 50px;
+    fill: none;
+
+    &.rot90deg {
+      transform: rotate(90deg);
+    }
   }
 
   .highlight polygon {

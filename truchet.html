@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Truchet Tiles</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="style.css" rel="stylesheet" />
+    <link href="triangles.css" rel="stylesheet" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400..700;1,400..700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <header>
+      <h1>Truchet Tiles</h1>
+      <div class="subhead"><a href="index.html">Home</a></div>
+    </header>
+    <main>
+      <section>
+        <h2>(Jan 2026) WORK IN PROGRESS!</h2>
+        <p>
+          This is a follow-up on the post about Triangular Grids, to see how easily we could adapt a
+          regular grid for Truchet tiles.
+        </p>
+      </section>
+      <section>
+        <h2>Rectangular Grid</h2>
+        <div class="flex-container">
+          <p>
+            We start, as always, with the simple Cartesian grid, and the simplest set of two Truchet
+            tiles.
+          </p>
+          <figure id="square-grid" class="float-right small">
+            <svg viewBox="0 0 400 200">
+              <g class="grid square">
+                <g class="square" style="transform: translate(75px, 50px)">
+                  <g class="tile">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path class="stroke" d="M 0 50 A 50 50 1 0 0 50 0" />
+                    <path class="stroke" d="M 100 50 A 50 50 1 0 0 50 100" />
+                  </g>
+                </g>
+                <g class="square" style="transform: translate(275px, 50px)">
+                  <g class="tile rot90deg">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path class="stroke" d="M 0 50 A 50 50 1 0 0 50 0" />
+                    <path class="stroke" d="M 100 50 A 50 50 1 0 0 50 100" />
+                  </g>
+                </g>
+              </g>
+            </svg>
+            <figcaption>Simplest two Truchet tiles with quarter-circle sections</figcaption>
+          </figure>
+        </div>
+        <p>For the grid, we randomly choose from either of the two tiles. Lovely, isn't it?</p>
+        <figure id="square-grid-two-tile" style="width: var(--diagram-width)">
+          <svg viewBox="0 0 3000 1500" border-box>
+            <g class="grid squares">
+              <g
+                v-for="sq in grid.grid.squares"
+                :style="toTransform(grid.mapSquare(sq))"
+                :class="sqClassName(sq, selected)"
+                :data-sq="sq.string()"
+              >
+                <g v-if="sq.data==0" class="tile">
+                  <polygon points="0,0 0,100 100,100 100,0" />
+                  <path class="stroke" d="M 0 50 A 50 50 1 0 0 50 0" />
+                  <path class="stroke" d="M 100 50 A 50 50 1 0 0 50 100" />
+                </g>
+                <g v-if="sq.data==1" class="tile rot90deg">
+                  <polygon points="0,0 0,100 100,100 100,0" />
+                  <path class="stroke" d="M 0 50 A 50 50 1 0 0 50 0" />
+                  <path class="stroke" d="M 100 50 A 50 50 1 0 0 50 100" />
+                </g>
+                <!-- <text>{{sq.data}}</text> -->
+              </g>
+            </g>
+          </svg>
+        </figure>
+        <div class="flex-container">
+          <p>
+            We of course are not limited to these two tiles. In fact, we can come up with as many
+            tiles as we like, as long as they contain strokes that "exit" the tile at the four
+            cardinal directions.
+          </p>
+          <figure id="square-grid" class="float-right small">
+            <svg viewBox="0 0 400 200">
+              <g class="grid square">
+                <g class="square" style="transform: translate(0px, 0px)">
+                  <!-- Two quarter circles -->
+                  <g class="tile">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path class="stroke" d="M 0 50 A 50 50 1 0 0 50 0" />
+                    <path class="stroke" d="M 100 50 A 50 50 1 0 0 50 100" />
+                  </g>
+                </g>
+                <g class="square" style="transform: translate(100px, 0px)">
+                  <!-- Two quarter circles, turned 90 degrees -->
+                  <g class="tile rot90deg">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path class="stroke" d="M 0 50 A 50 50 1 0 0 50 0" />
+                    <path class="stroke" d="M 100 50 A 50 50 1 0 0 50 100" />
+                  </g>
+                </g>
+                <g class="square" style="transform: translate(200px, 0px)">
+                  <!-- Cross -->
+                  <g class="tile">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path class="stroke" d="M 0 50 L 100 50" />
+                    <path class="stroke" d="M 50 0 L 50 100" />
+                  </g>
+                </g>
+                <g class="square" style="transform: translate(300px, 0px)">
+                  <!-- Cross under -->
+                  <g class="tile">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path class="stroke" d="M 0 50 L 30 50 M 70 50 L 100 50" />
+                    <path class="stroke" d="M 50 0 L 50 100" />
+                  </g>
+                </g>
+                <g class="square" style="transform: translate(0px, 100px)">
+                  <!-- Cross over -->
+                  <g class="tile rot90deg">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path class="stroke" d="M 0 50 L 30 50 M 70 50 L 100 50" />
+                    <path class="stroke" d="M 50 0 L 50 100" />
+                  </g>
+                </g>
+              </g>
+            </svg>
+            <figcaption>Some other tiles added for fun</figcaption>
+          </figure>
+        </div>
+      </section>
+    </main>
+    <footer>© 2026 Jānis Lībeks</footer>
+
+    <script type="module">
+      const { createApp, ref, defineComponent } = Vue
+      // import {
+      //   TriangleGrid,
+      //   TrianglePositioner,
+      //   setActiveTriangle,
+      //   triClassName,
+      //   triSimpleClassName,
+      //   xyz,
+      //   xyr,
+      //   yb,
+      // } from './triangles.js'
+      import { SquareGrid, SquarePositioner, setActiveSquare, sqClassName } from './squares.js'
+
+      function toTransform(offsetVect) {
+        if (offsetVect.rotate) {
+          return {
+            transform: `translate(${offsetVect.x}px,${offsetVect.y}px) rotate(${offsetVect.rotate}deg)`,
+          }
+        }
+        return {
+          transform: `translate(${offsetVect.x}px,${offsetVect.y}px)`,
+        }
+      }
+
+      const squareApp = createApp({
+        data() {
+          return {
+            selected: null,
+            grid: new SquarePositioner(
+              { x: 0, y: 0 },
+              new SquareGrid({
+                nX: 30,
+                nY: 15,
+              }),
+              100,
+            ).randomize([0, 1]),
+            coordinates: 'xyr',
+          }
+        },
+        methods: {
+          sqClassName,
+          setActiveSquare,
+          toTransform,
+        },
+      }).mount('#square-grid-two-tile')
+    </script>
+  </body>
+</html>

@@ -21,6 +21,7 @@ class Square {
   constructor(x, y) {
     this.x = x
     this.y = y
+    this.data = null
   }
 
   string() {
@@ -40,6 +41,16 @@ class SquarePositioner {
       x: this.padding.x + sq.x * this.size,
       y: this.padding.y + sq.y * this.size,
     }
+  }
+
+  randomize(options) {
+    console.log(this.grid)
+    for (let sq of this.grid.squares) {
+      const r = Math.floor(Math.random() * options.length)
+      sq.data = options[r]
+    }
+    console.log(this.grid)
+    return this
   }
 
   mapXCoord(coord) {

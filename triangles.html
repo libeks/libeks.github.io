@@ -1189,16 +1189,18 @@
         },
       }).mount('#triangle-grid-yb')
 
-      let squareGrid = new SquareGrid({
-        nX: 4,
-        nY: 4,
-      })
-
       const squareApp = createApp({
         data() {
           return {
             selected: null,
-            grid: new SquarePositioner({ x: 0, y: 50 }, squareGrid, 100),
+            grid: new SquarePositioner(
+              { x: 0, y: 50 },
+              new SquareGrid({
+                nX: 4,
+                nY: 4,
+              }),
+              100,
+            ),
             coordinates: 'xyr',
           }
         },

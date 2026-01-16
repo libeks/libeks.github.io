@@ -1,743 +1,1216 @@
-<!DOCTYPE html><html lang="en">
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Triangular Grid Math</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="style.css" rel="stylesheet" />
+    <link href="triangles.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400..700;1,400..700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="./triangles.js" type="module"></script>
+  </head>
 
-<head>
-	<title>Triangular Grid Math</title>
-	<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-	<link href='style.css' rel='stylesheet' />
-	<link href='triangles.css' rel='stylesheet' />
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
-	<script src="./triangles.js" type="module"></script>
-</head>
+  <body>
+    <header>
+      <h1>Triangular Grid Math</h1>
+      <div class="subhead"><a href="index.html">Home</a></div>
+    </header>
+    <main>
+      <section>
+        <!-- <h2> (Jan 2026) WORK IN PROGRESS! </h2> -->
+        <p>
+          This little applet is inspired by
+          <a href="https://www.redblobgames.com/grids/hexagons/#coordinates"
+            >this Amit/RedBlobGames blog post</a
+          >
+          on hexagonal grids. It also follows up on an
+          <a href="https://simblob.blogspot.com/2007/06/distances-on-triangular-grid.html"
+            >earlier blogpost of theirs</a
+          >
+          about Triangle Grids, which sadly doesn't include any interactivity.
+        </p>
+        <p>
+          I wanted to better familiarize myself with Vue and Javascript rendering, to extend my
+          graphics work for a <a href="https://github.com/libeks/go-plotter-svg">Pen Plotter</a> and
+          <a href="https://github.com/libeks/go-scene-renderer">3D CPU Renderer</a>.
+        </p>
+      </section>
+      <section>
+        <h2>Purpose</h2>
+        <div class="flex-container">
+          <p>
+            While working on
+            <a href="https://en.wikipedia.org/wiki/Truchet_tile">Truchet tiles</a> and
+            <a href="https://en.wikipedia.org/wiki/Marching_squares">Marching Squares</a>
+            implementations, I found myself quite comfortable with a square grid. Take any
+            rectangle, and subdivide it into squares (rectangles with all sides the same), and use
+            their Cartesian (x,y) coordinates to refer to each individual square. Since I was
+            working on plotting the results, and the pen starts at the upper left corner of the
+            page, I found that this was a convenient origin point, with x-coordinate increasing
+            left-to-right, and the y-coordinate increasing downwards.
+          </p>
+          <figure id="square-grid" class="float-right small">
+            <svg viewBox="0 0 600 550">
+              <g class="coord-labels">
+                <g
+                  class="x-coord coord"
+                  :style="toTransform(grid.mapXCoord(selected))"
+                  :class="{visible: selected}"
+                >
+                  <text>
+                    x =
+                    <tspan class="x-coord numeric">{{selected ? selected.x : 0}}</tspan>
+                  </text>
+                </g>
+                <g
+                  class="y-coord coord"
+                  :style="toTransform(grid.mapYCoord(selected))"
+                  :class="{visible: selected}"
+                >
+                  <text>
+                    y =
+                    <tspan class="y-coord numeric">{{selected ? selected.y : 0}}</tspan>
+                  </text>
+                </g>
+              </g>
+              <g class="grid square">
+                <g
+                  v-for="sq in grid.grid.squares"
+                  :style="toTransform(grid.mapSquare(sq))"
+                  :class="sqClassName(sq, selected)"
+                  :data-sq="sq.string()"
+                  @mousemove="mouse"
+                  @click="click"
+                >
+                  <polygon points="0,0 0,100 100,100 100,0" />
+                  <text x="50" y="60" text-anchor="middle">
+                    <tspan class="x-y-coord">
+                      <tspan class="x-coord">{{sq.x}}</tspan>
+                      ,
+                      <tspan class="y-coord">{{sq.y}}</tspan>
+                    </tspan>
+                  </text>
+                </g>
+              </g>
+            </svg>
+            <figcaption>Cartesian square grid</figcaption>
+          </figure>
+        </div>
+        <p>
+          I then wanted to extend these approaches to other regular grids. Surprisingly, what
+          coordinate system to use is not a trivial decision. As mentioned above, the choices for
+          hexagons are many, one should choose the coordinate system that works best.
+        </p>
+        <div class="flex-container">
+          <p>
+            What about triangles though? The plane can be partitioned into equilateral triangles
+            trivially. Here I orient them such that one edge is horizontal. I get two triangle
+            orientations; one with pointing up, the other pointing down. But how do we index into
+            them? Specifically, I am looking for a unique integer-based coordinate for each
+            triangle, and an easy mapping between the coordinate and the corresponding triangle.
+            Ideally, the coordinate system should be translation-invariant (the coordinates should
+            change between adjacent triangles under the same pattern, no matter where in the grid
+            the triangle exists), they should allow for an easy creation of the grid, and it should
+            lead to easy human interpretability.
+          </p>
+          <figure id="triangular-grid-anonymous" class="float-right small">
+            <svg viewBox="0 0 600 550">
+              <g class="grid triangles">
+                <g
+                  v-for="tri in grid.grid.upTriangles()"
+                  :style="toTransform(grid.mapTriangle(tri))"
+                  :class="triClassName(tri, selected)"
+                  :data-tri="tri.string()"
+                >
+                  <polygon points="0,0 -50,86.6 50,86.6" />
+                </g>
+                <g
+                  v-for="tri in grid.grid.downTriangles()"
+                  :style="toTransform(grid.mapTriangle(tri))"
+                  :class="triClassName(tri, selected)"
+                  :data-tri="tri.string()"
+                >
+                  <polygon points="0,86.6 -50,0 50,0" />
+                </g>
+              </g>
+            </svg>
+            <figcaption>Equilateral triangular grid</figcaption>
+          </figure>
+        </div>
+      </section>
 
-<body>
-	<header>
-		<h1>Triangular Grid Math</h1>
-		<div class="subhead"><a href="index.html">Home</a></div>
-	</header>
-	<main>
-		<section>
-			<!-- <h2> (Jan 2026) WORK IN PROGRESS! </h2> -->
-			<p>This little applet is inspired by <a href="https://www.redblobgames.com/grids/hexagons/#coordinates">this Amit/RedBlobGames blog post</a> on hexagonal grids. It also follows up on an <a href="https://simblob.blogspot.com/2007/06/distances-on-triangular-grid.html">earlier blogpost of theirs</a> about Triangle Grids, which sadly doesn't include any interactivity.</p>
-			<p>I wanted to better familiarize myself with Vue and Javascript rendering, to extend my graphics work for a <a href="https://github.com/libeks/go-plotter-svg">Pen Plotter</a> and <a href="https://github.com/libeks/go-scene-renderer">3D CPU Renderer</a>.</p>
-		</section>
-		<section>
-			<h2>Purpose</h2>
-			<div class="flex-container">
-				<p>While working on <a href="https://en.wikipedia.org/wiki/Truchet_tile">Truchet tiles</a> and <a href="https://en.wikipedia.org/wiki/Marching_squares">Marching Squares</a> implementations, I found myself quite comfortable with a square grid. Take any rectangle, and subdivide it into squares (rectangles with all sides the same), and use their Cartesian (x,y) coordinates to refer to each individual square. Since I was working on plotting the results, and the pen starts at the upper left corner of the page, I found that this was a convenient origin point, with x-coordinate increasing left-to-right, and the y-coordinate increasing downwards.</p>
-				<figure id="square-grid" class="float-right small">
-					<svg viewBox="0 0 600 550">
-						<g class="coord-labels">
-							<g class="x-coord coord" :style="toTransform(grid.mapXCoord(selected))" :class="{visible: selected}">
-								<text>x = <tspan class="x-coord numeric">{{selected ? selected.x : 0}}</tspan></text>
-							</g>
-							<g class="y-coord coord" :style="toTransform(grid.mapYCoord(selected))" :class="{visible: selected}">
-								<text>y = <tspan class="y-coord numeric">{{selected ? selected.y : 0}}</tspan></text>
-							</g>
-						</g>
-						<g class="grid square">
-							<g v-for="sq in grid.grid.squares" :style="toTransform(grid.mapSquare(sq))" :class="sqClassName(sq, selected)" :data-sq="sq.string()"  @mousemove="mouse" @click="click">
-								<polygon points="0,0 0,100 100,100 100,0" />
-								<text x="50" y="60" text-anchor="middle">
-									<tspan class="x-y-coord"><tspan class="x-coord">{{sq.x}}</tspan>, <tspan class="y-coord">{{sq.y}}</tspan></tspan>
-								</text>
-							</g>
-						</g>
-					</svg>
-					<figcaption>Cartesian square grid</figcaption>
-				</figure>
-			</div>
-			<p>I then wanted to extend these approaches to other regular grids. Surprisingly, what coordinate system to use is not a trivial decision. As mentioned above, the choices for hexagons are many, one should choose the coordinate system that works best.</p>
-			<div class="flex-container">
-				<p>What about triangles though? The plane can be partitioned into equilateral triangles trivially. Here I orient them such that one edge is horizontal. I get two triangle orientations; one with pointing up, the other pointing down.
+      <section>
+        <h2>Skewed-square Grid : xyR</h2>
+        <div class="flex-container">
+          <p>
+            For this first coordinate grid, we take the square grid, and skew it so that it forms a
+            grid of parallelogram with 60&#xb0;-120&#xb0; angles. We then split each parallelogram
+            along its shorter diagonal, to form two triangles, an upper and a lower one. We refer to
+            each triangle by the (x,y) coordinate of its parallelogram, along with a third R
+            coordinate, which is 0 for the lower triangle, and 1 for the upper triangle, producing a
+            three-dimensional (x,y,R) coordinate for each triangle.
+          </p>
+          <figure class="small">
+            <svg viewBox="0 0 400 400">
+              <g class="grid square" style="transform: translate(30px, 0px)">
+                <g class="square odd">
+                  <polygon points="0,100 100,100 100,0 0,0" />
+                  <text x="50" y="55" text-anchor="middle">
+                    <tspan class="x-y-coord">
+                      <tspan class="x-coord">x</tspan>
+                      ,
+                      <tspan class="y-coord">y</tspan>
+                    </tspan>
+                  </text>
+                  <g class="arrow" style="transform: translate(105px, 10px)">
+                    <line x1="0" y1="0" x2="20" y2="0" stroke="black" />
+                    <line x1="15" y1="-5" x2="20" y2="0" stroke="black" />
+                    <line x1="15" y1="5" x2="20" y2="0" stroke="black" />
+                  </g>
+                  <g class="arrow" style="transform: translate(-5px, 90px) rotate(180deg)">
+                    <line x1="0" y1="0" x2="20" y2="0" stroke="black" />
+                    <line x1="15" y1="-5" x2="20" y2="0" stroke="black" />
+                    <line x1="15" y1="5" x2="20" y2="0" stroke="black" />
+                  </g>
+                </g>
+                <text x="150" y="55" class="annotation">Skew the square to the right.</text>
+              </g>
+              <g class="grid square" style="transform: translate(0px, 150px)">
+                <g class="square odd">
+                  <polygon points="50,0 150,0 100,86.6 0,86.6" />
+                  <line x1="100" y1="86.6" x2="50" y2="0" stroke-dasharray="4" stroke="black" />
+                </g>
+                <text x="170" y="55" class="annotation">Divide along short diagonal.</text>
+              </g>
+              <g class="grid triangles" style="transform: translate(0px, 300px)">
+                <g class="uptriangle" style="transform: translate(0px, 0px)">
+                  <polygon points="50,0 0,86.6 100,86.6" />
+                  <text x="50" y="75" text-anchor="middle">
+                    <tspan class="x-y-r-coord">
+                      <tspan class="x-coord">x</tspan>
+                      ,
+                      <tspan class="y-coord">y</tspan>
+                      ,
+                      <tspan class="r-coord">0</tspan>
+                    </tspan>
+                  </text>
+                </g>
+                <g class="downtriangle" style="transform: translate(50px, 0px)">
+                  <polygon points="50,86.6 0,0 100,0" />
+                  <text x="50" y="25" text-anchor="middle">
+                    <tspan class="x-y-r-coord">
+                      <tspan class="x-coord">x</tspan>
+                      ,
+                      <tspan class="y-coord">y</tspan>
+                      ,
+                      <tspan class="r-coord">1</tspan>
+                    </tspan>
+                  </text>
+                </g>
+                <text x="170" y="55" class="annotation">Add R-coordinate.</text>
+              </g>
+            </svg>
+          </figure>
+        </div>
+        <div class="flex-container">
+          <p>
+            The resulting grid sets the triangles with the same x-coordinate on an angle, which
+            leads to some awkwardness. For example, the trivial for-loop to generate the grid
+            results in a parallelogram-shape.
+          </p>
+          <figure id="triangle-grid-xyr" class="small" style="width: var(--small-diagram-width)">
+            <svg viewBox="0 0 700 420" border-box>
+              <g class="coord-labels">
+                <g
+                  class="x-coord coord"
+                  :style="toTransform(grid.mapXCoord(selected))"
+                  :class="{visible: selected && (coordinates=='xyz' || coordinates=='xyr')}"
+                >
+                  <text>
+                    x =
+                    <tspan class="x-coord numeric">{{selected ? selected.x : 0}}</tspan>
+                  </text>
+                </g>
+                <g
+                  class="y-coord coord"
+                  :style="toTransform(grid.mapYCoord(selected))"
+                  :class="{visible: selected}"
+                >
+                  <text>
+                    y =
+                    <tspan class="y-coord numeric">{{selected ? selected.y : 0}}</tspan>
+                  </text>
+                </g>
+              </g>
+              <g class="grid triangles">
+                <g
+                  v-for="tri in grid.grid.upTriangles()"
+                  :style="toTransform(grid.mapTriangle(tri))"
+                  :class="triClassName(tri, selected)"
+                  :data-tri="tri.string()"
+                  @mousemove="mouse"
+                  @click="click"
+                >
+                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <text x="0" y="75" text-anchor="middle">
+                    <component :is="coordinates" :tri="tri"></component>
+                  </text>
+                </g>
+                <g
+                  v-for="tri in grid.grid.downTriangles()"
+                  :style="toTransform(grid.mapTriangle(tri))"
+                  :class="triClassName(tri, selected)"
+                  :data-tri="tri.string()"
+                  @mousemove="mouse"
+                  @click="click"
+                >
+                  <polygon points="0,86.6 -50,0 50,0" />
+                  <text x="0" y="25" text-anchor="middle">
+                    <component :is="coordinates" :tri="tri"></component>
+                  </text>
+                </g>
+              </g>
+            </svg>
+          </figure>
+        </div>
+        <p>
+          An obvious observation is that while x- and y- coordinates can vary over all integers
+          <math>ℤ</math>, the R-value can only be chosen from the set
+          <math>{<mn>0</mn>,<mn>1</mn>}</math>. So we have produced a coordinate system that spans
+          <math>ℤ⨯ℤ⨯{<mn>0</mn>,<mn>1</mn>}</math>.
+        </p>
+        <div class="flex-container">
+          <div>
+            <p>
+              What about determining whether two triangles are next to each other? For this we look
+              at how the coordinates change when crossing from one triangle to another. We have to
+              consider the case of the upwards-pointing triangle separately from the
+              downwards-pointing triangle.
+            </p>
+            <p>
+              We notice that multiple coordinates can change when moving across and edge, depending
+              on the direction. This makes adjacency logic somewhat cumbersome, and we might need to
+              move to a different coordinate system to solve that problem.
+            </p>
+          </div>
+          <figure class="smaller" style="width: var(--small-diagram-width)">
+            <svg viewBox="0 0 300 320" border-box>
+              <g class="grid triangles" style="transform: translate(50px, 20px)">
+                <g style="transform: translate(50px, 0px)" class="uptriangle">
+                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <text x="0" y="75" text-anchor="middle">
+                    <tspan class="x-y-r-coord">
+                      <tspan class="x-coord">x</tspan>
+                      ,
+                      <tspan class="y-coord">y</tspan>
+                      ,
+                      <tspan class="r-coord">z</tspan>
+                    </tspan>
+                  </text>
+                </g>
+                <g style="transform: translate(0px, 0px)" class="downtriangle">
+                  <polygon points="0,86.6 -50,0 50,0" />
+                  <text x="0" y="25" text-anchor="middle">
+                    <tspan class="x-y-r-coord">
+                      <tspan class="x-coord">-1</tspan>
+                      ,
+                      <tspan class="y-coord">0</tspan>
+                      ,
+                      <tspan class="r-coord">+1</tspan>
+                    </tspan>
+                  </text>
+                </g>
+                <g style="transform: translate(100px, 0px)" class="downtriangle">
+                  <polygon points="0,86.6 -50,0 50,0" />
+                  <text x="0" y="25" text-anchor="middle">
+                    <tspan class="x-y-r-coord">
+                      <tspan class="x-coord">0</tspan>
+                      ,
+                      <tspan class="y-coord">0</tspan>
+                      ,
+                      <tspan class="r-coord">+1</tspan>
+                    </tspan>
+                  </text>
+                </g>
+                <g style="transform: translate(50px, 86.6px)" class="downtriangle">
+                  <polygon points="0,86.6 -50,0 50,0" />
+                  <text x="0" y="25" text-anchor="middle">
+                    <tspan class="x-y-r-coord">
+                      <tspan class="x-coord">0</tspan>
+                      ,
+                      <tspan class="y-coord">+1</tspan>
+                      ,
+                      <tspan class="r-coord">+1</tspan>
+                    </tspan>
+                  </text>
+                </g>
+              </g>
+              <g class="grid triangles" style="transform: translate(150px, 120px)">
+                <g style="transform: translate(50px, 100px)" class="downtriangle">
+                  <polygon points="0,86.6 -50,0 50,0" />
+                  <text x="0" y="25" text-anchor="middle">
+                    <tspan class="x-y-r-coord">
+                      <tspan class="x-coord">x</tspan>
+                      ,
+                      <tspan class="y-coord">y</tspan>
+                      ,
+                      <tspan class="r-coord">z</tspan>
+                    </tspan>
+                  </text>
+                </g>
+                <g style="transform: translate(0px, 100px)" class="uptriangle">
+                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <text x="0" y="75" text-anchor="middle">
+                    <tspan class="x-y-r-coord">
+                      <tspan class="x-coord">0</tspan>
+                      ,
+                      <tspan class="y-coord">0</tspan>
+                      ,
+                      <tspan class="r-coord">-1</tspan>
+                    </tspan>
+                  </text>
+                </g>
+                <g style="transform: translate(100px, 100px)" class="uptriangle">
+                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <text x="0" y="75" text-anchor="middle">
+                    <tspan class="x-y-r-coord">
+                      <tspan class="x-coord">+1</tspan>
+                      ,
+                      <tspan class="y-coord">0</tspan>
+                      ,
+                      <tspan class="r-coord">-1</tspan>
+                    </tspan>
+                  </text>
+                </g>
+                <g style="transform: translate(50px, 13.4px)" class="uptriangle">
+                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <text x="0" y="75" text-anchor="middle">
+                    <tspan class="x-y-r-coord">
+                      <tspan class="x-coord">0</tspan>
+                      ,
+                      <tspan class="y-coord">-1</tspan>
+                      ,
+                      <tspan class="r-coord">-1</tspan>
+                    </tspan>
+                  </text>
+                </g>
+              </g>
+            </svg>
+          </figure>
+        </div>
+      </section>
+      <section>
+        <h2>Three-axis Grid: xyz</h2>
+        <div class="flex-container">
+          <p>
+            Another idea is to notice that each triangle lives on three separate axis. As shown
+            above, the triangles with the same x-value appear on a diagonal, whereas triangles with
+            the same y-value appear on the same horizontal row. There is a third diagonal, which we
+            can denote with the value z.
+          </p>
+        </div>
+        <p>
+          So let's redefine our grid using this x,y,z system. There is a simple conversion from the
+          xyR coordinates to xyz coordinates, given by <code>z:=x-y+R</code>. But there is a bit of
+          a catch. We can't just loop over all x-, y-, and z- values to get the resulting grid,
+          since not all combinations of these values produce a valid triangle coordinate. Just like
+          with the xyR coordinates above, we don't really have a full
+          <math
+            ><msup> <mi>ℤ</mi> <mn>3</mn> </msup></math
+          >
+          space; the dimensions have to have a constraint.
+        </p>
+        <div class="flex-container">
+          <div>
+            <p>
+              To discover what this constraint is, let's look at how the coordinates would change in
+              this system going from one triangle to its neighbors. We have to keep in mind that the
+              tiling contains both upwards- and downwards-pointing triangles, so the rules have to
+              be explored for both, though they end up being inverses of each other along the three
+              axes.
+            </p>
+            <p>
+              What becomes apparent is that when moving one step away from an upwards-pointing
+              triangle, we change one of the coordinates by one. The x-coordinate decreases by one,
+              while the y- and z- coordinates increase by one. So the value
+              <math>-x+y+z</math> increases by one.
+            </p>
+            <p>
+              In the other case, for the downwards pointing triangle, the math is flipped. We,
+              again, change one coordinate. This time the x-coordinate increases, whereas the y- and
+              z- coordinates decrease, so the value of <math>-x+y+z</math> decreases by one.
+            </p>
+            <p>
+              Another critical observation is that moving across the grid, we keep alternating
+              between upwards- and downwards-pointing triangles. So the value of
+              <math>-x+y+z</math> keeps flipping back and forth by one value. Consequently, that is
+              our constraint; the value of <math>-x+y+z</math> is restricted to only two values — 0
+              or 1. So we have that <math>-x+y+z∈{0,1}</math>.
+            </p>
+          </div>
+          <figure class="smaller" style="width: var(--small-diagram-width)">
+            <svg viewBox="0 0 300 320" border-box>
+              <g class="grid triangles" style="transform: translate(50px, 20px)">
+                <g style="transform: translate(50px, 0px)" class="uptriangle">
+                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <text x="0" y="75" text-anchor="middle">
+                    <tspan class="x-y-z-coord">
+                      <tspan class="x-coord">x</tspan>
+                      ,
+                      <tspan class="y-coord">y</tspan>
+                      ,
+                      <tspan class="z-coord">z</tspan>
+                    </tspan>
+                  </text>
+                </g>
+                <g style="transform: translate(0px, 0px)" class="downtriangle">
+                  <polygon points="0,86.6 -50,0 50,0" />
+                  <text x="0" y="25" text-anchor="middle">
+                    <tspan class="x-y-z-coord">
+                      <tspan class="x-coord">-1</tspan>
+                      ,
+                      <tspan class="y-coord">0</tspan>
+                      ,
+                      <tspan class="z-coord">0</tspan>
+                    </tspan>
+                  </text>
+                </g>
+                <g style="transform: translate(100px, 0px)" class="downtriangle">
+                  <polygon points="0,86.6 -50,0 50,0" />
+                  <text x="0" y="25" text-anchor="middle">
+                    <tspan class="x-y-z-coord">
+                      <tspan class="x-coord">0</tspan>
+                      ,
+                      <tspan class="y-coord">0</tspan>
+                      ,
+                      <tspan class="z-coord">+1</tspan>
+                    </tspan>
+                  </text>
+                </g>
+                <g style="transform: translate(50px, 86.6px)" class="downtriangle">
+                  <polygon points="0,86.6 -50,0 50,0" />
+                  <text x="0" y="25" text-anchor="middle">
+                    <tspan class="x-y-z-coord">
+                      <tspan class="x-coord">0</tspan>
+                      ,
+                      <tspan class="y-coord">+1</tspan>
+                      ,
+                      <tspan class="z-coord">0</tspan>
+                    </tspan>
+                  </text>
+                </g>
+              </g>
+              <g class="grid triangles" style="transform: translate(150px, 120px)">
+                <g style="transform: translate(50px, 100px)" class="downtriangle">
+                  <polygon points="0,86.6 -50,0 50,0" />
+                  <text x="0" y="25" text-anchor="middle">
+                    <tspan class="x-y-z-coord">
+                      <tspan class="x-coord">x</tspan>
+                      ,
+                      <tspan class="y-coord">y</tspan>
+                      ,
+                      <tspan class="z-coord">z</tspan>
+                    </tspan>
+                  </text>
+                </g>
+                <g style="transform: translate(0px, 100px)" class="uptriangle">
+                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <text x="0" y="75" text-anchor="middle">
+                    <tspan class="x-y-z-coord">
+                      <tspan class="x-coord">0</tspan>
+                      ,
+                      <tspan class="y-coord">0</tspan>
+                      ,
+                      <tspan class="z-coord">-1</tspan>
+                    </tspan>
+                  </text>
+                </g>
+                <g style="transform: translate(100px, 100px)" class="uptriangle">
+                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <text x="0" y="75" text-anchor="middle">
+                    <tspan class="x-y-z-coord">
+                      <tspan class="x-coord">+1</tspan>
+                      ,
+                      <tspan class="y-coord">0</tspan>
+                      ,
+                      <tspan class="z-coord">0</tspan>
+                    </tspan>
+                  </text>
+                </g>
+                <g style="transform: translate(50px, 13.4px)" class="uptriangle">
+                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <text x="0" y="75" text-anchor="middle">
+                    <tspan class="x-y-z-coord">
+                      <tspan class="x-coord">0</tspan>
+                      ,
+                      <tspan class="y-coord">-1</tspan>
+                      ,
+                      <tspan class="z-coord">0</tspan>
+                    </tspan>
+                  </text>
+                </g>
+              </g>
+            </svg>
+          </figure>
+        </div>
 
-				But how do we index into them? Specifically, I am looking for a unique integer-based coordinate for each triangle, and an easy mapping between the coordinate and the corresponding triangle. Ideally, the coordinate system should be translation-invariant (the coordinates should change between adjacent triangles under the same pattern, no matter where in the grid the triangle exists), they should allow for an easy creation of the grid, and it should lead to easy human interpretability.</p>
-				<figure id="triangular-grid-anonymous" class="float-right small">
-					<svg viewBox="0 0 600 550">
-						<g class="grid triangles">
-							<g v-for="tri in grid.grid.upTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()">
-								<polygon points="0,0 -50,86.6 50,86.6" />
-							</g>
-							<g v-for="tri in grid.grid.downTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()">
-								<polygon points="0,86.6 -50,0 50,0"/>
-							</g>
-						</g>
-					</svg>
-					<figcaption>Equilateral triangular grid</figcaption>
-				</figure>
-			</div>
-		</section>
+        <div class="flex-container">
+          <div>
+            <p>
+              Here is the resulting grid, rendered using the xyR for-loop above, then converting the
+              coordinates to xyz.
+            </p>
+          </div>
+          <figure id="triangle-grid-xyz" class="small" style="width: var(--small-diagram-width)">
+            <svg viewBox="0 0 700 420" border-box>
+              <g class="coord-labels">
+                <g
+                  class="x-coord coord"
+                  :style="toTransform(grid.mapXCoord(selected))"
+                  :class="{visible: selected && (coordinates=='xyz' || coordinates=='xyr')}"
+                >
+                  <text>
+                    x =
+                    <tspan class="x-coord numeric">{{selected ? selected.x : 0}}</tspan>
+                  </text>
+                </g>
+                <g
+                  class="y-coord coord"
+                  :style="toTransform(grid.mapYCoord(selected))"
+                  :class="{visible: selected}"
+                >
+                  <text>
+                    y =
+                    <tspan class="y-coord numeric">{{selected ? selected.y : 0}}</tspan>
+                  </text>
+                </g>
+                <g
+                  class="z-coord coord"
+                  :style="toTransform(grid.mapZCoord(selected))"
+                  :class="{visible: selected && coordinates=='xyz'}"
+                >
+                  <text>
+                    z =
+                    <tspan class="z-coord numeric">{{selected ? selected.z : 0}}</tspan>
+                  </text>
+                </g>
+              </g>
+              <g class="grid triangles">
+                <g
+                  v-for="tri in grid.grid.upTriangles()"
+                  :style="toTransform(grid.mapTriangle(tri))"
+                  :class="triClassName(tri, selected)"
+                  :data-tri="tri.string()"
+                  @mousemove="mouse"
+                  @click="click"
+                >
+                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <text x="0" y="75" text-anchor="middle">
+                    <component :is="coordinates" :tri="tri"></component>
+                  </text>
+                </g>
+                <g
+                  v-for="tri in grid.grid.downTriangles()"
+                  :style="toTransform(grid.mapTriangle(tri))"
+                  :class="triClassName(tri, selected)"
+                  :data-tri="tri.string()"
+                  @mousemove="mouse"
+                  @click="click"
+                >
+                  <polygon points="0,86.6 -50,0 50,0" />
+                  <text x="0" y="25" text-anchor="middle">
+                    <component :is="coordinates" :tri="tri"></component>
+                  </text>
+                </g>
+              </g>
+            </svg>
+          </figure>
+        </div>
+        <div class="flex-container">
+          <p>
+            What is great about this representation is that calculating the distance between two
+            triangles (defined as the minimum number of edges one needs to cross) is trivial in the
+            xyz system. We merely need to count how many times each coordinate has changed. In other
+            words,
+            <math
+              >distance(t<sub>1</sub>,t<sub>2</sub>) := |t<sub>1</sub>.x - t<sub>2</sub>.x| +
+              |t<sub>1</sub>.y - t<sub>2</sub>.y| + |t<sub>1</sub>.z - t<sub>2</sub>.z|</math
+            >.
+          </p>
+          <figure id="triangle-grid-distance" class="small">
+            <svg viewBox="0 0 700 420" border-box>
+              <g class="grid triangles">
+                <g
+                  v-for="tri in grid.grid.upTriangles()"
+                  :style="toTransform(grid.mapTriangle(tri))"
+                  :class="triClassName(tri, selected)"
+                  :data-tri="tri.string()"
+                  @mousemove="mouse"
+                  @click="click"
+                >
+                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <text x="0" y="75" text-anchor="middle">
+                    <tspan>{{distance(tri,selected)}}</tspan>
+                  </text>
+                </g>
+                <g
+                  v-for="tri in grid.grid.downTriangles()"
+                  :style="toTransform(grid.mapTriangle(tri))"
+                  :class="triClassName(tri, selected)"
+                  :data-tri="tri.string()"
+                  @mousemove="mouse"
+                  @click="click"
+                >
+                  <polygon points="0,86.6 -50,0 50,0" />
+                  <text x="0" y="25" text-anchor="middle">
+                    <tspan>{{distance(tri,selected)}}</tspan>
+                  </text>
+                </g>
+              </g>
+            </svg>
+            <figcaption>Distance measure</figcaption>
+          </figure>
+        </div>
+      </section>
+      <section>
+        <h2>The row-column coordinate system: yb</h2>
+        <div class="flex-container">
+          <p>
+            Finally, we notice that our triangles are arranged in diamond-shaped columns, so we
+            wonder if there is a way to express the coordinates of a triangle with a two-dimensional
+            (row, column) coordinate. Turns out this is possible if we preserve the y-coordinate
+            from the previous sections, but we define a new coordinate <code>b := x + z</code>.
+            Since we have removed a whole dimension, we should be free to loop over the y- and
+            b-values in a for-loop, to produce a very neat looking grid of triangles.
+          </p>
+          <figure id="triangle-grid-yb" class="small" style="width: var(--diagram-width)">
+            <svg viewBox="0 0 700 420" border-box>
+              <g class="coord-labels">
+                <g
+                  class="y-coord coord"
+                  :style="toTransform(grid.mapYCoord(selected))"
+                  :class="{visible: selected}"
+                >
+                  <text>
+                    y =
+                    <tspan class="y-coord numeric">{{selected ? selected.y : 0}}</tspan>
+                  </text>
+                </g>
+                <g
+                  class="b-coord coord"
+                  :style="toTransform(grid.mapBCoord(selected))"
+                  :class="{visible: selected && coordinates=='yb'}"
+                >
+                  <text>
+                    b =
+                    <tspan class="b-coord numeric">{{selected ? selected.b : 0}}</tspan>
+                  </text>
+                </g>
+              </g>
+              <g class="grid triangles">
+                <g
+                  v-for="tri in grid.grid.upTriangles()"
+                  :style="toTransform(grid.mapTriangle(tri))"
+                  :class="triClassName(tri, selected)"
+                  :data-tri="tri.string()"
+                  @mousemove="mouse"
+                  @click="click"
+                >
+                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <text x="0" y="75" text-anchor="middle">
+                    <component :is="coordinates" :tri="tri"></component>
+                  </text>
+                </g>
+                <g
+                  v-for="tri in grid.grid.downTriangles()"
+                  :style="toTransform(grid.mapTriangle(tri))"
+                  :class="triClassName(tri, selected)"
+                  :data-tri="tri.string()"
+                  @mousemove="mouse"
+                  @click="click"
+                >
+                  <polygon points="0,86.6 -50,0 50,0" />
+                  <text x="0" y="25" text-anchor="middle">
+                    <component :is="coordinates" :tri="tri"></component>
+                  </text>
+                </g>
+              </g>
+            </svg>
+          </figure>
+        </div>
+        <div class="flex-container">
+          <p>
+            However, while this representation is very easy to loop over, we might want to translate
+            back to the xyR or xyz coordinate system for other purposes. Turns out that this
+            conversion is not very pretty looking. Not pretty at all!
+          </p>
+          <div class="sidebar small">
+            <math class="block"
+              >(x, y, R) := (&lfloor;<mfrac><mn>b+y</mn> 2</mfrac>&rfloor;, y, (b+y) mod 2)</math
+            >
+            <math class="block"
+              >(x, y, z) := (&lfloor;<mfrac><mn>b+y</mn> 2</mfrac>&rfloor;, y, &lfloor;<mfrac>
+                <mn>b+y</mn> 2</mfrac
+              >&rfloor; -y + (b+y) mod 2)</math
+            >
+          </div>
+        </div>
+        <div class="flex-container">
+          <p>
+            Just as before, we want to consider adjacency. Notice that triangles along a b-column
+            vary in the y-coordinate by one, whereas the distance changes more than that.
+            Specifically, consider two triangles trouching vertically at a point, their distance is
+            3, whereas their coordinates differ only by 1. This makes distance math convoluted. It
+            is best to convert to the xyz coordinate system to compute distance.
+          </p>
+          <figure class="smaller" style="width: var(--small-diagram-width)">
+            <svg viewBox="0 0 300 320" border-box>
+              <g class="grid triangles" style="transform: translate(50px, 20px)">
+                <g style="transform: translate(50px, 0px)" class="uptriangle">
+                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <text x="0" y="75" text-anchor="middle">
+                    <tspan class="y-b-coord">
+                      <tspan class="y-coord">y</tspan>
+                      ,
+                      <tspan class="b-coord">b</tspan>
+                    </tspan>
+                  </text>
+                </g>
+                <g style="transform: translate(0px, 0px)" class="downtriangle">
+                  <polygon points="0,86.6 -50,0 50,0" />
+                  <text x="0" y="25" text-anchor="middle">
+                    <tspan class="y-b-coord">
+                      <tspan class="y-coord">0</tspan>
+                      ,
+                      <tspan class="b-coord">-1</tspan>
+                    </tspan>
+                  </text>
+                </g>
+                <g style="transform: translate(100px, 0px)" class="downtriangle">
+                  <polygon points="0,86.6 -50,0 50,0" />
+                  <text x="0" y="25" text-anchor="middle">
+                    <tspan class="y-b-coord">
+                      <tspan class="y-coord">0</tspan>
+                      ,
+                      <tspan class="b-coord">+1</tspan>
+                    </tspan>
+                  </text>
+                </g>
+                <g style="transform: translate(50px, 86.6px)" class="downtriangle">
+                  <polygon points="0,86.6 -50,0 50,0" />
+                  <text x="0" y="25" text-anchor="middle">
+                    <tspan class="y-b-coord">
+                      <tspan class="y-coord">+1</tspan>
+                      ,
+                      <tspan class="b-coord">0</tspan>
+                    </tspan>
+                  </text>
+                </g>
+              </g>
+              <g class="grid triangles" style="transform: translate(150px, 120px)">
+                <g style="transform: translate(50px, 100px)" class="downtriangle">
+                  <polygon points="0,86.6 -50,0 50,0" />
+                  <text x="0" y="25" text-anchor="middle">
+                    <tspan class="y-b-coord">
+                      <tspan class="y-coord">y</tspan>
+                      ,
+                      <tspan class="b-coord">b</tspan>
+                    </tspan>
+                  </text>
+                </g>
+                <g style="transform: translate(50px, 13.4px)" class="uptriangle">
+                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <text x="0" y="75" text-anchor="middle">
+                    <tspan class="y-b-coord">
+                      <tspan class="y-coord">-1</tspan>
+                      ,
+                      <tspan class="b-coord">0</tspan>
+                    </tspan>
+                  </text>
+                </g>
+                <g style="transform: translate(0px, 100px)" class="uptriangle">
+                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <text x="0" y="75" text-anchor="middle">
+                    <tspan class="y-b-coord">
+                      <tspan class="y-coord">0</tspan>
+                      ,
+                      <tspan class="b-coord">-1</tspan>
+                    </tspan>
+                  </text>
+                </g>
+                <g style="transform: translate(100px, 100px)" class="uptriangle">
+                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <text x="0" y="75" text-anchor="middle">
+                    <tspan class="y-b-coord">
+                      <tspan class="y-coord">0</tspan>
+                      ,
+                      <tspan class="b-coord">+1</tspan>
+                    </tspan>
+                  </text>
+                </g>
+              </g>
+            </svg>
+          </figure>
+        </div>
+      </section>
+      <section>
+        <h2>All Three Coordinates In One</h2>
+        <p>
+          Let's do an overview of the three coordinate systems. We care about translating between
+          them, so here is a conversion table.
+        </p>
+        <div class="center">
+          <table>
+            <caption>
+              Coordinate conversions between the three systems
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col"></th>
+                <th scope="col">From xyR</th>
+                <th scope="col">From xyz</th>
+                <th scope="col">From yb</th>
+              </tr>
+            </thead>
 
-		<section>
-			<h2>Skewed-square Grid : xyR</h2>
-			<div class="flex-container">
-				<p>For this first coordinate grid, we take the square grid, and skew it so that it forms a grid of parallelogram with 60&#xb0;-120&#xb0; angles. We then split each parallelogram along its shorter diagonal, to form two triangles, an upper and a lower one. We refer to each triangle by the (x,y) coordinate of its parallelogram, along with a third R coordinate, which is 0 for the lower triangle, and 1 for the upper triangle, producing a three-dimensional (x,y,R) coordinate for each triangle.</p>
-				<figure class="small">
-					<svg viewBox="0 0 400 400">
-						<g class="grid square" style="transform: translate(30px, 0px);">
-							<g class="square odd">
-								<polygon points="0,100 100,100 100,0 0,0"/>
-								<text x="50" y="55" text-anchor="middle">
-									<tspan class="x-y-coord"><tspan class="x-coord">x</tspan>, <tspan class="y-coord">y</tspan></tspan>
-								</text>
-								<g class="arrow" style="transform: translate(105px, 10px);">
-									<line x1="0" y1="0" x2="20" y2="0" stroke="black" />
-									<line x1="15" y1="-5" x2="20" y2="0" stroke="black" />
-									<line x1="15" y1="5" x2="20" y2="0" stroke="black" />
-								</g>
-								<g class="arrow" style="transform: translate(-5px, 90px) rotate(180deg);">
-									<line x1="0" y1="0" x2="20" y2="0" stroke="black" />
-									<line x1="15" y1="-5" x2="20" y2="0" stroke="black" />
-									<line x1="15" y1="5" x2="20" y2="0" stroke="black" />
-								</g>
-							</g>
-							<text x="150" y="55" class="annotation">
-								Skew the square to the right.
-							</text>
-						</g>
-						<g class="grid square" style="transform: translate(0px, 150px);">
-							<g class="square odd">
-								<polygon points="50,0 150,0 100,86.6 0,86.6"/> 
-								<line x1="100" y1="86.6" x2="50" y2="0" stroke-dasharray="4" stroke="black" />
-							</g>
-							<text x="170" y="55" class="annotation">
-								Divide along short diagonal.
-							</text>
-						</g>
-						<g class="grid triangles" style="transform: translate(0px, 300px)">
-							<g class="uptriangle" style="transform: translate(0px, 0px)">
-								<polygon points="50,0 0,86.6 100,86.6"/>
-								<text x="50" y="75" text-anchor="middle">
-									<tspan class="x-y-r-coord"><tspan class="x-coord">x</tspan>, <tspan class="y-coord">y</tspan>, <tspan class="r-coord">0</tspan></tspan>
-								</text>
-							</g>
-							<g class="downtriangle" style="transform: translate(50px, 0px)">
-								<polygon points="50,86.6 0,0 100,0"/>
-								<text x="50" y="25" text-anchor="middle">
-									<tspan class="x-y-r-coord"><tspan class="x-coord">x</tspan>, <tspan class="y-coord">y</tspan>, <tspan class="r-coord">1</tspan></tspan>
-								</text>
-							</g>
-							<text x="170" y="55" class="annotation">
-								Add R-coordinate.
-							</text>
-						</g>
-					</svg>
-				</figure>
-			</div>
-			<div class="flex-container">
-				<p>The resulting grid sets the triangles with the same x-coordinate on an angle, which leads to some awkwardness. For example, the trivial for-loop to generate the grid results in a parallelogram-shape.
-				</p>
-				<figure id="triangle-grid-xyr" class="small" style="width:var(--small-diagram-width)">
-					<svg viewBox="0 0 700 420" border-box>
-						<g class="coord-labels">
-							<g class="x-coord coord" :style="toTransform(grid.mapXCoord(selected))" :class="{visible: selected && (coordinates=='xyz' || coordinates=='xyr')}">
-								<text>x = <tspan class="x-coord numeric">{{selected ? selected.x : 0}}</tspan></text>
-							</g>
-							<g class="y-coord coord" :style="toTransform(grid.mapYCoord(selected))" :class="{visible: selected}">
-								<text>y = <tspan class="y-coord numeric">{{selected ? selected.y : 0}}</tspan></text>
-							</g>
-						</g>
-						<g class="grid triangles">
-							<g v-for="tri in grid.grid.upTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
-								<polygon points="0,0 -50,86.6 50,86.6" />
-								<text x="0" y="75" text-anchor="middle">
-									<component :is="coordinates" :tri="tri"></component>
-								</text>
-							</g>
-							<g v-for="tri in grid.grid.downTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
-								<polygon points="0,86.6 -50,0 50,0"/>
-								<text x="0" y="25" text-anchor="middle">
-									<component :is="coordinates" :tri="tri"></component>
-								</text>
-							</g>
-						</g>
-					</svg>
-				</figure>
-			</div>
-			<p>An obvious observation is that while x- and y- coordinates can vary over all integers <math>ℤ</math>, the R-value can only be chosen from the set <math>{<mn>0</mn>,<mn>1</mn>}</math>. So we have produced a coordinate system that spans <math>ℤ⨯ℤ⨯{<mn>0</mn>,<mn>1</mn>}</math>.</p>
-			<div class="flex-container">
-				<div>
-					<p>What about determining whether two triangles are next to each other? For this we look at how the coordinates change when crossing from one triangle to another. We have to consider the case of the upwards-pointing triangle separately from the downwards-pointing triangle.</p>
-					<p>We notice that multiple coordinates can change when moving across and edge, depending on the direction. This makes adjacency logic somewhat cumbersome, and we might need to move to a different coordinate system to solve that problem.</p>
-				</div>
-				<figure class="smaller" style="width:var(--small-diagram-width)">
-					<svg viewBox="0 0 300 320" border-box>
-						<g class="grid triangles" style="transform: translate(50px, 20px)">
-							<g style="transform: translate(50px, 0px)" class="uptriangle">
-								<polygon points="0,0 -50,86.6 50,86.6" />
-								<text x="0" y="75" text-anchor="middle">
-									<tspan class="x-y-r-coord"><tspan class="x-coord">x</tspan>, <tspan class="y-coord">y</tspan>, <tspan class="r-coord">z</tspan></tspan>
-								</text>
-							</g>
-							<g style="transform: translate(0px, 0px)" class="downtriangle">
-								<polygon points="0,86.6 -50,0 50,0"/>
-								<text x="0" y="25" text-anchor="middle">
-									<tspan class="x-y-r-coord"><tspan class="x-coord">-1</tspan>, <tspan class="y-coord">0</tspan>, <tspan class="r-coord">+1</tspan></tspan>
-								</text>
-							</g>
-							<g style="transform: translate(100px, 0px)" class="downtriangle">
-								<polygon points="0,86.6 -50,0 50,0"/>
-								<text x="0" y="25" text-anchor="middle">
-									<tspan class="x-y-r-coord"><tspan class="x-coord">0</tspan>, <tspan class="y-coord">0</tspan>, <tspan class="r-coord">+1</tspan></tspan>
-								</text>
-							</g>
-							<g style="transform: translate(50px, 86.6px)" class="downtriangle">
-								<polygon points="0,86.6 -50,0 50,0"/>
-								<text x="0" y="25" text-anchor="middle">
-									<tspan class="x-y-r-coord"><tspan class="x-coord">0</tspan>, <tspan class="y-coord">+1</tspan>, <tspan class="r-coord">+1</tspan></tspan>
-								</text>
-							</g>
-						</g>
-						<g class="grid triangles" style="transform: translate(150px, 120px)">
-							<g style="transform: translate(50px, 100px)" class="downtriangle">
-								<polygon points="0,86.6 -50,0 50,0"/>
-								<text x="0" y="25" text-anchor="middle">
-									<tspan class="x-y-r-coord"><tspan class="x-coord">x</tspan>, <tspan class="y-coord">y</tspan>, <tspan class="r-coord">z</tspan></tspan>
-								</text>
-							</g>
-							<g style="transform: translate(0px, 100px)" class="uptriangle">
-								<polygon points="0,0 -50,86.6 50,86.6" />
-								<text x="0" y="75" text-anchor="middle">
-									<tspan class="x-y-r-coord"><tspan class="x-coord">0</tspan>, <tspan class="y-coord">0</tspan>, <tspan class="r-coord">-1</tspan></tspan>
-								</text>
-							</g>
-							<g style="transform: translate(100px, 100px)" class="uptriangle">
-								<polygon points="0,0 -50,86.6 50,86.6" />
-								<text x="0" y="75" text-anchor="middle">
-									<tspan class="x-y-r-coord"><tspan class="x-coord">+1</tspan>, <tspan class="y-coord">0</tspan>, <tspan class="r-coord">-1</tspan></tspan>
-								</text>
-							</g>
-							<g style="transform: translate(50px, 13.4px)" class="uptriangle">
-								<polygon points="0,0 -50,86.6 50,86.6" />
-								<text x="0" y="75" text-anchor="middle">
-									<tspan class="x-y-r-coord"><tspan class="x-coord">0</tspan>, <tspan class="y-coord">-1</tspan>, <tspan class="r-coord">-1</tspan></tspan>
-								</text>
-							</g>
-						</g>
-					</svg>
-				</figure>
-			</div>
-		</section>
-		<section>
-			<h2>Three-axis Grid: xyz</h2>
-			<div class="flex-container">
-				<p>Another idea is to notice that each triangle lives on three separate axis. As shown above, the triangles with the same x-value appear on a diagonal, whereas triangles with the same y-value appear on the same horizontal row. There is a third diagonal, which we can denote with the value z.</p>
-			</div>
-			<p>So let's redefine our grid using this x,y,z system. There is a simple conversion from the xyR coordinates to xyz coordinates, given by  <code>z:=x-y+R</code>. But there is a bit of a catch. We can't just loop over all x-, y-, and z- values to get the resulting grid, since not all combinations of these values produce a valid triangle coordinate. Just like with the xyR coordinates above, we don't really have a full <math><msup> <mi>ℤ</mi> <mn>3</mn> </msup></math> space; the dimensions have to have a constraint.
-			</p>
-			<div class="flex-container">
-				<div>
-					<p>To discover what this constraint is, let's look at how the coordinates would change in this system going from one triangle to its neighbors. We have to keep in mind that the tiling contains both upwards- and downwards-pointing triangles, so the rules have to be explored for both, though they end up being inverses of each other along the three axes.</p>
-					<p>What becomes apparent is that when moving one step away from an upwards-pointing triangle, we change one of the coordinates by one. The x-coordinate decreases by one, while the y- and z- coordinates increase by one. So the value <math>-x+y+z</math> increases by one.</p>
-					<p>In the other case, for the downwards pointing triangle, the math is flipped. We, again, change one coordinate. This time the x-coordinate increases, whereas the y- and z- coordinates decrease, so the value of <math>-x+y+z</math> decreases by one.</p>
-					<p>Another critical observation is that moving across the grid, we keep alternating between upwards- and downwards-pointing triangles. So the value of <math>-x+y+z</math> keeps flipping back and forth by one value. Consequently, that is our constraint; the value of <math>-x+y+z</math> is restricted to only two values — 0 or 1. So we have that <math>-x+y+z∈{0,1}</math>.
-				</div>
-				<figure class="smaller" style="width:var(--small-diagram-width)">
-					<svg viewBox="0 0 300 320" border-box>
-						<g class="grid triangles" style="transform: translate(50px, 20px)">
-							<g style="transform: translate(50px, 0px)" class="uptriangle">
-								<polygon points="0,0 -50,86.6 50,86.6" />
-								<text x="0" y="75" text-anchor="middle">
-									<tspan class="x-y-z-coord"><tspan class="x-coord">x</tspan>, <tspan class="y-coord">y</tspan>, <tspan class="z-coord">z</tspan></tspan>
-								</text>
-							</g>
-							<g style="transform: translate(0px, 0px)" class="downtriangle">
-								<polygon points="0,86.6 -50,0 50,0"/>
-								<text x="0" y="25" text-anchor="middle">
-									<tspan class="x-y-z-coord"><tspan class="x-coord">-1</tspan>, <tspan class="y-coord">0</tspan>, <tspan class="z-coord">0</tspan></tspan>
-								</text>
-							</g>
-							<g style="transform: translate(100px, 0px)" class="downtriangle">
-								<polygon points="0,86.6 -50,0 50,0"/>
-								<text x="0" y="25" text-anchor="middle">
-									<tspan class="x-y-z-coord"><tspan class="x-coord">0</tspan>, <tspan class="y-coord">0</tspan>, <tspan class="z-coord">+1</tspan></tspan>
-								</text>
-							</g>
-							<g style="transform: translate(50px, 86.6px)" class="downtriangle">
-								<polygon points="0,86.6 -50,0 50,0"/>
-								<text x="0" y="25" text-anchor="middle">
-									<tspan class="x-y-z-coord"><tspan class="x-coord">0</tspan>, <tspan class="y-coord">+1</tspan>, <tspan class="z-coord">0</tspan></tspan>
-								</text>
-							</g>
-						</g>
-						<g class="grid triangles" style="transform: translate(150px, 120px)">
-							<g style="transform: translate(50px, 100px)" class="downtriangle">
-								<polygon points="0,86.6 -50,0 50,0"/>
-								<text x="0" y="25" text-anchor="middle">
-									<tspan class="x-y-z-coord"><tspan class="x-coord">x</tspan>, <tspan class="y-coord">y</tspan>, <tspan class="z-coord">z</tspan></tspan>
-								</text>
-							</g>
-							<g style="transform: translate(0px, 100px)" class="uptriangle">
-								<polygon points="0,0 -50,86.6 50,86.6" />
-								<text x="0" y="75" text-anchor="middle">
-									<tspan class="x-y-z-coord"><tspan class="x-coord">0</tspan>, <tspan class="y-coord">0</tspan>, <tspan class="z-coord">-1</tspan></tspan>
-								</text>
-							</g>
-							<g style="transform: translate(100px, 100px)" class="uptriangle">
-								<polygon points="0,0 -50,86.6 50,86.6" />
-								<text x="0" y="75" text-anchor="middle">
-									<tspan class="x-y-z-coord"><tspan class="x-coord">+1</tspan>, <tspan class="y-coord">0</tspan>, <tspan class="z-coord">0</tspan></tspan>
-								</text>
-							</g>
-							<g style="transform: translate(50px, 13.4px)" class="uptriangle">
-								<polygon points="0,0 -50,86.6 50,86.6" />
-								<text x="0" y="75" text-anchor="middle">
-									<tspan class="x-y-z-coord"><tspan class="x-coord">0</tspan>, <tspan class="y-coord">-1</tspan>, <tspan class="z-coord">0</tspan></tspan>
-								</text>
-							</g>
-						</g>
-					</svg>
-				</figure>
-			</div>
-			
-			<div class="flex-container">
-				<div>
-					<p>Here is the resulting grid, rendered using the xyR for-loop above, then converting the coordinates to xyz.</p>
-				</div>
-				<figure id="triangle-grid-xyz" class="small" style="width:var(--small-diagram-width)">
-					<svg viewBox="0 0 700 420" border-box>
-						<g class="coord-labels">
-							<g class="x-coord coord" :style="toTransform(grid.mapXCoord(selected))" :class="{visible: selected && (coordinates=='xyz' || coordinates=='xyr')}">
-								<text>x = <tspan class="x-coord numeric">{{selected ? selected.x : 0}}</tspan></text>
-							</g>
-							<g class="y-coord coord" :style="toTransform(grid.mapYCoord(selected))" :class="{visible: selected}">
-								<text>y = <tspan class="y-coord numeric">{{selected ? selected.y : 0}}</tspan></text>
-							</g>
-							<g class="z-coord coord" :style="toTransform(grid.mapZCoord(selected))" :class="{visible: selected && coordinates=='xyz'}">
-								<text>z = <tspan class="z-coord numeric">{{selected ? selected.z : 0}}</tspan></text>
-							</g>
-						</g>
-						<g class="grid triangles">
-							<g v-for="tri in grid.grid.upTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
-								<polygon  points="0,0 -50,86.6 50,86.6" />
-								<text x="0" y="75" text-anchor="middle">
-									<component :is="coordinates" :tri="tri"></component>
-								</text>
-							</g>
-							<g v-for="tri in grid.grid.downTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
-								<polygon points="0,86.6 -50,0 50,0"/>
-								<text x="0" y="25" text-anchor="middle">
-									<component :is="coordinates" :tri="tri"></component>
-								</text>
-							</g>
-						</g>
-					</svg>
-				</figure>
-			</div>
-			<div class="flex-container">
-				<p>What is great about this representation is that calculating the distance between two triangles (defined as the minimum number of edges one needs to cross) is trivial in the xyz system. We merely need to count how many times each coordinate has changed. In other words, <math>distance(t<sub>1</sub>,t<sub>2</sub>) := |t<sub>1</sub>.x - t<sub>2</sub>.x| + |t<sub>1</sub>.y - t<sub>2</sub>.y| + |t<sub>1</sub>.z - t<sub>2</sub>.z|</math>.</p>
-				<figure id="triangle-grid-distance" class="small">
-					<svg viewBox="0 0 700 420" border-box>
-						<g class="grid triangles">
-							<g v-for="tri in grid.grid.upTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
-								<polygon  points="0,0 -50,86.6 50,86.6" />
-								<text x="0" y="75" text-anchor="middle">
-									<tspan>{{distance(tri,selected)}}</tspan>
-								</text>
-							</g>
-							<g v-for="tri in grid.grid.downTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
-								<polygon points="0,86.6 -50,0 50,0"/>
-								<text x="0" y="25" text-anchor="middle">
-									<tspan>{{distance(tri,selected)}}</tspan>
-								</text>
-							</g>
-						</g>
-					</svg>
-					<figcaption>Distance measure</figcaption>
-				</figure>
-			</div>
-		</section>
-		<section>
-			<h2>The row-column coordinate system: yb</h2>
-			<div class="flex-container">
-				<p> Finally, we notice that our triangles are arranged in diamond-shaped columns, so we wonder if there is a way to express the coordinates of a triangle with a two-dimensional (row, column) coordinate. Turns out this is possible if we preserve the y-coordinate from the previous sections, but we define a new coordinate <code>b := x + z</code>. Since we have removed a whole dimension, we should be free to loop over the y- and b-values in a for-loop, to produce a very neat looking grid of triangles.</p>
-				<figure id="triangle-grid-yb" class="small" style="width:var(--diagram-width)">
-				<svg viewBox="0 0 700 420" border-box>
-					<g class="coord-labels">
-						<g class="y-coord coord" :style="toTransform(grid.mapYCoord(selected))" :class="{visible: selected}">
-							<text>y = <tspan class="y-coord numeric">{{selected ? selected.y : 0}}</tspan></text>
-						</g>
-						<g class="b-coord coord" :style="toTransform(grid.mapBCoord(selected))" :class="{visible: selected && coordinates=='yb'}">
-							<text>b = <tspan class="b-coord numeric">{{selected ? selected.b : 0}}</tspan></text>
-						</g>
-					</g>
-					<g class="grid triangles">
-						<g v-for="tri in grid.grid.upTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
-							<polygon  points="0,0 -50,86.6 50,86.6" />
-							<text x="0" y="75" text-anchor="middle">
-								<component :is="coordinates" :tri="tri"></component>
-							</text>
-						</g>
-						<g v-for="tri in grid.grid.downTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
-							<polygon points="0,86.6 -50,0 50,0"/>
-							<text x="0" y="25" text-anchor="middle">
-								<component :is="coordinates" :tri="tri"></component>
-							</text>
-						</g>
-					</g>
-				</svg>
-			</figure>
-			</div>
-			<div class="flex-container">
-				<p>However, while this representation is very easy to loop over, we might want to translate back to the xyR or xyz coordinate system for other purposes. Turns out that this conversion is not very pretty looking. Not pretty at all!</p>
-				<div class="sidebar small">
-					<math class="block">(x, y, R) := (&lfloor;<mfrac><mn>b+y</mn> 2</mfrac>&rfloor;, y, (b+y) mod 2)</math>
-					<math class="block">(x, y, z) := (&lfloor;<mfrac><mn>b+y</mn> 2</mfrac>&rfloor;, y, &lfloor;<mfrac> <mn>b+y</mn> 2</mfrac>&rfloor; -y + (b+y) mod 2)</math>
-				</div>
-			</div>
-			<div class="flex-container">
-				<p>Just as before, we want to consider adjacency. Notice that triangles along a b-column vary in the y-coordinate by one, whereas the distance changes more than that. Specifically, consider two triangles trouching vertically at a point, their distance is 3, whereas their coordinates differ only by 1. This makes distance math convoluted. It is best to convert to the xyz coordinate system to compute distance.</p>
-				<figure class="smaller" style="width:var(--small-diagram-width)">
-					<svg viewBox="0 0 300 320" border-box>
-						<g class="grid triangles" style="transform: translate(50px, 20px)">
-							<g style="transform: translate(50px, 0px)" class="uptriangle">
-								<polygon points="0,0 -50,86.6 50,86.6" />
-								<text x="0" y="75" text-anchor="middle">
-									<tspan class="y-b-coord"><tspan class="y-coord">y</tspan>, <tspan class="b-coord">b</tspan>
-								</text>
-							</g>
-							<g style="transform: translate(0px, 0px)" class="downtriangle">
-								<polygon points="0,86.6 -50,0 50,0"/>
-								<text x="0" y="25" text-anchor="middle">
-									<tspan class="y-b-coord"><tspan class="y-coord">0</tspan>, <tspan class="b-coord">-1</tspan>
-								</text>
-							</g>
-							<g style="transform: translate(100px, 0px)" class="downtriangle">
-								<polygon points="0,86.6 -50,0 50,0"/>
-								<text x="0" y="25" text-anchor="middle">
-									<tspan class="y-b-coord"><tspan class="y-coord">0</tspan>, <tspan class="b-coord">+1</tspan>
-								</text>
-							</g>
-							<g style="transform: translate(50px, 86.6px)" class="downtriangle">
-								<polygon points="0,86.6 -50,0 50,0"/>
-								<text x="0" y="25" text-anchor="middle">
-									<tspan class="y-b-coord"><tspan class="y-coord">+1</tspan>, <tspan class="b-coord">0</tspan>
-								</text>
-							</g>
-						</g>
-						<g class="grid triangles" style="transform: translate(150px, 120px)">
-							<g style="transform: translate(50px, 100px)" class="downtriangle">
-								<polygon points="0,86.6 -50,0 50,0"/>
-								<text x="0" y="25" text-anchor="middle">
-									<tspan class="y-b-coord"><tspan class="y-coord">y</tspan>, <tspan class="b-coord">b</tspan>
-								</text>
-							</g>
-							<g style="transform: translate(50px, 13.4px)" class="uptriangle">
-								<polygon points="0,0 -50,86.6 50,86.6" />
-								<text x="0" y="75" text-anchor="middle">
-									<tspan class="y-b-coord"><tspan class="y-coord">-1</tspan>, <tspan class="b-coord">0</tspan>
-								</text>
-							</g>
-							<g style="transform: translate(0px, 100px)" class="uptriangle">
-								<polygon points="0,0 -50,86.6 50,86.6" />
-								<text x="0" y="75" text-anchor="middle">
-									<tspan class="y-b-coord"><tspan class="y-coord">0</tspan>, <tspan class="b-coord">-1</tspan>
-								</text>
-							</g>
-							<g style="transform: translate(100px, 100px)" class="uptriangle">
-								<polygon points="0,0 -50,86.6 50,86.6" />
-								<text x="0" y="75" text-anchor="middle">
-									<tspan class="y-b-coord"><tspan class="y-coord">0</tspan>, <tspan class="b-coord">+1</tspan>
-								</text>
-							</g>
-						</g>
-					</svg>
-				</figure>
-		</section>
-		<section>
-			<h2>All Three Coordinates In One</h2>
-			<p>Let's do an overview of the three coordinate systems. We care about translating between them, so here is a conversion table.</p>
-			<div class="center">
-				<table>
-					<caption>Coordinate conversions between the three systems</caption>
-					<thead>
-						<tr>
-							<th scope="col"></th>
-							<th scope="col">From xyR</th>
-							<th scope="col">From xyz</th>
-							<th scope="col">From yb</th>
-						</tr>
-					</thead>
+            <tbody>
+              <tr>
+                <td>to xyR</td>
+                <td class="empty"></td>
+                <td><math>(x, y, R) := (x, y, z-x+y)</math></td>
+                <td>
+                  <math
+                    >(x, y, R) := (&lfloor;<mfrac><mn>b+y</mn> 2</mfrac>&rfloor;, y, (b+y) mod
+                    2)</math
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td>to xyz</td>
+                <td><math>(x, y, z) := (x, y, x-y+R)</math></td>
+                <td class="empty"></td>
+                <td>
+                  <math
+                    >(x, y, z) := (&lfloor;<mfrac><mn>b+y</mn> 2</mfrac>&rfloor;, y, &lfloor;<mfrac
+                      ><mn>b+y</mn> 2</mfrac
+                    >&rfloor; -y + (b+y) mod 2)</math
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td>to yb</td>
+                <td><math>(y, b) := (y, 2x-y+R)</math></td>
+                <td><math>(y, b) := (y, x+z)</math></td>
+                <td class="empty"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          As outlined above, generating the grid is easiest in yb coordinate system, since in most
+          applications we want to display discrete rows and columns of triangles. We will benefit
+          most by using the xyz coordiante system to compute distances between triangles. Finally,
+          the xyR coordinate system makes it trivial to figure out whether a certain triangle points
+          upwards or downwards, by referring to the R-coordinate.
+          <figure id="triangle-grid-complete" style="width: var(--diagram-width)">
+            <svg viewBox="0 0 1200 800" border-box>
+              <g class="coord-labels">
+                <g
+                  class="x-coord coord"
+                  :style="toTransform(grid.mapXCoord(selected))"
+                  :class="{visible: selected && (coordinates=='xyz' || coordinates=='xyr')}"
+                >
+                  <text>
+                    x =
+                    <tspan class="x-coord numeric">{{selected ? selected.x : 0}}</tspan>
+                  </text>
+                </g>
+                <g
+                  class="y-coord coord"
+                  :style="toTransform(grid.mapYCoord(selected))"
+                  :class="{visible: selected}"
+                >
+                  <text>
+                    y =
+                    <tspan class="y-coord numeric">{{selected ? selected.y : 0}}</tspan>
+                  </text>
+                </g>
+                <g
+                  class="z-coord coord"
+                  :style="toTransform(grid.mapZCoord(selected))"
+                  :class="{visible: selected && coordinates=='xyz'}"
+                >
+                  <text>
+                    z =
+                    <tspan class="z-coord numeric">{{selected ? selected.z : 0}}</tspan>
+                  </text>
+                </g>
+                <g
+                  class="b-coord coord"
+                  :style="toTransform(grid.mapBCoord(selected))"
+                  :class="{visible: selected && coordinates=='yb'}"
+                >
+                  <text>
+                    b =
+                    <tspan class="b-coord numeric">{{selected ? selected.b : 0}}</tspan>
+                  </text>
+                </g>
+              </g>
+              <g class="grid triangles">
+                <g
+                  v-for="tri in grid.grid.upTriangles()"
+                  :style="toTransform(grid.mapTriangle(tri))"
+                  :class="triClassName(tri, selected)"
+                  :data-tri="tri.string()"
+                  @mousemove="mouse"
+                  @click="click"
+                >
+                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <text x="0" y="75" text-anchor="middle">
+                    <component :is="coordinates" :tri="tri"></component>
+                  </text>
+                </g>
+                <g
+                  v-for="tri in grid.grid.downTriangles()"
+                  :style="toTransform(grid.mapTriangle(tri))"
+                  :class="triClassName(tri, selected)"
+                  :data-tri="tri.string()"
+                  @mousemove="mouse"
+                  @click="click"
+                >
+                  <polygon points="0,86.6 -50,0 50,0" />
+                  <text x="0" y="25" text-anchor="middle">
+                    <component :is="coordinates" :tri="tri"></component>
+                  </text>
+                </g>
+              </g>
+            </svg>
+            <div class="coordinate-buttons">
+              <button @click='coordinates = "xyr"' :class="{ active: coordinates=='xyr'}">
+                xyR
+              </button>
+              <button @click='coordinates = "xyz"' :class="{ active: coordinates=='xyz'}">
+                xyz
+              </button>
+              <button @click='coordinates = "yb"' :class="{ active: coordinates=='yb'}">yb</button>
+            </div>
+          </figure>
+        </p>
+      </section>
+    </main>
+    <footer>© 2026 Jānis Lībeks</footer>
 
-					<tbody>
-						<tr>
-							<td>to xyR</td>
-							<td class="empty"></td>
-							<td><math>(x, y, R) := (x, y, z-x+y)</math></td>
-							<td><math>(x, y, R) := (&lfloor;<mfrac><mn>b+y</mn> 2</mfrac>&rfloor;, y, (b+y) mod 2)</math></td>
-						</tr>
-						<tr>
-							<td>to xyz</td>
-							<td><math>(x, y, z) := (x, y, x-y+R)</math></td>
-							<td class="empty"></td>
-							<td><math>(x, y, z) := (&lfloor;<mfrac><mn>b+y</mn> 2</mfrac>&rfloor;, y, &lfloor;<mfrac><mn>b+y</mn> 2</mfrac>&rfloor; -y + (b+y) mod 2)</math></td>
-						</tr>
-						<tr>
-							<td>to yb</td>
-							<td><math>(y, b) := (y, 2x-y+R)</math></td>
-							<td><math>(y, b) := (y, x+z)</math></td>
-							<td class="empty"></td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-			<p>As outlined above, generating the grid is easiest in yb coordinate system, since in most applications we want to display discrete rows and columns of triangles. We will benefit most by using the xyz coordiante system to compute distances between triangles. Finally, the xyR coordinate system makes it trivial to figure out whether a certain triangle points upwards or downwards, by referring to the R-coordinate.
-			<figure id="triangle-grid-complete" style="width:var(--diagram-width)">
-				<svg viewBox="0 0 1200 800" border-box>
-					<g class="coord-labels">
-						<g class="x-coord coord" :style="toTransform(grid.mapXCoord(selected))" :class="{visible: selected && (coordinates=='xyz' || coordinates=='xyr')}">
-							<text>x = <tspan class="x-coord numeric">{{selected ? selected.x : 0}}</tspan></text>
-						</g>
-						<g class="y-coord coord" :style="toTransform(grid.mapYCoord(selected))" :class="{visible: selected}">
-							<text>y = <tspan class="y-coord numeric">{{selected ? selected.y : 0}}</tspan></text>
-						</g>
-						<g class="z-coord coord" :style="toTransform(grid.mapZCoord(selected))" :class="{visible: selected && coordinates=='xyz'}">
-							<text>z = <tspan class="z-coord numeric">{{selected ? selected.z : 0}}</tspan></text>
-						</g>
-						<g class="b-coord coord" :style="toTransform(grid.mapBCoord(selected))" :class="{visible: selected && coordinates=='yb'}">
-							<text>b = <tspan class="b-coord numeric">{{selected ? selected.b : 0}}</tspan></text>
-						</g>
-					</g>
-					<g class="grid triangles">
-						<g v-for="tri in grid.grid.upTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
-							<polygon points="0,0 -50,86.6 50,86.6" />
-							<text x="0" y="75" text-anchor="middle">
-								<component :is="coordinates" :tri="tri"></component>
-							</text>
-						</g>
-						<g v-for="tri in grid.grid.downTriangles()" :style="toTransform(grid.mapTriangle(tri))" :class="triClassName(tri, selected)" :data-tri="tri.string()" @mousemove="mouse" @click="click">
-							<polygon points="0,86.6 -50,0 50,0"/>
-							<text x="0" y="25" text-anchor="middle">
-								<component :is="coordinates" :tri="tri"></component>
-							</text>
-						</g>
-					</g>
-				</svg>
-				<div class="coordinate-buttons">
-					<button @click='coordinates = "xyr"' :class="{ active: coordinates=='xyr'}">xyR</button>
-					<button @click='coordinates = "xyz"' :class="{ active: coordinates=='xyz'}">xyz</button>
-					<button @click='coordinates = "yb"' :class="{ active: coordinates=='yb'}">yb</button>
-				</div>
-			</figure>
-		</section>
-	</main>
-	<footer>
-		© 2026 Jānis Lībeks
-	</footer>
+    <script type="module">
+      const { createApp, ref, defineComponent } = Vue
+      import {
+        TriangleGrid,
+        TrianglePositioner,
+        setActiveTriangle,
+        triClassName,
+        triSimpleClassName,
+        xyz,
+        xyr,
+        yb,
+      } from './triangles.js'
+      import { SquareGrid, SquarePositioner, setActiveSquare, sqClassName } from './squares.js'
 
+      function toTransform(offsetVect) {
+        if (offsetVect.rotate) {
+          return {
+            transform: `translate(${offsetVect.x}px,${offsetVect.y}px) rotate(${offsetVect.rotate}deg)`,
+          }
+        }
+        return {
+          transform: `translate(${offsetVect.x}px,${offsetVect.y}px)`,
+        }
+      }
 
-	<script type="module">
-		const { createApp, ref, defineComponent } = Vue;
-		import { TriangleGrid, TrianglePositioner, setActiveTriangle, triClassName, triSimpleClassName, xyz, xyr, yb } from "./triangles.js";
-		import { SquareGrid, SquarePositioner, setActiveSquare, sqClassName } from "./squares.js";
-		
-		function toTransform(offsetVect) {
-			if (offsetVect.rotate) {
-				return {
-					transform: `translate(${offsetVect.x}px,${offsetVect.y}px) rotate(${offsetVect.rotate}deg)`,
-				}
-			}
-			return {
-				transform: `translate(${offsetVect.x}px,${offsetVect.y}px)`,
-			}
-		}
+      function mouseTriangle(event) {
+        this.setActiveTriangle(event.target.parentElement.dataset.tri)
+      }
 
-		function mouseTriangle(event) {
-			this.setActiveTriangle(event.target.parentElement.dataset.tri);
-		}
+      function mouseSquare(event) {
+        this.setActiveSquare(event.target.parentElement.dataset.sq)
+      }
 
-		function mouseSquare(event) {
-			this.setActiveSquare(event.target.parentElement.dataset.sq);
-		}
- 
-		const fullTriangleApp = createApp({
-			data() {
-				return {
-					selected: null,
-					grid: new TrianglePositioner(
-						{x: 100, y: 70},
-						new TriangleGrid({
-							nB: 18, 
-							nY: 7, 
-						}),
-						100,
-					),
-					coordinates: "xyr",
-				}
-			},
-			methods: {
-				mouse:mouseTriangle,
-				click:mouseTriangle,
-				triClassName,
-				setActiveTriangle,
-				toTransform,
-			},
-			components: {
-				xyz,
-				xyr,
-				yb,
-			}
-		}).mount('#triangle-grid-complete');
+      const fullTriangleApp = createApp({
+        data() {
+          return {
+            selected: null,
+            grid: new TrianglePositioner(
+              { x: 100, y: 70 },
+              new TriangleGrid({
+                nB: 18,
+                nY: 7,
+              }),
+              100,
+            ),
+            coordinates: 'xyr',
+          }
+        },
+        methods: {
+          mouse: mouseTriangle,
+          click: mouseTriangle,
+          triClassName,
+          setActiveTriangle,
+          toTransform,
+        },
+        components: {
+          xyz,
+          xyr,
+          yb,
+        },
+      }).mount('#triangle-grid-complete')
 
-		const triangleXYRApp = createApp({
-			data() {
-				return {
-					selected: null,
-					grid: new TrianglePositioner(
-						{x: 200, y: 70},
-							new TriangleGrid({
-							nX: 3,
-							nY: 3,
-						}),
-						100,
-					),
-					coordinates: "xyr",
-				}
-			},
-			methods: {
-				mouse:mouseTriangle,
-				click:mouseTriangle,
-				triClassName,
-				setActiveTriangle,
-				toTransform,
-			},
-			components: {
-				xyr,
-			}
-		}).mount('#triangle-grid-xyr');
+      const triangleXYRApp = createApp({
+        data() {
+          return {
+            selected: null,
+            grid: new TrianglePositioner(
+              { x: 200, y: 70 },
+              new TriangleGrid({
+                nX: 3,
+                nY: 3,
+              }),
+              100,
+            ),
+            coordinates: 'xyr',
+          }
+        },
+        methods: {
+          mouse: mouseTriangle,
+          click: mouseTriangle,
+          triClassName,
+          setActiveTriangle,
+          toTransform,
+        },
+        components: {
+          xyr,
+        },
+      }).mount('#triangle-grid-xyr')
 
-		const triangleXYZApp = createApp({
-			data() {
-				return {
-					selected: null,
-					grid: new TrianglePositioner(
-						{x: 200, y: 70},
-						new TriangleGrid({
-							nX: 3, 
-							nY: 3, 
-						}),
-						100,
-					),
-					coordinates: "xyz",
-				}
-			},
-			methods: {
-				mouse:mouseTriangle,
-				click:mouseTriangle,
-				triClassName,
-				setActiveTriangle,
-				toTransform,
-			},
-			components: {
-				xyz,
-			}
-		}).mount('#triangle-grid-xyz');
+      const triangleXYZApp = createApp({
+        data() {
+          return {
+            selected: null,
+            grid: new TrianglePositioner(
+              { x: 200, y: 70 },
+              new TriangleGrid({
+                nX: 3,
+                nY: 3,
+              }),
+              100,
+            ),
+            coordinates: 'xyz',
+          }
+        },
+        methods: {
+          mouse: mouseTriangle,
+          click: mouseTriangle,
+          triClassName,
+          setActiveTriangle,
+          toTransform,
+        },
+        components: {
+          xyz,
+        },
+      }).mount('#triangle-grid-xyz')
 
-		// grid that should span the whole svg viewport
-		let triangleGridAnonymous = new TriangleGrid({
-			nX: 12,
-			nY: 12,
-		});
+      // grid that should span the whole svg viewport
+      let triangleGridAnonymous = new TriangleGrid({
+        nX: 12,
+        nY: 12,
+      })
 
-		const triangleAnonymousApp = createApp({
-			data() {
-				return {
-					selected: null,
-					grid: new TrianglePositioner(
-						{x: 0, y: 0},
-						triangleGridAnonymous,
-						100,
-					),
-					coordinates: "yb",
-				}
-			},
-			methods: {
-				triClassName,
-				toTransform,
-			},
-		}).mount('#triangular-grid-anonymous');
+      const triangleAnonymousApp = createApp({
+        data() {
+          return {
+            selected: null,
+            grid: new TrianglePositioner({ x: 0, y: 0 }, triangleGridAnonymous, 100),
+            coordinates: 'yb',
+          }
+        },
+        methods: {
+          triClassName,
+          toTransform,
+        },
+      }).mount('#triangular-grid-anonymous')
 
-		const triangleDistanceApp = createApp({
-			data() {
-				return {
-					selected: triangleGridAnonymous.triangles[55], // pick a triangle somewhere in the middle
-					grid: new TrianglePositioner(
-						{x: 0, y: 0},
-						triangleGridAnonymous,
-						100,
-					),
-					coordinates: "yb",
-				}
-			},
-			methods: {
-				mouse:mouseTriangle,
-				click:mouseTriangle,
-				triClassName:triSimpleClassName,
-				setActiveTriangle,
-				toTransform,
-				distance:function(t1, t2) {
-					if (t2===null) {
-						return "";
-					}
-					return Math.abs(t1.x - t2.x) + Math.abs(t1.y - t2.y) + Math.abs(t1.z - t2.z)
-				}
-			},
-		}).mount('#triangle-grid-distance');
+      const triangleDistanceApp = createApp({
+        data() {
+          return {
+            selected: triangleGridAnonymous.triangles[55], // pick a triangle somewhere in the middle
+            grid: new TrianglePositioner({ x: 0, y: 0 }, triangleGridAnonymous, 100),
+            coordinates: 'yb',
+          }
+        },
+        methods: {
+          mouse: mouseTriangle,
+          click: mouseTriangle,
+          triClassName: triSimpleClassName,
+          setActiveTriangle,
+          toTransform,
+          distance: function (t1, t2) {
+            if (t2 === null) {
+              return ''
+            }
+            return Math.abs(t1.x - t2.x) + Math.abs(t1.y - t2.y) + Math.abs(t1.z - t2.z)
+          },
+        },
+      }).mount('#triangle-grid-distance')
 
-		const triangleYBApp = createApp({
-			data() {
-				return {
-					selected: null,
-					grid: new TrianglePositioner(
-						{x: 200, y: 70},
-						new TriangleGrid({
-							nB: 6,
-							nY: 3,
-						}),
-						100,
-					),
-					coordinates: "yb",
-				}
-			},
-			methods: {
-				mouse:mouseTriangle,
-				click:mouseTriangle,
-				triClassName,
-				setActiveTriangle,
-				toTransform,
-			},
-			components: {
-				yb,
-			}
-		}).mount('#triangle-grid-yb');
+      const triangleYBApp = createApp({
+        data() {
+          return {
+            selected: null,
+            grid: new TrianglePositioner(
+              { x: 200, y: 70 },
+              new TriangleGrid({
+                nB: 6,
+                nY: 3,
+              }),
+              100,
+            ),
+            coordinates: 'yb',
+          }
+        },
+        methods: {
+          mouse: mouseTriangle,
+          click: mouseTriangle,
+          triClassName,
+          setActiveTriangle,
+          toTransform,
+        },
+        components: {
+          yb,
+        },
+      }).mount('#triangle-grid-yb')
 
-		let squareGrid = new SquareGrid({
-			nX: 4, 
-			nY: 4, 
-		});
-		
-		const squareApp = createApp({
-			data() {
-				return {
-					selected: null,
-					grid: new SquarePositioner(
-						{x: 0, y: 50},
-						squareGrid,
-						100,
-					),
-					coordinates: "xyr",
-				}
-			},
-			methods: {
-				mouse:mouseSquare,
-				click:mouseSquare,
-				sqClassName,
-				setActiveSquare,
-				toTransform,
-			},
-		}).mount('#square-grid');
-	</script>
-</body>
+      let squareGrid = new SquareGrid({
+        nX: 4,
+        nY: 4,
+      })
 
+      const squareApp = createApp({
+        data() {
+          return {
+            selected: null,
+            grid: new SquarePositioner({ x: 0, y: 50 }, squareGrid, 100),
+            coordinates: 'xyr',
+          }
+        },
+        methods: {
+          mouse: mouseSquare,
+          click: mouseSquare,
+          sqClassName,
+          setActiveSquare,
+          toTransform,
+        },
+      }).mount('#square-grid')
+    </script>
+  </body>
 </html>

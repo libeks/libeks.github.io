@@ -23,8 +23,8 @@
       <section>
         <h2>(Jan 2026) WORK IN PROGRESS!</h2>
         <p>
-          This is a follow-up on the post about Triangular Grids, to see how easily we could adapt a
-          regular grid for Truchet tiles.
+          This is a follow-up on the post about <a href="triangles.html">Triangular Grids</a>, to
+          see how easily we could adapt a regular grid for Truchet tiles.
         </p>
       </section>
       <section>
@@ -130,6 +130,34 @@
                     <path class="stroke" d="M 50 0 L 50 100" />
                   </g>
                 </g>
+                <g class="square" style="transform: translate(100px, 100px)">
+                  <!-- Wiggle -->
+                  <g class="tile">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path
+                      class="stroke"
+                      d="M 0 50 A 16.6 16.6 1 0 0 16.6 33.3 A 16.6 16.6 1 0 1 33.3 16.6 A 16.6 16.6 1 0 0 50 0"
+                    />
+                    <path
+                      class="stroke"
+                      d="M 100 50 A 16.6 16.6 1 0 0 83.3 66.6 A 16.6 16.6 1 0 1 66.6 83.3 A 16.6 16.6 1 0 0 50 100"
+                    />
+                  </g>
+                </g>
+                <g class="square" style="transform: translate(200px, 100px)">
+                  <!-- Wiggle rotated 90deg -->
+                  <g class="tile rot90deg">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path
+                      class="stroke"
+                      d="M 0 50 A 16.6 16.6 1 0 0 16.6 33.3 A 16.6 16.6 1 0 1 33.3 16.6 A 16.6 16.6 1 0 0 50 0"
+                    />
+                    <path
+                      class="stroke"
+                      d="M 100 50 A 16.6 16.6 1 0 0 83.3 66.6 A 16.6 16.6 1 0 1 66.6 83.3 A 16.6 16.6 1 0 0 50 100"
+                    />
+                  </g>
+                </g>
               </g>
             </svg>
             <figcaption>Some other tiles added for fun</figcaption>
@@ -183,6 +211,34 @@
                       <polygon points="0,0 0,100 100,100 100,0" />
                       <path class="stroke" d="M 0 50 L 30 50 M 70 50 L 100 50" />
                       <path class="stroke" d="M 50 0 L 50 100" />
+                    </g>
+                  </g>
+                  <g v-if="sq.data==5" class="square">
+                    <!-- Wiggle -->
+                    <g class="tile">
+                      <polygon points="0,0 0,100 100,100 100,0" />
+                      <path
+                        class="stroke"
+                        d="M 0 50 A 16.6 16.6 1 0 0 16.6 33.3 A 16.6 16.6 1 0 1 33.3 16.6 A 16.6 16.6 1 0 0 50 0"
+                      />
+                      <path
+                        class="stroke"
+                        d="M 100 50 A 16.6 16.6 1 0 0 83.3 66.6 A 16.6 16.6 1 0 1 66.6 83.3 A 16.6 16.6 1 0 0 50 100"
+                      />
+                    </g>
+                  </g>
+                  <g v-if="sq.data==6" class="square">
+                    <!-- Wiggle rotated 90deg -->
+                    <g class="tile rot90deg">
+                      <polygon points="0,0 0,100 100,100 100,0" />
+                      <path
+                        class="stroke"
+                        d="M 0 50 A 16.6 16.6 1 0 0 16.6 33.3 A 16.6 16.6 1 0 1 33.3 16.6 A 16.6 16.6 1 0 0 50 0"
+                      />
+                      <path
+                        class="stroke"
+                        d="M 100 50 A 16.6 16.6 1 0 0 83.3 66.6 A 16.6 16.6 1 0 1 66.6 83.3 A 16.6 16.6 1 0 0 50 100"
+                      />
                     </g>
                   </g>
                   <!-- <text>{{sq.data}}</text> -->
@@ -253,7 +309,7 @@
                 nY: 15,
               }),
               100,
-            ).randomize([0, 1, 2, 3, 4]),
+            ).randomize([0, 1, 2, 3, 4, 5, 6]),
             coordinates: 'xyr',
           }
         },

@@ -254,25 +254,41 @@
           <p>
             Surely, we could extend this idea to equilateral triangles, since they, too, can tile
             the plane beautifully! The first problem is that a triangle has three sides, so we only
-            have three edge connection points. If we only choose tiles that use one line to connect
+            have three potential edge connection points. If we only choose tiles that use one line to connect
             two of the sides, while leaving the third empty, we get a disjointed grid that isn't
             much fun.
           </p>
           <figure class="float-right small">
             <svg viewBox="0 0 400 200">
               <g class="grid triangle">
-                <g class="triangle" style="transform: translate(50px, 50px)">
+                <g class="triangle" style="transform: translate(50px, 50px); transform-origin: 0px 43.3px">
                   <g class="tile">
                     <polygon points="0,86.6 -50,0 50,0" />
                     <path class="stroke" d="M 0 0 A 50 50 1 0 1 -25 43.3" />
                   </g>
                 </g>
-                <g class="triangle" style="transform: translate(175px, 50px)">
+                <!-- <g class="triangle downtriangle" style="transform: translate(100px, 50px);">
+                  <g class="flippable">
+                    <g class="tile">
+                      <polygon points="0,86.6 -50,0 50,0" />
+                      <path class="stroke" d="M 0 0 A 50 50 1 0 1 -25 43.3" />
+                    </g>
+                  </g>
+                </g> -->
+                <g class="triangle" style="transform: translate(175px, 50px); transform-origin: 0px 43.3px;">
                   <g class="tile rot120deg">
                     <polygon points="0,86.6 -50,0 50,0" />
                     <path class="stroke" d="M 0 0 A 50 50 1 0 1 -25 43.3" />
                   </g>
                 </g>
+                <!-- <g class="triangle downtriangle" style="transform: translate(200px, 50px)">
+                  <g class="flippable">
+                    <g class="tile rot120deg">
+                      <polygon points="0,86.6 -50,0 50,0" />
+                      <path class="stroke" d="M 0 0 A 50 50 1 0 1 -25 43.3" />
+                    </g>
+                  </g>
+                </g> -->
                 <g class="triangle" style="transform: translate(300px, 50px)">
                   <g class="tile rot240deg">
                     <polygon points="0,86.6 -50,0 50,0" />
@@ -281,11 +297,11 @@
                 </g>
               </g>
             </svg>
-            <figcaption>Naïve set of triangle tiles</figcaption>
+            <figcaption>Naïve triangular tile with one curve, with rotational copies</figcaption>
           </figure>
         </div>
         <figure id="triangle-grid-three-tile" class="full-width">
-          <svg viewBox="0 0 1500 500" border-box>
+          <svg viewBox="0 0 1500 520" border-box>
             <g class="grid triangles">
               <g
                 v-for="tr in grid.grid.triangles"
@@ -293,22 +309,117 @@
                 :class="triClassName(tr, selected)"
                 :data-sq="tr.string()"
               >
-                <g v-if="tr.data==0" class="abc">
+                <g v-if="tr.data==0" class="flippable">
                   <g class="tile">
                     <polygon points="0,86.6 -50,0 50,0" />
                     <path class="stroke" d="M 0 0 A 50 50 1 0 1 -25 43.3" />
                   </g>
                 </g>
-                <g v-if="tr.data==1" class="abc">
+                <g v-if="tr.data==1" class="flippable">
                   <g class="tile rot120deg">
                     <polygon points="0,86.6 -50,0 50,0" />
                     <path class="stroke" d="M 0 0 A 50 50 1 0 1 -25 43.3" />
                   </g>
                 </g>
-                <g v-if="tr.data==2" class="abc">
+                <g v-if="tr.data==2" class="flippable">
                   <g class="tile rot240deg">
                     <polygon points="0,86.6 -50,0 50,0" />
                     <path class="stroke" d="M 0 0 A 50 50 1 0 1 -25 43.3" />
+                  </g>
+                </g>
+              </g>
+            </g>
+          </svg>
+        </figure>
+        <div class="flex-container">
+          <p>What we really want is to ensure that lines continue trhoughout the plot, like we see in the Rectangular grids. For this, we can outline two points on each side, making six potential connection points. We then merely need to come up with tiles that would have these options. For the first approach, I will connect pairs of edge points such that they do not cross. For three pairs of points, the number of such tiles actually turns out to be equal to the <a href="https://en.wikipedia.org/wiki/Catalan_number">Catalan number</a> <math>C<sub>n</sub>=5</math>. For now I'll stick to using just circular segments, which lead to slight overlap for the last three tiles. We'll have to use Bezier curves to get rid of this overlap.</p>
+          <figure class="float-right small">
+            <svg viewBox="0 0 400 240">
+              <g class="grid triangle">
+                <g class="triangle" style="transform: translate(113px, 20px); transform-origin: 0px 43.3px">
+                  <g class="tile">
+                    <polygon points="0,86.6 -50,0 50,0" />
+                    <path class="stroke" d="M -16.6 0 A 16.6 16.6 1 0 0 16.6 0" />
+                    <path class="stroke" d="M -33.3 28.87 A 16.6 16.6 1 0 1 -16.6 57.78" />
+                    <path class="stroke" d="M 16.6 57.78 A 16.6 16.6 1 0 1 33.3 28.67" />
+                  </g>
+                </g>
+                <g class="triangle" style="transform: translate(238px, 20px); transform-origin: 0px 43.3px;">
+                  <g class="tile">
+                    <polygon points="0,86.6 -50,0 50,0" />
+                    <path class="stroke" d="M -16.6 0 A 33.3 33.3 1 0 1 -33.3 28.87" />
+                    <path class="stroke" d="M -16.6 57.78 A 33.3 33.3 1 0 1 16.6 57.78" />
+                    <path class="stroke" d="M 33.3 28.67 A 33.3 33.3 1 0 1 16.6 0" />
+                  </g>
+                </g>
+                <g class="triangle" style="transform: translate(50px, 120px); transform-origin: 0px 43.3px;">
+                  <g class="tile">
+                    <polygon points="0,86.6 -50,0 50,0" />
+                    <path class="stroke" d="M -16.6 0 A 33.3 33.3 1 0 1 -33.3 28.87" />
+                    <path class="stroke" d="M -16.6 57.78 A 66.6 66.6 1 0 0 16.6 0" />
+                    <path class="stroke" d="M 16.6 57.78 A 16.6 16.6 1 0 1 33.3 28.67" />
+                  </g>
+                </g>
+                <g class="triangle" style="transform: translate(175px, 120px); transform-origin: 0px 43.3px;">
+                  <g class="tile rot120deg">
+                    <polygon points="0,86.6 -50,0 50,0" />
+                    <path class="stroke" d="M -16.6 0 A 33.3 33.3 1 0 1 -33.3 28.87" />
+                    <path class="stroke" d="M -16.6 57.78 A 66.6 66.6 1 0 0 16.6 0" />
+                    <path class="stroke" d="M 16.6 57.78 A 16.6 16.6 1 0 1 33.3 28.67" />
+                  </g>
+                </g>
+                <g class="triangle" style="transform: translate(300px, 120px); transform-origin: 0px 43.3px;">
+                  <g class="tile rot240deg">
+                    <polygon points="0,86.6 -50,0 50,0" />
+                    <path class="stroke" d="M -16.6 0 A 33.3 33.3 1 0 1 -33.3 28.87" />
+                    <path class="stroke" d="M -16.6 57.78 A 66.6 66.6 1 0 0 16.6 0" />
+                    <path class="stroke" d="M 16.6 57.78 A 16.6 16.6 1 0 1 33.3 28.67" />
+                  </g>
+                </g>
+              </g>
+            </svg>
+            <figcaption>Simple triangular tiles with two connections per edge, using only individual circle segments</figcaption>
+          </figure>
+        </div>
+        <figure id="triangle-grid-two-tile" class="full-width">
+          <svg viewBox="0 0 1500 692.8" border-box>
+            <g class="grid triangles">
+              <g
+                v-for="tr in grid.grid.triangles"
+                :style="toTransform(grid.mapTriangle(tr))"
+                :class="triClassName(tr, selected)"
+                :data-sq="tr.string()"
+              >
+                <g v-if="tr.data==0" class="flippable">
+                  <g class="tile">
+                    <polygon points="0,86.6 -50,0 50,0" />
+                    <path class="stroke" d="M -16.6 0 A 16.6 16.6 1 0 0 16.6 0" />
+                    <path class="stroke" d="M -33.3 28.87 A 16.6 16.6 1 0 1 -16.6 57.78" />
+                    <path class="stroke" d="M 16.6 57.78 A 16.6 16.6 1 0 1 33.3 28.67" />
+                  </g>
+                </g>
+                <g v-if="tr.data==1" class="flippable">
+                  <g class="tile">
+                    <polygon points="0,86.6 -50,0 50,0" />
+                    <path class="stroke" d="M -16.6 0 A 33.3 33.3 1 0 1 -33.3 28.87" />
+                    <path class="stroke" d="M -16.6 57.78 A 33.3 33.3 1 0 1 16.6 57.78" />
+                    <path class="stroke" d="M 33.3 28.67 A 33.3 33.3 1 0 1 16.6 0" />
+                  </g>
+                </g>
+                <g v-if="tr.data==2" class="flippable">
+                  <g class="tile rot120deg">
+                    <polygon points="0,86.6 -50,0 50,0" />
+                    <path class="stroke" d="M -16.6 0 A 33.3 33.3 1 0 1 -33.3 28.87" />
+                    <path class="stroke" d="M -16.6 57.78 A 66.6 66.6 1 0 0 16.6 0" />
+                    <path class="stroke" d="M 16.6 57.78 A 16.6 16.6 1 0 1 33.3 28.67" />
+                  </g>
+                </g>
+                <g v-if="tr.data==3" class="flippable">
+                  <g class="tile rot240deg">
+                    <polygon points="0,86.6 -50,0 50,0" />
+                    <path class="stroke" d="M -16.6 0 A 33.3 33.3 1 0 1 -33.3 28.87" />
+                    <path class="stroke" d="M -16.6 57.78 A 66.6 66.6 1 0 0 16.6 0" />
+                    <path class="stroke" d="M 16.6 57.78 A 16.6 16.6 1 0 1 33.3 28.67" />
                   </g>
                 </g>
               </g>
@@ -382,15 +493,15 @@
         },
       }).mount('#square-grid-five-tile')
 
-      const triangleYBApp = createApp({
+      const triangleThreeTile = createApp({
         data() {
           return {
             selected: null,
             grid: new TrianglePositioner(
-              { x: 200, y: 70 },
+              { x: 200, y: 0 },
               new TriangleGrid({
                 nB: 18,
-                nY: 3,
+                nY: 5,
               }),
               100,
             ).randomize([0, 1, 2]),
@@ -401,6 +512,26 @@
           toTransform,
         },
       }).mount('#triangle-grid-three-tile')
+
+      const triangleTwoTile = createApp({
+        data() {
+          return {
+            selected: null,
+            grid: new TrianglePositioner(
+              { x: 100, y: 0 },
+              new TriangleGrid({
+                nB: 22,
+                nY: 7,
+              }),
+              100,
+            ).randomize([0, 1, 2, 3]),
+          }
+        },
+        methods: {
+          triClassName: triSimpleClassName,
+          toTransform,
+        },
+      }).mount('#triangle-grid-two-tile')
     </script>
   </body>
 </html>

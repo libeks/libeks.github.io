@@ -97,12 +97,13 @@ svg {
     transform-origin: 50px 50px;
   }
 
-  .grid .triangle .tile,
+  /*.grid .triangle .tile,
   .grid .triangle {
     transform-origin: 0px 28.87px;
-  }
+  }*/
 
-  .downtriangle .abc {
+  /* .flippable means that the contents can be rotated 180 degrees. It has a separate g element to not be overriden by the translation of the .triangle element */
+  .downtriangle .flippable {
     transform: rotate(180deg);
     transform-origin: 0px 43.3px;
   }
@@ -117,10 +118,12 @@ svg {
 
     &.rot120deg {
       transform: rotate(120deg);
+      transform-origin: 0px 28.87px;
     }
 
     &.rot240deg {
       transform: rotate(240deg);
+      transform-origin: 0px 28.87px;
     }
   }
 

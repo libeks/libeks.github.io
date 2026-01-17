@@ -347,7 +347,7 @@
             turns out to be equal to the
             <a href="https://en.wikipedia.org/wiki/Catalan_number">Catalan number</a>
             <math>C<sub>n</sub>=5</math>. For now I'll stick to using just circular segments, which
-            lead to a slight overlap for the last three tiles. We'll have to use Bezier curves to
+            lead to a slight overlap for the last three tiles. We'll have to use Bézier curves to
             get rid of this overlap.
           </p>
           <figure class="float-right small">
@@ -472,7 +472,7 @@
         <p>
           Next, let's see how to make sure those lines don't overlap. To make sure the lines don't
           look disconnected or jagged, it is wise to ensure that they connect to the edge of the
-          tile perpendicularly. Luckily, so long as we keep the first and last Bezier edge
+          tile perpendicularly. Luckily, so long as we keep the first and last Bézier edge
           perpendicular to the tile edge, this should work!
         </p>
         <div class="flex-container">
@@ -480,7 +480,14 @@
             For this, it might be helpful to talk about the measurements of the triangle. I've
             decided that it would be best to handle a triangle that has side length of 100 units.
             The height of the triangle is then <math>50<msqrt>3</msqrt> = 86.6</math>. I divide each
-            edge into three equal parts of length <math>33.3</math>.
+            edge into three equal parts of length <math>33.3</math>. The midpoint of the triangle is
+            of course
+            <math
+              ><mfrac><mn>1</mn> <mn>3</mn></mfrac></math
+            >
+            of the way down the height. I extend the notches on the edges until they intersect,
+            leading to three points on the interior, which will form the control points of the
+            Bézier curves.
           </p>
           <figure class="float-right small">
             <svg viewBox="0 0 150 120">
@@ -552,9 +559,9 @@
         </div>
         <div class="flex-container">
           <p>
-            Finally, it is helpful to know that Bezier curves are contained within the convex
+            Finally, it is helpful to know that Bézier curves are contained within the convex
             polygon outlined by its control points, and the normal vector at each endpoint is
-            parallel to the line from the first to the second control point, etc.
+            parallel to the control edge touching it, so we get perpendicularity for free.
           </p>
           <figure class="float-right small">
             <svg viewBox="0 0 150 120">
@@ -586,11 +593,11 @@
                 </g>
               </g>
             </svg>
-            <figcaption>Non-overlapping Bezier curves, along with the control contours.</figcaption>
+            <figcaption>Non-overlapping Bézier curves, along with the control contours.</figcaption>
           </figure>
         </div>
         <div class="flex-container">
-          <p>So let's take a look at the five tiles using Bezier curves.</p>
+          <p>So let's take a look at the five tiles using Bézier curves.</p>
           <figure class="float-right small">
             <svg viewBox="0 0 400 240">
               <g class="grid triangle">
@@ -652,7 +659,7 @@
               </g>
             </svg>
             <figcaption>
-              The same five triangular Truchet tiles, this time with Bezier curves. No overlaps!
+              The same five triangular Truchet tiles, this time with Bézier curves. No overlaps!
             </figcaption>
           </figure>
         </div>
@@ -810,7 +817,7 @@
         },
       }).mount('#triangle-grid-two-tile')
 
-      const triangleTwoBezierTile = createApp({
+      const triangleTwoBézierTile = createApp({
         data() {
           return {
             selected: null,

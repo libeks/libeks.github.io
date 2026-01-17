@@ -85,23 +85,13 @@ class Triangle {
 
 class TrianglePositioner {
   constructor(padding, grid, size) {
-    // if (grid !== undefined && gridParams !== undefined) {
-    // 	console.log(grid);
-    // 	console.log(gridParams);
-    // 	console.warn("TrianglePositioner recevied both grid and gridParams, will ignore the latter");
-    // }
-    // if (gridParams !== undefined) {
-    // 	this.grid = new TriangleGrid(gridParams);
-    // } else {
     this.grid = grid
-    // }
     this.padding = padding
     this.size = size
     this.data = null
   }
 
   mapTriangle(tri) {
-    console.log(tri)
     return {
       x:
         this.padding.x +
@@ -113,12 +103,10 @@ class TrianglePositioner {
   }
 
   randomize(options) {
-    console.log(this.grid)
     for (let sq of this.grid.triangles) {
       const r = Math.floor(Math.random() * options.length)
       sq.data = options[r]
     }
-    console.log(this.grid)
     return this
   }
 

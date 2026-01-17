@@ -44,12 +44,10 @@ class SquarePositioner {
   }
 
   randomize(options) {
-    console.log(this.grid)
     for (let sq of this.grid.squares) {
       const r = Math.floor(Math.random() * options.length)
       sq.data = options[r]
     }
-    console.log(this.grid)
     return this
   }
 

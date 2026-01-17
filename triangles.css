@@ -95,10 +95,32 @@ svg {
 
   .grid .square .tile {
     transform-origin: 50px 50px;
+  }
+
+  .grid .triangle .tile,
+  .grid .triangle {
+    transform-origin: 0px 28.87px;
+  }
+
+  .downtriangle .abc {
+    transform: rotate(180deg);
+    transform-origin: 0px 43.3px;
+  }
+
+  .grid .square .tile,
+  .grid .triangle .tile {
     fill: none;
 
     &.rot90deg {
       transform: rotate(90deg);
+    }
+
+    &.rot120deg {
+      transform: rotate(120deg);
+    }
+
+    &.rot240deg {
+      transform: rotate(240deg);
     }
   }
 

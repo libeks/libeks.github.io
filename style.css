@@ -93,7 +93,7 @@ p {
 figure,
 .sidebar {
   box-sizing: border-box;
-  /*bordser: 1px solid black;*/
+  /*border: 1px solid black;*/
   flex-basis: auto;
   margin: 0;
 

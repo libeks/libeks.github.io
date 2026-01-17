@@ -97,9 +97,11 @@ class TrianglePositioner {
     // }
     this.padding = padding
     this.size = size
+    this.data = null
   }
 
   mapTriangle(tri) {
+    console.log(tri)
     return {
       x:
         this.padding.x +
@@ -108,6 +110,16 @@ class TrianglePositioner {
         (this.size / 2) * tri.R,
       y: this.padding.y + tri.y * 86.6,
     }
+  }
+
+  randomize(options) {
+    console.log(this.grid)
+    for (let sq of this.grid.triangles) {
+      const r = Math.floor(Math.random() * options.length)
+      sq.data = options[r]
+    }
+    console.log(this.grid)
+    return this
   }
 
   mapYCoord(coord) {
@@ -170,6 +182,7 @@ function triClassName(tri, selected) {
     return {
       uptriangle: tri.R == 0,
       downtriangle: tri.R == 1,
+      triangle: true,
     }
   }
   const highlight = tri.string() == this.selected.string()
@@ -184,6 +197,7 @@ function triClassName(tri, selected) {
     ...(this.coordinates == 'yb' && { sameB: tri.b == this.selected.b && !highlight }),
     uptriangle: tri.R == 0,
     downtriangle: tri.R == 1,
+    triangle: true,
   }
 }
 
@@ -192,6 +206,7 @@ function triSimpleClassName(tri, selected) {
     return {
       uptriangle: tri.R == 0,
       downtriangle: tri.R == 1,
+      triangle: true,
     }
   }
   const highlight = tri.string() == this.selected.string()
@@ -199,6 +214,7 @@ function triSimpleClassName(tri, selected) {
     highlight,
     uptriangle: tri.R == 0,
     downtriangle: tri.R == 1,
+    triangle: true,
   }
 }
 

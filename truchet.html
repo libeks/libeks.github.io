@@ -88,9 +88,9 @@
             cardinal directions.
           </p>
           <figure id="square-grid" class="float-right small">
-            <svg viewBox="0 0 400 200">
+            <svg viewBox="0 0 430 220">
               <g class="grid square">
-                <g class="square" style="transform: translate(0px, 0px)">
+                <g class="square" style="transform: translate(0px, 10px)">
                   <!-- Two quarter circles -->
                   <g class="tile">
                     <polygon points="0,0 0,100 100,100 100,0" />
@@ -98,7 +98,7 @@
                     <path class="stroke" d="M 100 50 A 50 50 1 0 0 50 100" />
                   </g>
                 </g>
-                <g class="square" style="transform: translate(100px, 0px)">
+                <g class="square" style="transform: translate(110px, 10px)">
                   <!-- Two quarter circles, turned 90 degrees -->
                   <g class="tile rot90deg">
                     <polygon points="0,0 0,100 100,100 100,0" />
@@ -106,7 +106,7 @@
                     <path class="stroke" d="M 100 50 A 50 50 1 0 0 50 100" />
                   </g>
                 </g>
-                <g class="square" style="transform: translate(200px, 0px)">
+                <g class="square" style="transform: translate(220px, 10px)">
                   <!-- Cross -->
                   <g class="tile">
                     <polygon points="0,0 0,100 100,100 100,0" />
@@ -114,7 +114,7 @@
                     <path class="stroke" d="M 50 0 L 50 100" />
                   </g>
                 </g>
-                <g class="square" style="transform: translate(300px, 0px)">
+                <g class="square" style="transform: translate(330px, 10px)">
                   <!-- Cross under -->
                   <g class="tile">
                     <polygon points="0,0 0,100 100,100 100,0" />
@@ -122,7 +122,7 @@
                     <path class="stroke" d="M 50 0 L 50 100" />
                   </g>
                 </g>
-                <g class="square" style="transform: translate(0px, 100px)">
+                <g class="square" style="transform: translate(0px, 120px)">
                   <!-- Cross over -->
                   <g class="tile rot90deg">
                     <polygon points="0,0 0,100 100,100 100,0" />
@@ -130,7 +130,7 @@
                     <path class="stroke" d="M 50 0 L 50 100" />
                   </g>
                 </g>
-                <g class="square" style="transform: translate(100px, 100px)">
+                <g class="square" style="transform: translate(110px, 120px)">
                   <!-- Wiggle -->
                   <g class="tile">
                     <polygon points="0,0 0,100 100,100 100,0" />
@@ -144,7 +144,7 @@
                     />
                   </g>
                 </g>
-                <g class="square" style="transform: translate(200px, 100px)">
+                <g class="square" style="transform: translate(220px, 120px)">
                   <!-- Wiggle rotated 90deg -->
                   <g class="tile rot90deg">
                     <polygon points="0,0 0,100 100,100 100,0" />
@@ -347,8 +347,8 @@
             out to be equal to the
             <a href="https://en.wikipedia.org/wiki/Catalan_number">Catalan number</a>
             <math>C<sub>n</sub>=5</math>. For now I'll stick to using just circular segments, which
-            lead to slight overlap for the last three tiles. We'll have to use Bezier curves to get
-            rid of this overlap.
+            lead to a slight overlap for the last three tiles. We'll have to use Bezier curves to
+            get rid of this overlap.
           </p>
           <figure class="float-right small">
             <svg viewBox="0 0 400 240">
@@ -428,12 +428,20 @@
                 <g v-if="tr.data==0" class="flippable">
                   <g class="tile">
                     <polygon points="0,86.6 -50,0 50,0" />
+                    <path class="stroke" d="M -16.6 0 A 33.3 33.3 1 0 1 -33.3 28.87" />
+                    <path class="stroke" d="M -16.6 57.78 A 33.3 33.3 1 0 1 16.6 57.78" />
+                    <path class="stroke" d="M 33.3 28.67 A 33.3 33.3 1 0 1 16.6 0" />
+                  </g>
+                </g>
+                <g v-if="tr.data==1" class="flippable">
+                  <g class="tile">
+                    <polygon points="0,86.6 -50,0 50,0" />
                     <path class="stroke" d="M -16.6 0 A 16.6 16.6 1 0 0 16.6 0" />
                     <path class="stroke" d="M -33.3 28.87 A 16.6 16.6 1 0 1 -16.6 57.78" />
                     <path class="stroke" d="M 16.6 57.78 A 16.6 16.6 1 0 1 33.3 28.67" />
                   </g>
                 </g>
-                <g v-if="tr.data==1" class="flippable">
+                <g v-if="tr.data==2" class="flippable">
                   <g class="tile">
                     <polygon points="0,86.6 -50,0 50,0" />
                     <path class="stroke" d="M -16.6 0 A 33.3 33.3 1 0 1 -33.3 28.87" />
@@ -441,7 +449,7 @@
                     <path class="stroke" d="M 33.3 28.67 A 33.3 33.3 1 0 1 16.6 0" />
                   </g>
                 </g>
-                <g v-if="tr.data==2" class="flippable">
+                <g v-if="tr.data==3" class="flippable">
                   <g class="tile rot120deg">
                     <polygon points="0,86.6 -50,0 50,0" />
                     <path class="stroke" d="M -16.6 0 A 33.3 33.3 1 0 1 -33.3 28.87" />
@@ -449,12 +457,252 @@
                     <path class="stroke" d="M 16.6 57.78 A 16.6 16.6 1 0 1 33.3 28.67" />
                   </g>
                 </g>
-                <g v-if="tr.data==3" class="flippable">
+                <g v-if="tr.data==4" class="flippable">
                   <g class="tile rot240deg">
                     <polygon points="0,86.6 -50,0 50,0" />
                     <path class="stroke" d="M -16.6 0 A 33.3 33.3 1 0 1 -33.3 28.87" />
                     <path class="stroke" d="M -16.6 57.78 A 66.6 66.6 1 0 0 16.6 0" />
                     <path class="stroke" d="M 16.6 57.78 A 16.6 16.6 1 0 1 33.3 28.67" />
+                  </g>
+                </g>
+              </g>
+            </g>
+          </svg>
+        </figure>
+        <p>
+          Next, let's see how to make sure those lines don't overlap. To make sure the lines don't
+          look disconnected or jagged, it is wise to ensure that they connect to the edge of the
+          tile perpendicularly. Luckily, so long as we keep the first and last Bezier edge
+          perpendicular to the tile edge, this should work!
+        </p>
+        <div class="flex-container">
+          <p>
+            For this, it might be helpful to talk about the measurements of the triangle. I've
+            decided that it would be best to handle a triangle that has side length of 100 units.
+            The height of the triangle is then <math>50<msqrt>3</msqrt> = 86.6</math>. I divide each
+            edge into three equal parts of length <math>33.3</math>.
+          </p>
+          <figure class="float-right small">
+            <svg viewBox="0 0 150 120">
+              <g class="grid triangle">
+                <g class="triangle" style="transform: translate(75px, 25px)">
+                  <g class="tile">
+                    <polygon points="0,86.6 -50,0 50,0" />
+                    <path class="stroke thin" d="M 0 0 L 0 86.6" />
+                    <path class="stroke thin" d="M -25 43.4 L 50 0" />
+                    <path class="stroke thin" d="M 25 43.4 L -50 0" />
+                    <path class="stroke thin" d="M -33.3 28.87 L -16.6 19.24" />
+                    <path class="stroke thin" d="M -16.6 0 L -16.6 19.24" />
+                    <path class="stroke thin" d="M 16.6 0 L 16.6 19.24" />
+                    <path class="stroke thin" d="M 33.3 28.87 L 16.6 19.24" />
+                    <path class="stroke thin" d="M -16.6 57.73 L 0 48.14" />
+                    <path class="stroke thin" d="M 16.6 57.73 L 0 48.14" />
+                    <path class="stroke thin" d="M 16.6 19.24 L 0 48.14" />
+                    <path class="stroke thin" d="M -16.6 19.24 L 0 48.14" />
+                    <path class="stroke thin" d="M -16.6 19.24 L 16.6 19.24" />
+
+                    <circle class="stroke medium" cx="0" cy="86.6" r="0.5" />
+                    <!-- lower vertex -->
+                    <text x="-8" y="93" class="small">(0,86.6)</text>
+                    <circle class="stroke medium" cx="-50" cy="0" r="0.5" />
+                    <!-- left vertex -->
+                    <text x="-57" y="-3" class="small">(-50,0)</text>
+                    <circle class="stroke medium" cx="50" cy="0" r="0.5" />
+                    <!-- right vertex -->
+                    <text x="42" y="-3" class="small">(50,0)</text>
+                    <circle class="stroke medium" cx="0" cy="0" r="0.5" />
+                    <!-- origin -->
+                    <text x="-5" y="-3" class="small">(0,0)</text>
+                    <circle class="stroke medium" cx="-16.6" cy="19.24" r="0.5" />
+                    <!-- tripoint 1 -->
+                    <text x="-30" y="16" class="small">(-16.6,19.2)</text>
+                    <circle class="stroke medium" cx="16.6" cy="19.24" r="0.5" />
+                    <!-- tripoint 2 -->
+                    <text x="7" y="16" class="small">(16.6,19.2)</text>
+                    <circle class="stroke medium" cx="0" cy="48.1" r="0.5" />
+                    <!-- tripoint 3 -->
+                    <text x="-5" y="44" class="small">(0,48.1)</text>
+                    <circle class="stroke medium" cx="0" cy="28.87" r="0.5" />
+                    <!-- midpoint -->
+                    <text x="4" y="30" class="small">(0,28.9)</text>
+                    <path class="stroke notch" d="M -16.6 -2 L -16.6 2" />
+                    <!-- notch top -->
+                    <text x="-25" y="-3" class="small">(-16.6,0)</text>
+                    <path class="stroke notch" d="M 16.6 -2 L 16.6 2" />
+                    <!-- notch top -->
+                    <text x="9" y="-3" class="small">(16.6,0)</text>
+                    <path class="stroke notch" d="M -31.6 27.87 L -35 29.87" />
+                    <!-- notch left -->
+                    <text x="-60" y="27" class="small">(-33.3,28.9)</text>
+                    <path class="stroke notch" d="M -14.87 56.72 L -18.33 58.73" />
+                    <!-- notch left -->
+                    <text x="-40" y="57" class="small">(-16.6,57.7)</text>
+                    <path class="stroke notch" d="M 31.6 27.87 L 35 29.87" />
+                    <!-- notch right -->
+                    <text x="37" y="27" class="small">(33.3,28.9)</text>
+                    <path class="stroke notch" d="M 14.87 56.72 L 18.33 58.73" />
+                    <!-- notch right -->
+                    <text x="20" y="57" class="small">(16.6,57.7)</text>
+                  </g>
+                </g>
+              </g>
+            </svg>
+            <figcaption>Measurements of an equilateral triangle with edge 100.</figcaption>
+          </figure>
+        </div>
+        <div class="flex-container">
+          <p>
+            Finally, it is helpful to know that Bezier curves are contained within the convex
+            polygon outlined by its control points, and the normal vector at each endpoint is
+            parallel to the line from the first to the second control point, etc.
+          </p>
+          <figure class="float-right small">
+            <svg viewBox="0 0 150 120">
+              <g class="grid triangle">
+                <g class="triangle" style="transform: translate(75px, 25px)">
+                  <g class="tile">
+                    <polygon points="0,86.6 -50,0 50,0" />
+                    <path class="stroke thin" d="M 0 0 L 0 86.6" />
+                    <path class="stroke thin" d="M -25 43.4 L 50 0" />
+                    <path class="stroke thin" d="M 25 43.4 L -50 0" />
+                    <path class="stroke thin" d="M 16.6 19.24 L 0 48.14" />
+                    <path class="stroke thin" d="M -16.6 19.24 L 0 48.14" />
+
+                    <path class="stroke medium" d="M -16.6 0 C -16.6 19.24, 16.6 19.24, 16.6 0" />
+                    <path
+                      class="stroke medium"
+                      d="M -33.3 28.87 C -16.6 19.24, 16.6 19.24, 33.3 28.87"
+                    />
+                    <path class="stroke medium" d="M -16.6 57.73 Q 0 48.14, 16.6 57.73" />
+
+                    <path class="stroke thin red" d="M -33.3 28.87 L -16.6 19.24" />
+                    <path class="stroke thin red" d="M -16.6 0 L -16.6 19.24" />
+                    <path class="stroke thin red" d="M 16.6 0 L 16.6 19.24" />
+                    <path class="stroke thin red" d="M 33.3 28.87 L 16.6 19.24" />
+                    <path class="stroke thin red" d="M -16.6 57.73 L 0 48.14" />
+                    <path class="stroke thin red" d="M 16.6 57.73 L 0 48.14" />
+                    <path class="stroke thin red" d="M -16.6 19.24 L 16.6 19.24" />
+                  </g>
+                </g>
+              </g>
+            </svg>
+            <figcaption>Non-overlapping Bezier curves, along with the control contours.</figcaption>
+          </figure>
+        </div>
+        <div class="flex-container">
+          <p>So let's take a look at the five tiles using Bezier curves.</p>
+          <figure class="float-right small">
+            <svg viewBox="0 0 400 240">
+              <g class="grid triangle">
+                <g
+                  class="triangle"
+                  style="transform: translate(113px, 20px); transform-origin: 0px 43.3px"
+                >
+                  <g class="tile">
+                    <polygon points="0,86.6 -50,0 50,0" />
+                    <path class="stroke" d="M -16.6 0 C -16.6 19.24, 16.6 19.24, 16.6 0" />
+                    <path class="stroke" d="M -33.3 28.87 C -16.6 19.24, 0 48.1, -16.6 57.78" />
+                    <path class="stroke" d="M 16.6 57.78 C 0 48.1, 16.6 19.24, 33.3 28.87" />
+                  </g>
+                </g>
+                <g
+                  class="triangle"
+                  style="transform: translate(238px, 20px); transform-origin: 0px 43.3px"
+                >
+                  <g class="tile">
+                    <polygon points="0,86.6 -50,0 50,0" />
+                    <path class="stroke" d="M -16.6 0 Q -16.6 19.24, -33.3 28.87" />
+                    <path class="stroke" d="M -16.6 57.78 Q 0 48.1, 16.6 57.78" />
+                    <path class="stroke" d="M 33.3 28.67 Q 16.6 19.24, 16.6 0" />
+                  </g>
+                </g>
+                <g
+                  class="triangle"
+                  style="transform: translate(50px, 120px); transform-origin: 0px 43.3px"
+                >
+                  <g class="tile">
+                    <polygon points="0,86.6 -50,0 50,0" />
+                    <path class="stroke" d="M -16.6 0 Q -16.6 19.24, -33.3 28.87" />
+                    <path class="stroke" d="M -16.6 57.78 C 0 48.1, 16.6 19.24, 16.6 0" />
+                    <path class="stroke" d="M 16.6 57.78 C 0 48.1, 16.6 19.24, 33.3 28.87" />
+                  </g>
+                </g>
+                <g
+                  class="triangle"
+                  style="transform: translate(175px, 120px); transform-origin: 0px 43.3px"
+                >
+                  <g class="tile rot120deg">
+                    <polygon points="0,86.6 -50,0 50,0" />
+                    <path class="stroke" d="M -16.6 0 Q -16.6 19.24, -33.3 28.87" />
+                    <path class="stroke" d="M -16.6 57.78 C 0 48.1, 16.6 19.24, 16.6 0" />
+                    <path class="stroke" d="M 16.6 57.78 C 0 48.1, 16.6 19.24, 33.3 28.87" />
+                  </g>
+                </g>
+                <g
+                  class="triangle"
+                  style="transform: translate(300px, 120px); transform-origin: 0px 43.3px"
+                >
+                  <g class="tile rot240deg">
+                    <polygon points="0,86.6 -50,0 50,0" />
+                    <path class="stroke" d="M -16.6 0 Q -16.6 19.24, -33.3 28.87" />
+                    <path class="stroke" d="M -16.6 57.78 C 0 48.1, 16.6 19.24, 16.6 0" />
+                    <path class="stroke" d="M 16.6 57.78 C 0 48.1, 16.6 19.24, 33.3 28.87" />
+                  </g>
+                </g>
+              </g>
+            </svg>
+            <figcaption>
+              The same five triangular Truchet tiles, this time with Bezier curves. No overlaps!
+            </figcaption>
+          </figure>
+        </div>
+        <figure id="triangle-grid-two-bezier-tile" class="full-width">
+          <svg viewBox="0 0 1500 692.8" border-box>
+            <g class="grid triangles">
+              <g
+                v-for="tr in grid.grid.triangles"
+                :style="toTransform(grid.mapTriangle(tr))"
+                :class="triClassName(tr, selected)"
+                :data-sq="tr.string()"
+              >
+                <g v-if="tr.data==0" class="flippable">
+                  <g class="tile">
+                    <polygon points="0,86.6 -50,0 50,0" />
+                    <path class="stroke" d="M -16.6 0 C -16.6 19.24, 16.6 19.24, 16.6 0" />
+                    <path class="stroke" d="M -33.3 28.87 C -16.6 19.24, 0 48.1, -16.6 57.78" />
+                    <path class="stroke" d="M 16.6 57.78 C 0 48.1, 16.6 19.24, 33.3 28.87" />
+                  </g>
+                </g>
+                <g v-if="tr.data==1" class="flippable">
+                  <g class="tile">
+                    <polygon points="0,86.6 -50,0 50,0" />
+                    <path class="stroke" d="M -16.6 0 Q -16.6 19.24, -33.3 28.87" />
+                    <path class="stroke" d="M -16.6 57.78 Q 0 48.1, 16.6 57.78" />
+                    <path class="stroke" d="M 33.3 28.67 Q 16.6 19.24, 16.6 0" />
+                  </g>
+                </g>
+                <g v-if="tr.data==2" class="flippable">
+                  <g class="tile">
+                    <polygon points="0,86.6 -50,0 50,0" />
+                    <path class="stroke" d="M -16.6 0 Q -16.6 19.24, -33.3 28.87" />
+                    <path class="stroke" d="M -16.6 57.78 C 0 48.1, 16.6 19.24, 16.6 0" />
+                    <path class="stroke" d="M 16.6 57.78 C 0 48.1, 16.6 19.24, 33.3 28.87" />
+                  </g>
+                </g>
+                <g v-if="tr.data==3" class="flippable">
+                  <g class="tile rot120deg">
+                    <polygon points="0,86.6 -50,0 50,0" />
+                    <path class="stroke" d="M -16.6 0 Q -16.6 19.24, -33.3 28.87" />
+                    <path class="stroke" d="M -16.6 57.78 C 0 48.1, 16.6 19.24, 16.6 0" />
+                    <path class="stroke" d="M 16.6 57.78 C 0 48.1, 16.6 19.24, 33.3 28.87" />
+                  </g>
+                </g>
+                <g v-if="tr.data==4" class="flippable">
+                  <g class="tile rot240deg">
+                    <polygon points="0,86.6 -50,0 50,0" />
+                    <path class="stroke" d="M -16.6 0 Q -16.6 19.24, -33.3 28.87" />
+                    <path class="stroke" d="M -16.6 57.78 C 0 48.1, 16.6 19.24, 16.6 0" />
+                    <path class="stroke" d="M 16.6 57.78 C 0 48.1, 16.6 19.24, 33.3 28.87" />
                   </g>
                 </g>
               </g>
@@ -467,13 +715,7 @@
 
     <script type="module">
       const { createApp, ref, defineComponent } = Vue
-      import {
-        TriangleGrid,
-        TrianglePositioner,
-        // setActiveTriangle,
-        // triClassName,
-        triSimpleClassName,
-      } from './triangles.js'
+      import { TriangleGrid, TrianglePositioner, triSimpleClassName } from './triangles.js'
       import { SquareGrid, SquarePositioner, setActiveSquare, sqClassName } from './squares.js'
 
       function toTransform(offsetVect) {
@@ -555,11 +797,11 @@
             grid: new TrianglePositioner(
               { x: 100, y: 0 },
               new TriangleGrid({
-                nB: 22,
+                nB: 26,
                 nY: 7,
               }),
               100,
-            ).randomize([0, 1, 2, 3]),
+            ).randomize([0, 1, 2, 3, 4]),
           }
         },
         methods: {
@@ -567,6 +809,26 @@
           toTransform,
         },
       }).mount('#triangle-grid-two-tile')
+
+      const triangleTwoBezierTile = createApp({
+        data() {
+          return {
+            selected: null,
+            grid: new TrianglePositioner(
+              { x: 100, y: 0 },
+              new TriangleGrid({
+                nB: 26,
+                nY: 7,
+              }),
+              100,
+            ).randomize([0, 1, 2, 3, 4]),
+          }
+        },
+        methods: {
+          triClassName: triSimpleClassName,
+          toTransform,
+        },
+      }).mount('#triangle-grid-two-bezier-tile')
     </script>
   </body>
 </html>

@@ -25,8 +25,28 @@ svg {
 
   .stroke {
     fill: none;
-    stroke-width: 10px;
+    stroke-width: 5px;
     stroke: black;
+
+    &.thin {
+      stroke-width: 0.2px;
+      stroke: hsl(0, 0%, 70%);
+
+      &.red {
+        stroke: red;
+        stroke-width: 1px;
+        stroke-linecap: round;
+      }
+    }
+
+    &.medium {
+      stroke-width: 2px;
+      stroke: black;
+    }
+
+    &.notch {
+      stroke-width: 2px;
+    }
   }
 
   text {
@@ -57,6 +77,10 @@ svg {
 
     &.annotation {
       font-size: 0.8em;
+    }
+
+    &.small {
+      font-size: 4px;
     }
   }
 

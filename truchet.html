@@ -254,14 +254,17 @@
           <p>
             Surely, we could extend this idea to equilateral triangles, since they, too, can tile
             the plane beautifully! The first problem is that a triangle has three sides, so we only
-            have three potential edge connection points. If we only choose tiles that use one line to connect
-            two of the sides, while leaving the third empty, we get a disjointed grid that isn't
-            much fun.
+            have three potential edge connection points. If we only choose tiles that use one line
+            to connect two of the sides, while leaving the third empty, we get a disjointed grid
+            that isn't much fun.
           </p>
           <figure class="float-right small">
             <svg viewBox="0 0 400 200">
               <g class="grid triangle">
-                <g class="triangle" style="transform: translate(50px, 50px); transform-origin: 0px 43.3px">
+                <g
+                  class="triangle"
+                  style="transform: translate(50px, 50px); transform-origin: 0px 43.3px"
+                >
                   <g class="tile">
                     <polygon points="0,86.6 -50,0 50,0" />
                     <path class="stroke" d="M 0 0 A 50 50 1 0 1 -25 43.3" />
@@ -275,7 +278,10 @@
                     </g>
                   </g>
                 </g> -->
-                <g class="triangle" style="transform: translate(175px, 50px); transform-origin: 0px 43.3px;">
+                <g
+                  class="triangle"
+                  style="transform: translate(175px, 50px); transform-origin: 0px 43.3px"
+                >
                   <g class="tile rot120deg">
                     <polygon points="0,86.6 -50,0 50,0" />
                     <path class="stroke" d="M 0 0 A 50 50 1 0 1 -25 43.3" />
@@ -332,11 +338,25 @@
           </svg>
         </figure>
         <div class="flex-container">
-          <p>What we really want is to ensure that lines continue trhoughout the plot, like we see in the Rectangular grids. For this, we can outline two points on each side, making six potential connection points. We then merely need to come up with tiles that would have these options. For the first approach, I will connect pairs of edge points such that they do not cross. For three pairs of points, the number of such tiles actually turns out to be equal to the <a href="https://en.wikipedia.org/wiki/Catalan_number">Catalan number</a> <math>C<sub>n</sub>=5</math>. For now I'll stick to using just circular segments, which lead to slight overlap for the last three tiles. We'll have to use Bezier curves to get rid of this overlap.</p>
+          <p>
+            What we really want is to ensure that lines continue trhoughout the plot, like we see in
+            the Rectangular grids. For this, we can outline two points on each side, making six
+            potential connection points. We then merely need to come up with tiles that would have
+            these options. For the first approach, I will connect pairs of edge points such that
+            they do not cross. For three pairs of points, the number of such tiles actually turns
+            out to be equal to the
+            <a href="https://en.wikipedia.org/wiki/Catalan_number">Catalan number</a>
+            <math>C<sub>n</sub>=5</math>. For now I'll stick to using just circular segments, which
+            lead to slight overlap for the last three tiles. We'll have to use Bezier curves to get
+            rid of this overlap.
+          </p>
           <figure class="float-right small">
             <svg viewBox="0 0 400 240">
               <g class="grid triangle">
-                <g class="triangle" style="transform: translate(113px, 20px); transform-origin: 0px 43.3px">
+                <g
+                  class="triangle"
+                  style="transform: translate(113px, 20px); transform-origin: 0px 43.3px"
+                >
                   <g class="tile">
                     <polygon points="0,86.6 -50,0 50,0" />
                     <path class="stroke" d="M -16.6 0 A 16.6 16.6 1 0 0 16.6 0" />
@@ -344,7 +364,10 @@
                     <path class="stroke" d="M 16.6 57.78 A 16.6 16.6 1 0 1 33.3 28.67" />
                   </g>
                 </g>
-                <g class="triangle" style="transform: translate(238px, 20px); transform-origin: 0px 43.3px;">
+                <g
+                  class="triangle"
+                  style="transform: translate(238px, 20px); transform-origin: 0px 43.3px"
+                >
                   <g class="tile">
                     <polygon points="0,86.6 -50,0 50,0" />
                     <path class="stroke" d="M -16.6 0 A 33.3 33.3 1 0 1 -33.3 28.87" />
@@ -352,7 +375,10 @@
                     <path class="stroke" d="M 33.3 28.67 A 33.3 33.3 1 0 1 16.6 0" />
                   </g>
                 </g>
-                <g class="triangle" style="transform: translate(50px, 120px); transform-origin: 0px 43.3px;">
+                <g
+                  class="triangle"
+                  style="transform: translate(50px, 120px); transform-origin: 0px 43.3px"
+                >
                   <g class="tile">
                     <polygon points="0,86.6 -50,0 50,0" />
                     <path class="stroke" d="M -16.6 0 A 33.3 33.3 1 0 1 -33.3 28.87" />
@@ -360,7 +386,10 @@
                     <path class="stroke" d="M 16.6 57.78 A 16.6 16.6 1 0 1 33.3 28.67" />
                   </g>
                 </g>
-                <g class="triangle" style="transform: translate(175px, 120px); transform-origin: 0px 43.3px;">
+                <g
+                  class="triangle"
+                  style="transform: translate(175px, 120px); transform-origin: 0px 43.3px"
+                >
                   <g class="tile rot120deg">
                     <polygon points="0,86.6 -50,0 50,0" />
                     <path class="stroke" d="M -16.6 0 A 33.3 33.3 1 0 1 -33.3 28.87" />
@@ -368,7 +397,10 @@
                     <path class="stroke" d="M 16.6 57.78 A 16.6 16.6 1 0 1 33.3 28.67" />
                   </g>
                 </g>
-                <g class="triangle" style="transform: translate(300px, 120px); transform-origin: 0px 43.3px;">
+                <g
+                  class="triangle"
+                  style="transform: translate(300px, 120px); transform-origin: 0px 43.3px"
+                >
                   <g class="tile rot240deg">
                     <polygon points="0,86.6 -50,0 50,0" />
                     <path class="stroke" d="M -16.6 0 A 33.3 33.3 1 0 1 -33.3 28.87" />
@@ -378,7 +410,10 @@
                 </g>
               </g>
             </svg>
-            <figcaption>Simple triangular tiles with two connections per edge, using only individual circle segments</figcaption>
+            <figcaption>
+              Simple triangular tiles with two connections per edge, using only individual circle
+              segments
+            </figcaption>
           </figure>
         </div>
         <figure id="triangle-grid-two-tile" class="full-width">

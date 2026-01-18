@@ -50,6 +50,14 @@ header {
   }
 }
 
+a {
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 section {
   padding-bottom: 3em;
 }

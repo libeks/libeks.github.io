@@ -28,6 +28,10 @@ svg {
     stroke-width: 5px;
     stroke: black;
 
+    &.rounded {
+      stroke-linecap: round;
+    }
+
     &.thin {
       stroke-width: 0.2px;
       stroke: hsl(0, 0%, 70%);
@@ -35,13 +39,24 @@ svg {
       &.red {
         stroke: red;
         stroke-width: 1px;
-        stroke-linecap: round;
       }
+
+      &.blue {
+        stroke: blue;
+        stroke-width: 1px;
+      }
+    }
+
+    &.red {
+      stroke: red;
+    }
+
+    &.blue {
+      stroke: blue;
     }
 
     &.medium {
       stroke-width: 2px;
-      stroke: black;
     }
 
     &.notch {
@@ -50,7 +65,7 @@ svg {
   }
 
   text {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     pointer-events: none;
     fill: black;
     font-family: var(--sans-serif);
@@ -81,6 +96,10 @@ svg {
 
     &.small {
       font-size: 4px;
+    }
+
+    &.medium {
+      font-size: 8px;
     }
   }
 
@@ -117,14 +136,19 @@ svg {
     fill: hsl(147, 0%, 85%);
   }
 
+  .rotation-180-animation {
+    animation: animate-rotate-180 3s cubic-bezier(0.86, 0, 0.07, 1) infinite;
+    transform-origin: 0px 43.3px;
+  }
+
+  .rotation-120-animation {
+    animation: animate-rotate-120 3s cubic-bezier(0.86, 0, 0.07, 1) infinite;
+    transform-origin: 0px 28.87px;
+  }
+
   .grid .square .tile {
     transform-origin: 50px 50px;
   }
-
-  /*.grid .triangle .tile,
-  .grid .triangle {
-    transform-origin: 0px 28.87px;
-  }*/
 
   /* .flippable means that the contents can be rotated 180 degrees. It has a separate g element to not be overriden by the translation of the .triangle element */
   .downtriangle .flippable {
@@ -166,5 +190,37 @@ svg {
 
   &.active {
     background-color: yellow;
+  }
+}
+
+@keyframes animate-rotate-180 {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(180deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes animate-rotate-120 {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  33% {
+    transform: rotate(120deg);
+  }
+
+  67% {
+    transform: rotate(240deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
   }
 }

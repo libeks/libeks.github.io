@@ -168,90 +168,87 @@
               <figcaption>Some other tiles added for fun</figcaption>
             </figure>
           </div>
-          <p>
-            <figure id="square-grid-five-tile" class="full-width">
-              <svg viewBox="0 0 3000 1500" border-box>
-                <g class="grid squares">
-                  <g
-                    v-for="sq in grid.grid.squares"
-                    :style="toTransform(grid.mapSquare(sq))"
-                    :class="sqClassName(sq, selected)"
-                    :data-sq="sq.string()"
-                  >
-                    <g v-if="sq.data==0" class="square">
-                      <!-- Two quarter circles -->
-                      <g class="tile">
-                        <polygon points="0,0 0,100 100,100 100,0" />
-                        <path class="stroke" d="M 0 50 A 50 50 1 0 0 50 0" />
-                        <path class="stroke" d="M 100 50 A 50 50 1 0 0 50 100" />
-                      </g>
+          <figure id="square-grid-five-tile" class="full-width">
+            <svg viewBox="0 0 3000 1500" border-box>
+              <g class="grid squares">
+                <g
+                  v-for="sq in grid.grid.squares"
+                  :style="toTransform(grid.mapSquare(sq))"
+                  :class="sqClassName(sq, selected)"
+                  :data-sq="sq.string()"
+                >
+                  <g v-if="sq.data==0" class="square">
+                    <!-- Two quarter circles -->
+                    <g class="tile">
+                      <polygon points="0,0 0,100 100,100 100,0" />
+                      <path class="stroke" d="M 0 50 A 50 50 1 0 0 50 0" />
+                      <path class="stroke" d="M 100 50 A 50 50 1 0 0 50 100" />
                     </g>
-                    <g v-if="sq.data==1" class="square">
-                      <!-- Two quarter circles, turned 90 degrees -->
-                      <g class="tile rot90deg">
-                        <polygon points="0,0 0,100 100,100 100,0" />
-                        <path class="stroke" d="M 0 50 A 50 50 1 0 0 50 0" />
-                        <path class="stroke" d="M 100 50 A 50 50 1 0 0 50 100" />
-                      </g>
+                  </g>
+                  <g v-if="sq.data==1" class="square">
+                    <!-- Two quarter circles, turned 90 degrees -->
+                    <g class="tile rot90deg">
+                      <polygon points="0,0 0,100 100,100 100,0" />
+                      <path class="stroke" d="M 0 50 A 50 50 1 0 0 50 0" />
+                      <path class="stroke" d="M 100 50 A 50 50 1 0 0 50 100" />
                     </g>
-                    <g v-if="sq.data==2" class="square">
-                      <!-- Cross -->
-                      <g class="tile">
-                        <polygon points="0,0 0,100 100,100 100,0" />
-                        <path class="stroke" d="M 0 50 L 100 50" />
-                        <path class="stroke" d="M 50 0 L 50 100" />
-                      </g>
+                  </g>
+                  <g v-if="sq.data==2" class="square">
+                    <!-- Cross -->
+                    <g class="tile">
+                      <polygon points="0,0 0,100 100,100 100,0" />
+                      <path class="stroke" d="M 0 50 L 100 50" />
+                      <path class="stroke" d="M 50 0 L 50 100" />
                     </g>
-                    <g v-if="sq.data==3" class="square">
-                      <!-- Cross under -->
-                      <g class="tile">
-                        <polygon points="0,0 0,100 100,100 100,0" />
-                        <path class="stroke" d="M 0 50 L 30 50 M 70 50 L 100 50" />
-                        <path class="stroke" d="M 50 0 L 50 100" />
-                      </g>
+                  </g>
+                  <g v-if="sq.data==3" class="square">
+                    <!-- Cross under -->
+                    <g class="tile">
+                      <polygon points="0,0 0,100 100,100 100,0" />
+                      <path class="stroke" d="M 0 50 L 30 50 M 70 50 L 100 50" />
+                      <path class="stroke" d="M 50 0 L 50 100" />
                     </g>
-                    <g v-if="sq.data==4" class="square">
-                      <!-- Cross over -->
-                      <g class="tile rot90deg">
-                        <polygon points="0,0 0,100 100,100 100,0" />
-                        <path class="stroke" d="M 0 50 L 30 50 M 70 50 L 100 50" />
-                        <path class="stroke" d="M 50 0 L 50 100" />
-                      </g>
+                  </g>
+                  <g v-if="sq.data==4" class="square">
+                    <!-- Cross over -->
+                    <g class="tile rot90deg">
+                      <polygon points="0,0 0,100 100,100 100,0" />
+                      <path class="stroke" d="M 0 50 L 30 50 M 70 50 L 100 50" />
+                      <path class="stroke" d="M 50 0 L 50 100" />
                     </g>
-                    <g v-if="sq.data==5" class="square">
-                      <!-- Wiggle -->
-                      <g class="tile">
-                        <polygon points="0,0 0,100 100,100 100,0" />
-                        <path
-                          class="stroke"
-                          d="M 0 50 A 16.6 16.6 1 0 0 16.6 33.3 A 16.6 16.6 1 0 1 33.3 16.6 A 16.6 16.6 1 0 0 50 0"
-                        />
-                        <path
-                          class="stroke"
-                          d="M 100 50 A 16.6 16.6 1 0 0 83.3 66.6 A 16.6 16.6 1 0 1 66.6 83.3 A 16.6 16.6 1 0 0 50 100"
-                        />
-                      </g>
+                  </g>
+                  <g v-if="sq.data==5" class="square">
+                    <!-- Wiggle -->
+                    <g class="tile">
+                      <polygon points="0,0 0,100 100,100 100,0" />
+                      <path
+                        class="stroke"
+                        d="M 0 50 A 16.6 16.6 1 0 0 16.6 33.3 A 16.6 16.6 1 0 1 33.3 16.6 A 16.6 16.6 1 0 0 50 0"
+                      />
+                      <path
+                        class="stroke"
+                        d="M 100 50 A 16.6 16.6 1 0 0 83.3 66.6 A 16.6 16.6 1 0 1 66.6 83.3 A 16.6 16.6 1 0 0 50 100"
+                      />
                     </g>
-                    <g v-if="sq.data==6" class="square">
-                      <!-- Wiggle rotated 90deg -->
-                      <g class="tile rot90deg">
-                        <polygon points="0,0 0,100 100,100 100,0" />
-                        <path
-                          class="stroke"
-                          d="M 0 50 A 16.6 16.6 1 0 0 16.6 33.3 A 16.6 16.6 1 0 1 33.3 16.6 A 16.6 16.6 1 0 0 50 0"
-                        />
-                        <path
-                          class="stroke"
-                          d="M 100 50 A 16.6 16.6 1 0 0 83.3 66.6 A 16.6 16.6 1 0 1 66.6 83.3 A 16.6 16.6 1 0 0 50 100"
-                        />
-                      </g>
+                  </g>
+                  <g v-if="sq.data==6" class="square">
+                    <!-- Wiggle rotated 90deg -->
+                    <g class="tile rot90deg">
+                      <polygon points="0,0 0,100 100,100 100,0" />
+                      <path
+                        class="stroke"
+                        d="M 0 50 A 16.6 16.6 1 0 0 16.6 33.3 A 16.6 16.6 1 0 1 33.3 16.6 A 16.6 16.6 1 0 0 50 0"
+                      />
+                      <path
+                        class="stroke"
+                        d="M 100 50 A 16.6 16.6 1 0 0 83.3 66.6 A 16.6 16.6 1 0 1 66.6 83.3 A 16.6 16.6 1 0 0 50 100"
+                      />
                     </g>
-                    <!-- <text>{{sq.data}}</text> -->
                   </g>
                 </g>
-              </svg>
-            </figure>
-          </p>
+              </g>
+            </svg>
+          </figure>
         </section>
       </section>
       <section>
@@ -669,7 +666,10 @@
             </figure>
           </div>
           <div class="flex-container">
-            <p>So let's take a look at the five tiles using Bézier curves.</p>
+            <p>
+              So let's take a look at the five tiles using Bézier curves. They look much neater this
+              time!
+            </p>
             <figure class="float-right small">
               <svg viewBox="0 0 400 240">
                 <g class="grid triangle">
@@ -1093,9 +1093,9 @@
         <ul>
           <li>
             Let's say we want to render a continuous curve from a Truchet tiling. In the current
-            implementation, each tile is rendered separately, the appearance of a curve is purely
-            coincidental. This might be come in handy when dealing with plotting a tiling with a pen
-            plotter.
+            implementation, each tile is rendered separately, the appearance of a continuous curve
+            is purely coincidental. This might be come in handy when dealing with plotting a tiling
+            with a pen plotter.
           </li>
           <li>What about more than 2 edges per triangular side. 4?</li>
           <li>What about hexagonal grids?</li>
@@ -1104,6 +1104,10 @@
             <a href="https://en.wikipedia.org/wiki/Euclidean_tilings_by_convex_regular_polygons"
               >Euclidean tilings</a
             >?
+          </li>
+          <li>
+            How do I make one Bézier curve overlap another such that the one "under" doesn't render
+            for a bit? Do I need to break the Béziers into two?
           </li>
         </ul>
       </section>

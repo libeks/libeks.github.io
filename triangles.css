@@ -101,6 +101,10 @@ svg {
     &.medium {
       font-size: 8px;
     }
+
+    &.center {
+      text-anchor: middle;
+    }
   }
 
   .sameX text .x-coord,

@@ -286,6 +286,14 @@ const tilesetTri15 = {
   tile162534,
 }
 
+const tilesetTri5 = {
+  tile123456,
+  tile123645,
+  tile142356,
+  tile162345,
+  tile162534,
+}
+
 export {
   tile123456,
   tile123546,
@@ -302,5 +310,6 @@ export {
   tile162345,
   tile162435,
   tile162534,
+  tilesetTri5,
   tilesetTri15,
 }

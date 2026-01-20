@@ -670,48 +670,23 @@
               So let's take a look at the five tiles using Bézier curves. They look much neater this
               time!
             </p>
-            <figure class="float-right small">
+            <figure id="tile-5-listing" class="float-right small">
               <svg viewBox="0 0 400 240">
                 <g class="grid triangle">
                   <g class="triangle" style="transform: translate(113px, 20px)">
-                    <g class="tile">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 C -16.6 19.24, 16.6 19.24, 16.6 0" />
-                      <path class="stroke" d="M -33.3 28.87 C -16.6 19.24, 0 48.1, -16.6 57.78" />
-                      <path class="stroke" d="M 16.6 57.78 C 0 48.1, 16.6 19.24, 33.3 28.87" />
-                    </g>
+                    <tile123456 />
                   </g>
                   <g class="triangle" style="transform: translate(238px, 20px)">
-                    <g class="tile">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 Q -16.6 19.24, -33.3 28.87" />
-                      <path class="stroke" d="M -16.6 57.78 Q 0 48.1, 16.6 57.78" />
-                      <path class="stroke" d="M 33.3 28.67 Q 16.6 19.24, 16.6 0" />
-                    </g>
+                    <tile162345 />
                   </g>
                   <g class="triangle" style="transform: translate(50px, 120px)">
-                    <g class="tile">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 Q -16.6 19.24, -33.3 28.87" />
-                      <path class="stroke" d="M -16.6 57.78 C 0 48.1, 16.6 19.24, 16.6 0" />
-                      <path class="stroke" d="M 16.6 57.78 C 0 48.1, 16.6 19.24, 33.3 28.87" />
-                    </g>
+                    <tile162534 />
                   </g>
                   <g class="triangle" style="transform: translate(175px, 120px)">
-                    <g class="tile rot120deg">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 Q -16.6 19.24, -33.3 28.87" />
-                      <path class="stroke" d="M -16.6 57.78 C 0 48.1, 16.6 19.24, 16.6 0" />
-                      <path class="stroke" d="M 16.6 57.78 C 0 48.1, 16.6 19.24, 33.3 28.87" />
-                    </g>
+                    <tile142356 />
                   </g>
                   <g class="triangle" style="transform: translate(300px, 120px)">
-                    <g class="tile rot240deg">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 Q -16.6 19.24, -33.3 28.87" />
-                      <path class="stroke" d="M -16.6 57.78 C 0 48.1, 16.6 19.24, 16.6 0" />
-                      <path class="stroke" d="M 16.6 57.78 C 0 48.1, 16.6 19.24, 33.3 28.87" />
-                    </g>
+                    <tile123645 />
                   </g>
                 </g>
               </svg>
@@ -729,45 +704,8 @@
                   :class="triClassName(tr, selected)"
                   :data-sq="tr.string()"
                 >
-                  <g v-if="tr.data==0" class="flippable">
-                    <g class="tile">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 C -16.6 19.24, 16.6 19.24, 16.6 0" />
-                      <path class="stroke" d="M -33.3 28.87 C -16.6 19.24, 0 48.1, -16.6 57.78" />
-                      <path class="stroke" d="M 16.6 57.78 C 0 48.1, 16.6 19.24, 33.3 28.87" />
-                    </g>
-                  </g>
-                  <g v-if="tr.data==1" class="flippable">
-                    <g class="tile">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 Q -16.6 19.24, -33.3 28.87" />
-                      <path class="stroke" d="M -16.6 57.78 Q 0 48.1, 16.6 57.78" />
-                      <path class="stroke" d="M 33.3 28.67 Q 16.6 19.24, 16.6 0" />
-                    </g>
-                  </g>
-                  <g v-if="tr.data==2" class="flippable">
-                    <g class="tile">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 Q -16.6 19.24, -33.3 28.87" />
-                      <path class="stroke" d="M -16.6 57.78 C 0 48.1, 16.6 19.24, 16.6 0" />
-                      <path class="stroke" d="M 16.6 57.78 C 0 48.1, 16.6 19.24, 33.3 28.87" />
-                    </g>
-                  </g>
-                  <g v-if="tr.data==3" class="flippable">
-                    <g class="tile rot120deg">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 Q -16.6 19.24, -33.3 28.87" />
-                      <path class="stroke" d="M -16.6 57.78 C 0 48.1, 16.6 19.24, 16.6 0" />
-                      <path class="stroke" d="M 16.6 57.78 C 0 48.1, 16.6 19.24, 33.3 28.87" />
-                    </g>
-                  </g>
-                  <g v-if="tr.data==4" class="flippable">
-                    <g class="tile rot240deg">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 Q -16.6 19.24, -33.3 28.87" />
-                      <path class="stroke" d="M -16.6 57.78 C 0 48.1, 16.6 19.24, 16.6 0" />
-                      <path class="stroke" d="M 16.6 57.78 C 0 48.1, 16.6 19.24, 33.3 28.87" />
-                    </g>
+                  <g class="flippable">
+                    <component :is="tileset[tr.data]"></component>
                   </g>
                 </g>
               </g>
@@ -781,12 +719,7 @@
               We of course don't need to restrict ourselves to non-intersecting segments. We can
               start by naively letting them cross all over the place. The number of such unique
               tiles would be
-              <math
-                ><mfrac
-                  ><mrow><mn>6</mn> · <mn>5</mn></mrow> <mn>2</mn></mfrac
-                >
-                = 15</math
-              >.
+              <math><mn>5</mn> · <mn>3</mn>= 15</math> tiles. For your intution, you can think about how notch "1" can be connected to any of the 5 remaining notches. This leaves 4 notches not connected. Take the lowest number one, and you can choose between three other notches to connect it to. That leaves two notches which have to be connected, so there is no choice.
             </p>
             <figure class="float-right small">
               <svg viewBox="0 0 150 120">
@@ -830,197 +763,67 @@
               We merely have to iterate over all possible combinations. I list the tiles vertically,
               starting with ones beginning with "12", then "13", and so on.
             </p>
-            <figure class="float-right small">
+            <figure id="tile-15-listing" class="float-right small">
               <svg viewBox="0 0 500 400">
                 <g class="grid triangle">
                   <g class="triangle" style="transform: translate(50px, 20px)">
-                    <g class="tile">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 C -16.6 19.24, 16.6 19.24, 16.6 0" />
-                      <!-- 12 -->
-                      <path class="stroke" d="M 16.6 57.78 C 0 48.1, 16.6 19.24, 33.3 28.87" />
-                      <!-- 34 -->
-                      <path class="stroke" d="M -33.3 28.87 C -16.6 19.24, 0 48.1, -16.6 57.78" />
-                      <!-- 56 -->
-                    </g>
+                    <tile123456 />
                     <text x="0" y="105" class="annotation center">12,34,56</text>
                   </g>
                   <g class="triangle" style="transform: translate(50px, 140px)">
-                    <g class="tile">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 C -16.6 19.24, 16.6 19.24, 16.6 0" />
-                      <!-- 12 -->
-                      <path class="stroke" d="M 33.3 28.87 C 16.6 19.24, 0 48.1, -16.6 57.78" />
-                      <!-- 35 -->
-                      <path class="stroke" d="M 16.6 57.78  C 0 48.1, -16.6 19.24, -33.3 28.87" />
-                      <!-- 46 -->
-                    </g>
+                    <tile123546 />
                     <text x="0" y="105" class="annotation center">12,35,46</text>
                   </g>
                   <g class="triangle" style="transform: translate(50px, 260px)">
-                    <g class="tile">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 C -16.6 19.24, 16.6 19.24, 16.6 0" />
-                      <!-- 12 -->
-                      <path
-                        class="stroke"
-                        d="M 33.3 28.87 C 16.6 19.24, -16.6 19.24, -33.3 28.87"
-                      />
-                      <!-- 36 -->
-                      <path class="stroke" d="M 16.6 57.78 Q 0 48.1, -16.6 57.78" />
-                      <!-- 45 -->
-                    </g>
+                    <tile123645 />
                     <text x="0" y="105" class="annotation center">12,36,45</text>
                   </g>
-
                   <g class="triangle" style="transform: translate(150px, 20px)">
-                    <g class="tile">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 C -16.6 19.24, 16.6 19.24, 33.3 28.87" />
-                      <!-- 13 -->
-                      <path class="stroke" d="M 16.6 0 C 16.6 19.24, 0 48.1, 16.6 57.78" />
-                      <!-- 24 -->
-                      <path class="stroke" d="M -33.3 28.87 C -16.6 19.24, 0 48.1, -16.6 57.78" />
-                      <!-- 56 -->
-                    </g>
+                    <tile132456 />
                     <text x="0" y="105" class="annotation center">13,24,56</text>
                   </g>
                   <g class="triangle" style="transform: translate(150px, 140px)">
-                    <g class="tile">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 C -16.6 19.24, 16.6 19.24, 33.3 28.87" />
-                      <!-- 13 -->
-                      <path class="stroke" d="M 16.6 0 C 16.6 19.24, 0 48.1, -16.6 57.78" />
-                      <!-- 25 -->
-                      <path class="stroke" d="M 16.6 57.78  C 0 48.1, -16.6 19.24, -33.3 28.87" />
-                      <!-- 46 -->
-                    </g>
+                    <tile132546 />
                     <text x="0" y="105" class="annotation center">13,25,46</text>
                   </g>
                   <g class="triangle" style="transform: translate(150px, 260px)">
-                    <g class="tile">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 C -16.6 19.24, 16.6 19.24, 33.3 28.87" />
-                      <!-- 13 -->
-                      <path class="stroke" d="M 16.6 0 C 16.6 19.24, -16.6 19.24, -33.3 28.87" />
-                      <!-- 26 -->
-                      <path class="stroke" d="M 16.6 57.78 Q 0 48.1, -16.6 57.78" />
-                      <!-- 45 -->
-                    </g>
+                    <tile132645 />
                     <text x="0" y="105" class="annotation center">13,26,45</text>
                   </g>
                   <g class="triangle" style="transform: translate(250px, 20px)">
-                    <g class="tile">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 C -16.6 19.24, 0 48.1, 16.6 57.78" />
-                      <!-- 14 -->
-                      <path class="stroke" d="M 16.6 0 Q 16.6 19.24, 33.3 28.87" />
-                      <!-- 23 -->
-                      <path class="stroke" d="M -33.3 28.87 C -16.6 19.24, 0 48.1, -16.6 57.78" />
-                      <!-- 56 -->
-                    </g>
+                    <tile142356 />
                     <text x="0" y="105" class="annotation center">14,23,56</text>
                   </g>
                   <g class="triangle" style="transform: translate(250px, 140px)">
-                    <g class="tile">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 C -16.6 19.24, 0 48.1, 16.6 57.78" />
-                      <!-- 14 -->
-                      <path class="stroke" d="M 16.6 0 C 16.6 19.24, 0 48.1, -16.6 57.78" />
-                      <!-- 25 -->
-                      <path
-                        class="stroke"
-                        d="M 33.3 28.87 C 16.6 19.24, -16.6 19.24, -33.3 28.87"
-                      />
-                      <!-- 36 -->
-                    </g>
+                    <tile142536 />
                     <text x="0" y="105" class="annotation center">14,25,36</text>
                   </g>
                   <g class="triangle" style="transform: translate(250px, 260px)">
-                    <g class="tile">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 C -16.6 19.24, 0 48.1, 16.6 57.78" />
-                      <!-- 14 -->
-                      <path class="stroke" d="M 16.6 0 C 16.6 19.24, -16.6 19.24, -33.3 28.87" />
-                      <!-- 26 -->
-                      <path class="stroke" d="M 33.3 28.87 C 16.6 19.24, 0 48.1, -16.6 57.78" />
-                      <!-- 35 -->
-                    </g>
+                    <tile142635 />
                     <text x="0" y="105" class="annotation center">14,26,35</text>
                   </g>
                   <g class="triangle" style="transform: translate(350px, 20px)">
-                    <g class="tile">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 C -16.6 19.24, 0 48.1, -16.6 57.78" />
-                      <!-- 15 -->
-                      <path class="stroke" d="M 16.6 0 Q 16.6 19.24, 33.3 28.87" />
-                      <!-- 23 -->
-                      <path class="stroke" d="M 16.6 57.78  C 0 48.1, -16.6 19.24, -33.3 28.87" />
-                      <!-- 46 -->
-                    </g>
+                    <tile152346 />
                     <text x="0" y="105" class="annotation center">15,23,46</text>
                   </g>
                   <g class="triangle" style="transform: translate(350px, 140px)">
-                    <g class="tile">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 C -16.6 19.24, 0 48.1, -16.6 57.78" />
-                      <!-- 15 -->
-                      <path class="stroke" d="M 16.6 0 C 16.6 19.24, 0 48.1, 16.6 57.78" />
-                      <!-- 24 -->
-                      <path
-                        class="stroke"
-                        d="M 33.3 28.87 C 16.6 19.24, -16.6 19.24, -33.3 28.87"
-                      />
-                      <!-- 36 -->
-                    </g>
+                    <tile152436 />
                     <text x="0" y="105" class="annotation center">15,24,36</text>
                   </g>
                   <g class="triangle" style="transform: translate(350px, 260px)">
-                    <g class="tile">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 C -16.6 19.24, 0 48.1, -16.6 57.78" />
-                      <!-- 15 -->
-                      <path class="stroke" d="M 16.6 0 C 16.6 19.24, -16.6 19.24, -33.3 28.87" />
-                      <!-- 26 -->
-                      <path class="stroke" d="M 16.6 57.78 C 0 48.1, 16.6 19.24, 33.3 28.87" />
-                      <!-- 34 -->
-                    </g>
+                    <tile152634 />
                     <text x="0" y="105" class="annotation center">15,26,34</text>
                   </g>
                   <g class="triangle" style="transform: translate(450px, 20px)">
-                    <g class="tile">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 Q -16.6 19.24, -33.3 28.87" />
-                      <!-- 16 -->
-                      <path class="stroke" d="M 16.6 0 Q 16.6 19.24, 33.3 28.87" />
-                      <!-- 23 -->
-                      <path class="stroke" d="M 16.6 57.78 Q 0 48.1, -16.6 57.78" />
-                      <!-- 45 -->
-                    </g>
+                    <tile162345 />
                     <text x="0" y="105" class="annotation center">16,23,45</text>
                   </g>
                   <g class="triangle" style="transform: translate(450px, 140px)">
-                    <g class="tile">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 Q -16.6 19.24, -33.3 28.87" />
-                      <!-- 16 -->
-                      <path class="stroke" d="M 16.6 0 C 16.6 19.24, 0 48.1, 16.6 57.78" />
-                      <!-- 24 -->
-                      <path class="stroke" d="M 33.3 28.87 C 16.6 19.24, 0 48.1, -16.6 57.78" />
-                      <!-- 35 -->
-                    </g>
+                    <tile162435 />
                     <text x="0" y="105" class="annotation center">16,24,35</text>
                   </g>
                   <g class="triangle" style="transform: translate(450px, 260px)">
-                    <g class="tile">
-                      <polygon points="0,86.6 -50,0 50,0" />
-                      <path class="stroke" d="M -16.6 0 Q -16.6 19.24, -33.3 28.87" />
-                      <!-- 16 -->
-                      <path class="stroke" d="M 16.6 0 C 16.6 19.24, 0 48.1, -16.6 57.78" />
-                      <!-- 25 -->
-                      <path class="stroke" d="M 16.6 57.78 C 0 48.1, 16.6 19.24, 33.3 28.87" />
-                      <!-- 34 -->
-                    </g>
+                    <tile162534 />
                     <text x="0" y="105" class="annotation center">16,25,34</text>
                   </g>
                 </g>
@@ -1037,50 +840,8 @@
                   :class="triClassName(tr, selected)"
                   :data-sq="tr.string()"
                 >
-                  <g v-if="tr.data==0" class="flippable">
-                    <tile123456 />
-                  </g>
-                  <g v-if="tr.data==1" class="flippable">
-                    <tile123546 />
-                  </g>
-                  <g v-if="tr.data==2" class="flippable">
-                    <tile123645 />
-                  </g>
-                  <g v-if="tr.data==3" class="flippable">
-                    <tile132456 />
-                  </g>
-                  <g v-if="tr.data==4" class="flippable">
-                    <tile132546 />
-                  </g>
-                  <g v-if="tr.data==5" class="flippable">
-                    <tile132645 />
-                  </g>
-                  <g v-if="tr.data==6" class="flippable">
-                    <tile142356 />
-                  </g>
-                  <g v-if="tr.data==7" class="flippable">
-                    <tile142536 />
-                  </g>
-                  <g v-if="tr.data==8" class="flippable">
-                    <tile142635 />
-                  </g>
-                  <g v-if="tr.data==9" class="flippable">
-                    <tile152346 />
-                  </g>
-                  <g v-if="tr.data==10" class="flippable">
-                    <tile152436 />
-                  </g>
-                  <g v-if="tr.data==11" class="flippable">
-                    <tile152634 />
-                  </g>
-                  <g v-if="tr.data==12" class="flippable">
-                    <tile162345 />
-                  </g>
-                  <g v-if="tr.data==13" class="flippable">
-                    <tile162435 />
-                  </g>
-                  <g v-if="tr.data==14" class="flippable">
-                    <tile162534 />
+                  <g class="flippable">
+                    <component :is="tileset[tr.data]"></component>
                   </g>
                 </g>
               </g>
@@ -1118,22 +879,25 @@
       const { createApp, ref, defineComponent } = Vue
       import { TriangleGrid, TrianglePositioner, triSimpleClassName } from './triangles.js'
       import { SquareGrid, SquarePositioner, setActiveSquare, sqClassName } from './squares.js'
+      // import { Truchet } from './truchet.js'
       import {
-        tile123456,
-        tile123546,
-        tile123645,
-        tile132456,
-        tile132546,
-        tile132645,
-        tile142356,
-        tile142536,
-        tile142635,
-        tile152346,
-        tile152436,
-        tile152634,
-        tile162345,
-        tile162435,
-        tile162534,
+        // tile123456,
+        // tile123546,
+        // tile123645,
+        // tile132456,
+        // tile132546,
+        // tile132645,
+        // tile142356,
+        // tile142536,
+        // tile142635,
+        // tile152346,
+        // tile152436,
+        // tile152634,
+        // tile162345,
+        // tile162435,
+        // tile162534,
+        tilesetTri5,
+        tilesetTri15,
       } from './triangular-tiles.js'
 
       function toTransform(offsetVect) {
@@ -1228,6 +992,10 @@
         },
       }).mount('#triangle-grid-two-tile')
 
+      const tile5Listing = createApp({
+        components: tilesetTri5,
+      }).mount('#tile-5-listing')
+
       const triangleTwoBezierTile = createApp({
         data() {
           return {
@@ -1240,13 +1008,19 @@
               }),
               100,
             ).randomize([0, 1, 2, 3, 4]),
+            tileset: Object.keys(tilesetTri5),
           }
         },
         methods: {
           triClassName: triSimpleClassName,
           toTransform,
         },
+        components: tilesetTri5,
       }).mount('#triangle-grid-two-bezier-tile')
+
+      const tile15Listing = createApp({
+        components: tilesetTri15,
+      }).mount('#tile-15-listing')
 
       const triangleFifteenBezierTile = createApp({
         data() {
@@ -1259,30 +1033,15 @@
                 nY: 7,
               }),
               100,
-            ).randomize([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]),
+            ).randomize(Array.from(Array(15).keys())),
+            tileset: Object.keys(tilesetTri15),
           }
         },
         methods: {
           triClassName: triSimpleClassName,
           toTransform,
         },
-        components: {
-          tile123456,
-          tile123546,
-          tile123645,
-          tile132456,
-          tile132546,
-          tile132645,
-          tile142356,
-          tile142536,
-          tile142635,
-          tile152346,
-          tile152436,
-          tile152634,
-          tile162345,
-          tile162435,
-          tile162534,
-        },
+        components: tilesetTri15,
       }).mount('#triangle-grid-fifteen-bezier-tile')
     </script>
   </body>

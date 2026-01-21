@@ -1,18 +1,21 @@
+const triangleSide = 100
+const height = (Math.sqrt(3) * triangleSide) / 2 // 86.6
+
 const points = {
   // points on the edge
-  1: { x: -16.6, y: 0 },
-  2: { x: 16.6, y: 0 },
-  3: { x: 33.3, y: 28.87 },
-  4: { x: 16.6, y: 57.78 },
-  5: { x: -16.6, y: 57.78 },
-  6: { x: -33.3, y: 28.87 },
+  1: { x: -triangleSide / 6, y: 0 },
+  2: { x: triangleSide / 6, y: 0 },
+  3: { x: triangleSide / 3, y: height / 3 },
+  4: { x: triangleSide / 6, y: (2 * height) / 3 },
+  5: { x: -triangleSide / 6, y: (2 * height) / 3 },
+  6: { x: -triangleSide / 3, y: height / 3 },
   // derived points, perpendicular to edge points
-  '1*': { x: -16.6, y: 19.24 },
-  '2*': { x: 16.6, y: 19.24 },
-  '3*': { x: 16.6, y: 19.24 },
+  '1*': { x: -triangleSide / 6, y: 19.24 }, // (2/18)*sqrt(3) * 100, (4/9) * height
+  '2*': { x: triangleSide / 6, y: 19.24 },
+  '3*': { x: triangleSide / 6, y: 19.24 },
   '4*': { x: 0, y: 48.1 },
   '5*': { x: 0, y: 48.1 },
-  '6*': { x: -16.6, y: 19.24 },
+  '6*': { x: -triangleSide / 6, y: 19.24 },
 }
 
 function equalPoints(p1, p2) {

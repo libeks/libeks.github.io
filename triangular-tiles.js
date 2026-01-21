@@ -1,315 +1,132 @@
-const tricurve12 = {
-  template: `<path class="stroke" d="M -16.6 0 C -16.6 19.24, 16.6 19.24, 16.6 0" /> <!-- 12 -->`,
+const points = {
+  // points on the edge
+  1: { x: -16.6, y: 0 },
+  2: { x: 16.6, y: 0 },
+  3: { x: 33.3, y: 28.87 },
+  4: { x: 16.6, y: 57.78 },
+  5: { x: -16.6, y: 57.78 },
+  6: { x: -33.3, y: 28.87 },
+  // derived points, perpendicular to edge points
+  '1*': { x: -16.6, y: 19.24 },
+  '2*': { x: 16.6, y: 19.24 },
+  '3*': { x: 16.6, y: 19.24 },
+  '4*': { x: 0, y: 48.1 },
+  '5*': { x: 0, y: 48.1 },
+  '6*': { x: -16.6, y: 19.24 },
 }
 
-const tricurve13 = {
-  template: `<path class="stroke" d="M -16.6 0 C -16.6 19.24, 16.6 19.24, 33.3 28.87" /> <!-- 13 -->`,
+function equalPoints(p1, p2) {
+  return p1.x == p2.x && p1.y == p2.y
 }
 
-const tricurve14 = {
-  template: `<path class="stroke" d="M -16.6 0 C -16.6 19.24, 0 48.1, 16.6 57.78" /> <!-- 14 -->`,
+function printPt(pt) {
+  return `${pt.x} ${pt.y}`
 }
 
-const tricurve15 = {
-  template: `<path class="stroke" d="M -16.6 0 C -16.6 19.24, 0 48.1, -16.6 57.78" /> <!-- 15 -->`,
-}
-
-const tricurve16 = {
-  template: `<path class="stroke" d="M -16.6 0 Q -16.6 19.24, -33.3 28.87" /> <!-- 16 -->`,
-}
-
-const tricurve23 = {
-  template: `<path class="stroke" d="M 16.6 0 Q 16.6 19.24, 33.3 28.87" /> <!-- 23 -->`,
-}
-
-const tricurve24 = {
-  template: `<path class="stroke" d="M 16.6 0 C 16.6 19.24, 0 48.1, 16.6 57.78" /> <!-- 24 -->`,
-}
-
-const tricurve25 = {
-  template: `<path class="stroke" d="M 16.6 0 C 16.6 19.24, 0 48.1, -16.6 57.78" /> <!-- 25 -->`,
-}
-
-const tricurve26 = {
-  template: `<path class="stroke" d="M 16.6 0 C 16.6 19.24, -16.6 19.24, -33.3 28.87" /> <!-- 26 -->`,
-}
-
-const tricurve34 = {
-  template: `<path class="stroke" d="M 16.6 57.78 C 0 48.1, 16.6 19.24, 33.3 28.87" /> <!-- 34 -->`,
-}
-
-const tricurve35 = {
-  template: `<path class="stroke" d="M 33.3 28.87 C 16.6 19.24, 0 48.1, -16.6 57.78" /> <!-- 35 -->`,
-}
-
-const tricurve36 = {
-  template: `<path class="stroke" d="M 33.3 28.87 C 16.6 19.24, -16.6 19.24, -33.3 28.87" /> <!-- 36 -->`,
-}
-
-const tricurve45 = {
-  template: `<path class="stroke" d="M 16.6 57.78 Q 0 48.1, -16.6 57.78" /> <!-- 45 -->`,
-}
-
-const tricurve46 = {
-  template: `<path class="stroke" d="M 16.6 57.78  C 0 48.1, -16.6 19.24, -33.3 28.87" /> <!-- 46 -->`,
-}
-
-const tricurve56 = {
-  template: `<path class="stroke" d="M -33.3 28.87 C -16.6 19.24, 0 48.1, -16.6 57.78" /> <!-- 56 -->`,
-}
-
-const tile123456 = {
-  template: `<g class="tile">
-    <polygon points="0,86.6 -50,0 50,0" />
-    <tricurve12 />
-    <tricurve34 />
-    <tricurve56 />
-  </g>`,
-  components: {
-    tricurve12,
-    tricurve34,
-    tricurve56,
+const twoCurveFactory = {
+  template: `<path class="stroke" :d="getChunk(curve)" />`,
+  props: ['curve'],
+  methods: {
+    getChunk: function (curve) {
+      const c1 = curve[0]
+      const c2 = curve[1]
+      const p1 = points[c1]
+      const p2 = points[c2]
+      const p1prime = points[c1 + '*']
+      const p2prime = points[c2 + '*']
+      if (equalPoints(p1prime, p2prime)) {
+        return `M ${printPt(p1)} Q ${printPt(p1prime)}, ${printPt(p2)}`
+      }
+      return `M ${printPt(p1)} C ${printPt(p1prime)}, ${printPt(p2prime)}, ${printPt(p2)}`
+    },
   },
 }
 
-const tile123546 = {
-  template: `<g class="tile">
-    <polygon points="0,86.6 -50,0 50,0" />
-    <tricurve12 />
-    <tricurve35 />
-    <tricurve46 />
-  </g>`,
-  components: {
-    tricurve12,
-    tricurve35,
-    tricurve46,
-  },
+function generateTwoCurve(curve) {
+  return {
+    template: `<two-curve-factory curve="${curve}"/>`,
+    components: { twoCurveFactory },
+  }
 }
 
-const tile123645 = {
-  template: `<g class="tile">
-    <polygon points="0,86.6 -50,0 50,0" />
-    <tricurve12 />
-    <tricurve36 />
-    <tricurve45 />
-  </g>`,
-  components: {
-    tricurve12,
-    tricurve36,
-    tricurve45,
-  },
+function twoCurveIDs() {
+  let retList = []
+  for (let i = 1; i <= 6; i++) {
+    for (let j = i + 1; j <= 6; j++) {
+      retList.push(`${i}${j}`)
+    }
+  }
+  return retList
 }
 
-const tile132456 = {
-  template: `<g class="tile">
-    <polygon points="0,86.6 -50,0 50,0" />
-    <tricurve13 />
-    <tricurve24 />
-    <tricurve56 />
-  </g>`,
-  components: {
-    tricurve13,
-    tricurve24,
-    tricurve56,
-  },
+let twoCurveSet = (function () {
+  let retObj = {}
+  for (let id of twoCurveIDs()) {
+    retObj[`tricurve${id}`] = generateTwoCurve(id)
+  }
+  return retObj
+})()
+
+// Given a string, return an array of strings of two characters each, which add up to the input string
+function getPairs(s) {
+  const len = 2
+  var chunks = []
+
+  for (var i = 0, charsLength = s.length; i < charsLength; i += len) {
+    chunks.push(s.substring(i, i + len))
+  }
+  return chunks
 }
 
-const tile132546 = {
+const twoTileFactory = {
   template: `<g class="tile">
     <polygon points="0,86.6 -50,0 50,0" />
-    <tricurve13 />
-    <tricurve25 />
-    <tricurve46 />
+    <component :is="computeCurve(curve,0)"></component>
+    <component :is="computeCurve(curve,1)"></component>
+    <component :is="computeCurve(curve,2)"></component>
   </g>`,
-  components: {
-    tricurve13,
-    tricurve25,
-    tricurve46,
+  props: ['curve'],
+  methods: {
+    computeCurve: function (curve, n) {
+      let chunks = getPairs(curve)
+      const chunk = chunks[n]
+      return `tricurve${chunk}`
+    },
   },
+  components: twoCurveSet,
 }
 
-const tile132645 = {
-  template: `<g class="tile">
-    <polygon points="0,86.6 -50,0 50,0" />
-    <tricurve13 />
-    <tricurve26 />
-    <tricurve45 />
-  </g>`,
-  components: {
-    tricurve13,
-    tricurve26,
-    tricurve45,
-  },
-}
-
-const tile142356 = {
-  template: `<g class="tile">
-    <polygon points="0,86.6 -50,0 50,0" />
-    <tricurve14 />
-    <tricurve23 />
-    <tricurve56 />
-  </g>`,
-  components: {
-    tricurve14,
-    tricurve23,
-    tricurve56,
-  },
-}
-
-const tile142536 = {
-  template: `<g class="tile">
-    <polygon points="0,86.6 -50,0 50,0" />
-    <tricurve14 />
-    <tricurve25 />
-    <tricurve36 />
-  </g>`,
-  components: {
-    tricurve14,
-    tricurve25,
-    tricurve36,
-  },
-}
-
-const tile142635 = {
-  template: `<g class="tile">
-    <polygon points="0,86.6 -50,0 50,0" />
-    <tricurve14 />
-    <tricurve26 />
-    <tricurve35 />
-  </g>`,
-  components: {
-    tricurve14,
-    tricurve26,
-    tricurve35,
-  },
-}
-
-const tile152346 = {
-  template: `<g class="tile">
-    <polygon points="0,86.6 -50,0 50,0" />
-    <tricurve15 />
-    <tricurve23 />
-    <tricurve46 />
-  </g>`,
-  components: {
-    tricurve15,
-    tricurve23,
-    tricurve46,
-  },
-}
-
-const tile152436 = {
-  template: `<g class="tile">
-    <polygon points="0,86.6 -50,0 50,0" />
-    <tricurve15 />
-    <tricurve23 />
-    <tricurve46 />
-  </g>`,
-  components: {
-    tricurve15,
-    tricurve23,
-    tricurve46,
-  },
-}
-
-const tile152634 = {
-  template: `<g class="tile">
-    <polygon points="0,86.6 -50,0 50,0" />
-    <tricurve15 />
-    <tricurve26 />
-    <tricurve34 />
-  </g>`,
-  components: {
-    tricurve15,
-    tricurve26,
-    tricurve34,
-  },
-}
-
-const tile162345 = {
-  template: `<g class="tile">
-    <polygon points="0,86.6 -50,0 50,0" />
-    <tricurve16 />
-    <tricurve23 />
-    <tricurve45 />
-  </g>`,
-  components: {
-    tricurve16,
-    tricurve23,
-    tricurve45,
-  },
-}
-
-const tile162435 = {
-  template: `<g class="tile">
-    <polygon points="0,86.6 -50,0 50,0" />
-    <tricurve16 />
-    <tricurve24 />
-    <tricurve35 />
-  </g>`,
-  components: {
-    tricurve16,
-    tricurve24,
-    tricurve35,
-  },
-}
-
-const tile162534 = {
-  template: `<g class="tile">
-    <polygon points="0,86.6 -50,0 50,0" />
-    <tricurve16 />
-    <tricurve25 />
-    <tricurve34 />
-  </g>`,
-  components: {
-    tricurve16,
-    tricurve25,
-    tricurve34,
-  },
+function generateTwoTile(tile) {
+  return {
+    template: `<two-tile-factory curve="${tile}"/>`,
+    components: { twoTileFactory },
+  }
 }
 
 const tilesetTri15 = {
-  tile123456,
-  tile123546,
-  tile123645,
-  tile132456,
-  tile132546,
-  tile132645,
-  tile142356,
-  tile142536,
-  tile142635,
-  tile152346,
-  tile152436,
-  tile152634,
-  tile162345,
-  tile162435,
-  tile162534,
+  tile123456: generateTwoTile('123456'),
+  tile123546: generateTwoTile('123546'),
+  tile123645: generateTwoTile('123645'),
+  tile132456: generateTwoTile('132456'),
+  tile132546: generateTwoTile('132546'),
+  tile132645: generateTwoTile('132645'),
+  tile142356: generateTwoTile('142356'),
+  tile142536: generateTwoTile('142536'),
+  tile142635: generateTwoTile('142635'),
+  tile152346: generateTwoTile('152346'),
+  tile152436: generateTwoTile('152436'),
+  tile152634: generateTwoTile('152634'),
+  tile162345: generateTwoTile('162345'),
+  tile162435: generateTwoTile('162435'),
+  tile162534: generateTwoTile('162534'),
 }
 
 const tilesetTri5 = {
-  tile123456,
-  tile123645,
-  tile142356,
-  tile162345,
-  tile162534,
+  tile123456: generateTwoTile('123456'),
+  tile123645: generateTwoTile('123645'),
+  tile142356: generateTwoTile('142356'),
+  tile162345: generateTwoTile('162345'),
+  tile162534: generateTwoTile('162534'),
 }
 
-export {
-  tile123456,
-  tile123546,
-  tile123645,
-  tile132456,
-  tile132546,
-  tile132645,
-  tile142356,
-  tile142536,
-  tile142635,
-  tile152346,
-  tile152436,
-  tile152634,
-  tile162345,
-  tile162435,
-  tile162534,
-  tilesetTri5,
-  tilesetTri15,
-}
+export { tilesetTri5, tilesetTri15 }

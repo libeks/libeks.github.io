@@ -89,16 +89,14 @@ class TrianglePositioner {
     this.padding = padding
     this.size = size
     this.data = null
+    this.halfwidth = this.size / 2
+    this.height = Math.sqrt(3) * (this.size / 2)
   }
 
   mapTriangle(tri) {
     return {
-      x:
-        this.padding.x +
-        (-this.size / 2) * (tri.y % 2) +
-        (tri.x - Math.floor(tri.y / 2)) * this.size +
-        (this.size / 2) * tri.R,
-      y: this.padding.y + tri.y * 86.6,
+      x: this.padding.x + tri.b * this.halfwidth,
+      y: this.padding.y + tri.y * this.height,
     }
   }
 
@@ -115,8 +113,8 @@ class TrianglePositioner {
       return { x: 0, y: 0 }
     }
     return {
-      x: this.padding.x + (this.size * this.grid.widthByY(coord.y)) / 2 + 40,
-      y: coord.y * 86.6 + 50 + this.padding.y,
+      x: this.padding.x + this.halfwidth * this.grid.widthByY(coord.y) + 40,
+      y: coord.y * this.height + this.halfwidth + this.padding.y,
     }
   }
 
@@ -126,7 +124,7 @@ class TrianglePositioner {
       return { x: 0, y: 0 }
     }
     return {
-      x: this.padding.x + 50 + coord.x * this.size,
+      x: this.padding.x + this.halfwidth + coord.x * this.size,
       y: this.padding.y - 25,
       rotate: -60,
     }
@@ -139,7 +137,7 @@ class TrianglePositioner {
     }
     return {
       x: this.padding.x + coord.z * this.size - this.size,
-      y: this.padding.y - 50,
+      y: this.padding.y - this.halfwidth,
       rotate: 60,
     }
   }

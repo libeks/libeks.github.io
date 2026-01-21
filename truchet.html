@@ -719,7 +719,11 @@
               We of course don't need to restrict ourselves to non-intersecting segments. We can
               start by naively letting them cross all over the place. The number of such unique
               tiles would be
-              <math><mn>5</mn> · <mn>3</mn>= 15</math> tiles. For your intution, you can think about how notch "1" can be connected to any of the 5 remaining notches. This leaves 4 notches not connected. Take the lowest number one, and you can choose between three other notches to connect it to. That leaves two notches which have to be connected, so there is no choice.
+              <math><mn>5</mn> · <mn>3</mn>= 15</math> tiles. For your intution, you can think about
+              how notch "1" can be connected to any of the 5 remaining notches. This leaves 4
+              notches not connected. Take the lowest number one, and you can choose between three
+              other notches to connect it to. That leaves two notches which have to be connected, so
+              there is no choice.
             </p>
             <figure class="float-right small">
               <svg viewBox="0 0 150 120">
@@ -833,6 +837,7 @@
           </div>
           <figure id="triangle-grid-fifteen-bezier-tile" class="full-width">
             <svg viewBox="0 0 1500 692.8" border-box>
+              <!-- <truchet-triangle :grid="grid" :tileset="tileset" :selected="null" /> -->
               <g class="grid triangles">
                 <g
                   v-for="tr in grid.grid.triangles"
@@ -879,26 +884,8 @@
       const { createApp, ref, defineComponent } = Vue
       import { TriangleGrid, TrianglePositioner, triSimpleClassName } from './triangles.js'
       import { SquareGrid, SquarePositioner, setActiveSquare, sqClassName } from './squares.js'
-      // import { Truchet } from './truchet.js'
-      import {
-        // tile123456,
-        // tile123546,
-        // tile123645,
-        // tile132456,
-        // tile132546,
-        // tile132645,
-        // tile142356,
-        // tile142536,
-        // tile142635,
-        // tile152346,
-        // tile152436,
-        // tile152634,
-        // tile162345,
-        // tile162435,
-        // tile162534,
-        tilesetTri5,
-        tilesetTri15,
-      } from './triangular-tiles.js'
+      import { Truchet, truchetTriangle } from './truchet.js'
+      import { tilesetTri5, tilesetTri15 } from './triangular-tiles.js'
 
       function toTransform(offsetVect) {
         if (offsetVect.rotate) {

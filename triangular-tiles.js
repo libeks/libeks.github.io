@@ -10,12 +10,12 @@ const points = {
   5: { x: -triangleSide / 6, y: (2 * height) / 3 },
   6: { x: -triangleSide / 3, y: height / 3 },
   // derived points, perpendicular to edge points
-  '1*': { x: -triangleSide / 6, y: 19.24 }, // (2/18)*sqrt(3) * 100, (4/9) * height
-  '2*': { x: triangleSide / 6, y: 19.24 },
-  '3*': { x: triangleSide / 6, y: 19.24 },
-  '4*': { x: 0, y: 48.1 },
-  '5*': { x: 0, y: 48.1 },
-  '6*': { x: -triangleSide / 6, y: 19.24 },
+  '1*': { x: -triangleSide / 6, y: (2 / 9) * height },
+  '2*': { x: triangleSide / 6, y: (2 / 9) * height },
+  '3*': { x: triangleSide / 6, y: (2 / 9) * height },
+  '4*': { x: 0, y: (5 / 9) * height },
+  '5*': { x: 0, y: (5 / 9) * height },
+  '6*': { x: -triangleSide / 6, y: (2 / 9) * height },
 }
 
 function equalPoints(p1, p2) {
@@ -38,6 +38,7 @@ const twoCurveFactory = {
       const p1prime = points[c1 + '*']
       const p2prime = points[c2 + '*']
       if (equalPoints(p1prime, p2prime)) {
+        // without this the corner curves are very pointy
         return `M ${printPt(p1)} Q ${printPt(p1prime)}, ${printPt(p2)}`
       }
       return `M ${printPt(p1)} C ${printPt(p1prime)}, ${printPt(p2prime)}, ${printPt(p2)}`
@@ -106,23 +107,42 @@ function generateTwoTile(tile) {
   }
 }
 
-const tilesetTri15 = {
-  tile123456: generateTwoTile('123456'),
-  tile123546: generateTwoTile('123546'),
-  tile123645: generateTwoTile('123645'),
-  tile132456: generateTwoTile('132456'),
-  tile132546: generateTwoTile('132546'),
-  tile132645: generateTwoTile('132645'),
-  tile142356: generateTwoTile('142356'),
-  tile142536: generateTwoTile('142536'),
-  tile142635: generateTwoTile('142635'),
-  tile152346: generateTwoTile('152346'),
-  tile152436: generateTwoTile('152436'),
-  tile152634: generateTwoTile('152634'),
-  tile162345: generateTwoTile('162345'),
-  tile162435: generateTwoTile('162435'),
-  tile162534: generateTwoTile('162534'),
+// given n*2 points, return a list of all unique sets of point pairs.
+function generateAllPairs(fullList) {
+  function rec(l) {
+    if (l.length <= 2) {
+      return [l]
+    } else {
+      const a = l[0]
+      let firstChoice = l.filter((num) => num !== a)
+      let retList = []
+      for (let b of firstChoice) {
+        let remainder = firstChoice.filter((num) => num !== b)
+        let res = rec(remainder)
+        for (const ret of res) {
+          // prepend (a,b) to the returned array
+          ret.unshift(b)
+          ret.unshift(a)
+          retList.push(ret)
+        }
+      }
+      return retList
+    }
+  }
+  return rec(fullList).map((lst) => lst.join(''))
 }
+
+// console.log(generateAllPairs([1,2,3,4,5,6,7,8,9, 'A', 'B', 'C']));
+
+const threePairs = generateAllPairs([1, 2, 3, 4, 5, 6])
+
+let tilesetTri15 = (function () {
+  let retObj = {}
+  for (let id of threePairs) {
+    retObj[`tile${id}`] = generateTwoTile(id)
+  }
+  return retObj
+})()
 
 const tilesetTri5 = {
   tile123456: generateTwoTile('123456'),

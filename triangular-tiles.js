@@ -144,12 +144,80 @@ let tilesetTri15 = (function () {
   return retObj
 })()
 
-const tilesetTri5 = {
-  tile123456: generateTwoTile('123456'),
-  tile123645: generateTwoTile('123645'),
-  tile142356: generateTwoTile('142356'),
-  tile162345: generateTwoTile('162345'),
-  tile162534: generateTwoTile('162534'),
+function generateCatalanParenthesisSet(n) {
+  if (n == 0) {
+    return [[]]
+  }
+  if (n == 1) {
+    return [['(', ')']]
+  }
+  let retList = []
+  for (let i = 0; i <= n - 1; i++) {
+    let left = generateCatalanParenthesisSet(i)
+    let right = generateCatalanParenthesisSet(n - i - 1)
+    for (let l of left) {
+      for (let r of right) {
+        retList.push(['(', ...l, ')', ...r])
+      }
+    }
+  }
+  return retList
 }
+
+function offsetArrayVals(a, val) {
+  return a.map((v) => v + val)
+}
+
+function generateCatalanNumberSet(n) {
+  if (n == 0) {
+    return [[]]
+  }
+  if (n == 1) {
+    return [[1, 2]]
+  }
+  let retList = []
+  for (let i = 0; i <= n - 1; i++) {
+    let left = generateCatalanNumberSet(i)
+    let right = generateCatalanNumberSet(n - i - 1)
+    for (let l of left) {
+      for (let r of right) {
+        retList.push([
+          1,
+          l.length + 2,
+          ...offsetArrayVals(l, 1),
+          ...offsetArrayVals(r, l.length + 2),
+        ])
+      }
+    }
+  }
+  return retList
+}
+
+function hexConversion(char) {
+  if (char < 10) {
+    return char
+  }
+  return String.fromCharCode(65 + (char - 10))
+}
+
+function arrayOfArrayToArrayOfStrings(a) {
+  return a.map((entry) => entry.join(''))
+}
+
+function arrayOfArrayToArrayOfNumStrings(a) {
+  return a.map((entry) => entry.map((char) => hexConversion(char)).join(''))
+}
+
+// console.log("catalan 3", arrayOfArrayToArrayOfNumStrings(generateCatalanNumberSet(7)))
+
+const threeCatalans = arrayOfArrayToArrayOfNumStrings(generateCatalanNumberSet(3))
+
+let tilesetTri5 = (function () {
+  let retObj = {}
+  for (let id of threeCatalans) {
+    retObj[`tile${id}`] = generateTwoTile(id)
+  }
+  return retObj
+})()
 
 export { tilesetTri5, tilesetTri15 }

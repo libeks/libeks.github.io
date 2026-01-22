@@ -85,11 +85,11 @@ function getPairs(s) {
 const twoTileFactory = {
   template: `<g class="tile">
     <polygon points="0,86.6 -50,0 50,0" />
-    <component :is="computeCurve(curve,0)"></component>
-    <component :is="computeCurve(curve,1)"></component>
-    <component :is="computeCurve(curve,2)"></component>
+    <component :is="computeCurve(tile,0)"></component>
+    <component :is="computeCurve(tile,1)"></component>
+    <component :is="computeCurve(tile,2)"></component>
   </g>`,
-  props: ['curve'],
+  props: ['tile'],
   methods: {
     computeCurve: function (curve, n) {
       let chunks = getPairs(curve)
@@ -102,7 +102,7 @@ const twoTileFactory = {
 
 function generateTwoTile(tile) {
   return {
-    template: `<two-tile-factory curve="${tile}"/>`,
+    template: `<two-tile-factory tile="${tile}"/>`,
     components: { twoTileFactory },
   }
 }
@@ -220,4 +220,4 @@ let tilesetTri5 = (function () {
   return retObj
 })()
 
-export { tilesetTri5, tilesetTri15 }
+export { tilesetTri5, tilesetTri15, twoTileFactory }

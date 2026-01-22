@@ -21,16 +21,22 @@
     </header>
     <main>
       <section>
-        <h2>(Jan 2026) WORK IN PROGRESS!</h2>
         <p>
           This is a follow-up on the post about <a href="triangles.html">Triangular Grids</a>, to
           see how easily we could adapt a regular grid for Truchet tiles.
         </p>
       </section>
       <section>
-        <h2>Rectangular Grid</h2>
+        <h2 id="rectangular-grid">
+          <a class="anchor" href="#rectangular-grid"></a>
+          <span>Rectangular Grid</span>
+          
+        </h2>
         <section class="subsection">
-          <h3>Simple tile</h3>
+          <h3 id="rectangular-simple-tile">
+            <a class="anchor" href="#rectangular-simple-tile"></a>
+            <span>Simple tile</span>
+          </h3>
           <div class="flex-container">
             <p>
               We start, as always, with the simple Cartesian grid, and the simplest set of two
@@ -85,7 +91,11 @@
           </figure>
         </section>
         <section class="subsection">
-          <h3>More complex tiles</h3>
+          <h3 id="more-complex-tiles">
+            <a class="anchor" href="#more-complex-tiles"></a>
+            <span>More complex tiles</span>
+            
+          </h3>
           <div class="flex-container">
             <p>
               We of course are not limited to these two tiles. In fact, we can come up with as many
@@ -252,9 +262,15 @@
         </section>
       </section>
       <section>
-        <h2>Triangular Grid</h2>
+        <h2 id="triangular-grid">
+          <a class="anchor" href="#triangular-grid"></a>
+          <span>Triangular Grid</span>
+        </h2>
         <section class="subsection">
-          <h3>Triangle rotation</h3>
+          <h3 id="triangle-rotation">
+            <a class="anchor" href="#triangle-rotation"></a>
+            <span>Triangle rotation</span> 
+          </h3>
           <div class="flex-container">
             <p>
               As an aside, let me tell you about rotating triangles. When working with triangular
@@ -333,7 +349,10 @@
           </div>
         </section>
         <section class="subsection">
-          <h3>Simple Truchet Tile</h3>
+          <h3 id="simple-truchet-tile">
+            <a class="anchor" href="#simple-truchet-tile"></a>
+            <span>Simple Truchet Tile</span>
+          </h3>
           <div class="flex-container">
             <p>
               Surely, we could extend this idea to equilateral triangles, since they, too, can tile
@@ -402,7 +421,10 @@
           </figure>
         </section>
         <section class="subsection">
-          <h3>Two non-intersecting connections per edge</h3>
+          <h3 id="two-notcher-per-edge">
+            <a class="anchor" href="#two-notcher-per-edge"></a>
+            <span>Two non-intersecting connections per edge</span>
+          </h3>
           <div class="flex-container">
             <p>
               What we really want is to ensure that lines continue throughout the plot, like we see
@@ -535,7 +557,10 @@
           </figure>
         </section>
         <section class="subsection">
-          <h3>Bézier curves</h3>
+          <h3 id="bezier-curves">
+            <a class="anchor" href="#bezier-curves"></a>
+            <span>Bézier curves</span>
+          </h3>
           <p>
             Next, let's see how to make sure those lines don't overlap. To make sure the lines don't
             look disconnected or jagged, it is wise to ensure that they connect to the edge of the
@@ -713,7 +738,10 @@
           </figure>
         </section>
         <section class="subsection">
-          <h3>Intersecting connections</h3>
+          <h3 id="intersecting-connections">
+            <a class="anchor" href="#intersecting-connections"></a>
+            <span>Intersecting connections</span>
+          </h3>
           <div class="flex-container">
             <p>
               We of course don't need to restrict ourselves to non-intersecting segments. We can
@@ -771,63 +799,63 @@
               <svg viewBox="0 0 500 400">
                 <g class="grid triangle">
                   <g class="triangle" style="transform: translate(50px, 20px)">
-                    <tile123456 />
+                    <two-tile-factory tile="123456" />
                     <text x="0" y="105" class="annotation center">12,34,56</text>
                   </g>
                   <g class="triangle" style="transform: translate(50px, 140px)">
-                    <tile123546 />
+                    <two-tile-factory tile="123546" />
                     <text x="0" y="105" class="annotation center">12,35,46</text>
                   </g>
                   <g class="triangle" style="transform: translate(50px, 260px)">
-                    <tile123645 />
+                    <two-tile-factory tile="123645" />
                     <text x="0" y="105" class="annotation center">12,36,45</text>
                   </g>
                   <g class="triangle" style="transform: translate(150px, 20px)">
-                    <tile132456 />
+                    <two-tile-factory tile="132456" />
                     <text x="0" y="105" class="annotation center">13,24,56</text>
                   </g>
                   <g class="triangle" style="transform: translate(150px, 140px)">
-                    <tile132546 />
+                    <two-tile-factory tile="132546" />
                     <text x="0" y="105" class="annotation center">13,25,46</text>
                   </g>
                   <g class="triangle" style="transform: translate(150px, 260px)">
-                    <tile132645 />
+                    <two-tile-factory tile="132645" />
                     <text x="0" y="105" class="annotation center">13,26,45</text>
                   </g>
                   <g class="triangle" style="transform: translate(250px, 20px)">
-                    <tile142356 />
+                    <two-tile-factory tile="142356" />
                     <text x="0" y="105" class="annotation center">14,23,56</text>
                   </g>
                   <g class="triangle" style="transform: translate(250px, 140px)">
-                    <tile142536 />
+                    <two-tile-factory tile="142536" />
                     <text x="0" y="105" class="annotation center">14,25,36</text>
                   </g>
                   <g class="triangle" style="transform: translate(250px, 260px)">
-                    <tile142635 />
+                    <two-tile-factory tile="142635" />
                     <text x="0" y="105" class="annotation center">14,26,35</text>
                   </g>
                   <g class="triangle" style="transform: translate(350px, 20px)">
-                    <tile152346 />
+                    <two-tile-factory tile="152346" />
                     <text x="0" y="105" class="annotation center">15,23,46</text>
                   </g>
                   <g class="triangle" style="transform: translate(350px, 140px)">
-                    <tile152436 />
+                    <two-tile-factory tile="152436" />
                     <text x="0" y="105" class="annotation center">15,24,36</text>
                   </g>
                   <g class="triangle" style="transform: translate(350px, 260px)">
-                    <tile152634 />
+                    <two-tile-factory tile="152634" />
                     <text x="0" y="105" class="annotation center">15,26,34</text>
                   </g>
                   <g class="triangle" style="transform: translate(450px, 20px)">
-                    <tile162345 />
+                    <two-tile-factory tile="162345" />
                     <text x="0" y="105" class="annotation center">16,23,45</text>
                   </g>
                   <g class="triangle" style="transform: translate(450px, 140px)">
-                    <tile162435 />
+                    <two-tile-factory tile="162435" />
                     <text x="0" y="105" class="annotation center">16,24,35</text>
                   </g>
                   <g class="triangle" style="transform: translate(450px, 260px)">
-                    <tile162534 />
+                    <two-tile-factory tile="162534" />
                     <text x="0" y="105" class="annotation center">16,25,34</text>
                   </g>
                 </g>
@@ -855,7 +883,12 @@
         </section>
       </section>
       <section>
-        <h2>Further ideas to explore</h2>
+      </section>
+      <section>
+        <h2 id="further-ideas">
+          <a class="anchor" href="#further-ideas"></a>
+          <span>Further ideas to explore</span>
+        </h2>
         <ul>
           <li>
             Let's say we want to render a continuous curve from a Truchet tiling. In the current
@@ -885,7 +918,7 @@
       import { TriangleGrid, TrianglePositioner, triSimpleClassName } from './triangles.js'
       import { SquareGrid, SquarePositioner, setActiveSquare, sqClassName } from './squares.js'
       // import { Truchet, truchetTriangle } from './truchet.js'
-      import { tilesetTri5, tilesetTri15 } from './triangular-tiles.js'
+      import { tilesetTri5, tilesetTri15, twoTileFactory } from './triangular-tiles.js'
 
       function toTransform(offsetVect) {
         if (offsetVect.rotate) {
@@ -1006,7 +1039,7 @@
       }).mount('#triangle-grid-two-bezier-tile')
 
       const tile15Listing = createApp({
-        components: tilesetTri15,
+        components: {...tilesetTri15, twoTileFactory},
       }).mount('#tile-15-listing')
 
       const triangleFifteenBezierTile = createApp({

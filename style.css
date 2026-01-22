@@ -56,6 +56,17 @@ a {
   &:hover {
     text-decoration: underline;
   }
+
+  &.anchor {
+  	/*padding-left: 2em;*/
+  	color: black;
+  	padding-right: 0.3em;
+  	/*font-size:0.8em;*/
+
+  	&::before {
+  		content: '△';
+  	}
+  }
 }
 
 section {
@@ -78,9 +89,9 @@ h2 {
   font-family: var(--header-font);
 }
 
-h2::before {
+/*h2::before {
   content: '△ ';
-}
+}*/
 
 footer {
   display: block;

@@ -58,14 +58,14 @@ a {
   }
 
   &.anchor {
-  	/*padding-left: 2em;*/
-  	color: black;
-  	padding-right: 0.3em;
-  	/*font-size:0.8em;*/
+    /*padding-left: 2em;*/
+    color: black;
+    padding-right: 0.3em;
+    /*font-size:0.8em;*/
 
-  	&::before {
-  		content: '△';
-  	}
+    &::before {
+      content: '△';
+    }
   }
 }
 

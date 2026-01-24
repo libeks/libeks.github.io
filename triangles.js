@@ -84,13 +84,31 @@ class Triangle {
 }
 
 class TrianglePositioner {
-  constructor(padding, grid, size) {
+  constructor({ padding, grid, size, data_range }) {
     this.grid = grid
     this.padding = padding
     this.size = size
     this.data = null
     this.halfwidth = this.size / 2
     this.height = Math.sqrt(3) * (this.size / 2)
+    this.data_range = data_range
+  }
+
+  getTriangle(data) {
+    for (const tri of this.grid.triangles) {
+      if (tri.string() == data) {
+        return tri
+      }
+    }
+  }
+
+  increaseTriangleData(tri_data) {
+    const tri = this.getTriangle(tri_data)
+    if (this.data_range === undefined) {
+      tri.data += 1
+    } else {
+      tri.data = (tri.data + 1) % this.data_range
+    }
   }
 
   mapTriangle(tri) {
@@ -101,6 +119,13 @@ class TrianglePositioner {
   }
 
   randomize(options) {
+    if (options == null) {
+      for (let sq of this.grid.triangles) {
+        const r = Math.floor(Math.random() * this.data_range)
+        sq.data = r
+      }
+      return this
+    }
     for (let sq of this.grid.triangles) {
       const r = Math.floor(Math.random() * options.length)
       sq.data = options[r]

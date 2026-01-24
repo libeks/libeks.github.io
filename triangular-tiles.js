@@ -180,7 +180,6 @@ const fourCurveFactory = {
         const p3plus = fourPoints[nextChar(nextChar(c1)) + '*']
         const mid = midpoint(p2plus, p3plus)
         return `M ${printPt(p1)} C ${printPt(fourPoints[c1 + '*'])} ${printPt(p2plus)} ${printPt(mid)} C ${printPt(p3plus)} ${printPt(fourPoints[c2 + '*'])} ${printPt(p2)}`
-        // return `M ${printPt(p1)} C ${printPt(fourPoints[c1+'*'])} ${printPt(fourPoints[c2+'*'])} ${printPt(p2)}`
       }
       if (
         getNotchType(c1) == 'inner' &&
@@ -286,18 +285,12 @@ const twoTileFactory = {
 const fourTileFactory = {
   template: `<g class="tile">
     <polygon points="0,86.6 -50,0 50,0" />
-    <four-curve-factory :curve="computeCurve(tile,0)" />
-    <four-curve-factory :curve="computeCurve(tile,1)" />
-    <four-curve-factory :curve="computeCurve(tile,2)" />
-    <four-curve-factory :curve="computeCurve(tile,3)" />
-    <four-curve-factory :curve="computeCurve(tile,4)" />
-    <four-curve-factory :curve="computeCurve(tile,5)" />
+    <four-curve-factory v-for="i in [0,1,2,3,4,5]" :curve="computeCurve(tile,i)" />
   </g>`,
   props: ['tile'],
   methods: {
     computeCurve: function (tile, n) {
       let chunks = getPairs(tile)
-
       const chunk = chunks[n]
       return chunk
     },
@@ -410,8 +403,6 @@ function arrayOfArrayToArrayOfStrings(a) {
 function arrayOfArrayToArrayOfNumStrings(a) {
   return a.map((entry) => entry.map((char) => hexConversion(char)).join(''))
 }
-
-// console.log('catalan 6', arrayOfArrayToArrayOfNumStrings(generateCatalanNumberSet(6)))
 
 const catalan6 = arrayOfArrayToArrayOfNumStrings(generateCatalanNumberSet(6))
 

@@ -144,6 +144,10 @@ svg {
     fill: hsl(147, 0%, 85%);
   }
 
+  .grid.triangles .tile polygon {
+    fill: white;
+  }
+
   .rotation-180-animation {
     animation: animate-rotate-180 3s cubic-bezier(0.86, 0, 0.07, 1) infinite;
     transform-origin: 0px 43.3px;

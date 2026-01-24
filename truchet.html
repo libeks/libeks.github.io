@@ -393,22 +393,22 @@
                   v-for="tr in grid.grid.triangles"
                   :style="toTransform(grid.mapTriangle(tr))"
                   :class="triClassName(tr, selected)"
-                  :data-sq="tr.string()"
+                  :data-tri="tr.string()"
                 >
                   <g v-if="tr.data==0" class="flippable">
-                    <g class="tile">
+                    <g @click="click" class="tile">
                       <polygon points="0,86.6 -50,0 50,0" />
                       <path class="stroke" d="M 0 0 A 50 50 1 0 1 -25 43.3" />
                     </g>
                   </g>
                   <g v-if="tr.data==1" class="flippable">
-                    <g class="tile rot120deg">
+                    <g @click="click" class="tile rot120deg">
                       <polygon points="0,86.6 -50,0 50,0" />
                       <path class="stroke" d="M 0 0 A 50 50 1 0 1 -25 43.3" />
                     </g>
                   </g>
                   <g v-if="tr.data==2" class="flippable">
-                    <g class="tile rot240deg">
+                    <g @click="click" class="tile rot240deg">
                       <polygon points="0,86.6 -50,0 50,0" />
                       <path class="stroke" d="M 0 0 A 50 50 1 0 1 -25 43.3" />
                     </g>
@@ -516,10 +516,10 @@
                   v-for="tr in grid.grid.triangles"
                   :style="toTransform(grid.mapTriangle(tr))"
                   :class="triClassName(tr, selected)"
-                  :data-sq="tr.string()"
+                  :data-tri="tr.string()"
                 >
                   <g v-if="tr.data==0" class="flippable">
-                    <g class="tile">
+                    <g @click="click" class="tile">
                       <polygon points="0,86.6 -50,0 50,0" />
                       <path class="stroke" d="M -16.6 0 A 33.3 33.3 1 0 1 -33.3 28.87" />
                       <path class="stroke" d="M -16.6 57.78 A 33.3 33.3 1 0 1 16.6 57.78" />
@@ -527,7 +527,7 @@
                     </g>
                   </g>
                   <g v-if="tr.data==1" class="flippable">
-                    <g class="tile">
+                    <g @click="click" class="tile">
                       <polygon points="0,86.6 -50,0 50,0" />
                       <path class="stroke" d="M -16.6 0 A 16.6 16.6 1 0 0 16.6 0" />
                       <path class="stroke" d="M -33.3 28.87 A 16.6 16.6 1 0 1 -16.6 57.78" />
@@ -535,7 +535,7 @@
                     </g>
                   </g>
                   <g v-if="tr.data==2" class="flippable">
-                    <g class="tile">
+                    <g @click="click" class="tile">
                       <polygon points="0,86.6 -50,0 50,0" />
                       <path class="stroke" d="M -16.6 0 A 33.3 33.3 1 0 1 -33.3 28.87" />
                       <path class="stroke" d="M -16.6 57.78 A 33.3 33.3 1 0 1 16.6 57.78" />
@@ -543,7 +543,7 @@
                     </g>
                   </g>
                   <g v-if="tr.data==3" class="flippable">
-                    <g class="tile rot120deg">
+                    <g @click="click" class="tile rot120deg">
                       <polygon points="0,86.6 -50,0 50,0" />
                       <path class="stroke" d="M -16.6 0 A 33.3 33.3 1 0 1 -33.3 28.87" />
                       <path class="stroke" d="M -16.6 57.78 A 66.6 66.6 1 0 0 16.6 0" />
@@ -551,7 +551,7 @@
                     </g>
                   </g>
                   <g v-if="tr.data==4" class="flippable">
-                    <g class="tile rot240deg">
+                    <g @click="click" class="tile rot240deg">
                       <polygon points="0,86.6 -50,0 50,0" />
                       <path class="stroke" d="M -16.6 0 A 33.3 33.3 1 0 1 -33.3 28.87" />
                       <path class="stroke" d="M -16.6 57.78 A 66.6 66.6 1 0 0 16.6 0" />
@@ -734,10 +734,10 @@
                   v-for="tr in grid.grid.triangles"
                   :style="toTransform(grid.mapTriangle(tr))"
                   :class="triClassName(tr, selected)"
-                  :data-sq="tr.string()"
+                  :data-tri="tr.string()"
                 >
                   <g class="flippable">
-                    <component :is="tileset[tr.data]"></component>
+                    <component @click="click" :is="tileset[tr.data]"></component>
                   </g>
                 </g>
               </g>
@@ -878,10 +878,10 @@
                   v-for="tr in grid.grid.triangles"
                   :style="toTransform(grid.mapTriangle(tr))"
                   :class="triClassName(tr, selected)"
-                  :data-sq="tr.string()"
+                  :data-tri="tr.string()"
                 >
                   <g class="flippable">
-                    <component :is="tileset[tr.data]"></component>
+                    <component @click="click" :is="tileset[tr.data]"></component>
                   </g>
                 </g>
               </g>
@@ -1268,10 +1268,10 @@
                 v-for="tr in grid.grid.triangles"
                 :style="toTransform(grid.mapTriangle(tr))"
                 :class="triClassName(tr, selected)"
-                :data-sq="tr.string()"
+                :data-tri="tr.string()"
               >
                 <g class="flippable">
-                  <four-tile-factory :tile="catalan6[tr.data]" />
+                  <four-tile-factory @click="click" :tile="catalan6[tr.data]" />
                 </g>
               </g>
             </g>
@@ -1376,19 +1376,24 @@
         data() {
           return {
             selected: null,
-            grid: new TrianglePositioner(
-              { x: 200, y: 20 },
-              new TriangleGrid({
+            grid: new TrianglePositioner({
+              padding: { x: 200, y: 20 },
+              grid: new TriangleGrid({
                 nB: 18,
                 nY: 5,
               }),
-              100,
-            ).randomize([0, 1, 2]),
+              size: 100,
+              data_range: 3,
+            }).randomize(),
           }
         },
         methods: {
           triClassName: triSimpleClassName,
           toTransform,
+          click: function (event) {
+            const tri_data = event.target.parentElement.parentElement.parentElement.dataset.tri
+            this.grid.increaseTriangleData(tri_data)
+          },
         },
       }).mount('#triangle-grid-three-tile')
 
@@ -1396,19 +1401,24 @@
         data() {
           return {
             selected: null,
-            grid: new TrianglePositioner(
-              { x: 100, y: 0 },
-              new TriangleGrid({
+            grid: new TrianglePositioner({
+              padding: { x: 100, y: 0 },
+              grid: new TriangleGrid({
                 nB: 26,
                 nY: 7,
               }),
-              100,
-            ).randomize([0, 1, 2, 3, 4]),
+              size: 100,
+              data_range: 5,
+            }).randomize(),
           }
         },
         methods: {
           triClassName: triSimpleClassName,
           toTransform,
+          click: function (event) {
+            const tri_data = event.target.parentElement.parentElement.parentElement.dataset.tri
+            this.grid.increaseTriangleData(tri_data)
+          },
         },
       }).mount('#triangle-grid-two-tile')
 
@@ -1420,20 +1430,25 @@
         data() {
           return {
             selected: null,
-            grid: new TrianglePositioner(
-              { x: 100, y: 0 },
-              new TriangleGrid({
+            grid: new TrianglePositioner({
+              padding: { x: 100, y: 0 },
+              grid: new TriangleGrid({
                 nB: 26,
                 nY: 7,
               }),
-              100,
-            ).randomize([0, 1, 2, 3, 4]),
+              size: 100,
+              data_range: 5,
+            }).randomize(),
             tileset: Object.keys(tilesetTri5),
           }
         },
         methods: {
           triClassName: triSimpleClassName,
           toTransform,
+          click: function (event) {
+            const tri_data = event.target.parentElement.parentElement.parentElement.dataset.tri
+            this.grid.increaseTriangleData(tri_data)
+          },
         },
         components: tilesetTri5,
       }).mount('#triangle-grid-two-bezier-tile')
@@ -1446,20 +1461,25 @@
         data() {
           return {
             selected: null,
-            grid: new TrianglePositioner(
-              { x: 100, y: 0 },
-              new TriangleGrid({
+            grid: new TrianglePositioner({
+              padding: { x: 100, y: 0 },
+              grid: new TriangleGrid({
                 nB: 26,
                 nY: 7,
               }),
-              100,
-            ).randomize(Array.from(Array(15).keys())),
+              size: 100,
+              data_range: 15,
+            }).randomize(),
             tileset: Object.keys(tilesetTri15),
           }
         },
         methods: {
           triClassName: triSimpleClassName,
           toTransform,
+          click: function (event) {
+            const tri_data = event.target.parentElement.parentElement.parentElement.dataset.tri
+            this.grid.increaseTriangleData(tri_data)
+          },
         },
         components: tilesetTri15,
       }).mount('#triangle-grid-fifteen-bezier-tile')
@@ -1484,25 +1504,30 @@
         },
       }).mount('#triangle-grid-132-tiles')
 
+      const gr = new TrianglePositioner({
+        padding: { x: 100, y: 0 },
+        grid: new TriangleGrid({
+          nB: 26,
+          nY: 9,
+        }),
+        size: 100,
+        data_range: 132,
+      }).randomize()
       createApp({
         data() {
           return {
             selected: null,
-            grid: new TrianglePositioner(
-              { x: 100, y: 0 },
-              new TriangleGrid({
-                nB: 26,
-                nY: 9,
-              }),
-              100,
-            ).randomize(Array.from(Array(132).keys())),
-            // tileset: Object.keys(tilesetTri15),
+            grid: gr,
             catalan6,
           }
         },
         methods: {
           triClassName: triSimpleClassName,
           toTransform,
+          click: function (event) {
+            const tri_data = event.target.parentElement.parentElement.parentElement.dataset.tri
+            this.grid.increaseTriangleData(tri_data)
+          },
         },
         components: { fourTileFactory },
       }).mount('#triangle-grid-132-truchet')

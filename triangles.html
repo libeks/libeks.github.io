@@ -1055,14 +1055,14 @@
         data() {
           return {
             selected: null,
-            grid: new TrianglePositioner(
-              { x: 100, y: 70 },
-              new TriangleGrid({
+            grid: new TrianglePositioner({
+              padding: { x: 100, y: 70 },
+              grid: new TriangleGrid({
                 nB: 18,
                 nY: 7,
               }),
-              100,
-            ),
+              size: 100,
+            }),
             coordinates: 'xyr',
           }
         },
@@ -1084,14 +1084,14 @@
         data() {
           return {
             selected: null,
-            grid: new TrianglePositioner(
-              { x: 200, y: 70 },
-              new TriangleGrid({
+            grid: new TrianglePositioner({
+              padding: { x: 200, y: 70 },
+              grid: new TriangleGrid({
                 nX: 3,
                 nY: 3,
               }),
-              100,
-            ),
+              size: 100,
+            }),
             coordinates: 'xyr',
           }
         },
@@ -1111,14 +1111,14 @@
         data() {
           return {
             selected: null,
-            grid: new TrianglePositioner(
-              { x: 200, y: 70 },
-              new TriangleGrid({
+            grid: new TrianglePositioner({
+              padding: { x: 200, y: 70 },
+              grid: new TriangleGrid({
                 nX: 3,
                 nY: 3,
               }),
-              100,
-            ),
+              size: 100,
+            }),
             coordinates: 'xyz',
           }
         },
@@ -1144,7 +1144,11 @@
         data() {
           return {
             selected: null,
-            grid: new TrianglePositioner({ x: 0, y: 0 }, triangleGridAnonymous, 100),
+            grid: new TrianglePositioner({
+              padding: { x: 0, y: 0 },
+              grid: triangleGridAnonymous,
+              size: 100,
+            }),
             coordinates: 'yb',
           }
         },
@@ -1158,7 +1162,11 @@
         data() {
           return {
             selected: triangleGridAnonymous.triangles[55], // pick a triangle somewhere in the middle
-            grid: new TrianglePositioner({ x: 0, y: 0 }, triangleGridAnonymous, 100),
+            grid: new TrianglePositioner({
+              padding: { x: 0, y: 0 },
+              grid: triangleGridAnonymous,
+              size: 100,
+            }),
             coordinates: 'yb',
           }
         },
@@ -1181,14 +1189,14 @@
         data() {
           return {
             selected: null,
-            grid: new TrianglePositioner(
-              { x: 200, y: 70 },
-              new TriangleGrid({
+            grid: new TrianglePositioner({
+              padding: { x: 200, y: 70 },
+              grid: new TriangleGrid({
                 nB: 6,
                 nY: 3,
               }),
-              100,
-            ),
+              size: 100,
+            }),
             coordinates: 'yb',
           }
         },

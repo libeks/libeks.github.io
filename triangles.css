@@ -102,6 +102,10 @@ svg {
       font-size: 8px;
     }
 
+    &.large {
+      font-size: 12px;
+    }
+
     &.center {
       text-anchor: middle;
     }

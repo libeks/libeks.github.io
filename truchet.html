@@ -915,6 +915,13 @@
                     <path class="stroke thin" d="M 25 43.4 L -50 0" />
                     <!-- upper left diagonal -->
 
+                    <!-- <path class="stroke thin" d="M 0 0 L -25 43.4" /> -->
+                    <!-- inner triangle 1 -->
+                    <!-- <path class="stroke thin" d="M 0 0 L 25 43.4" /> -->
+                    <!-- inner triangle 2 -->
+                    <!-- <path class="stroke thin" d="M -25 43.4 L 25 43.4" /> -->
+                    <!-- inner triangle 3 -->
+
                     <path class="stroke thin" d="M -30 0 L -30 11.56" />
                     <!-- from N1 to T1 -->
                     <path class="stroke thin" d="M -10 0 L -10 23.12" />
@@ -1082,6 +1089,194 @@
             </figcaption>
           </figure>
         </div>
+        <div class="flex-container">
+          <p>
+            Figuring out how to connect all of the curves is not very trivial. I start off by
+            connecting all pairs of notches that show axial symmetry along one of the heights of the
+            triangle, giving six cases to consider. I'll admit, the logic here was not very pretty,
+            sometimes I had to pick odd midpoints, but it worked out in the end.
+          </p>
+          <figure id="four-notch-examples-1" class="float-right small">
+            <svg viewBox="0 0 150 120">
+              <g class="grid triangle">
+                <g class="triangle" style="transform: translate(75px, 25px)">
+                  <g class="tile">
+                    <polygon points="0,86.6 -50,0 50,0" />
+
+                    <path class="stroke thin" d="M 0 0 l 0 86.6" />
+                    <!-- height -->
+                    <path class="stroke thin" d="M -25 43.4 L 50 0" />
+                    <!-- upper right diagonal -->
+                    <path class="stroke thin" d="M 25 43.4 L -50 0" />
+                    <!-- upper left diagonal -->
+
+                    <path class="stroke thin" d="M -30 0 L -30 11.56" />
+                    <!-- from N1 to T1 -->
+                    <path class="stroke thin" d="M -10 0 L -10 23.12" />
+                    <!-- from N2 to T2-->
+                    <path class="stroke thin" d="M 10 0 L 10 23.12" />
+                    <!-- from N3 to T3 -->
+                    <path class="stroke thin" d="M 30 0 L 30 11.56" />
+                    <!-- from N4 to T4 -->
+
+                    <path class="stroke thin" d="M -30 11.56 L 30 11.56" />
+                    <!-- from T1 to T4 -->
+                    <path class="stroke thin" d="M -10 23.12 L 10 23.12" />
+                    <!-- from T2 to T3 -->
+
+                    <path class="stroke thin" d="M 40 17.32 L 30 11.56" />
+                    <!-- from N5 to T4 -->
+                    <path class="stroke thin" d="M 30 34.64 L 10 23.12" />
+                    <!-- from N6 to T3 -->
+                    <path class="stroke thin" d="M 20 51.96 L 0 40.44" />
+                    <!-- from N7 to T5 -->
+                    <path class="stroke thin" d="M 10 69.28 L 0 63.52" />
+                    <!-- from N8 to T6 -->
+
+                    <path class="stroke thin" d="M 30 11.56 L 0 63.52" />
+                    <!-- from T4 to T6 -->
+                    <path class="stroke thin" d="M 10 23.12 L 0 40.44" />
+                    <!-- from T3 to T5 -->
+
+                    <path class="stroke thin" d="M -10 69.28 L 0 63.52" />
+                    <!-- from N9 to T6 -->
+                    <path class="stroke thin" d="M -20 51.96 L 0 40.44" />
+                    <!-- from N10 to T5 -->
+                    <path class="stroke thin" d="M -30 34.64 L -10 23.12" />
+                    <!-- from N11 to T2 -->
+                    <path class="stroke thin" d="M -40 17.32 L -30 11.56" />
+                    <!-- from N12 to T1 -->
+
+                    <path class="stroke thin" d="M -30 11.56 L 0 63.52" />
+                    <!-- from T1 to T6 -->
+                    <path class="stroke thin" d="M -10 23.12 L 0 40.44" />
+                    <!-- from T2 to T5 -->
+
+                    <four-curve-factory curve="14" />
+                    <four-curve-factory curve="23" />
+                    <four-curve-factory curve="5C" />
+                    <four-curve-factory curve="6B" />
+                    <four-curve-factory curve="7A" />
+                    <four-curve-factory curve="89" />
+                  </g>
+                </g>
+              </g>
+            </svg>
+            <figcaption>Curves that are symmetrical along one height of the triangle.</figcaption>
+          </figure>
+        </div>
+        <div class="flex-container">
+          <p>
+            Next, we have to consider the remaining curves on only one side of the height of the
+            triangle, which only leaves two remaining curves. Again, I chose Quadratic and Cubic
+            Bezier curves and picked from the control points listed above.
+          </p>
+          <figure id="four-notch-examples-2" class="float-right small">
+            <svg viewBox="0 0 150 120">
+              <g class="grid triangle">
+                <g class="triangle" style="transform: translate(75px, 25px)">
+                  <g class="tile">
+                    <polygon points="0,86.6 -50,0 50,0" />
+
+                    <path class="stroke thin" d="M 0 0 l 0 86.6" />
+                    <!-- height -->
+                    <path class="stroke thin" d="M -25 43.4 L 50 0" />
+                    <!-- upper right diagonal -->
+                    <path class="stroke thin" d="M 25 43.4 L -50 0" />
+                    <!-- upper left diagonal -->
+
+                    <path class="stroke thin" d="M -30 0 L -30 11.56" />
+                    <!-- from N1 to T1 -->
+                    <path class="stroke thin" d="M -10 0 L -10 23.12" />
+                    <!-- from N2 to T2-->
+                    <path class="stroke thin" d="M 10 0 L 10 23.12" />
+                    <!-- from N3 to T3 -->
+                    <path class="stroke thin" d="M 30 0 L 30 11.56" />
+                    <!-- from N4 to T4 -->
+
+                    <path class="stroke thin" d="M -30 11.56 L 30 11.56" />
+                    <!-- from T1 to T4 -->
+                    <path class="stroke thin" d="M -10 23.12 L 10 23.12" />
+                    <!-- from T2 to T3 -->
+
+                    <path class="stroke thin" d="M 40 17.32 L 30 11.56" />
+                    <!-- from N5 to T4 -->
+                    <path class="stroke thin" d="M 30 34.64 L 10 23.12" />
+                    <!-- from N6 to T3 -->
+                    <path class="stroke thin" d="M 20 51.96 L 0 40.44" />
+                    <!-- from N7 to T5 -->
+                    <path class="stroke thin" d="M 10 69.28 L 0 63.52" />
+                    <!-- from N8 to T6 -->
+
+                    <path class="stroke thin" d="M 30 11.56 L 0 63.52" />
+                    <!-- from T4 to T6 -->
+                    <path class="stroke thin" d="M 10 23.12 L 0 40.44" />
+                    <!-- from T3 to T5 -->
+
+                    <path class="stroke thin" d="M -10 69.28 L 0 63.52" />
+                    <!-- from N9 to T6 -->
+                    <path class="stroke thin" d="M -20 51.96 L 0 40.44" />
+                    <!-- from N10 to T5 -->
+                    <path class="stroke thin" d="M -30 34.64 L -10 23.12" />
+                    <!-- from N11 to T2 -->
+                    <path class="stroke thin" d="M -40 17.32 L -30 11.56" />
+                    <!-- from N12 to T1 -->
+
+                    <path class="stroke thin" d="M -30 11.56 L 0 63.52" />
+                    <!-- from T1 to T6 -->
+                    <path class="stroke thin" d="M -10 23.12 L 0 40.44" />
+                    <!-- from T2 to T5 -->
+
+                    <four-curve-factory curve="1A" />
+                    <four-curve-factory curve="29" />
+                    <four-curve-factory curve="38" />
+                    <four-curve-factory curve="47" />
+                    <!-- <four-curve-factory curve="56" /> -->
+                    <!-- <four-curve-factory curve="BC" /> -->
+                  </g>
+                </g>
+              </g>
+            </svg>
+            <figcaption>Curves that are symmetrical along one height of the triangle.</figcaption>
+          </figure>
+        </div>
+        <p>
+          I know that I will have <math>C<sub>6</sub>=132</math> tiles. I generate all them using a
+          simple algorithm, and you can see them all below. For brevity, I've ommitted the dash
+          between pairs of letters. I also use the characters 'A' - 'C' for values 10 through 12.
+        </p>
+        <figure id="triangle-grid-132-tiles" class="full-width">
+          <svg viewBox="0 0 1200 1200" border-box>
+            <g class="grid triangles">
+              <g
+                v-for="[i, tile] in catalan6.entries()"
+                :style="toTransform({x:50+Math.floor(i/11)*100, y:(20+Math.sqrt(3)*50)*(i%11)})"
+                class="triangle"
+              >
+                <g class="flippable">
+                  <four-tile-factory :tile="tile" />
+                  <text y="98" text-anchor="middle" class="large">{{tile}}</text>
+                </g>
+              </g>
+            </g>
+          </svg>
+        </figure>
+        <figure id="triangle-grid-132-truchet" class="full-width">
+          <svg viewBox="0 0 1500 870" border-box>
+            <g class="grid triangles">
+              <g
+                v-for="tr in grid.grid.triangles"
+                :style="toTransform(grid.mapTriangle(tr))"
+                :class="triClassName(tr, selected)"
+                :data-sq="tr.string()"
+              >
+                <g class="flippable">
+                  <four-tile-factory :tile="catalan6[tr.data]" />
+                </g>
+              </g>
+            </g>
+          </svg>
+        </figure>
       </section>
       <section>
         <h2 id="further-ideas">
@@ -1095,7 +1290,6 @@
             is purely coincidental. This might be come in handy when dealing with plotting a tiling
             with a pen plotter.
           </li>
-          <li>What about more than 2 edges per triangular side. 4?</li>
           <li>What about hexagonal grids?</li>
           <li>
             What about other
@@ -1117,7 +1311,14 @@
       import { TriangleGrid, TrianglePositioner, triSimpleClassName } from './triangles.js'
       import { SquareGrid, SquarePositioner, setActiveSquare, sqClassName } from './squares.js'
       // import { Truchet, truchetTriangle } from './truchet.js'
-      import { tilesetTri5, tilesetTri15, twoTileFactory } from './triangular-tiles.js'
+      import {
+        tilesetTri5,
+        tilesetTri15,
+        twoTileFactory,
+        fourCurveFactory,
+        fourTileFactory,
+        catalan6,
+      } from './triangular-tiles.js'
 
       function toTransform(offsetVect) {
         if (offsetVect.rotate) {
@@ -1130,7 +1331,7 @@
         }
       }
 
-      const squareTwoApp = createApp({
+      createApp({
         data() {
           return {
             selected: null,
@@ -1151,7 +1352,7 @@
         },
       }).mount('#square-grid-two-tile')
 
-      const squareFiveApp = createApp({
+      createApp({
         data() {
           return {
             selected: null,
@@ -1171,7 +1372,7 @@
         },
       }).mount('#square-grid-five-tile')
 
-      const triangleThreeTile = createApp({
+      createApp({
         data() {
           return {
             selected: null,
@@ -1191,7 +1392,7 @@
         },
       }).mount('#triangle-grid-three-tile')
 
-      const triangleTwoTile = createApp({
+      createApp({
         data() {
           return {
             selected: null,
@@ -1211,11 +1412,11 @@
         },
       }).mount('#triangle-grid-two-tile')
 
-      const tile5Listing = createApp({
+      createApp({
         components: tilesetTri5,
       }).mount('#tile-5-listing')
 
-      const triangleTwoBezierTile = createApp({
+      createApp({
         data() {
           return {
             selected: null,
@@ -1237,11 +1438,11 @@
         components: tilesetTri5,
       }).mount('#triangle-grid-two-bezier-tile')
 
-      const tile15Listing = createApp({
+      createApp({
         components: { ...tilesetTri15, twoTileFactory },
       }).mount('#tile-15-listing')
 
-      const triangleFifteenBezierTile = createApp({
+      createApp({
         data() {
           return {
             selected: null,
@@ -1262,6 +1463,49 @@
         },
         components: tilesetTri15,
       }).mount('#triangle-grid-fifteen-bezier-tile')
+
+      createApp({
+        components: { fourCurveFactory },
+      }).mount('#four-notch-examples-1')
+
+      createApp({
+        components: { fourCurveFactory },
+      }).mount('#four-notch-examples-2')
+
+      createApp({
+        data() {
+          return {
+            catalan6,
+          }
+        },
+        components: { fourTileFactory },
+        methods: {
+          toTransform,
+        },
+      }).mount('#triangle-grid-132-tiles')
+
+      createApp({
+        data() {
+          return {
+            selected: null,
+            grid: new TrianglePositioner(
+              { x: 100, y: 0 },
+              new TriangleGrid({
+                nB: 26,
+                nY: 9,
+              }),
+              100,
+            ).randomize(Array.from(Array(132).keys())),
+            // tileset: Object.keys(tilesetTri15),
+            catalan6,
+          }
+        },
+        methods: {
+          triClassName: triSimpleClassName,
+          toTransform,
+        },
+        components: { fourTileFactory },
+      }).mount('#triangle-grid-132-truchet')
     </script>
   </body>
 </html>

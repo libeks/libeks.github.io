@@ -1320,16 +1320,7 @@
         catalan6,
       } from './triangular-tiles.js'
 
-      function toTransform(offsetVect) {
-        if (offsetVect.rotate) {
-          return {
-            transform: `translate(${offsetVect.x}px,${offsetVect.y}px) rotate(${offsetVect.rotate}deg)`,
-          }
-        }
-        return {
-          transform: `translate(${offsetVect.x}px,${offsetVect.y}px)`,
-        }
-      }
+      import { toTransform } from './svg-utils.js'
 
       createApp({
         data() {

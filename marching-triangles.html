@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Marching Triangles</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="style.css" rel="stylesheet" />
+    <link href="triangles.css" rel="stylesheet" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400..700;1,400..700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <header>
+      <h1>Marching Triangles</h1>
+      <div class="subhead"><a href="index.html">Home</a></div>
+    </header>
+    <main>
+      <section>
+        <p>
+          This is a follow-up on the post about <a href="triangles.html">Triangular Grids</a>, to
+          see how easily we could adapt a regular grid for the Marching Squares Algorithm.
+        </p>
+      </section>
+      <section>
+        <h2 id="rectangular-grid">
+          <a class="anchor" href="#rectangular-grid"></a>
+          <span>Rectangular Grid</span>
+        </h2>
+        <p>
+          As is custom, I'll start with the Marching Squares Algorithm, which is so beautifully
+          explained on Wikipedia.
+        </p>
+        <figure id="square-grid-marching" class="full-width">
+          <svg viewBox="0 0 3000 1500" border-box>
+            <marching-squares :grid="grid" :fn="fn" showPoints :threshold="0.0" render-poly />
+          </svg>
+        </figure>
+        <!-- <figure id="square-grid-marching-100" class="full-width">
+          <svg viewBox="0 0 9000 4500" border-box>
+            <marching-squares :grid="grid" :fn="fn" showPoints threshold="0.0"/>
+          </svg>
+        </figure> -->
+      </section>
+    </main>
+    <footer>© 2026 Jānis Lībeks</footer>
+    <script type="module">
+      const { createApp, ref, defineComponent } = Vue
+      import { TriangleGrid, TrianglePositioner, triSimpleClassName } from './triangles.js'
+      import { SquareGrid, SquarePositioner, setActiveSquare, sqClassName } from './squares.js'
+      import {
+        tilesetTri5,
+        tilesetTri15,
+        twoTileFactory,
+        fourCurveFactory,
+        fourTileFactory,
+        catalan6,
+      } from './triangular-tiles.js'
+      import { marchingSquares } from './marching.js'
+
+      createApp({
+        data() {
+          return {
+            selected: null,
+            grid: new SquarePositioner(
+              { x: 0, y: 0 },
+              new SquareGrid({
+                nX: 30,
+                nY: 15,
+              }),
+              100,
+            ),
+            fn: function (x, y) {
+              // x= x/1000+0.5;
+              // y= y/1000+0.5;
+              return Math.sin(x * x) + Math.sin(y * x)
+            },
+          }
+        },
+        methods: {
+          sqClassName,
+          setActiveSquare,
+        },
+        components: {
+          marchingSquares,
+        },
+      }).mount('#square-grid-marching')
+
+      // createApp({
+      //   data() {
+      //     return {
+      //       selected: null,
+      //       grid: new SquarePositioner(
+      //         { x: 0, y: 0 },
+      //         new SquareGrid({
+      //           nX: 270,
+      //           nY: 135,
+      //         }),
+      //         100,
+      //       ),
+      //       fn:function(x,y) {
+      //         x= x/9;
+      //         y= y/9;
+      //         return Math.sin(x*x) + Math.sin(y*x);
+      //       }
+      //     }
+      //   },
+      //   methods: {
+      //     sqClassName,
+      //     setActiveSquare,
+      //   },
+      //   components: {
+      //     marchingSquares,
+      //   }
+      // }).mount('#square-grid-marching-100')
+    </script>
+  </body>
+</html>

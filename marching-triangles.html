@@ -40,11 +40,11 @@
             <marching-squares :grid="grid" :fn="fn" showPoints :threshold="0.0" render-poly />
           </svg>
         </figure>
-        <!-- <figure id="square-grid-marching-100" class="full-width">
+        <figure id="square-grid-marching-100" class="full-width">
           <svg viewBox="0 0 9000 4500" border-box>
-            <marching-squares :grid="grid" :fn="fn" showPoints threshold="0.0"/>
+            <marching-squares :grid="grid" :fn="fn" showPoints :threshold="0.0" />
           </svg>
-        </figure> -->
+        </figure>
       </section>
     </main>
     <footer>© 2026 Jānis Lībeks</footer>
@@ -90,33 +90,33 @@
         },
       }).mount('#square-grid-marching')
 
-      // createApp({
-      //   data() {
-      //     return {
-      //       selected: null,
-      //       grid: new SquarePositioner(
-      //         { x: 0, y: 0 },
-      //         new SquareGrid({
-      //           nX: 270,
-      //           nY: 135,
-      //         }),
-      //         100,
-      //       ),
-      //       fn:function(x,y) {
-      //         x= x/9;
-      //         y= y/9;
-      //         return Math.sin(x*x) + Math.sin(y*x);
-      //       }
-      //     }
-      //   },
-      //   methods: {
-      //     sqClassName,
-      //     setActiveSquare,
-      //   },
-      //   components: {
-      //     marchingSquares,
-      //   }
-      // }).mount('#square-grid-marching-100')
+      createApp({
+        data() {
+          return {
+            selected: null,
+            grid: new SquarePositioner(
+              { x: 0, y: 0 },
+              new SquareGrid({
+                nX: 270,
+                nY: 135,
+              }),
+              100,
+            ),
+            fn: function (x, y) {
+              x = x / 9
+              y = y / 9
+              return Math.sin(x * x) + Math.sin(y * x)
+            },
+          }
+        },
+        methods: {
+          sqClassName,
+          setActiveSquare,
+        },
+        components: {
+          marchingSquares,
+        },
+      }).mount('#square-grid-marching-100')
     </script>
   </body>
 </html>

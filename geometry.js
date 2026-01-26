@@ -5,6 +5,7 @@ class Point {
   }
 
   addVect(v) {
+    // console.log("adding vector to point", this, v)
     return new Point(this.x + v.x, this.y + v.y)
   }
 

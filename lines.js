@@ -11,6 +11,7 @@ class StraightStroke {
 
   dContinued() {
     // when rendering a sequence of strokes, skip the MOVE operation
+    // console.log("dContinued", this.from, this.to)
     return `L ${this.to.string()}`
   }
 
@@ -20,7 +21,7 @@ class StraightStroke {
 
   move(v) {
     // move the stroke by a vector v
-    return new StraightStroke(this.from.add(v), this.to.add(v))
+    return new StraightStroke(this.from.addVect(v), this.to.addVect(v))
   }
 }
 
@@ -46,7 +47,7 @@ class QuadraticBezier {
 
   move(v) {
     // move the stroke by a vector v
-    return new QuadraticBezier(this.from.add(v), this.c1.add(v), this.to.add(v))
+    return new QuadraticBezier(this.from.addVect(v), this.c1.addVect(v), this.to.addVect(v))
   }
 }
 
@@ -73,7 +74,12 @@ class CubicBezier {
 
   move(v) {
     // move the stroke by a vector v
-    return new CubicBezier(this.from.add(v), this.c1.add(v), this.c2.add(v), this.to.add(v))
+    return new CubicBezier(
+      this.from.addVect(v),
+      this.c1.addVect(v),
+      this.c2.addVect(v),
+      this.to.addVect(v),
+    )
   }
 }
 

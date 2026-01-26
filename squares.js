@@ -1,5 +1,7 @@
 class SquareGrid {
   constructor({ nX, nY, filter }) {
+    this.nX = nX
+    this.nY = nY
     this.squares = []
     for (let x = 0; x <= nX; x++) {
       for (let y = 0; y <= nY; y++) {

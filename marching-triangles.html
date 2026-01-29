@@ -32,18 +32,71 @@
           <span>Rectangular Grid</span>
         </h2>
         <p>
-          As is custom, I'll start with the Marching Squares Algorithm, which is so beautifully
-          explained on Wikipedia.
+          As is custom, I'll start with the <a href="">Marching Squares Algorithm</a>, explained so
+          beautifully on Wikipedia. We start with a grid which samples some continuous function
+          (illustrated with colored circles here). For each square we then draw from zero to two
+          line segments connecting the edges, based on whether the corners are above-or-below the
+          threshold value (an interactive slider at the bottom), then interpolating where along the
+          edge the threshold would theoretically be hit. The end goal is to determine the curves
+          that plot out the contour at which the function takes the threshold value. Here we draw
+          30x15 squares.
         </p>
         <figure id="square-grid-marching" class="full-width">
           <svg viewBox="0 0 3000 1500" border-box>
-            <marching-squares :grid="grid" :fn="fn" showPoints :threshold="0.0" render-poly />
+            <marching-squares
+              :grid="grid"
+              :fn="fn"
+              :threshold="threshold"
+              render-points
+              render-square-grid
+            />
           </svg>
+          <div class="annotation">
+            <div class="row">
+              <input
+                id="threshold"
+                class="slider"
+                type="range"
+                name="volume"
+                min="-1.0"
+                max="1.0"
+                step="0.05"
+                v-model.number="threshold"
+              />
+              <label for="threshold">{{threshold}}</label>
+            </div>
+          </div>
         </figure>
+        <p>
+          As should be obvious, the function is only sampled at the corners of the grid cells (and
+          occasionally at the midpoint for the saddle edge-case, which is not displayed below), so
+          the curve suffers from aliasing artifacts. To correct for this, we can always make the
+          grid a lot finer. Let's take the same grid, but render it with 300x150 squares. Moving the
+          threshold slider now feels a lot slower, since we have to recompute curve segments at each
+          of the 45k squares at each increment, which takes a while. Critically, I don't render the
+          individual squares and their component curves as individual SVG elements, since that puts
+          too much strain on the browser. Instead, I join the curve segments by each square together
+          in one megacurve. This saves a lot on DOM-rendering overhead.
+        </p>
         <figure id="square-grid-marching-100" class="full-width">
-          <svg viewBox="0 0 9000 4500" border-box>
-            <marching-squares :grid="grid" :fn="fn" showPoints :threshold="0.0" />
+          <svg viewBox="0 0 3000 1500" border-box>
+            <marching-squares :grid="grid" :fn="fn" :threshold="threshold" />
           </svg>
+          <div class="annotation">
+            <div class="row">
+              <input
+                id="threshold"
+                class="slider"
+                type="range"
+                name="volume"
+                min="-1.0"
+                max="1.0"
+                step="0.05"
+                v-model.number="threshold"
+              />
+              <label for="threshold">{{threshold}}</label>
+            </div>
+          </div>
         </figure>
       </section>
     </main>
@@ -75,10 +128,13 @@
               100,
             ),
             fn: function (x, y) {
-              // x= x/1000+0.5;
-              // y= y/1000+0.5;
+              x = (x + 50) / 500
+              y = (y + 50) / 500
               return Math.sin(x * x) + Math.sin(y * x)
+              // return Math.hypot(x-1500, y-750) - 400
+              // return Math.sqrt((1500-x)*(1500-x) + (750-y)*(750-y)) - 300
             },
+            threshold: 0.0,
           }
         },
         methods: {
@@ -97,16 +153,21 @@
             grid: new SquarePositioner(
               { x: 0, y: 0 },
               new SquareGrid({
-                nX: 270,
-                nY: 135,
+                nX: 300,
+                nY: 150,
               }),
-              100,
+              10,
             ),
             fn: function (x, y) {
-              x = x / 9
-              y = y / 9
+              x = (x + 50) / 500
+              y = (y + 50) / 500
               return Math.sin(x * x) + Math.sin(y * x)
+              // const retval = Math.hypot(1500-x/10, 750-y/10) - 400
+              // const retval = Math.hypot(x-1500*9, y-750*9) - 300*9*3
+              // console.log(x,y, retval)
+              // return retval
             },
+            threshold: 0.0,
           }
         },
         methods: {

@@ -145,6 +145,7 @@ const twoCurveFactory = {
       return `M ${printPt(p1)} C ${printPt(p1prime)}, ${printPt(p2prime)}, ${printPt(p2)}`
     },
   },
+  computed: {},
 }
 
 const fourCurveFactory = {

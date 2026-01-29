@@ -47,6 +47,10 @@ svg {
       }
     }
 
+    &.thick {
+      stroke-width: 20px;
+    }
+
     &.red {
       stroke: red;
     }

@@ -4,9 +4,7 @@ function reverseInterpolate(a, b, threshold) {
   }
   // make sure a<=b
   if (a > b) {
-    let temp = b
-    b = a
-    a = temp
+    return 1 - reverseInterpolate(b, a, threshold)
   }
   const interval = b - a
   return (threshold - a) / interval

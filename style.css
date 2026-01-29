@@ -163,3 +163,26 @@ table {
     background-color: hsl(0, 0%, 90%);
   }
 }
+
+div.annotation {
+  display: flex;
+
+  flex-direction: column;
+  align-items: center;
+
+  div.row {
+    display: flex;
+    gap: 1em;
+    flex-direction: row;
+  }
+
+  input.slider {
+    height: 25px;
+  }
+
+  label {
+    /*padding-left: 1em;*/
+    width: 5em;
+    margin: 2px;
+  }
+}

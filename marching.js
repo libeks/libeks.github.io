@@ -104,7 +104,7 @@ const marchingSquares = {
       <circle v-for="sq in grid.grid.squares" :cx="sq.x*grid.size" :cy="sq.y*grid.size" :r="grid.size/4" :style="colorFromVal(corners[[sq.x, sq.y]])" />
     </g>
     <g
-      v-if="renderSquareStorkes || renderSquareGrid"
+      v-if="renderSquareStrokes || renderSquareGrid"
       v-for="sq in grid.grid.squares"
       :style="toTransform(grid.mapSquare(sq))"
       :class="sqClassName(sq, selected)"
@@ -113,7 +113,6 @@ const marchingSquares = {
       <marching-square :corners="getSquareCorners(fn,sq)" :threshold="threshold" :renderSquareGrid="renderSquareGrid" :renderSquareStrokes="renderSquareStrokes" :size="grid.size" />
     </g>
     <path v-if="!renderSquareStrokes" class="stroke" :d="megacurve" />
-    
   </g>`,
   props: {
     grid: Object,

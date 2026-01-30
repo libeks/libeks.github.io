@@ -42,10 +42,10 @@
           30x15 squares.
         </p>
         <figure id="square-grid-marching" class="full-width">
-          <svg viewBox="0 0 3000 1500" border-box>
+          <svg viewBox="0 0 3000 1500">
             <marching-squares
               :grid="grid"
-              :fn="fn"
+              :fn="functions[fn]"
               :threshold="threshold"
               render-points
               render-square-grid
@@ -53,6 +53,7 @@
           </svg>
           <div class="annotation">
             <div class="row">
+              <div>Threshold:</div>
               <input
                 id="threshold"
                 class="slider"
@@ -64,6 +65,12 @@
                 v-model.number="threshold"
               />
               <label for="threshold">{{threshold}}</label>
+            </div>
+            <div class="row">
+              <div>Function:</div>
+              <select v-model="fn">
+                <option v-for="fun in Object.keys(functions)">{{fun}}</option>
+              </select>
             </div>
           </div>
         </figure>
@@ -79,11 +86,12 @@
           in one megacurve. This saves a lot on DOM-rendering overhead.
         </p>
         <figure id="square-grid-marching-100" class="full-width">
-          <svg viewBox="0 0 3000 1500" border-box>
-            <marching-squares :grid="grid" :fn="fn" :threshold="threshold" />
+          <svg viewBox="0 0 3000 1500" class="border">
+            <marching-squares :grid="grid" :fn="functions[fn]" :threshold="threshold" />
           </svg>
           <div class="annotation">
             <div class="row">
+              <div>Threshold:</div>
               <input
                 id="threshold"
                 class="slider"
@@ -96,8 +104,27 @@
               />
               <label for="threshold">{{threshold}}</label>
             </div>
+            <div class="row">
+              <div>Function:</div>
+              <select v-model="fn">
+                <option v-for="fun in Object.keys(functions)">{{fun}}</option>
+              </select>
+            </div>
           </div>
         </figure>
+      </section>
+      <section>
+        <h2 id="other-resources">
+          <a class="anchor" href="#rother-resources"></a>
+          <span>Other resources</span>
+        </h2>
+        <ul>
+          <li>
+            <a href="https://urbanspr1nter.github.io/marchingsquares/"
+              >Marching Squares by Roger Ngo</a
+            >
+          </li>
+        </ul>
       </section>
     </main>
     <footer>© 2026 Jānis Lībeks</footer>
@@ -113,7 +140,9 @@
         fourTileFactory,
         catalan6,
       } from './triangular-tiles.js'
-      import { marchingSquares } from './marching.js'
+      import { marchingSquares, functions } from './marching.js'
+
+      const initialFunction = 'sinsin'
 
       createApp({
         data() {
@@ -127,14 +156,9 @@
               }),
               100,
             ),
-            fn: function (x, y) {
-              x = (x + 50) / 500
-              y = (y + 50) / 500
-              return Math.sin(x * x) + Math.sin(y * x)
-              // return Math.hypot(x-1500, y-750) - 400
-              // return Math.sqrt((1500-x)*(1500-x) + (750-y)*(750-y)) - 300
-            },
-            threshold: 0.0,
+            functions,
+            fn: initialFunction, // controlled by select
+            threshold: 0.0, // controled by input
           }
         },
         methods: {
@@ -158,16 +182,9 @@
               }),
               10,
             ),
-            fn: function (x, y) {
-              x = (x + 50) / 500
-              y = (y + 50) / 500
-              return Math.sin(x * x) + Math.sin(y * x)
-              // const retval = Math.hypot(1500-x/10, 750-y/10) - 400
-              // const retval = Math.hypot(x-1500*9, y-750*9) - 300*9*3
-              // console.log(x,y, retval)
-              // return retval
-            },
-            threshold: 0.0,
+            functions,
+            fn: initialFunction, // controlled by select
+            threshold: 0.0, // controled by input
           }
         },
         methods: {

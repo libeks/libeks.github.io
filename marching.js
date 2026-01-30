@@ -136,7 +136,7 @@ const marchingSquares = {
     toTransform,
     sqClassName,
     colorFromVal: function (val) {
-      return `fill: hsl(0, 0%, ${100 * ((-val / 2 + 1) / 2)}%)`
+      return `fill: hsl(0, 0%, ${100 * ((val / 2 + 1) / 2)}%)`
     },
   },
   computed: {
@@ -185,4 +185,40 @@ const marchingSquares = {
   components: { marchingSquare },
 }
 
-export { marchingSquares }
+function distance(p1, p2) {
+  return p1.subPt(p2).len()
+}
+
+// functions to render in a 3000x1500px rectangle
+const functions = {
+  sinsin: function (x, y) {
+    x = (x + 50) / 500
+    y = (y + 50) / 500
+    return Math.sin(x * x) + Math.sin(y * x)
+  },
+  sincos: function (x, y) {
+    x = x / 50
+    y = y / 50
+    return Math.sin(x) / Math.cos(y)
+  },
+  sincos2: function (x, y) {
+    x = x / 50
+    y = y / 50
+    return Math.sin(x) * Math.cos(y)
+  },
+  circleDistance: function (x, y) {
+    const center = new Point(1500, 750)
+    const pt = new Point(x, y)
+    return (distance(center, pt) - 500) / 300
+  },
+  circleSin: function (x, y) {
+    const center = new Point(1500, 750)
+    const pt = new Point(x / 10, y / 10)
+    return (
+      (300 * Math.sin(distance(center, pt)) + 400 * Math.sin(x / 500) + 400 * Math.cos(y / 500)) /
+      300
+    )
+  },
+}
+
+export { marchingSquares, functions }

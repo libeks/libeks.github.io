@@ -112,13 +112,16 @@ p {
 figure,
 .sidebar {
   box-sizing: border-box;
-  /*border: 1px solid black;*/
   flex-basis: auto;
   margin: 0;
 
   &.full-width {
     padding-top: 2em;
     /*padding-bottom: 2em;*/
+  }
+
+  svg.border {
+    border: solid 1px hsl(0, 0%, 90%);
   }
 
   &.small {
@@ -165,9 +168,10 @@ table {
 }
 
 div.annotation {
+  padding-top: 0.5em;
   display: flex;
-
-  flex-direction: column;
+  justify-content: center;
+  flex-direction: row;
   align-items: center;
 
   div.row {

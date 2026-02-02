@@ -4,6 +4,14 @@ class StraightStroke {
     this.to = to
   }
 
+  startpoint() {
+    return this.from
+  }
+
+  endpoint() {
+    return this.to
+  }
+
   reverse() {
     // return the stroke in reverse order
     return new StraightStroke(this.to, this.from)
@@ -11,7 +19,6 @@ class StraightStroke {
 
   dContinued() {
     // when rendering a sequence of strokes, skip the MOVE operation
-    // console.log("dContinued", this.from, this.to)
     return `L ${this.to.string()}`
   }
 
@@ -30,6 +37,14 @@ class QuadraticBezier {
     this.from = from
     this.c1 = c1
     this.to = to
+  }
+
+  startpoint() {
+    return this.from
+  }
+
+  endpoint() {
+    return this.to
   }
 
   reverse() {
@@ -59,6 +74,14 @@ class CubicBezier {
     this.to = to
   }
 
+  startpoint() {
+    return this.from
+  }
+
+  endpoint() {
+    return this.to
+  }
+
   reverse() {
     return new CubicBezier(this.to, this.c2, this.c1, this.from)
   }
@@ -83,14 +106,101 @@ class CubicBezier {
   }
 }
 
-// class Stroke {
-//   constructor(d) {
-//     this.d = d;
-//   }
+class CompositeCurve {
+  constructor() {
+    this.curves = []
+  }
 
-//   d() {
-//     return this.d;
-//   }
-// }
+  add(curve) {
+    if (
+      this.curves.length > 0 &&
+      !curve.startpoint().same(this.curves[this.curves.length - 1].endpoint())
+    ) {
+      throw `Adding a new curve that is not continuous`
+    }
+    this.curves.push(curve)
+  }
 
-export { StraightStroke, QuadraticBezier, CubicBezier }
+  startpoint() {
+    if (this.curves.lenght == 0) {
+      return null
+    }
+    return this.curves[0].startpoint()
+  }
+
+  endpoint() {
+    if (this.curves.length == 0) {
+      return null
+    }
+    return this.curves[this.curves.length - 1].endpoint()
+  }
+
+  // return whether the current curve is continuous (except for endpoints)
+  continuous() {
+    if (this.curves.length < 2) {
+      // trivially true, including the empty case
+      return true
+    }
+    for (let i = 1; i < this.curves.length; i++) {
+      if (!this.curves[i - 1].endpoint().same(this.curves[i].startpoint())) {
+        return false
+      }
+    }
+    return true
+  }
+
+  // return whether the curve is closed, i.e. it is continuous and its start and end points are connected
+  closed() {
+    if (!this.continuous()) {
+      return false
+    }
+    return this.startpoint().same(this.endpoint())
+  }
+
+  isEmpty() {
+    return this.curves.length == 0
+  }
+
+  d() {
+    if (this.curves.lenght == 0) {
+      return ''
+    }
+    let components = [this.curves[0].d()]
+    let end = this.curves[0].endpoint()
+    for (let i = 1; i < this.curves.length; i++) {
+      if (this.curves[i - 1].endpoint().same(this.curves[i].startpoint())) {
+        components.push(this.curves[i].dContinued())
+      } else {
+        console.log(
+          'curves are not continuous',
+          this.curves[i - 1].endpoint(),
+          this.curves[i].startpoint(),
+        )
+        components.push(this.curves[i].d())
+      }
+      end = this.curves[i].endpoint()
+    }
+    return components.join(' ')
+  }
+}
+
+class CurveSet {
+  constructor(curves) {
+    this.curves = curves // map from square coordinate to list of curves (line, ends)
+  }
+
+  get(coord, edge) {
+    for (let { curve: line, ends } of this.curves[coord]) {
+      if (ends.includes(edge)) {
+        if (edge === ends[1]) {
+          return [line.reverse(), ends[0]]
+        } else {
+          return [line, ends[1]]
+        }
+      }
+    }
+    return [null, null]
+  }
+}
+
+export { StraightStroke, QuadraticBezier, CubicBezier, CompositeCurve, CurveSet }

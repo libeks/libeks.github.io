@@ -1,3 +1,5 @@
+const THRESHOLD = 0.1
+
 class Point {
   constructor(x, y) {
     this.x = x
@@ -13,8 +15,17 @@ class Point {
     return new Vector(this.x - p.x, this.y - p.y)
   }
 
+  distance(p) {
+    return this.subPt(p).len()
+  }
+
   string() {
     return `${this.x} ${this.y}`
+  }
+
+  // returns true if the two points are close enough, within tolerance
+  same(p) {
+    return this.distance(p) < THRESHOLD
   }
 }
 

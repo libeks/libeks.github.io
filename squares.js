@@ -2,20 +2,72 @@ class SquareGrid {
   constructor({ nX, nY, filter }) {
     this.nX = nX
     this.nY = nY
-    this.squares = []
+    this.squares = {}
     for (let x = 0; x <= nX; x++) {
       for (let y = 0; y <= nY; y++) {
         if (filter && filter(x, y)) {
           // Remove triangles that should be filtered out, to get the right output shape
           continue
         }
-        this.squares.push(new Square(x, y))
+        // this.squares.push(new Square(x, y))
+        this.squares[[x, y]] = new Square(x, y)
       }
     }
   }
 
   getSquares() {
-    return this.squares
+    return Object.values(this.squares)
+  }
+
+  coordInDirection(x, y, edge) {
+    if (edge == 0) {
+      return [[x, y - 1], 2]
+    } else if (edge == 1) {
+      return [[x + 1, y], 3]
+    } else if (edge == 2) {
+      return [[x, y + 1], 0]
+    } else if (edge == 3) {
+      return [[x - 1, y], 1]
+    } else {
+      throw `Unknown direction for square: ${edge}`
+    }
+  }
+
+  // when exiting the square x,y in the direction of edge, which square do we get?
+  squareInDirection(x, y, edge) {
+    ;[[x, y], edge] = this.coordInDirection(x, y, edge)
+    if ([x, y] in this.squares) {
+      return [this.squares[[x, y]], edge]
+    }
+    return [null, null]
+  }
+
+  // return a list of squares and the edges that are on the perimeter
+  *getPerimeterSquaresAndEdges() {
+    // walk North edge left to right
+    for (let x = 0; x < this.nX; x++) {
+      yield [this.squares[[x, 0]], 0]
+    }
+    // walk East edge top down
+    for (let y = 0; y < this.nY; y++) {
+      yield [this.squares[[this.nX - 1, y]], 1]
+    }
+    // walk South edge right to left
+    for (let x = this.nX - 1; x >= 0; x--) {
+      yield [this.squares[[x, this.nY - 1]], 2]
+    }
+    // walk West edge, bottom to top
+    for (let y = this.nY - 1; y >= 0; y--) {
+      yield [this.squares[[0, y]], 3]
+    }
+  }
+
+  *getInternalSquares() {
+    for (let y = 1; y < this.nY - 1; y++) {
+      for (let x = 1; x < this.nX - 1; x++) {
+        yield this.squares[[x, y]]
+      }
+    }
   }
 }
 
@@ -46,7 +98,7 @@ class SquarePositioner {
   }
 
   randomize(options) {
-    for (let sq of this.grid.squares) {
+    for (let sq of this.grid.getSquares()) {
       const r = Math.floor(Math.random() * options.length)
       sq.data = options[r]
     }

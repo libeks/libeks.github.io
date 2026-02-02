@@ -68,7 +68,7 @@
             <svg viewBox="0 0 3000 1500">
               <g class="grid squares">
                 <g
-                  v-for="sq in grid.grid.squares"
+                  v-for="sq in grid.grid.getSquares()"
                   :style="toTransform(grid.mapSquare(sq))"
                   :class="sqClassName(sq, selected)"
                   :data-sq="sq.string()"
@@ -180,7 +180,7 @@
             <svg viewBox="0 0 3000 1500">
               <g class="grid squares">
                 <g
-                  v-for="sq in grid.grid.squares"
+                  v-for="sq in grid.grid.getSquares()"
                   :style="toTransform(grid.mapSquare(sq))"
                   :class="sqClassName(sq, selected)"
                   :data-sq="sq.string()"

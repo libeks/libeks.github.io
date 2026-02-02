@@ -2,11 +2,10 @@ import { toTransform } from './svg-utils.js'
 import { SquareGrid, SquarePositioner, setActiveSquare, sqClassName } from './squares.js'
 import { Point, Vector } from './geometry.js'
 import { reverseInterpolate } from './math.js'
-import { StraightStroke } from './lines.js'
+import { StraightStroke, CompositeCurve, CurveSet } from './lines.js'
 
 function squareCurves(corners, threshold, size) {
   // corners are presented in the order of [NW, NE, SW, SE, saddle]
-  // console.log('squareCurves', corners, threshold)
   let above = corners.map((val) => val > threshold)
   if (above[0] == above[1] && above[1] == above[2] && above[2] == above[3]) {
     // case 1, all corners the same, no stroke to return
@@ -16,19 +15,19 @@ function squareCurves(corners, threshold, size) {
     // case 2, top left (NW) corner is different
     const y = size * reverseInterpolate(corners[0], corners[2], threshold)
     const x = size * reverseInterpolate(corners[0], corners[1], threshold)
-    return [{ curve: new StraightStroke(new Point(0, y), new Point(x, 0)), ends: [0, 3] }]
+    return [{ curve: new StraightStroke(new Point(0, y), new Point(x, 0)), ends: [3, 0] }]
   }
   if (above[0] == above[2] && above[2] == above[3]) {
     // case 3, top right (NE) corner is different
     const y = size * reverseInterpolate(corners[1], corners[3], threshold)
     const x = size * reverseInterpolate(corners[0], corners[1], threshold)
-    return [{ curve: new StraightStroke(new Point(size, y), new Point(x, 0)), ends: [0, 1] }]
+    return [{ curve: new StraightStroke(new Point(size, y), new Point(x, 0)), ends: [1, 0] }]
   }
   if (above[0] == above[1] && above[1] == above[3]) {
     // case 4, bottom left (SW) corner is different
     const y = size * reverseInterpolate(corners[0], corners[2], threshold)
     const x = size * reverseInterpolate(corners[2], corners[3], threshold)
-    return [{ curve: new StraightStroke(new Point(0, y), new Point(x, size)), ends: [2, 3] }]
+    return [{ curve: new StraightStroke(new Point(0, y), new Point(x, size)), ends: [3, 2] }]
   }
   if (above[0] == above[1] && above[1] == above[2]) {
     // case 5, bottom right (SE) corner is different
@@ -40,7 +39,7 @@ function squareCurves(corners, threshold, size) {
     // case 6, horizontal bar
     const y1 = size * reverseInterpolate(corners[0], corners[2], threshold)
     const y2 = size * reverseInterpolate(corners[1], corners[3], threshold)
-    return [{ curve: new StraightStroke(new Point(0, y1), new Point(size, y2)), ends: [1, 3] }]
+    return [{ curve: new StraightStroke(new Point(0, y1), new Point(size, y2)), ends: [3, 1] }]
   }
   if (above[0] == above[2] && above[1] == above[3]) {
     // case 7, vartical bar
@@ -68,7 +67,7 @@ function squareCurves(corners, threshold, size) {
     const y2 = size * reverseInterpolate(corners[1], corners[3], threshold)
     return [
       { curve: new StraightStroke(new Point(x1, 0), new Point(0, y1)), ends: [0, 3] },
-      { curve: new StraightStroke(new Point(x2, size), new Point(size, y2)), ends: [1, 2] },
+      { curve: new StraightStroke(new Point(x2, size), new Point(size, y2)), ends: [2, 1] },
     ]
   }
   throw 'Unexpected case'
@@ -112,12 +111,14 @@ const marchingSquares = {
     >
       <marching-square :corners="getSquareCorners(fn,sq)" :threshold="threshold" :renderSquareGrid="renderSquareGrid" :renderSquareStrokes="renderSquareStrokes" :size="grid.size" />
     </g>
-    <path v-if="!renderSquareStrokes" class="stroke" :d="megacurve" />
+    <path v-if="!renderSquareStrokes && renderMegacurve" class="stroke" :d="megacurve" />
+    <path v-if="!renderSquareStrokes && !renderMegacurve" v-for="curve in componentCurves" class="stroke" :d="curve.d()" />
   </g>`,
   props: {
     grid: Object,
     fn: Function,
     threshold: Number,
+    renderMegacurve: Boolean, // render all components in one path segment, otherwise break them up
     renderPoints: Boolean,
     renderSquareGrid: Boolean, // render the grid lines of the squares
     renderSquareStrokes: Boolean, // render the strokes within each square, otherwise only render the megacurve
@@ -152,7 +153,7 @@ const marchingSquares = {
     },
     curves() {
       let curves = {}
-      for (let sq of this.grid.grid.squares) {
+      for (let sq of this.grid.grid.getSquares()) {
         let corners = [
           this.corners[[sq.x, sq.y]],
           this.corners[[sq.x + 1, sq.y]],
@@ -162,19 +163,66 @@ const marchingSquares = {
         ]
         curves[[sq.x, sq.y]] = squareCurves(corners, this.threshold, this.grid.size)
       }
-      return curves
+      return new CurveSet(curves)
     },
-    megacurve() {
-      let curves = []
-      for (let sq of this.grid.grid.squares) {
-        let lines = this.curves[[sq.x, sq.y]]
-        let vect = new Vector(sq.x * this.grid.size, sq.y * this.grid.size)
-        for (let c of lines) {
-          curves.push(c.curve.move(vect).d())
+    componentCurves() {
+      // keep track of which curves have already been processed
+      let processed = {}
+      let finalCurves = []
+
+      // walk and return a curve staring at sq from direction
+      function walk(sq, edge, grid, curves) {
+        let result = new CompositeCurve()
+        while (true) {
+          if (processed[[sq.x, sq.y, edge]]) {
+            return result
+          }
+          const [curve, otherEdge] = curves.get([sq.x, sq.y], edge)
+          if (curve === null) {
+            return result
+          }
+          const displacementVector = new Vector(sq.x * grid.size, sq.y * grid.size)
+
+          result.add(curve.move(displacementVector))
+          processed[[sq.x, sq.y, edge]] = true
+          processed[[sq.x, sq.y, otherEdge]] = true
+          let [nextSq, nextEdge] = grid.grid.squareInDirection(sq.x, sq.y, otherEdge)
+          sq = nextSq
+          edge = nextEdge
+          if (sq === null) {
+            return result
+          }
         }
       }
-      // console.log("megacurve", curves);
-      return curves.join(' ')
+      for (let [sq, edge] of this.grid.grid.getPerimeterSquaresAndEdges()) {
+        const curve = walk(sq, edge, this.grid, this.curves)
+        if (!curve.isEmpty()) {
+          finalCurves.push(curve)
+        }
+      }
+      for (let sq of this.grid.grid.getInternalSquares()) {
+        for (const edge of [0, 1, 2, 3]) {
+          const curve = walk(sq, edge, this.grid, this.curves)
+          if (!curve.isEmpty()) {
+            finalCurves.push(curve)
+          }
+        }
+      }
+      console.log('finalCurves', finalCurves)
+      return finalCurves
+    },
+    megacurve() {
+      let curves = new CompositeCurve()
+      for (let sq of this.grid.grid.getSquares()) {
+        let lines = this.curves[[sq.x, sq.y]]
+        let vect = new Vector(sq.x * this.grid.size, sq.y * this.grid.size) // translation vector for this square
+        for (let c of lines) {
+          curves.add(c.curve.move(vect))
+        }
+      }
+      // const a = this.componentCurves
+      console.log('megacurve', curves)
+      return curves.d()
     },
   },
   data() {
@@ -183,10 +231,6 @@ const marchingSquares = {
     }
   },
   components: { marchingSquare },
-}
-
-function distance(p1, p2) {
-  return p1.subPt(p2).len()
 }
 
 // functions to render in a 3000x1500px rectangle
@@ -209,13 +253,13 @@ const functions = {
   circleDistance: function (x, y) {
     const center = new Point(1500, 750)
     const pt = new Point(x, y)
-    return (distance(center, pt) - 500) / 300
+    return (center.distance(pt) - 500) / 300
   },
   circleSin: function (x, y) {
     const center = new Point(1500, 750)
     const pt = new Point(x / 10, y / 10)
     return (
-      (300 * Math.sin(distance(center, pt)) + 400 * Math.sin(x / 500) + 400 * Math.cos(y / 500)) /
+      (300 * Math.sin(center.distance(pt)) + 400 * Math.sin(x / 500) + 400 * Math.cos(y / 500)) /
       300
     )
   },

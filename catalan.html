@@ -33,11 +33,11 @@
         </h2>
         <p>
           Let's start with what to me seems like the easiest example. I give you
-          <math>n</math> opening and closing parentheses. You have to come up with all strings of
-          these parentheses which are perfectly balanced. More precisely, each closing parenthesis
-          has to have a corresponding opening parenthesis earlier in the sequence. Obviously, we
-          have to start with an opening parenthesis, and end with a closing parenthesis. But what
-          happens in the middle?
+          <math><mn>n</mn></math> opening and closing parentheses. You have to come up with all
+          strings of these parentheses which are perfectly balanced. More precisely, each closing
+          parenthesis has to have a corresponding opening parenthesis earlier in the sequence.
+          Obviously, we have to start with an opening parenthesis, and end with a closing
+          parenthesis. But what happens in the middle?
         </p>
         <p>
           As it turns out, this is our first Catalan structure. For one pair, we have the trivial
@@ -64,8 +64,8 @@
           string of balanced parentheses is trivially "", we now have a method to generate all of
           the possible strings. We recognize that the formula already uses one pair of parentheses,
           so we need to loop over the possible lengths of a<sub>1</sub>, and then substitute in all
-          of the valid strings for a<sub>2</sub>. Thus, if we have <math>n</math> parentheses, then
-          a<sub>1</sub>
+          of the valid strings for a<sub>2</sub>. Thus, if we have
+          <math><mn>n</mn></math> parentheses, then a<sub>1</sub>
           can contain
           <math class="nowrap">
             <mi>i</mi><mo>=</mo><mn>0</mn> <mo>&hellip;</mo> <mo>(</mo><mi>n</mi><mo>-</mo><mn>1</mn

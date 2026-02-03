@@ -284,9 +284,14 @@
         </div>
         <p>
           An obvious observation is that while x- and y- coordinates can vary over all integers
-          <math>ℤ</math>, the R-value can only be chosen from the set
-          <math>{<mn>0</mn>,<mn>1</mn>}</math>. So we have produced a coordinate system that spans
-          <math>ℤ⨯ℤ⨯{<mn>0</mn>,<mn>1</mn>}</math>.
+          <math><mi>ℤ</mi></math
+          >, the R-value can only be chosen from the set
+          <math><mo>{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>}</mo></math
+          >. So we have produced a coordinate system that spans
+          <math
+            ><mi>ℤ</mi><mo>⨯</mo><mi>ℤ</mi><mo>⨯</mo><mo>{</mo><mn>0</mn><mo>,</mo><mn>1</mn
+            ><mo>}</mo></math
+          >.
         </p>
         <div class="flex-container">
           <div>
@@ -427,9 +432,9 @@
           a catch. We can't just loop over all x-, y-, and z- values to get the resulting grid,
           since not all combinations of these values produce a valid triangle coordinate. Just like
           with the xyR coordinates above, we don't really have a full
-          <math
-            ><msup> <mi>ℤ</mi> <mn>3</mn> </msup></math
-          >
+          <math>
+            <msup><mi>ℤ</mi> <mn>3</mn></msup>
+          </math>
           space; the dimensions have to have a constraint.
         </p>
         <div class="flex-container">
@@ -445,19 +450,27 @@
               What becomes apparent is that when moving one step away from an upwards-pointing
               triangle, we change one of the coordinates by one. The x-coordinate decreases by one,
               while the y- and z- coordinates increase by one. So the value
-              <math>-x+y+z</math> increases by one.
+              <math><mo>-</mo><mi>x</mi><mo>+</mo><mi>y</mi><mo>+</mo><mi>z</mi></math> increases by
+              one.
             </p>
             <p>
               In the other case, for the downwards pointing triangle, the math is flipped. We,
               again, change one coordinate. This time the x-coordinate increases, whereas the y- and
-              z- coordinates decrease, so the value of <math>-x+y+z</math> decreases by one.
+              z- coordinates decrease, so the value of
+              <math><mo>-</mo><mi>x</mi><mo>+</mo><mi>y</mi><mo>+</mo><mi>z</mi></math> decreases by
+              one.
             </p>
             <p>
               Another critical observation is that moving across the grid, we keep alternating
               between upwards- and downwards-pointing triangles. So the value of
-              <math>-x+y+z</math> keeps flipping back and forth by one value. Consequently, that is
-              our constraint; the value of <math>-x+y+z</math> is restricted to only two values — 0
-              or 1. So we have that <math>-x+y+z∈{0,1}</math>.
+              <math><mo>-</mo><mi>x</mi><mo>+</mo><mi>y</mi><mo>+</mo><mi>z</mi></math> keeps
+              flipping back and forth by one value. Consequently, that is our constraint; the value
+              of <math><mo>-</mo><mi>x</mi><mo>+</mo><mi>y</mi><mo>+</mo><mi>z</mi></math> is
+              restricted to only two values — 0 or 1. So we have that
+              <math
+                ><mo>-</mo><mi>x</mi><mo>+</mo><mi>y</mi><mo>+</mo><mi>z</mi><mo>∈</mo><mo>{</mo
+                ><mn>0</mn><mo>,</mo><mn>1</mn><mo>}</mo></math
+              >.
             </p>
           </div>
           <figure class="smaller" style="width: var(--small-diagram-width)">
@@ -644,9 +657,16 @@
             triangles (defined as the minimum number of edges one needs to cross) is trivial in the
             xyz system. We merely need to count how many times each coordinate has changed. In other
             words,
-            <math
-              >distance(t<sub>1</sub>,t<sub>2</sub>) := |t<sub>1</sub>.x - t<sub>2</sub>.x| +
-              |t<sub>1</sub>.y - t<sub>2</sub>.y| + |t<sub>1</sub>.z - t<sub>2</sub>.z|</math
+            <math>
+              <mo>distance</mo><mo>(</mo><msub><mi>t</mi> <mn>1</mn></msub
+              ><mo>,</mo><msub><mi>t</mi><mn>2</mn></msub
+              ><mo>)</mo> <mo>:=</mo> <mo>|</mo><msub><mi>t</mi> <mn>1</mn></msub
+              ><mo>.</mo><mi>x</mi> <mo>-</mo> <msub><mi>t</mi><mn>2</mn></msub
+              ><mo>.</mo><mi>x</mi><mo>|</mo> <mo>+</mo> <mo>|</mo><msub><mi>t</mi><mn>1</mn></msub
+              ><mo>.</mo><mi>y</mi> <mo>-</mo> <msub><mi>t</mi><mn>2</mn></msub
+              ><mo>.</mo><mi>y</mi><mo>|</mo> <mo>+</mo> <mo>|</mo><msub><mi>t</mi><mn>1</mn></msub
+              ><mo>.</mo><mi>z</mi> <mo>-</mo> <msub><mi>t</mi><mn>2</mn></msub
+              ><mo>.</mo><mi>z</mi><mo>|</mo> </math
             >.
           </p>
           <figure id="triangle-grid-distance" class="small">
@@ -760,14 +780,29 @@
             conversion is not very pretty looking. Not pretty at all!
           </p>
           <div class="sidebar small">
-            <math class="block"
-              >(x, y, R) := (&lfloor;<mfrac><mn>b+y</mn> 2</mfrac>&rfloor;, y, (b+y) mod 2)</math
-            >
-            <math class="block"
-              >(x, y, z) := (&lfloor;<mfrac><mn>b+y</mn> 2</mfrac>&rfloor;, y, &lfloor;<mfrac>
-                <mn>b+y</mn> 2</mfrac
-              >&rfloor; -y + (b+y) mod 2)</math
-            >
+            <div class="block">
+              <math>
+                <mo>(</mo><mi>x</mi><mo>,</mo> <mi>y</mi><mo>,</mo> <mi>R</mi><mo>)</mo> <mo>:=</mo>
+                <mo>(</mo><mo>&lfloor;</mo
+                ><mfrac
+                  ><mrow><mi>b</mi><mo>+</mo><mi>y</mi></mrow> <mn>2</mn></mfrac
+                ><mo>&rfloor;</mo><mo>,</mo> <mi>y</mi><mo>,</mo> <mo>(</mo><mi>b</mi><mo>+</mo
+                ><mi>y</mi><mo>)</mo> <mo>%</mo> <mn>2</mn><mo>)</mo>
+              </math>
+            </div>
+            <div class="block">
+              <math>
+                <mo>(</mo><mi>x</mi><mo>,</mo> <mi>y</mi><mo>,</mo> <mi>z</mi><mo>)</mo> <mo>:=</mo>
+                <mo>(</mo><mo>&lfloor;</mo
+                ><mfrac
+                  ><mrow><mi>b</mi><mo>+</mo><mi>y</mi></mrow> <mn>2</mn></mfrac
+                ><mo>&rfloor;</mo><mo>,</mo> <mi>y</mi><mo>,</mo> <mo>&lfloor;</mo
+                ><mfrac>
+                  <mrow><mi>b</mi><mo>+</mo><mi>y</mi></mrow> <mn>2</mn></mfrac
+                ><mo>&rfloor;</mo> <mo>-</mo><mi>y</mi> <mo>+</mo> <mo>(</mo><mi>b</mi><mo>+</mo
+                ><mi>y</mi><mo>)</mo> <mo>%</mo> <mn>2</mn><mo>)</mo>
+              </math>
+            </div>
           </div>
         </div>
         <div class="flex-container">
@@ -896,35 +931,151 @@
                 <td>to xyR</td>
                 <td class="empty"></td>
                 <td>
-                  <math
-                    ><mo>(</mo><mi>x</mi><mo>,</mo> <mi>y</mi><mo>,</mo> <mi>R</mi><mo>)</mo>
-                    <mo>:=</mo> <mo>(</mo><mi>x</mi><mo>,</mo> <mi>y</mi><mo>,</mo> <mi>z</mi
-                    ><mo>-</mo><mi>x</mi><mo>+</mo><mi>y</mi><mo>)</mo></math
-                  >
+                  <math>
+                    <mtable>
+                      <mtr>
+                        <mtd><mi>x</mi></mtd>
+                        <mtd><mo>=</mo></mtd>
+                        <mtd><mi>x</mi></mtd>
+                      </mtr>
+                      <mtr>
+                        <mtd><mi>y</mi></mtd>
+                        <mtd><mo>=</mo></mtd>
+                        <mtd><mi>y</mi></mtd>
+                      </mtr>
+                      <mtr>
+                        <mtd><mi>R</mi></mtd>
+                        <mtd><mo>=</mo></mtd>
+                        <mtd><mi>z</mi><mo>-</mo><mi>x</mi><mo>+</mo><mi>y</mi></mtd>
+                      </mtr>
+                    </mtable>
+                  </math>
                 </td>
                 <td>
-                  <math
-                    >(x, y, R) := (&lfloor;<mfrac><mn>b+y</mn> 2</mfrac>&rfloor;, y, (b+y) mod
-                    2)</math
-                  >
+                  <math>
+                    <mtable>
+                      <mtr>
+                        <mtd><mi>x</mi></mtd>
+                        <mtd><mo>=</mo></mtd>
+                        <mtd
+                          ><mo>&lfloor;</mo
+                          ><mfrac
+                            ><mrow><mi>b</mi><mo>+</mo><mi>y</mi></mrow> <mn>2</mn></mfrac
+                          ><mo>&rfloor;</mo></mtd
+                        >
+                      </mtr>
+                      <mtr>
+                        <mtd><mi>y</mi></mtd>
+                        <mtd><mo>=</mo></mtd>
+                        <mtd><mi>y</mi></mtd>
+                      </mtr>
+                      <mtr>
+                        <mtd><mi>R</mi></mtd>
+                        <mtd><mo>=</mo></mtd>
+                        <mtd
+                          ><mo>(</mo><mi>b</mi><mo>+</mo><mi>y</mi><mo>)</mo> <mo>%</mo>
+                          <mn>2</mn></mtd
+                        >
+                      </mtr>
+                    </mtable>
+                  </math>
                 </td>
               </tr>
               <tr>
                 <td>to xyz</td>
-                <td><math>(x, y, z) := (x, y, x-y+R)</math></td>
+                <td>
+                  <math>
+                    <mtable>
+                      <mtr>
+                        <mtd><mi>x</mi></mtd>
+                        <mtd><mo>=</mo></mtd>
+                        <mtd><mi>x</mi></mtd>
+                      </mtr>
+                      <mtr>
+                        <mtd><mi>y</mi></mtd>
+                        <mtd><mo>=</mo></mtd>
+                        <mtd><mi>y</mi></mtd>
+                      </mtr>
+                      <mtr>
+                        <mtd><mi>z</mi></mtd>
+                        <mtd><mo>=</mo></mtd>
+                        <mtd><mi>x</mi><mo>-</mo><mi>y</mi><mo>+</mo><mi>R</mi></mtd>
+                      </mtr>
+                    </mtable>
+                  </math>
+                </td>
+
                 <td class="empty"></td>
                 <td>
-                  <math
-                    >(x, y, z) := (&lfloor;<mfrac><mn>b+y</mn> 2</mfrac>&rfloor;, y, &lfloor;<mfrac
-                      ><mn>b+y</mn> 2</mfrac
-                    >&rfloor; -y + (b+y) mod 2)</math
-                  >
+                  <math>
+                    <mtable>
+                      <mtr>
+                        <mtd><mi>x</mi></mtd>
+                        <mtd><mo>=</mo></mtd>
+                        <mtd
+                          ><mo>&lfloor;</mo
+                          ><mfrac
+                            ><mrow><mi>b</mi><mo>+</mo><mi>y</mi></mrow> <mn>2</mn></mfrac
+                          ><mo>&rfloor;</mo></mtd
+                        >
+                      </mtr>
+                      <mtr>
+                        <mtd><mi>y</mi></mtd>
+                        <mtd><mo>=</mo></mtd>
+                        <mtd><mi>y</mi></mtd>
+                      </mtr>
+                      <mtr>
+                        <mtd><mi>z</mi></mtd>
+                        <mtd><mo>=</mo></mtd>
+                        <mtd
+                          ><mo>&lfloor;</mo
+                          ><mfrac
+                            ><mrow><mi>b</mi><mo>+</mo><mi>y</mi></mrow> <mn>2</mn></mfrac
+                          ><mo>&rfloor;</mo><mo>-</mo><mi>y</mi><mo>+</mo><mo>(</mo><mi>b</mi
+                          ><mo>+</mo><mi>y</mi><mo>)</mo><mo>%</mo><mn>2</mn></mtd
+                        >
+                      </mtr>
+                    </mtable>
+                  </math>
                 </td>
               </tr>
               <tr>
                 <td>to yb</td>
-                <td><math>(y, b) := (y, 2x-y+R)</math></td>
-                <td><math>(y, b) := (y, x+z)</math></td>
+                <td>
+                  <math>
+                    <mtable>
+                      <mtr>
+                        <mtd><mi>y</mi></mtd>
+                        <mtd><mo>=</mo></mtd>
+                        <mtd><mi>y</mi></mtd>
+                      </mtr>
+                      <mtr>
+                        <mtd><mi>b</mi></mtd>
+                        <mtd><mo>=</mo></mtd>
+                        <mtd
+                          ><mn>2</mn><mo>&#x2062;</mo><mi>x</mi><mo>-</mo><mi>y</mi><mo>+</mo
+                          ><mi>R</mi></mtd
+                        >
+                      </mtr>
+                    </mtable>
+                  </math>
+                </td>
+                <td>
+                  <math>
+                    <mtable>
+                      <mtr>
+                        <mtd><mi>y</mi></mtd>
+                        <mtd><mo>=</mo></mtd>
+                        <mtd><mi>y</mi></mtd>
+                      </mtr>
+                      <mtr>
+                        <mtd><mi>b</mi></mtd>
+                        <mtd><mo>=</mo></mtd>
+                        <mtd><mi>x</mi><mo>+</mo><mi>z</mi></mtd>
+                      </mtr>
+                    </mtable>
+                  </math>
+                </td>
                 <td class="empty"></td>
               </tr>
             </tbody>

@@ -439,8 +439,10 @@
               such tiles actually turns out to be equal to the
               <a href="https://en.wikipedia.org/wiki/Catalan_number">Catalan number</a>
               <math
-                >C<sub><mn>3</mn></sub
-                >=<mn>5</mn></math
+                ><mrow
+                  ><msub><mi>C</mi><mn>3</mn></msub
+                  ><mo>=</mo><mn>5</mn></mrow
+                > </math
               >. One way to think of this as a Catalan expression is to imagine a sequence of
               balance parentheses. If we number the edges clockwise from the top left, starting with
               1, then one way to represent the first tile on the right is as '12,34,56', or as
@@ -578,9 +580,12 @@
             <p>
               For this, it might be helpful to talk about the measurements of the triangle. I've
               decided that it would be best to handle a triangle that has side length of 100 units.
-              The height of the triangle is then <math>50<msqrt>3</msqrt> = 86.6</math>. I divide
-              each edge into three equal parts of length <math>33.3</math>. The midpoint of the
-              triangle is of course
+              The height of the triangle is then
+              <math
+                ><mn>50</mn><mo>&#x2062;</mo><msqrt><mn>3</mn></msqrt> <mo>=</mo>
+                <mn>86.6</mn></math
+              >. I divide each edge into three equal parts of length <math><mn>33.3</mn></math
+              >. The midpoint of the triangle is of course
               <math
                 ><mfrac><mn>1</mn> <mn>3</mn></mfrac></math
               >
@@ -754,11 +759,11 @@
               We of course don't need to restrict ourselves to non-intersecting segments. We can
               start by naively letting them cross all over the place. The number of such unique
               tiles would be
-              <math><mn>5</mn> · <mn>3</mn>= 15</math> tiles. For your intution, you can think about
-              how notch "1" can be connected to any of the 5 remaining notches. This leaves 4
-              notches not connected. Take the lowest number one, and you can choose between three
-              other notches to connect it to. That leaves two notches which have to be connected, so
-              there is no choice.
+              <math><mn>5</mn> <mo>·</mo> <mn>3</mn><mo>=</mo> <mn>15</mn></math> tiles. For your
+              intution, you can think about how notch "1" can be connected to any of the 5 remaining
+              notches. This leaves 4 notches not connected. Take the lowest number one, and you can
+              choose between three other notches to connect it to. That leaves two notches which
+              have to be connected, so there is no choice.
             </p>
             <figure class="float-right small">
               <svg viewBox="0 0 150 120">
@@ -1241,9 +1246,14 @@
           </figure>
         </div>
         <p>
-          I know that I will have <math>C<sub>6</sub>=132</math> tiles. I generate all them using a
-          simple algorithm, and you can see them all below. For brevity, I've ommitted the dash
-          between pairs of letters. I also use the characters 'A' - 'C' for values 10 through 12.
+          I know that I will have
+          <math
+            ><msub><mi>C</mi><mn>6</mn></msub
+            ><mo>=</mo><mn>132</mn></math
+          >
+          tiles. I generate all them using a simple algorithm, and you can see them all below. For
+          brevity, I've ommitted the dash between pairs of letters. I also use the characters 'A' -
+          'C' for values 10 through 12.
         </p>
         <figure id="triangle-grid-132-tiles" class="full-width">
           <svg viewBox="0 0 1200 1200">

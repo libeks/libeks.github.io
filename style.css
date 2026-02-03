@@ -79,6 +79,16 @@ div.flex-container {
   flex-direction: row;
 }
 
+div.flex-block {
+  display: flex;
+  gap: 2em;
+  flex-direction: row;
+
+  &.flex-center {
+    justify-content: center;
+  }
+}
+
 div.center {
   display: flex;
   justify-content: center;
@@ -142,9 +152,15 @@ figure,
   display: block;
 }
 
+math {
+  /*font-family: "Noto Sans Math", sans-serif;*/
+  font-family: 'Libertinus Math', system-ui;
+}
+
 table {
   border-collapse: collapse;
   border: 2px solid rgb(140 140 140);
+  border-spacing: 1px;
 
   caption {
     caption-side: bottom;
@@ -159,7 +175,7 @@ table {
   th,
   td {
     border: 1px solid rgb(160 160 160);
-    padding: 5px;
+    padding: 5px 10px;
   }
 
   td.empty {
@@ -189,4 +205,8 @@ div.annotation {
     width: 5em;
     margin: 2px;
   }
+}
+
+.nowrap {
+  white-space: nowrap;
 }

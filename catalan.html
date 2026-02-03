@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Catalan Structures</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="style.css" rel="stylesheet" />
+    <link href="catalan.css" rel="stylesheet" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Libertinus+Math&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <header>
+      <h1>Catalan Structures</h1>
+      <div class="subhead"><a href="index.html">Home</a></div>
+    </header>
+    <main>
+      <section>
+        <p>
+          I learned about the Catalan Numbers in college, and they seem to come up again and again.
+          So let's jump into them.
+        </p>
+      </section>
+      <section>
+        <h2 id="balanced-parentheses">
+          <a class="anchor" href="#balanced-parentheses"></a>
+          <span>Balanced Parentheses</span>
+        </h2>
+        <p>
+          Let's start with what to me seems like the easiest example. I give you
+          <math>n</math> opening and closing parentheses. You have to come up with all strings of
+          these parentheses which are perfectly balanced. More precisely, each closing parenthesis
+          has to have a corresponding opening parenthesis earlier in the sequence. Obviously, we
+          have to start with an opening parenthesis, and end with a closing parenthesis. But what
+          happens in the middle?
+        </p>
+        <p>
+          As it turns out, this is our first Catalan structure. For one pair, we have the trivial
+          string "()". For two, we can do either "()()" or "(())". For three, it starts to get more
+          interesting. Here they are:
+        </p>
+        <div class="flex-block flex-center">
+          <div class="catalan-parentheses">()()()</div>
+          <div class="catalan-parentheses">()(())</div>
+          <div class="catalan-parentheses">(())()</div>
+          <div class="catalan-parentheses">((()))</div>
+          <div class="catalan-parentheses">(()())</div>
+        </div>
+      </section>
+      <section>
+        <h2 id="catalan-numbers">
+          <a class="anchor" href="#catalan-numbers"></a>
+          <span>Catalan Numbers</span>
+        </h2>
+        <p>
+          In general, each string of nested parentheses above can be expressed uniquely with the
+          formula "(a<sub>1</sub>)a<sub>2</sub>", where both a<sub>1</sub> and a<sub>2</sub> are
+          valid nested parentheses themselves, possibly of length 0. Knowing that the zero-length
+          string of balanced parentheses is trivially "", we now have a method to generate all of
+          the possible strings. We recognize that the formula already uses one pair of parentheses,
+          so we need to loop over the possible lengths of a<sub>1</sub>, and then substitute in all
+          of the valid strings for a<sub>2</sub>. Thus, if we have <math>n</math> parentheses, then
+          a<sub>1</sub>
+          can contain
+          <math class="nowrap">
+            <mi>i</mi><mo>=</mo><mn>0</mn> <mo>&hellip;</mo> <mo>(</mo><mi>n</mi><mo>-</mo><mn>1</mn
+            ><mo>)</mo>
+          </math>
+          pairs of parentheses; and then a<sub>2</sub> will use
+          <math><mi>j</mi><mo>=</mo><mi>n</mi><mo>-</mo><mi>i</mi></math> parentheses.
+        </p>
+        <p>
+          This also leads us to a recursive expression for the Catalan number
+          <math class="nowrap"
+            ><msub><mi>C</mi> <mi>n</mi></msub></math
+          >. We know that
+          <math
+            ><msub><mi>C</mi> <mn>0</mn></msub
+            ><mo>=</mo><msub><mi>C</mi> <mn>1</mn></msub
+            ><mo>=</mo><mn>1</mn></math
+          >, and we have the recurrence
+          <math class="nowrap">
+            <mrow>
+              <msub><mi>C</mi> <mi>n</mi></msub>
+              <mo>=</mo>
+              <munderover>
+                <mo>∑</mo>
+                <mrow><mi>i</mi><mo>=</mo><mn>0</mn></mrow>
+                <mrow><mi>n</mi><mo>-</mo><mn>1</mn></mrow>
+              </munderover>
+              <msub
+                ><mi>C</mi> <mrow><mi>i</mi></mrow></msub
+              >
+              <msub
+                ><mi>C</mi> <mrow><mi>n</mi><mo>-</mo><mi>i</mi><mo>-</mo><mn>1</mn></mrow></msub
+              >
+            </mrow> </math
+          >. This produces this table of Catalan numbers:
+        </p>
+        <div class="flex-block flex-center">
+          <table id="catalan-numbers-table">
+            <thead>
+              <th scope="col">
+                <math><mi>n</mi></math>
+              </th>
+              <th scope="col">
+                <math
+                  ><msub><mi>C</mi> <mi>n</mi></msub></math
+                >
+              </th>
+            </thead>
+            <tbody>
+              <tr v-for="n in [0,1,2,3,4,5,6,7,8,9,10]">
+                <td>{{n}}</td>
+                <td style="text-align: right">{{catalanNumber(n)}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section>
+        <h2 id="circle-chords">
+          <a class="anchor" href="#circle-chords"></a>
+          <span>Circle Chords</span>
+        </h2>
+        <p>Suppose we have a circle with <math>2n</math></p>
+      </section>
+    </main>
+    <footer>© 2026 Jānis Lībeks</footer>
+    <script type="module">
+      const { createApp, ref, defineComponent } = Vue
+      import { catalanNumber } from './catalan.js'
+
+      createApp({
+        // data() {
+        //   return {}
+        // },
+        methods: {
+          catalanNumber,
+        },
+      }).mount('#catalan-numbers-table')
+    </script>
+  </body>
+</html>

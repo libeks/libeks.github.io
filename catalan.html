@@ -128,7 +128,10 @@
           <a class="anchor" href="#circle-chords"></a>
           <span>Circle Chords</span>
         </h2>
-        <p>Suppose we have a circle with <math>2n</math></p>
+        <div class="flex-container">
+        <p>Suppose we have a circle with <math><mn>2</mn><mi>n</mi></math> points, spaced equally around that circle. We want to connect these points in pairs with chords, without them intersecting. How do we enumerate all of the possibilities? Yet again, the Catalan Numbers are relevant, and this becomes our second Catalan Structure.</p>
+        
+      </div>
       </section>
     </main>
     <footer>© 2026 Jānis Lībeks</footer>
@@ -137,9 +140,6 @@
       import { catalanNumber } from './catalan.js'
 
       createApp({
-        // data() {
-        //   return {}
-        // },
         methods: {
           catalanNumber,
         },

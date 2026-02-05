@@ -1318,8 +1318,8 @@
 
     <script type="module">
       const { createApp, ref, defineComponent } = Vue
-      import { TriangleGrid, TrianglePositioner, triSimpleClassName } from './triangles.js'
-      import { SquareGrid, SquarePositioner, setActiveSquare, sqClassName } from './squares.js'
+      import { TriangleGrid, TrianglePositioner, triSimpleClassName } from './js/triangles.js'
+      import { SquareGrid, SquarePositioner, setActiveSquare, sqClassName } from './js/squares.js'
       // import { Truchet, truchetTriangle } from './truchet.js'
       import {
         tilesetTri5,
@@ -1328,9 +1328,9 @@
         fourCurveFactory,
         fourTileFactory,
         catalan6,
-      } from './triangular-tiles.js'
+      } from './js/triangular-tiles.js'
 
-      import { toTransform } from './svg-utils.js'
+      import { toTransform } from './js/svg-utils.js'
 
       createApp({
         data() {

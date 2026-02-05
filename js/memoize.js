@@ -12,3 +12,5 @@ function memoize(func) {
     return cache[strKey]
   }
 }
+
+export {memoize}

@@ -1,4 +1,4 @@
-import { generateCatalanNumberSet } from './catalan.js'
+import { generateCatalanNumberSet, hexConversion, getNotchNumber } from './catalan.js'
 
 const triangleSide = 100
 const height = (Math.sqrt(3) * triangleSide) / 2 // 86.6
@@ -65,14 +65,6 @@ function midpoint(p1, p2) {
 
 function printPt(pt) {
   return `${pt.x} ${pt.y}`
-}
-
-// given a notch character, give its numeric value
-function getNotchNumber(a) {
-  if (!isNaN(a)) {
-    return Number(a) // ensure the result is always a number
-  }
-  return a.charCodeAt() - 65 + 10
 }
 
 function getNotchType(a) {
@@ -342,13 +334,6 @@ let tilesetTri15 = (function () {
   }
   return retObj
 })()
-
-function hexConversion(char) {
-  if (char < 10) {
-    return char
-  }
-  return String.fromCharCode(65 + (char - 10))
-}
 
 function arrayOfArrayToArrayOfStrings(a) {
   return a.map((entry) => entry.join(''))

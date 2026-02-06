@@ -15,7 +15,7 @@ function catNum(n) {
 const catalanNumber = memoize(catNum)
 
 // Return a balanced-parenthesis representation of the Catalan Structure Cn with index i
-const generateIterativeCatalanExpensive = function (n, i) {
+const generateIterativeCatalanParenthesisExpensive = function (n, i) {
   // console.log("iterative", n, i)
   if (n == 0) {
     return ''
@@ -34,7 +34,7 @@ const generateIterativeCatalanExpensive = function (n, i) {
     let ca2 = catalanNumber(a2)
     for (let j = 0; j < ca1; j++) {
       if (i < ca2) {
-        const result = `(${generateIterativeCatalan(a1, j)})${generateIterativeCatalan(a2, i)}`
+        const result = `(${generateIterativeCatalanParentheses(a1, j)})${generateIterativeCatalanParentheses(a2, i)}`
         return result
       }
       i -= ca2
@@ -43,7 +43,7 @@ const generateIterativeCatalanExpensive = function (n, i) {
   return 'unknown'
 }
 
-const generateIterativeCatalan = memoize(generateIterativeCatalanExpensive)
+const generateIterativeCatalanParentheses = memoize(generateIterativeCatalanParenthesisExpensive)
 
 function generateCatalanParenthesisSet(n) {
   if (n == 0) {
@@ -66,8 +66,26 @@ function generateCatalanParenthesisSet(n) {
   return retList
 }
 
+function generateIterativeCatalanNumerical(n, i) {
+  const paren = generateIterativeCatalanParentheses(n, i)
+  console.log(paren)
+  const num = parenthesesToNumerical(paren)
+  console.log(num)
+  const arrst = arrayToNumStrings(num)
+  console.log(arrst)
+  return arrst
+}
+
 function offsetArrayVals(a, val) {
   return a.map((v) => v + val)
+}
+
+// given a notch character, give its numeric value
+function getNotchNumber(a) {
+  if (!isNaN(a)) {
+    return Number(a) // ensure the result is always a number
+  }
+  return a.charCodeAt() - 65 + 10
 }
 
 function hexConversion(char) {
@@ -117,20 +135,28 @@ function generateCatalanNumberSet(n) {
     let right = generateCatalanNumberSet(n - i - 1)
     for (let [leftID, l] of left.entries()) {
       for (let [rightID, r] of right.entries()) {
-        const gen = generateIterativeCatalan(n, retList.length)
-        console.log(
-          'generative',
-          gen,
-          parenthesesToNumerical(gen),
-          arrayToNumStrings(parenthesesToNumerical(gen)),
-        )
+        // const gen = generateIterativeCatalan(n, retList.length)
+        // console.log(
+        //   'generative',
+        //   gen,
+        //   parenthesesToNumerical(gen),
+        //   arrayToNumStrings(parenthesesToNumerical(gen)),
+        // )
         const val = [1, l.length + 2, ...offsetArrayVals(l, 1), ...offsetArrayVals(r, l.length + 2)]
         retList.push(val)
-        // console.log("iterative", val)
       }
     }
   }
   return retList
 }
 
-export { catalanNumber, generateCatalanNumberSet }
+export {
+  catalanNumber,
+  generateCatalanNumberSet,
+  generateCatalanParenthesisSet,
+  generateIterativeCatalanParentheses,
+  generateIterativeCatalanNumerical,
+  parenthesesToNumerical,
+  hexConversion,
+  getNotchNumber,
+}

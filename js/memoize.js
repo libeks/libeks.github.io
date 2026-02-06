@@ -13,4 +13,4 @@ function memoize(func) {
   }
 }
 
-export {memoize}
+export { memoize }

@@ -51,6 +51,19 @@
           <div class="catalan-parentheses">((()))</div>
           <div class="catalan-parentheses">(()())</div>
         </div>
+        <p>For four pairs of parentheses, we get the following set of 14:</p>
+        <div id="c4-parenthesis-exhaustive" class="flex-block flex-center">
+          <div v-for="s in generateCatalanParenthesisSet(4)" class="catalan-parentheses">
+            {{s.join('')}}
+          </div>
+        </div>
+        <p>
+          In general, let's set up this little applet which cycles through the 16796 possible
+          parentheses of length 20 (so 10 left- and 10 right-parentheses)
+        </p>
+        <div id="parentheses-10-counter" class="flex-block flex-center">
+          <div class="catalan-parentheses">{{generateIterativeCatalanParentheses(10, i)}}</div>
+        </div>
       </section>
       <section>
         <h2 id="catalan-numbers">
@@ -129,25 +142,198 @@
           <span>Circle Chords</span>
         </h2>
         <div class="flex-container">
-          <p>
-            Suppose we have a circle with <math><mn>2</mn><mi>n</mi></math> points, spaced equally
-            around that circle. We want to connect these points in pairs with chords, without them
-            intersecting. How do we enumerate all of the possibilities? Yet again, the Catalan
-            Numbers are relevant, and this becomes our second Catalan Structure.
-          </p>
+          <div>
+            <p>
+              Suppose we have a circle with <math><mn>2</mn><mi>n</mi></math> points, spaced equally
+              around that circle. We want to connect these points in pairs with chords, without them
+              intersecting. How do we enumerate all of the possibilities? Yet again, the Catalan
+              Numbers are relevant, and this becomes our second Catalan Structure.
+            </p>
+            <p>
+              We can trivially translate from the parenthesis representation to another, equivalent
+              representation that is more fitting to the circle chords case. We enumerate the
+              notches on the circle from 1 to 2n. Then using our parenthesis representation,
+              indexing the first position with 1, second with 2, etc, we pair up the indices of the
+              opening and corresponding closing parenthesis. Then the parenthesis representation
+              "()()(())()" becomes "12-34-58-67-9A". For clarity, we use the hexadecimal
+              representation for values above 9.
+            </p>
+          </div>
+          <figure id="circle-10-connection-example" class="float-right small">
+            <svg viewBox="0 0 300 300">
+              <circle-chords tile="123458679A" :n="5" :radius="100" :centerx="150" :centery="150" />
+            </svg>
+            <figcaption>
+              Circle with 10 pairs of non-intersecting chords, corresponding to the integer
+              representation '12-34-58-67-9A'
+            </figcaption>
+          </figure>
+        </div>
+        <p>
+          Just as above, let's list all of the cases for
+          <math
+            ><msub><mi>C</mi><mn>3</mn></msub></math
+          >:
+        </p>
+        <div id="c3-chords-exhaustive" class="flex-block flex-center">
+          <div v-for="s in generateCatalanNumberSet(3)" class="catalan-hex">
+            <figure>
+              <svg viewBox="0 0 300 300">
+                <circle-chords
+                  :tile="s.join('')"
+                  :n="3"
+                  :radius="100"
+                  :centerx="150"
+                  :centery="150"
+                />
+              </svg>
+              <figcaption>{{s.join('')}}</figcaption>
+            </figure>
+          </div>
+        </div>
+        <p>
+          And
+          <math
+            ><msub><mi>C</mi><mn>4</mn></msub></math
+          >:
+        </p>
+        <div id="c4-chords-exhaustive" class="flex-block flex-center">
+          <div v-for="s in generateCatalanNumberSet(4)" class="catalan-hex">
+            <figure>
+              <svg viewBox="0 0 300 300">
+                <circle-chords
+                  :tile="s.join('')"
+                  :n="4"
+                  :radius="100"
+                  :centerx="150"
+                  :centery="160"
+                />
+              </svg>
+              <figcaption>{{s.join('')}}</figcaption>
+            </figure>
+          </div>
+        </div>
+        <p>
+          Let's also cycle through the chords of
+          <math
+            ><msub><mi>C</mi><mn>10</mn></msub></math
+          >:
+        </p>
+        <div id="c10-chords-timer" class="flex-block flex-center">
+          <div class="catalan-hex">
+            <figure style="min-width: 500px">
+              <svg viewBox="0 0 300 300">
+                <circle-chords
+                  class="large"
+                  :tile="generateIterativeCatalanNumerical(10,i)"
+                  :n="10"
+                  :radius="100"
+                  :centerx="150"
+                  :centery="160"
+                />
+              </svg>
+              <figcaption>
+                {{generateIterativeCatalanNumerical(10,i)}}<br />{{generateIterativeCatalanParentheses(10,i)}}
+              </figcaption>
+            </figure>
+          </div>
         </div>
       </section>
     </main>
     <footer>© 2026 Jānis Lībeks</footer>
     <script type="module">
       const { createApp, ref, defineComponent } = Vue
-      import { catalanNumber } from './js/catalan.js'
+      import {
+        catalanNumber,
+        generateIterativeCatalanParentheses,
+        generateCatalanParenthesisSet,
+        generateCatalanNumberSet,
+        generateIterativeCatalanNumerical,
+      } from './js/catalan.js'
+      import { circleChords } from './js/catalan-structures.js'
 
       createApp({
         methods: {
           catalanNumber,
         },
       }).mount('#catalan-numbers-table')
+
+      createApp({
+        methods: {
+          generateCatalanParenthesisSet,
+        },
+      }).mount('#c4-parenthesis-exhaustive')
+
+      createApp({
+        data() {
+          return {
+            i: Math.floor(Math.random() * 16796),
+          }
+        },
+        methods: {
+          generateIterativeCatalanParentheses,
+        },
+        mounted() {
+          setInterval(() => {
+            this.i++
+          }, 500)
+        },
+        components: {
+          circleChords,
+        },
+      }).mount('#parentheses-10-counter')
+
+      createApp({
+        data() {
+          return {
+            i: Math.floor(Math.random() * 16796),
+          }
+        },
+        methods: {
+          generateIterativeCatalanParentheses,
+        },
+        components: {
+          circleChords,
+        },
+      }).mount('#circle-10-connection-example')
+
+      createApp({
+        methods: {
+          generateCatalanNumberSet,
+        },
+        components: {
+          circleChords,
+        },
+      }).mount('#c3-chords-exhaustive')
+
+      createApp({
+        methods: {
+          generateCatalanNumberSet,
+        },
+        components: {
+          circleChords,
+        },
+      }).mount('#c4-chords-exhaustive')
+
+      createApp({
+        data() {
+          return {
+            i: Math.floor(Math.random() * 16796),
+          }
+        },
+        methods: {
+          generateIterativeCatalanNumerical,
+          generateIterativeCatalanParentheses,
+        },
+        mounted() {
+          setInterval(() => {
+            this.i++
+          }, 500)
+        },
+        components: {
+          circleChords,
+        },
+      }).mount('#c10-chords-timer')
     </script>
   </body>
 </html>

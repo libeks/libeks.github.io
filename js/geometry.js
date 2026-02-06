@@ -39,6 +39,10 @@ class Vector {
     return Math.sqrt(this.x * this.x + this.y * this.y)
   }
 
+  add(v) {
+    return new Vector(this.x + v.x, this.y + v.y)
+  }
+
   mult(t) {
     // return the vector scaled by scalar t
     if (t == 1) {
@@ -67,7 +71,14 @@ class Vector {
 
   rotate(angle) {
     // rotate the vector by angle in degrees, counterclockwise
-    throw 'Unimplemented'
+    const radians = (2 * Math.PI * angle) / 360
+    // console.log("rotating", this, "by angle", angle, radians)
+    const cos = Math.cos(radians)
+    const sin = Math.sin(radians)
+    // console.log(cos, sin)
+    const ret = new Vector(cos * this.x + sin * this.y, -sin * this.x + cos * this.y)
+    // console.log(ret)
+    return ret
   }
 }
 

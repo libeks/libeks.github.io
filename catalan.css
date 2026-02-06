@@ -1,5 +1,62 @@
-div.catalan-parentheses {
-  font-size: 2em;
-  background-color: hsl(0, 0%, 80%);
+div.flex-block {
+  flex-wrap: wrap;
+}
+
+div.catalan-parentheses,
+div.catalan-hex {
   padding: 10px 20px;
+  white-space: nowrap;
+}
+
+div.catalan-parentheses {
+  background-color: hsl(0, 0%, 80%);
+  font-size: 2em;
+}
+
+div.catalan-hex {
+  background-color: hsl(0, 0%, 90%);
+
+  figure {
+    min-width: 150px;
+
+    .notchText {
+      text-anchor: middle;
+    }
+  }
+
+  figurecaption {
+    font-size: 1.2em;
+  }
+  svg text {
+    font-size: 2.5em;
+  }
+}
+
+div.catalan-hex svg .large {
+  text {
+    font-size: 1.2em;
+  }
+}
+
+svg {
+  circle {
+    fill: none;
+    stroke: black;
+  }
+  path {
+    stroke: black;
+    stroke-linecap: round;
+
+    &.notch {
+      stroke-width: 2px;
+    }
+
+    &.thick {
+      stroke-width: 8px;
+    }
+  }
+}
+
+.notchText {
+  text-anchor: middle;
 }

@@ -44,8 +44,10 @@ svg {
     stroke: black;
   }
   path {
+    fill: none;
     stroke: black;
     stroke-linecap: round;
+    stroke-linejoin: round;
 
     &.notch {
       stroke-width: 2px;
@@ -53,6 +55,22 @@ svg {
 
     &.thick {
       stroke-width: 8px;
+    }
+
+    &.medium {
+      stroke-width: 4px;
+    }
+
+    &.dashed {
+      stroke-dasharray: 4 4;
+    }
+
+    &.gray {
+      stroke: hsl(0, 0%, 50%);
+    }
+
+    &.red {
+      stroke: red;
     }
   }
 }

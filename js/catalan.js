@@ -1,7 +1,6 @@
 import { memoize } from './memoize.js'
 
 function catNum(n) {
-  // console.log(`computing C${n}`)
   if (n == 0 || n == 1) {
     return 1
   }
@@ -16,7 +15,6 @@ const catalanNumber = memoize(catNum)
 
 // Return a balanced-parenthesis representation of the Catalan Structure Cn with index i
 const generateIterativeCatalanParenthesisExpensive = function (n, i) {
-  // console.log("iterative", n, i)
   if (n == 0) {
     return ''
   }
@@ -68,11 +66,8 @@ function generateCatalanParenthesisSet(n) {
 
 function generateIterativeCatalanNumerical(n, i) {
   const paren = generateIterativeCatalanParentheses(n, i)
-  console.log(paren)
   const num = parenthesesToNumerical(paren)
-  console.log(num)
   const arrst = arrayToNumStrings(num)
-  console.log(arrst)
   return arrst
 }
 
@@ -96,7 +91,6 @@ function hexConversion(char) {
 }
 
 function arrayOfArrayToArrayOfNumStrings(a) {
-  console.log(a)
   return a.map((entry) => entry.map((char) => hexConversion(char)).join(''))
 }
 

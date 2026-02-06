@@ -1,5 +1,5 @@
 import { Point, Vector } from './geometry.js'
-import { StraightStroke } from './lines.js'
+import { StraightStroke, CompositeCurve } from './lines.js'
 import { hexConversion, getNotchNumber } from './catalan.js'
 
 // Given a string, return an array of strings of two characters each, which add up to the input string
@@ -39,17 +39,14 @@ const circleChords = {
   },
   computed: {
     center() {
-      // console.log()
       return new Point(this.centerx, this.centery)
     },
     notchVects() {
       let ret = []
       const initialAngle = 180 - 180 / this.n // ensure that notch number 1 is the top left-most notch, right after the leftmost clockwise
-      // const initialAngle = 0;
       for (let i = 0; i < 2 * this.n; i++) {
         ret.push(new Vector(1, 0).rotate(initialAngle - i * (180 / this.n)).mult(this.radius))
       }
-      // console.log(ret)
       return ret
     },
     notchPts() {
@@ -67,7 +64,6 @@ const circleChords = {
       return ret
     },
     chords() {
-      console.log('tile', this.tile)
       let pairs = getPairs(this.tile)
       let ch = []
       for (let p of pairs) {
@@ -75,10 +71,69 @@ const circleChords = {
         const b = getNotchNumber(p[1])
         ch.push(new StraightStroke(this.notchPts[a - 1], this.notchPts[b - 1]))
       }
-      console.log(ch)
       return ch
     },
   },
 }
 
-export { circleChords }
+const latticePaths = {
+  template: `
+  <g>
+    <g v-for="x in range(n)"> <!-- lattice -->
+      <path class="dashed gray" :d="new StraightStroke(leftCorner.addVect(new Vector(size,0).mult(x)), leftCorner.addVect(new Vector(size,0).mult(x)).addVect(upRight.mult(n-x))).d()" />
+      <path class="dashed gray" :d="new StraightStroke(rightCorner.addVect(new Vector(-size,0).mult(x)), rightCorner.addVect(new Vector(-size,0).mult(x)).addVect(upLeft.mult(n-x))).d()" />
+    </g>
+    <path class="red" :d="new StraightStroke(leftCorner, rightCorner).d()" />
+    <g> <!-- path -->
+      <path class="stroke medium" :d="path.d()" />
+    </g>
+  </g>`,
+  props: {
+    tile: String,
+    n: Number,
+    size: Number,
+    padding: Number,
+  },
+  methods: {
+    range: (n) => Array(n).keys(),
+    StraightStroke,
+    Point,
+    Vector,
+  },
+  computed: {
+    upRight() {
+      return new Vector(this.size / 2, -this.size / 2)
+    },
+    upLeft() {
+      return new Vector(-this.size / 2, -this.size / 2)
+    },
+    leftCorner() {
+      return new Point(this.padding, (this.n / 2) * this.size + this.padding)
+    },
+    rightCorner() {
+      return new Point(this.n * this.size + this.padding, (this.n / 2) * this.size + this.padding)
+    },
+    path() {
+      // console.log("tile", this.tile)
+      let curves = new CompositeCurve()
+      let startPoint = this.leftCorner
+      for (let ch of this.tile) {
+        // console.log(ch);
+        let endPoint
+        if (ch == '(') {
+          endPoint = startPoint.addVect(this.upRight)
+        } else if (ch == ')') {
+          endPoint = startPoint.addVect(this.upLeft.mult(-1))
+        } else {
+          throw 'Unknown character'
+        }
+        // console.log("start end", startPoint, endPoint)
+        curves.add(new StraightStroke(startPoint, endPoint))
+        startPoint = endPoint
+      }
+      return curves
+    },
+  },
+}
+
+export { circleChords, latticePaths }

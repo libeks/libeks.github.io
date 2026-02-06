@@ -215,8 +215,8 @@
         </div>
         <p>
           Let's also cycle through the chords of
-          <math
-            ><msub><mi>C</mi><mn>10</mn></msub></math
+          <math>
+            <msub><mi>C</mi><mn>10</mn></msub> </math
           >:
         </p>
         <div id="c10-chords-timer" class="flex-block flex-center">
@@ -239,6 +239,48 @@
           </div>
         </div>
       </section>
+      <section>
+        <h2 id="lattice-paths">
+          <a class="anchor" href="#lattice-paths"></a>
+          <span>Lattice Paths</span>
+        </h2>
+        <div class="flex-container">
+          <p>
+            Suppose we consider the set of lattice paths on an n x n grid, that do not cross the
+            diagonal. We can display only the upper-triangular section of this lattice, placing the
+            diagonal horizontally at the bottom. Taking inspiration from the balanced parenthesis
+            notation, whenever we have an opening parenthesis "(", we move upwards, otherwise we
+            move downwards. Naturally, we would only cross the diagonal if an only if our string
+            contains an unbalanced closing parenthesis.
+          </p>
+          <figure id="lattice-10-example" class="float-right small">
+            <svg viewBox="0 0 300 200">
+              <lattice-paths tile="()(())(())" :n="5" :size="50" :padding="25" />
+            </svg>
+            <figcaption>
+              Lattice paths on an 10 x 10 square, not crossing the diagonal, corresponding to the
+              parenthesis representation '()(())(())'
+            </figcaption>
+          </figure>
+        </div>
+        <p>
+          Yet again, we'll cycle through the structures for
+          <math>
+            <msub><mi>C</mi><mn>10</mn></msub> </math
+          >:
+        </p>
+        <figure id="c10-lattice-paths-timer">
+          <svg viewBox="0 0 600 300">
+            <lattice-paths
+              :tile="generateIterativeCatalanParentheses(10, i)"
+              :n="10"
+              :size="50"
+              :padding="25"
+            />
+          </svg>
+          <figcaption>{{generateIterativeCatalanParentheses(10,i)}}</figcaption>
+        </figure>
+      </section>
     </main>
     <footer>© 2026 Jānis Lībeks</footer>
     <script type="module">
@@ -250,7 +292,7 @@
         generateCatalanNumberSet,
         generateIterativeCatalanNumerical,
       } from './js/catalan.js'
-      import { circleChords } from './js/catalan-structures.js'
+      import { circleChords, latticePaths } from './js/catalan-structures.js'
 
       createApp({
         methods: {
@@ -334,6 +376,32 @@
           circleChords,
         },
       }).mount('#c10-chords-timer')
+
+      createApp({
+        components: {
+          latticePaths,
+        },
+      }).mount('#lattice-10-example')
+
+      createApp({
+        data() {
+          return {
+            i: Math.floor(Math.random() * 16796),
+          }
+        },
+        methods: {
+          generateIterativeCatalanNumerical,
+          generateIterativeCatalanParentheses,
+        },
+        mounted() {
+          setInterval(() => {
+            this.i++
+          }, 500)
+        },
+        components: {
+          latticePaths,
+        },
+      }).mount('#c10-lattice-paths-timer')
     </script>
   </body>
 </html>

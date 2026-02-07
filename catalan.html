@@ -152,16 +152,28 @@
             <p>
               We can trivially translate from the parenthesis representation to another, equivalent
               representation that is more fitting to the circle chords case. We enumerate the
-              notches on the circle from 1 to 2n. Then using our parenthesis representation,
-              indexing the first position with 1, second with 2, etc, we pair up the indices of the
-              opening and corresponding closing parenthesis. Then the parenthesis representation
-              "()()(())()" becomes "12-34-58-67-9A". For clarity, we use the hexadecimal
-              representation for values above 9.
+              notches on the circle from <math><mn>1</mn></math> to <math><mn>2</mn><mi>n</mi></math
+              >. Then using our parenthesis representation, indexing the first position with 1,
+              second with 2, etc, we pair up the indices of the opening and corresponding closing
+              parenthesis. Then the parenthesis representation "()()(())()" becomes
+              "12-34-58-67-9A". For clarity, I use the hexadecimal representation for values above
+              9. I also display the chords using
+              <a href="https://en.wikipedia.org/wiki/Chord_diagram_(information_visualization)"
+                >chord diagram</a
+              >
+              arc segments that meet the cricle perpendicularly, for aesthetic purposes.
             </p>
           </div>
           <figure id="circle-10-connection-example" class="float-right small">
             <svg viewBox="0 0 300 300">
-              <circle-chords tile="123458679A" :n="5" :radius="100" :centerx="150" :centery="150" />
+              <circle-chords
+                tile="123458679A"
+                :n="5"
+                :radius="100"
+                :centerx="150"
+                :centery="150"
+                show-arcs
+              />
             </svg>
             <figcaption>
               Circle with 10 pairs of non-intersecting chords, corresponding to the integer
@@ -185,6 +197,7 @@
                   :radius="100"
                   :centerx="150"
                   :centery="150"
+                  show-arcs
                 />
               </svg>
               <figcaption>{{s.join('')}}</figcaption>
@@ -207,6 +220,7 @@
                   :radius="100"
                   :centerx="150"
                   :centery="160"
+                  show-arcs
                 />
               </svg>
               <figcaption>{{s.join('')}}</figcaption>
@@ -230,6 +244,7 @@
                   :radius="100"
                   :centerx="150"
                   :centery="160"
+                  show-arcs
                 />
               </svg>
               <figcaption>
@@ -246,12 +261,12 @@
         </h2>
         <div class="flex-container">
           <p>
-            Suppose we consider the set of lattice paths on an n x n grid, that do not cross the
-            diagonal. We can display only the upper-triangular section of this lattice, placing the
-            diagonal horizontally at the bottom. Taking inspiration from the balanced parenthesis
-            notation, whenever we have an opening parenthesis "(", we move upwards, otherwise we
-            move downwards. Naturally, we would only cross the diagonal if an only if our string
-            contains an unbalanced closing parenthesis.
+            Suppose we consider the set of lattice paths on an n x n grid, from one corner to the
+            other, which do not cross the diagonal. We can stick to showing only the
+            upper-triangular section of this grid, placing the diagonal horizontally at the bottom.
+            Taking inspiration from the balanced parenthesis notation, whenever we have an opening
+            parenthesis "(", we move upwards, otherwise we move downwards. Naturally, we would only
+            cross the diagonal if an only if our string contains an unbalanced closing parenthesis.
           </p>
           <figure id="lattice-10-example" class="float-right small">
             <svg viewBox="0 0 300 200">

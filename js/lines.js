@@ -106,6 +106,42 @@ class CubicBezier {
   }
 }
 
+class CircleArc {
+  constructor(from, to, radius, largeArc, sweep) {
+    this.from = from
+    this.to = to
+    this.radius = radius
+    this.largeArc = largeArc
+    this.sweep = sweep
+  }
+
+  move(v) {
+    return new CircleArc(
+      this.from.addVect(v),
+      this.to.addVect(v),
+      this.radius,
+      this.largeArc,
+      this.sweep,
+    )
+  }
+
+  startpoint() {
+    return this.from
+  }
+
+  endpoint() {
+    return this.to
+  }
+
+  dContinued() {
+    return `A ${this.radius} ${this.radius} 0 ${this.largeArc} ${this.sweep} ${this.to.string()}`
+  }
+
+  d() {
+    return `M ${this.from.string()} ${this.dContinued()}`
+  }
+}
+
 class CompositeCurve {
   constructor() {
     this.curves = []
@@ -203,4 +239,4 @@ class CurveSet {
   }
 }
 
-export { StraightStroke, QuadraticBezier, CubicBezier, CompositeCurve, CurveSet }
+export { StraightStroke, QuadraticBezier, CubicBezier, CircleArc, CompositeCurve, CurveSet }

@@ -1,5 +1,5 @@
 import { Point, Vector } from './geometry.js'
-import { StraightStroke, CompositeCurve } from './lines.js'
+import { StraightStroke, CircleArc, CompositeCurve } from './lines.js'
 import { hexConversion, getNotchNumber } from './catalan.js'
 
 // Given a string, return an array of strings of two characters each, which add up to the input string
@@ -21,7 +21,10 @@ const circleChords = {
       <path class="notch" :d="new StraightStroke(center.addVect(nv.mult(0.95)), center.addVect(nv.mult(1.05))).d()" />
       <text :x="notchLabelPos[index].x" :y="notchLabelPos[index].y" class="notchText">{{hexConversion(index+1)}}</text>
     </g>
-    <g v-for="chord in chords"> <!-- chords -->
+    <g v-if="!showArcs" v-for="chord in chords"> <!-- chords -->
+      <path class="stroke thick" :d="chord.d()" />
+    </g>
+    <g v-if="showArcs" v-for="chord in arcChords"> <!-- arcChords -->
       <path class="stroke thick" :d="chord.d()" />
     </g>
   </g>`,
@@ -31,6 +34,7 @@ const circleChords = {
     radius: Number,
     centerx: Number,
     centery: Number,
+    showArcs: Boolean,
   },
   methods: {
     range: (n) => Array(n).keys(),
@@ -62,6 +66,34 @@ const circleChords = {
         ret.push(this.notchPts[i].addVect(nv.unit().mult(30).add(new Vector(0, 10))))
       }
       return ret
+    },
+    arcChords() {
+      let pairs = getPairs(this.tile)
+      let ch = []
+      const angleStep = (2 * Math.PI) / (2 * this.n)
+      for (let p of pairs) {
+        let a = getNotchNumber(p[0])
+        let b = getNotchNumber(p[1])
+        let distance = b - a
+        if (distance > this.n) {
+          // swap a and b
+          let temp = a
+          a = b
+          b = temp
+          distance = 2 * this.n - distance // use the shorter distance the other way around the circle
+        }
+        const angle = (angleStep * distance) / 2
+        ch.push(
+          new CircleArc(
+            this.notchPts[a - 1],
+            this.notchPts[b - 1],
+            this.radius * Math.tan(angle),
+            0,
+            0,
+          ),
+        )
+      }
+      return ch
     },
     chords() {
       let pairs = getPairs(this.tile)
@@ -114,11 +146,9 @@ const latticePaths = {
       return new Point(this.n * this.size + this.padding, (this.n / 2) * this.size + this.padding)
     },
     path() {
-      // console.log("tile", this.tile)
       let curves = new CompositeCurve()
       let startPoint = this.leftCorner
       for (let ch of this.tile) {
-        // console.log(ch);
         let endPoint
         if (ch == '(') {
           endPoint = startPoint.addVect(this.upRight)
@@ -127,7 +157,6 @@ const latticePaths = {
         } else {
           throw 'Unknown character'
         }
-        // console.log("start end", startPoint, endPoint)
         curves.add(new StraightStroke(startPoint, endPoint))
         startPoint = endPoint
       }

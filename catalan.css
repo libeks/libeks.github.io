@@ -43,7 +43,9 @@ svg {
     fill: none;
     stroke: black;
   }
-  path {
+
+  path,
+  circle {
     fill: none;
     stroke: black;
     stroke-linecap: round;
@@ -72,9 +74,25 @@ svg {
     &.red {
       stroke: red;
     }
+
+    &.fillBlack {
+      fill: black;
+    }
+
+    &.polygon {
+      /*fill: gray;*/
+      stroke-width: 26px; /* double the circle radius */
+      /*stroke: grey;*/
+    }
   }
 }
 
 .notchText {
   text-anchor: middle;
+
+  &.red {
+    fill: red;
+    /*font: bold 20px;*/
+    font-weight: bold;
+  }
 }

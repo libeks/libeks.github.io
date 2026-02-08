@@ -116,6 +116,68 @@ function parenthesesToNumerical(st) {
   return ret.reverse().flat(Infinity) // flatten nested list
 }
 
+function numericalToParentheses(st) {
+  let dict = {}
+  for (let i = 0; i < st.length; i++) {
+    const val = getNotchNumber(st[i]) - 1
+    if (i % 2 == 0) {
+      dict[val] = '('
+    } else {
+      dict[val] = ')'
+    }
+  }
+  let ret = []
+  for (let i = 0; i < st.length; i++) {
+    ret.push(dict[i])
+  }
+  // console.log('numericalToParentheses', st, ret)
+  return ret.join('')
+}
+
+function numericalToPartition(st) {
+  return parenthesesToPartitions(numericalToParentheses(st))
+}
+
+//  (*( )*( (*( )*) )*)
+// 0 1 2 1 2 3 4 3 2 1 0
+
+//  (*) (*) (*) (*) (*)
+// 0 1 0 1 0 1 0 1 0 1 0
+
+// (())(()()()()()()())
+
+function parenthesesToPartitions(st) {
+  // compute in reverse to ensure correct order of first element of each partition
+  // console.log("st", st)
+  let ret = []
+  let dict = {}
+  let val = 0
+  for (let i = st.length - 1; i >= 0; i--) {
+    if (!dict[val]) {
+      dict[val] = []
+    }
+    const char = st[i]
+    if (char == ')') {
+      val += 1
+      if (!dict[val]) {
+        dict[val] = []
+      }
+    } else if (char == '(') {
+      if (dict[val].length > 0) {
+        ret.push(dict[val].reverse())
+        dict[val] = []
+      }
+      val -= 1
+    } else {
+      throw 'Unknown character'
+    }
+    if (i % 2 == 1) {
+      dict[val].push(i / 2 + 0.5)
+    }
+  }
+  return ret.reverse()
+}
+
 function generateCatalanNumberSet(n) {
   if (n == 0) {
     return [[]]
@@ -129,13 +191,6 @@ function generateCatalanNumberSet(n) {
     let right = generateCatalanNumberSet(n - i - 1)
     for (let [leftID, l] of left.entries()) {
       for (let [rightID, r] of right.entries()) {
-        // const gen = generateIterativeCatalan(n, retList.length)
-        // console.log(
-        //   'generative',
-        //   gen,
-        //   parenthesesToNumerical(gen),
-        //   arrayToNumStrings(parenthesesToNumerical(gen)),
-        // )
         const val = [1, l.length + 2, ...offsetArrayVals(l, 1), ...offsetArrayVals(r, l.length + 2)]
         retList.push(val)
       }
@@ -145,12 +200,24 @@ function generateCatalanNumberSet(n) {
 }
 
 export {
+  // catalan number
   catalanNumber,
+
+  // generators
+  // exhaustive sets
   generateCatalanNumberSet,
   generateCatalanParenthesisSet,
+  // iterative
   generateIterativeCatalanParentheses,
   generateIterativeCatalanNumerical,
+
+  // representation conversions
   parenthesesToNumerical,
+  parenthesesToPartitions,
+  numericalToPartition,
+  numericalToParentheses,
+
+  // character conversion
   hexConversion,
   getNotchNumber,
 }

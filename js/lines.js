@@ -220,6 +220,20 @@ class CompositeCurve {
   }
 }
 
+class Polygon {
+  constructor(points) {
+    this.points = points
+  }
+
+  d() {
+    let components = new CompositeCurve()
+    for (let i = 0; i < this.points.length; i++) {
+      components.add(new StraightStroke(this.points[i], this.points[(i + 1) % this.points.length]))
+    }
+    return components.d()
+  }
+}
+
 class CurveSet {
   constructor(curves) {
     this.curves = curves // map from square coordinate to list of curves (line, ends)
@@ -239,4 +253,12 @@ class CurveSet {
   }
 }
 
-export { StraightStroke, QuadraticBezier, CubicBezier, CircleArc, CompositeCurve, CurveSet }
+export {
+  StraightStroke,
+  QuadraticBezier,
+  CubicBezier,
+  CircleArc,
+  CompositeCurve,
+  CurveSet,
+  Polygon,
+}

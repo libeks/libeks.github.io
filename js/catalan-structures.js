@@ -1,6 +1,6 @@
 import { Point, Vector } from './geometry.js'
-import { StraightStroke, CircleArc, CompositeCurve } from './lines.js'
-import { hexConversion, getNotchNumber } from './catalan.js'
+import { StraightStroke, CircleArc, CompositeCurve, Polygon } from './lines.js'
+import { hexConversion, getNotchNumber, numericalToPartition } from './catalan.js'
 
 // Given a string, return an array of strings of two characters each, which add up to the input string
 function getPairs(s) {
@@ -16,25 +16,42 @@ function getPairs(s) {
 const circleChords = {
   template: `
   <g>
-    <circle :cx="centerx" :cy="centery" :r="radius" />
-    <g v-for="(nv, index) in notchVects"> <!-- notches -->
+    <circle v-if="showCircle" :cx="centerx" :cy="centery" :r="radius" />
+    <g v-if="showNotches" v-for="(nv, index) in notchVects"> <!-- notches -->
       <path class="notch" :d="new StraightStroke(center.addVect(nv.mult(0.95)), center.addVect(nv.mult(1.05))).d()" />
       <text :x="notchLabelPos[index].x" :y="notchLabelPos[index].y" class="notchText">{{hexConversion(index+1)}}</text>
     </g>
-    <g v-if="!showArcs" v-for="chord in chords"> <!-- chords -->
+    <g v-if="showChords && !showArcs" v-for="chord in chords"> <!-- chords -->
       <path class="stroke thick" :d="chord.d()" />
     </g>
-    <g v-if="showArcs" v-for="chord in arcChords"> <!-- arcChords -->
+    <g v-if="showChords && showArcs" v-for="chord in arcChords"> <!-- arcChords -->
       <path class="stroke thick" :d="chord.d()" />
+    </g>
+    <g v-if="showPartitions" v-for="(partition,i) in partitions"> <!-- partitions -->
+      <path class="polygon" :d="partition.d()" :style="{fill: colors[i], stroke: colors[i]}" opacity="0.5"/>
+    </g>
+    <g v-if="showMidpoints" v-for="(nv, index) in oddNotches"> <!-- notches -->
+      <circle :cx="center.addVect(nv).x" :cy="center.addVect(nv).y" r=5 class="fillBlack" />
+      <text v-if="showMidpointLabels" :x="oddNotchLabelPos[index].x" :y="oddNotchLabelPos[index].y" class="notchText red">{{hexConversion(index+1)}}</text>
     </g>
   </g>`,
   props: {
-    tile: String,
+    tile: String, // numerical representation
     n: Number,
     radius: Number,
     centerx: Number,
     centery: Number,
+    rotateDegrees: {
+      type: Number,
+      default: 0.0,
+    },
     showArcs: Boolean,
+    showMidpoints: Boolean,
+    showPartitions: Boolean,
+    showChords: Boolean,
+    showCircle: Boolean,
+    showNotches: Boolean,
+    showMidpointLabels: Boolean,
   },
   methods: {
     range: (n) => Array(n).keys(),
@@ -45,9 +62,23 @@ const circleChords = {
     center() {
       return new Point(this.centerx, this.centery)
     },
+    colors() {
+      return [
+        '#cc00ca',
+        '#00a900',
+        '#9a5d46',
+        '#f17200',
+        'yellow',
+        'green',
+        'pink',
+        'purple',
+        'brown',
+        'orange',
+      ]
+    },
     notchVects() {
       let ret = []
-      const initialAngle = 180 - 180 / this.n // ensure that notch number 1 is the top left-most notch, right after the leftmost clockwise
+      const initialAngle = this.rotateDegrees + 180 - 180 / this.n // ensure that notch number 1 is the top left-most notch, right after the leftmost clockwise
       for (let i = 0; i < 2 * this.n; i++) {
         ret.push(new Vector(1, 0).rotate(initialAngle - i * (180 / this.n)).mult(this.radius))
       }
@@ -105,6 +136,39 @@ const circleChords = {
       }
       return ch
     },
+    oddNotches() {
+      let ret = []
+      const initialAngle = this.rotateDegrees + 180 - 180 / this.n // ensure that notch number 1 is the top left-most notch, right after the leftmost clockwise
+      for (let i = 0; i < this.n; i++) {
+        ret.push(
+          new Vector(1, 0).rotate(initialAngle - (2 * i + 0.5) * (180 / this.n)).mult(this.radius),
+        )
+      }
+      return ret
+    },
+    oddNotchLabelPos() {
+      let ret = []
+      const initialAngle = this.rotateDegrees + 180 - 180 / this.n // ensure that notch number 1 is the top left-most notch, right after the leftmost clockwise
+      for (let i = 0; i < this.n; i++) {
+        let nv = new Vector(1, 0).rotate(initialAngle - (2 * i + 0.5) * (180 / this.n))
+        ret.push(this.center.addVect(nv.mult(this.radius * 1.35)).addVect(new Vector(0, 10)))
+      }
+      return ret
+    },
+    partitions() {
+      let ret = []
+      let partitions = numericalToPartition(this.tile)
+      for (let part of partitions) {
+        if (part.length > 1) {
+          let points = []
+          for (let pt of part) {
+            points.push(this.center.addVect(this.oddNotches[pt - 1]))
+          }
+          ret.push(new Polygon(points))
+        }
+      }
+      return ret
+    },
   },
 }
 
@@ -121,7 +185,7 @@ const latticePaths = {
     </g>
   </g>`,
   props: {
-    tile: String,
+    tile: String, // parenthesis representation
     n: Number,
     size: Number,
     padding: Number,

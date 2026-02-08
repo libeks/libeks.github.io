@@ -173,6 +173,9 @@
                 :centerx="150"
                 :centery="150"
                 show-arcs
+                show-chords
+                show-circle
+                show-notches
               />
             </svg>
             <figcaption>
@@ -198,6 +201,9 @@
                   :centerx="150"
                   :centery="150"
                   show-arcs
+                  show-chords
+                  show-circle
+                  show-notches
                 />
               </svg>
               <figcaption>{{s.join('')}}</figcaption>
@@ -221,6 +227,9 @@
                   :centerx="150"
                   :centery="160"
                   show-arcs
+                  show-chords
+                  show-circle
+                  show-notches
                 />
               </svg>
               <figcaption>{{s.join('')}}</figcaption>
@@ -245,6 +254,9 @@
                   :centerx="150"
                   :centery="160"
                   show-arcs
+                  show-chords
+                  show-circle
+                  show-notches
                 />
               </svg>
               <figcaption>
@@ -296,6 +308,119 @@
           <figcaption>{{generateIterativeCatalanParentheses(10,i)}}</figcaption>
         </figure>
       </section>
+      <section>
+        <h2 id="partitions">
+          <a class="anchor" href="#partitions"></a>
+          <span>Non-intersecting partitions</span>
+        </h2>
+        <div class="flex-container">
+          <p>
+            This took me a while to figure out. Space <math><mi>n</mi></math> points around a
+            circle, and see how many ways you can partition these points without the lines
+            intersecting. One way to think about this is to go back to the
+            <a href="#circle-chords">circle chords</a> structures (which space
+            <math><mn>2</mn><mi>n</mi></math> points around the circle), and designate each pair of
+            adjacent points as one of the <math><mi>n</mi></math> points for this case. Now,
+            partition the points into sets based on if any two points don't have a chord in between
+            them. It makes more sense to use straight-line chords.
+          </p>
+          <figure id="circle-10-connection-partition-example" class="float-right small">
+            <svg viewBox="0 0 300 300">
+              <circle-chords
+                tile="1A23495867"
+                :n="5"
+                :radius="100"
+                :centerx="150"
+                :centery="150"
+                show-midpoints
+                show-partitions
+                show-chords
+                show-circle
+                show-notches
+                show-midpoint-labels
+              />
+            </svg>
+            <figcaption>
+              One non-intersecting partition of 5 points on a circle (highlighted in red),
+              corresponding to the numerical notation '1A23495867'
+              {{numericalToPartition("1A23495867")}}
+            </figcaption>
+          </figure>
+        </div>
+        <p>
+          Just as above, let's list all of the cases for
+          <math
+            ><msub><mi>C</mi><mn>3</mn></msub></math
+          >. For convenience, I don't color the subsets of size one, I let them just be.
+        </p>
+        <div id="c3-partition-exhaustive" class="flex-block flex-center">
+          <div v-for="s in generateCatalanNumberSet(3)" class="catalan-hex">
+            <figure>
+              <svg viewBox="0 0 300 300">
+                <circle-chords
+                  :tile="s.join('')"
+                  :n="3"
+                  :radius="100"
+                  :centerx="150"
+                  :centery="150"
+                  show-midpoints
+                  show-partitions
+                />
+              </svg>
+              <figcaption>{{s.join('')}}</figcaption>
+            </figure>
+          </div>
+        </div>
+        <p>
+          And
+          <math
+            ><msub><mi>C</mi><mn>4</mn></msub></math
+          >:
+        </p>
+        <div id="c4-partition-exhaustive" class="flex-block flex-center">
+          <div v-for="s in generateCatalanNumberSet(4)" class="catalan-hex">
+            <figure>
+              <svg viewBox="0 0 300 300">
+                <circle-chords
+                  :tile="s.join('')"
+                  :n="4"
+                  :radius="100"
+                  :centerx="150"
+                  :centery="160"
+                  show-midpoints
+                  show-partitions
+                  :rotate-degrees="23"
+                />
+              </svg>
+              <figcaption>{{s.join('')}}</figcaption>
+            </figure>
+          </div>
+        </div>
+        <p>
+          And finally, cycling through the
+          <math>
+            <msub><mi>C</mi><mn>10</mn></msub> </math
+          >:
+        </p>
+        <figure id="c10-partitions-timer">
+          <svg viewBox="0 0 600 300">
+            <circle-chords
+              :tile="generateIterativeCatalanNumerical(10, i)"
+              :n="10"
+              :radius="100"
+              :centerx="300"
+              :centery="150"
+              show-midpoints
+              show-partitions
+              show-midpoint-labels
+              :rotate-degrees="10"
+            />
+          </svg>
+          <figcaption>
+            {{generateIterativeCatalanParentheses(10,i)}}<br />{{numericalToPartition(generateIterativeCatalanNumerical(10,i))}}
+          </figcaption>
+        </figure>
+      </section>
     </main>
     <footer>© 2026 Jānis Lībeks</footer>
     <script type="module">
@@ -306,6 +431,7 @@
         generateCatalanParenthesisSet,
         generateCatalanNumberSet,
         generateIterativeCatalanNumerical,
+        numericalToPartition,
       } from './js/catalan.js'
       import { circleChords, latticePaths } from './js/catalan-structures.js'
 
@@ -417,6 +543,60 @@
           latticePaths,
         },
       }).mount('#c10-lattice-paths-timer')
+
+      createApp({
+        data() {
+          return {
+            i: Math.floor(Math.random() * 16796),
+          }
+        },
+        methods: {
+          generateIterativeCatalanParentheses,
+          numericalToPartition,
+        },
+        components: {
+          circleChords,
+        },
+      }).mount('#circle-10-connection-partition-example')
+
+      createApp({
+        methods: {
+          generateCatalanNumberSet,
+        },
+        components: {
+          circleChords,
+        },
+      }).mount('#c3-partition-exhaustive')
+
+      createApp({
+        methods: {
+          generateCatalanNumberSet,
+        },
+        components: {
+          circleChords,
+        },
+      }).mount('#c4-partition-exhaustive')
+
+      createApp({
+        data() {
+          return {
+            i: Math.floor(Math.random() * 16796),
+          }
+        },
+        methods: {
+          generateIterativeCatalanNumerical,
+          generateIterativeCatalanParentheses,
+          numericalToPartition,
+        },
+        mounted() {
+          setInterval(() => {
+            this.i++
+          }, 500)
+        },
+        components: {
+          circleChords,
+        },
+      }).mount('#c10-partitions-timer')
     </script>
   </body>
 </html>

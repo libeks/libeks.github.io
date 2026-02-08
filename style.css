@@ -106,16 +106,19 @@ h2 {
 footer {
   display: block;
   text-align: center;
-  height: 3rem;
+  height: 5rem;
   background-color: hsl(0, 0%, 80%);
   border-top: 50px solid hsl(0, 0%, 90%);
   padding-top: 2rem;
   margin-top: 5rem;
+
+  p {
+    margin: 0;
+  }
 }
 
 p {
   font-family: var(--serif);
-  /*padding-left:s 1em;*/
   font-size: 1.2em;
 }
 

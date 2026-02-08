@@ -76,14 +76,14 @@ function offsetArrayVals(a, val) {
 }
 
 // given a notch character, give its numeric value
-function getNotchNumber(a) {
+function hexToNumerical(a) {
   if (!isNaN(a)) {
     return Number(a) // ensure the result is always a number
   }
   return a.charCodeAt() - 65 + 10
 }
 
-function hexConversion(char) {
+function numericalToHex(char) {
   if (char < 10) {
     return char
   }
@@ -91,11 +91,11 @@ function hexConversion(char) {
 }
 
 function arrayOfArrayToArrayOfNumStrings(a) {
-  return a.map((entry) => entry.map((char) => hexConversion(char)).join(''))
+  return a.map((entry) => entry.map((char) => numericalToHex(char)).join(''))
 }
 
 function arrayToNumStrings(a) {
-  return a.map((char) => hexConversion(char)).join('')
+  return a.map((char) => numericalToHex(char)).join('')
 }
 
 // given a parenthetical representation of a Catalan structure, return the correspoding numerical string
@@ -119,7 +119,7 @@ function parenthesesToNumerical(st) {
 function numericalToParentheses(st) {
   let dict = {}
   for (let i = 0; i < st.length; i++) {
-    const val = getNotchNumber(st[i]) - 1
+    const val = hexToNumerical(st[i]) - 1
     if (i % 2 == 0) {
       dict[val] = '('
     } else {
@@ -218,6 +218,6 @@ export {
   numericalToParentheses,
 
   // character conversion
-  hexConversion,
-  getNotchNumber,
+  numericalToHex,
+  hexToNumerical,
 }

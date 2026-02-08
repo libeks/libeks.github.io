@@ -1,6 +1,6 @@
 import { Point, Vector } from './geometry.js'
 import { StraightStroke, CircleArc, CompositeCurve, Polygon } from './lines.js'
-import { hexConversion, getNotchNumber, numericalToPartition } from './catalan.js'
+import { numericalToHex, hexToNumerical, numericalToPartition } from './catalan.js'
 
 // Given a string, return an array of strings of two characters each, which add up to the input string
 function getPairs(s) {
@@ -19,7 +19,7 @@ const circleChords = {
     <circle v-if="showCircle" :cx="centerx" :cy="centery" :r="radius" />
     <g v-if="showNotches" v-for="(nv, index) in notchVects"> <!-- notches -->
       <path class="notch" :d="new StraightStroke(center.addVect(nv.mult(0.95)), center.addVect(nv.mult(1.05))).d()" />
-      <text :x="notchLabelPos[index].x" :y="notchLabelPos[index].y" class="notchText">{{hexConversion(index+1)}}</text>
+      <text :x="notchLabelPos[index].x" :y="notchLabelPos[index].y" class="notchText">{{numericalToHex(index+1)}}</text>
     </g>
     <g v-if="showChords && !showArcs" v-for="chord in chords"> <!-- chords -->
       <path class="stroke thick" :d="chord.d()" />
@@ -32,7 +32,7 @@ const circleChords = {
     </g>
     <g v-if="showMidpoints" v-for="(nv, index) in oddNotches"> <!-- notches -->
       <circle :cx="center.addVect(nv).x" :cy="center.addVect(nv).y" r=5 class="fillBlack" />
-      <text v-if="showMidpointLabels" :x="oddNotchLabelPos[index].x" :y="oddNotchLabelPos[index].y" class="notchText red">{{hexConversion(index+1)}}</text>
+      <text v-if="showMidpointLabels" :x="oddNotchLabelPos[index].x" :y="oddNotchLabelPos[index].y" class="notchText red">{{numericalToHex(index+1)}}</text>
     </g>
   </g>`,
   props: {
@@ -56,7 +56,7 @@ const circleChords = {
   methods: {
     range: (n) => Array(n).keys(),
     StraightStroke,
-    hexConversion,
+    numericalToHex,
   },
   computed: {
     center() {
@@ -103,8 +103,8 @@ const circleChords = {
       let ch = []
       const angleStep = (2 * Math.PI) / (2 * this.n)
       for (let p of pairs) {
-        let a = getNotchNumber(p[0])
-        let b = getNotchNumber(p[1])
+        let a = hexToNumerical(p[0])
+        let b = hexToNumerical(p[1])
         let distance = b - a
         if (distance > this.n) {
           // swap a and b
@@ -130,8 +130,8 @@ const circleChords = {
       let pairs = getPairs(this.tile)
       let ch = []
       for (let p of pairs) {
-        const a = getNotchNumber(p[0])
-        const b = getNotchNumber(p[1])
+        const a = hexToNumerical(p[0])
+        const b = hexToNumerical(p[1])
         ch.push(new StraightStroke(this.notchPts[a - 1], this.notchPts[b - 1]))
       }
       return ch

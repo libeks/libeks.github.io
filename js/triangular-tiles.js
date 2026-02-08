@@ -1,4 +1,4 @@
-import { generateCatalanNumberSet, hexConversion, getNotchNumber } from './catalan.js'
+import { generateCatalanNumberSet, numericalToHex, hexToNumerical } from './catalan.js'
 
 const triangleSide = 100
 const height = (Math.sqrt(3) * triangleSide) / 2 // 86.6
@@ -68,7 +68,7 @@ function printPt(pt) {
 }
 
 function getNotchType(a) {
-  a = getNotchNumber(a)
+  a = hexToNumerical(a)
   const mod4 = a % 4
   if (mod4 == 1 || mod4 == 0) {
     return 'outer'
@@ -79,14 +79,14 @@ function getNotchType(a) {
 // given the one-character notch names, give the absolute distance between them
 // assume a <= b
 function distance12(a, b) {
-  a = getNotchNumber(a)
-  b = getNotchNumber(b)
+  a = hexToNumerical(a)
+  b = hexToNumerical(b)
   return Math.min((b - a) % 12, Math.abs((b - a - 12) % 12))
 }
 
 // given an edge character, return which edge of the triangle [1,2,3] it lies on
 function notchEdge12(a) {
-  a = getNotchNumber(a)
+  a = hexToNumerical(a)
   if (a < 5) {
     return 1
   }
@@ -100,20 +100,20 @@ function nextChar(a) {
   if (a == 'C') {
     return 1
   }
-  let next = getNotchNumber(a) + 1
-  return hexConversion(next)
+  let next = hexToNumerical(a) + 1
+  return numericalToHex(next)
 }
 
 function prevChar(a) {
   if (a == 1) {
     return 'C'
   }
-  let next = getNotchNumber(a) - 1
-  return hexConversion(next)
+  let next = hexToNumerical(a) - 1
+  return numericalToHex(next)
 }
 
 function toCenter(a) {
-  let num = getNotchNumber(a)
+  let num = hexToNumerical(a)
   if (num == 1 || num == 5 || num == 9) {
     return nextChar(a)
   }
@@ -340,7 +340,7 @@ function arrayOfArrayToArrayOfStrings(a) {
 }
 
 function arrayOfArrayToArrayOfNumStrings(a) {
-  return a.map((entry) => entry.map((char) => hexConversion(char)).join(''))
+  return a.map((entry) => entry.map((char) => numericalToHex(char)).join(''))
 }
 
 const catalan6 = arrayOfArrayToArrayOfNumStrings(generateCatalanNumberSet(6))

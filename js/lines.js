@@ -143,8 +143,8 @@ class CircleArc {
 }
 
 class CompositeCurve {
-  constructor() {
-    this.curves = []
+  constructor(...args) {
+    this.curves = args
   }
 
   add(curve) {

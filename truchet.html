@@ -710,20 +710,12 @@
             <figure id="tile-5-listing" class="float-right small">
               <svg viewBox="0 0 400 240">
                 <g class="grid triangle">
-                  <g class="triangle" style="transform: translate(113px, 20px)">
-                    <tile123456 />
-                  </g>
-                  <g class="triangle" style="transform: translate(238px, 20px)">
-                    <tile162345 />
-                  </g>
-                  <g class="triangle" style="transform: translate(50px, 120px)">
-                    <tile162534 />
-                  </g>
-                  <g class="triangle" style="transform: translate(175px, 120px)">
-                    <tile142356 />
-                  </g>
-                  <g class="triangle" style="transform: translate(300px, 120px)">
-                    <tile123645 />
+                  <g
+                    v-for="(tile, i) in tiles"
+                    class="triangle"
+                    :style="toTransform({x: 50+(125/2)*Math.floor(i/3)+125*(i%3), y: 20+100*Math.floor(i/3)})"
+                  >
+                    <two-tile-factory :tile="tile" />
                   </g>
                 </g>
               </svg>
@@ -742,7 +734,8 @@
                   :data-tri="tr.string()"
                 >
                   <g class="flippable">
-                    <component @click="click" :is="tileset[tr.data]"></component>
+                    <two-tile-factory @click="click" :tile="tiles[tr.data]" />
+                    <!-- <component @click="click" :is="tileset[tr.data]"></component> -->
                   </g>
                 </g>
               </g>
@@ -810,65 +803,13 @@
             <figure id="tile-15-listing" class="float-right small">
               <svg viewBox="0 0 500 400">
                 <g class="grid triangle">
-                  <g class="triangle" style="transform: translate(50px, 20px)">
-                    <two-tile-factory tile="123456" />
-                    <text x="0" y="105" class="annotation center">12,34,56</text>
-                  </g>
-                  <g class="triangle" style="transform: translate(50px, 140px)">
-                    <two-tile-factory tile="123546" />
-                    <text x="0" y="105" class="annotation center">12,35,46</text>
-                  </g>
-                  <g class="triangle" style="transform: translate(50px, 260px)">
-                    <two-tile-factory tile="123645" />
-                    <text x="0" y="105" class="annotation center">12,36,45</text>
-                  </g>
-                  <g class="triangle" style="transform: translate(150px, 20px)">
-                    <two-tile-factory tile="132456" />
-                    <text x="0" y="105" class="annotation center">13,24,56</text>
-                  </g>
-                  <g class="triangle" style="transform: translate(150px, 140px)">
-                    <two-tile-factory tile="132546" />
-                    <text x="0" y="105" class="annotation center">13,25,46</text>
-                  </g>
-                  <g class="triangle" style="transform: translate(150px, 260px)">
-                    <two-tile-factory tile="132645" />
-                    <text x="0" y="105" class="annotation center">13,26,45</text>
-                  </g>
-                  <g class="triangle" style="transform: translate(250px, 20px)">
-                    <two-tile-factory tile="142356" />
-                    <text x="0" y="105" class="annotation center">14,23,56</text>
-                  </g>
-                  <g class="triangle" style="transform: translate(250px, 140px)">
-                    <two-tile-factory tile="142536" />
-                    <text x="0" y="105" class="annotation center">14,25,36</text>
-                  </g>
-                  <g class="triangle" style="transform: translate(250px, 260px)">
-                    <two-tile-factory tile="142635" />
-                    <text x="0" y="105" class="annotation center">14,26,35</text>
-                  </g>
-                  <g class="triangle" style="transform: translate(350px, 20px)">
-                    <two-tile-factory tile="152346" />
-                    <text x="0" y="105" class="annotation center">15,23,46</text>
-                  </g>
-                  <g class="triangle" style="transform: translate(350px, 140px)">
-                    <two-tile-factory tile="152436" />
-                    <text x="0" y="105" class="annotation center">15,24,36</text>
-                  </g>
-                  <g class="triangle" style="transform: translate(350px, 260px)">
-                    <two-tile-factory tile="152634" />
-                    <text x="0" y="105" class="annotation center">15,26,34</text>
-                  </g>
-                  <g class="triangle" style="transform: translate(450px, 20px)">
-                    <two-tile-factory tile="162345" />
-                    <text x="0" y="105" class="annotation center">16,23,45</text>
-                  </g>
-                  <g class="triangle" style="transform: translate(450px, 140px)">
-                    <two-tile-factory tile="162435" />
-                    <text x="0" y="105" class="annotation center">16,24,35</text>
-                  </g>
-                  <g class="triangle" style="transform: translate(450px, 260px)">
-                    <two-tile-factory tile="162534" />
-                    <text x="0" y="105" class="annotation center">16,25,34</text>
+                  <g
+                    v-for="(tile, i) in tiles"
+                    class="triangle"
+                    :style="toTransform({x:50+100*Math.floor(i/3),y:20+120*(i%3)})"
+                  >
+                    <two-tile-factory :tile="tile" />
+                    <text x="0" y="105" class="annotation center">{{tile}}</text>
                   </g>
                 </g>
               </svg>
@@ -886,7 +827,7 @@
                   :data-tri="tr.string()"
                 >
                   <g class="flippable">
-                    <component @click="click" :is="tileset[tr.data]"></component>
+                    <two-tile-factory @click="click" :tile="tiles[tr.data]" />
                   </g>
                 </g>
               </g>
@@ -1323,14 +1264,13 @@
       const { createApp, ref, defineComponent } = Vue
       import { TriangleGrid, TrianglePositioner, triSimpleClassName } from './js/triangles.js'
       import { SquareGrid, SquarePositioner, setActiveSquare, sqClassName } from './js/squares.js'
-      // import { Truchet, truchetTriangle } from './truchet.js'
       import {
-        tilesetTri5,
-        tilesetTri15,
         twoTileFactory,
         fourCurveFactory,
         fourTileFactory,
+        catalan3,
         catalan6,
+        threePairs,
       } from './js/triangular-tiles.js'
 
       import { toTransform } from './js/svg-utils.js'
@@ -1427,7 +1367,15 @@
       }).mount('#triangle-grid-two-tile')
 
       createApp({
-        components: tilesetTri5,
+        data() {
+          return {
+            tiles: catalan3,
+          }
+        },
+        methods: {
+          toTransform,
+        },
+        components: { twoTileFactory },
       }).mount('#tile-5-listing')
 
       createApp({
@@ -1441,9 +1389,9 @@
                 nY: 7,
               }),
               size: 100,
-              data_range: 5,
+              data_range: catalan3.length,
             }).randomize(),
-            tileset: Object.keys(tilesetTri5),
+            tiles: catalan3,
           }
         },
         methods: {
@@ -1454,11 +1402,19 @@
             this.grid.increaseTriangleData(tri_data)
           },
         },
-        components: tilesetTri5,
+        components: { twoTileFactory },
       }).mount('#triangle-grid-two-bezier-tile')
 
       createApp({
-        components: { ...tilesetTri15, twoTileFactory },
+        data() {
+          return {
+            tiles: threePairs,
+          }
+        },
+        methods: {
+          toTransform,
+        },
+        components: { twoTileFactory },
       }).mount('#tile-15-listing')
 
       createApp({
@@ -1472,9 +1428,9 @@
                 nY: 7,
               }),
               size: 100,
-              data_range: 15,
+              data_range: threePairs.length,
             }).randomize(),
-            tileset: Object.keys(tilesetTri15),
+            tiles: threePairs,
           }
         },
         methods: {
@@ -1485,7 +1441,7 @@
             this.grid.increaseTriangleData(tri_data)
           },
         },
-        components: tilesetTri15,
+        components: { twoTileFactory },
       }).mount('#triangle-grid-fifteen-bezier-tile')
 
       createApp({

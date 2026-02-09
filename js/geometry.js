@@ -1,9 +1,10 @@
-const THRESHOLD = 0.1
+const THRESHOLD = 0.01
 
 class Point {
   constructor(x, y) {
     this.x = x
     this.y = y
+    this.type = 'Point'
   }
 
   addVect(v) {
@@ -15,12 +16,28 @@ class Point {
     return new Vector(this.x - p.x, this.y - p.y)
   }
 
+  vectTo(p) {
+    return p.subPt(this)
+  }
+
   distance(p) {
     return this.subPt(p).len()
   }
 
   string() {
     return `${this.x} ${this.y}`
+  }
+
+  // return the midpoint between two points
+  midpoint(p) {
+    // console.log("midpoint between", this, "and", p, "is", this.towards(p, 1/2))
+    return this.towards(p, 1 / 2)
+  }
+
+  // from this point towards p, travel t of the distance
+  towards(p, t) {
+    // console.log("towards",this, p, t, "is",  this.addVect(p.subPt(this).mult(t)), "vector is", p.subPt(this))
+    return this.addVect(p.subPt(this).mult(t))
   }
 
   // returns true if the two points are close enough, within tolerance
@@ -80,6 +97,56 @@ class Vector {
     // console.log(ret)
     return ret
   }
+
+  // do the two vectors point in the same direction?
+  // I wonder whether this is the rigth approach, should I measure the angle instead?
+  sameDirection(v) {
+    u1 = this.unit()
+    u2 = v.unit()
+    return u1.add(u2.mult(-1)).len() < THRESHOLD
+  }
+
+  same(v) {
+    return this.sameDirection(v) && Math.abs(this.len() - v.len()) < THRESHOLD
+  }
 }
 
-export { Point, Vector }
+// a line
+class Line {
+  constructor(p, v) {
+    this.p = p
+    this.v = v
+  }
+
+  at(t) {
+    return this.p.addVect(this.v.mult(t))
+  }
+
+  // intersect another line, or null if they're parallel
+  // from https://github.com/libeks/go-plotter-svg/blob/main/lines/line.go
+  // and https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
+  intersectT(l) {
+    const x1x2 = -this.v.x
+    const x3x4 = -l.v.x
+    const y1y2 = -this.v.y
+    const y3y4 = -l.v.y
+    const x1x3 = this.p.x - l.p.x
+    const y1y3 = this.p.y - l.p.y
+
+    const divisor = x1x2 * y3y4 - y1y2 * x3x4
+    if (divisor == 0) {
+      return null
+    }
+    return (x1x3 * y3y4 - y1y3 * x3x4) / divisor
+  }
+
+  intersect(l) {
+    const t = this.intersectT(l)
+    if (t === null) {
+      return null
+    }
+    return this.at(t)
+  }
+}
+
+export { Point, Vector, Line }

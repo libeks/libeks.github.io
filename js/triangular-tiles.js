@@ -37,6 +37,7 @@ const triangleTwoPointFactory = memoize(function (size, notch) {
     c1,
     c2,
     c3,
+    origin,
     // center
     center,
     // notches
@@ -271,6 +272,7 @@ const fourCurveFactory = {
   },
   methods: {
     getChunk: function (curve) {
+      console.log('nothces', this.notch1, this.notch2)
       const fourPoints = triangleFourPointFactory(this.side, this.notch1, this.notch2)
       let c1 = curve[0]
       let c2 = curve[1]
@@ -388,10 +390,20 @@ const twoTileFactory = {
   template: `
   <g class="tile">
     <polygon points="0,86.6 -50,0 50,0" />
-    <two-curve-factory v-for="i in [0,1,2]" :curve="computeCurve(tile,i)" />
+    <two-curve-factory v-for="i in [0,1,2]" :size="side" :notch="notch" :curve="computeCurve(tile,i)" />
   </g>
   `,
-  props: ['tile'],
+  props: {
+    tile: String,
+    side: {
+      type: Number,
+      default: 100,
+    },
+    notch: {
+      type: Number,
+      default: 1 / 3,
+    },
+  },
   methods: {
     computeCurve: function (tile, n) {
       let chunks = getPairs(tile)
@@ -405,15 +417,28 @@ const fourTileFactory = {
   template: `
   <g class="tile">
     <polygon points="0,86.6 -50,0 50,0" />
-    <four-curve-factory v-for="i in [0,1,2,3,4,5]" :curve="computeCurve(tile,i)" />
+    <four-curve-factory v-for="i in [0,1,2,3,4,5]" :side="side" :notch1="notch1" :notch2="notch2" :curve="computeCurve(tile,i)" />
   </g>
   `,
-  props: ['tile'],
+  props: {
+    tile: String,
+    side: {
+      type: Number,
+      default: 100,
+    },
+    notch1: {
+      type: Number,
+      default: 1 / 5,
+    },
+    notch2: {
+      type: Number,
+      default: 3 / 5,
+    },
+  },
   methods: {
     computeCurve: function (tile, n) {
-      let chunks = getPairs(tile)
-      const chunk = chunks[n]
-      return chunk
+      console.log('tile', this.notch1, this.notch2)
+      return getPairs(tile)[n]
     },
   },
   components: { fourCurveFactory },
@@ -458,4 +483,12 @@ const catalan6 = arrayOfArrayToArrayOfNumStrings(generateCatalanNumberSet(6))
 
 const catalan3 = arrayOfArrayToArrayOfNumStrings(generateCatalanNumberSet(3))
 
-export { twoTileFactory, fourCurveFactory, fourTileFactory, catalan6, catalan3, threePairs }
+export {
+  triangleTwoPointFactory,
+  twoTileFactory,
+  fourCurveFactory,
+  fourTileFactory,
+  catalan6,
+  catalan3,
+  threePairs,
+}

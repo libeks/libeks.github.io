@@ -8,8 +8,12 @@ class Point {
   }
 
   addVect(v) {
-    // console.log("adding vector to point", this, v)
     return new Point(this.x + v.x, this.y + v.y)
+  }
+
+  d(x, y) {
+    // shorthand for .addVect(new Vector(x,y))
+    return new Point(this.x + x, this.y + y)
   }
 
   subPt(p) {
@@ -17,6 +21,7 @@ class Point {
   }
 
   vectTo(p) {
+    // more intuitive than subPt, gives a vector from this point to the other point
     return p.subPt(this)
   }
 
@@ -43,6 +48,21 @@ class Point {
   // returns true if the two points are close enough, within tolerance
   same(p) {
     return this.distance(p) < THRESHOLD
+  }
+
+  display() {
+    // to display for human readability on the screen, with one decimal digit
+    return `(${this.x.toFixed(1)}, ${this.y.toFixed(1)})`
+  }
+
+  // when needed for cx and cy props (usually <cricle> element)
+  cxcyProps() {
+    return { cx: this.x, cy: this.y }
+  }
+
+  // when needed for x and y props (like <text> element, etc)
+  xyProps() {
+    return { x: this.x, y: this.y }
   }
 }
 

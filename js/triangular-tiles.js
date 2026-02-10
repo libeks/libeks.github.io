@@ -133,6 +133,13 @@ const triangleFourPointFactory = memoize(function (size, notch1, notch2) {
     nB: n11,
     nC: n12,
 
+    t1,
+    t2,
+    t3,
+    t4,
+    t5,
+    t6,
+
     n1star: t1,
     n2star,
     n3star,
@@ -272,14 +279,12 @@ const fourCurveFactory = {
   },
   methods: {
     getChunk: function (curve) {
-      console.log('nothces', this.notch1, this.notch2)
       const fourPoints = triangleFourPointFactory(this.side, this.notch1, this.notch2)
       let c1 = curve[0]
       let c2 = curve[1]
       const distance = distance12(c1, c2)
       if (distance == 0) {
         return new StraightStroke(p1, p1) // tiny line between point and itself, ideally nothing should be drawn
-        // return `M ${printPt(p1)}` // no curve to draw
       }
       const p1 = fourPoints['n' + c1]
       const p2 = fourPoints['n' + c2]
@@ -291,12 +296,9 @@ const fourCurveFactory = {
           // case 1.1, notches are next to each other on a corner
           // without this the corner curves are very pointy
           return new QuadraticBezier(p1, p1prime, p2)
-          // return `M ${printPt(p1)} Q ${printPt(p1prime)}, ${printPt(p2)}`
         }
         // case 1.2 nothces are next to each other on the same edge, connect using cubic and * points
         return new CubicBezier(p1, p1prime, p2prime, p2)
-        // return `M ${printPt(p1)} C ${printPt(p1prime)}, ${printPt(p2prime)}, ${printPt(p2)}`
-        // return `M ${printPt(p1)} L ${printPt(p2)}`
       }
       if (distance == 3 && notchEdge12(c1) == notchEdge12(c2)) {
         // case 2, notches represent the outer pair of an edge, connect them through the points 'C p1, p1*, p2+, midpoint(p2+, p3+)' and 'C midpoint(p2+, p3+), p3+, p4*, p4'
@@ -308,7 +310,6 @@ const fourCurveFactory = {
           new CubicBezier(p1, fourPoints['n' + c1 + 'star'], p2plus, mid),
           new CubicBezier(mid, p3plus, fourPoints['n' + c2 + 'star'], p2),
         )
-        // return `M ${printPt(p1)} C ${printPt(fourPoints[c1 + '*'])} ${printPt(p2plus)} ${printPt(mid)} C ${printPt(p3plus)} ${printPt(fourPoints[c2 + '*'])} ${printPt(p2)}`
       }
       if (
         getNotchType(c1) == 'inner' &&
@@ -317,7 +318,6 @@ const fourCurveFactory = {
       ) {
         // case 3, pair of closest inner notches
         return new QuadraticBezier(p1, fourPoints['n' + c1 + 'plus'], p2)
-        // return `M ${printPt(p1)} Q ${printPt(fourPoints[c1 + '+'])} ${printPt(p2)}`
       }
       if (getNotchType(c1) == 'outer' && getNotchType(c2) == 'outer') {
         // case 4, pair of farthest outer notches (closest ones are already covered in case 1)
@@ -328,15 +328,14 @@ const fourCurveFactory = {
           new CubicBezier(p1, fourPoints['n' + c1 + 'star'], p1plus, mid),
           new CubicBezier(mid, p2plus, fourPoints['n' + c2 + 'star'], p2),
         )
-        // return `M ${printPt(p1)} C ${printPt(fourPoints[c1 + '*'])} ${printPt(p1plus)} ${printPt(mid)} C ${printPt(p2plus)} ${printPt(fourPoints[c2 + '*'])} ${printPt(p2)}`
       }
       if (getNotchType(c1) == 'inner' && getNotchType(c2) == 'inner') {
         // case 5, pair of far inner notches
-        return new CompositeCurve(
-          new QuadraticBezier(p1, fourPoints['n' + c1 + 'star'], fourPoints['center']),
-          new QuadraticBezier(fourPoints['center'], fourPoints['n' + c2 + 'star'], p2),
-        )
-        // return `M ${printPt(p1)} Q ${printPt(fourPoints[c1 + '*'])} ${printPt(fourPoints['center'])} Q ${printPt(fourPoints[c2 + '*'])} ${printPt(p2)}`
+        // return new CompositeCurve(
+        //   new QuadraticBezier(p1, fourPoints['n' + c1 + 'star'], fourPoints['center']),
+        //   new QuadraticBezier(fourPoints['center'], fourPoints['n' + c2 + 'star'], p2),
+        // )
+        return new CubicBezier(p1, fourPoints['n' + c1 + 'star'], fourPoints['n' + c2 + 'star'], p2)
       }
       if (distance == 3 && getNotchType(c1) != getNotchType(c2)) {
         // case 6, inner to outer at a distance of 3
@@ -347,7 +346,6 @@ const fourCurveFactory = {
           new QuadraticBezier(p1, p1prime, midprime),
           new QuadraticBezier(midprime, p2prime, p2),
         )
-        // return `M ${printPt(p1)} Q ${printPt(p1prime)} ${printPt(midprime)} Q ${printPt(p2prime)} ${printPt(p2)}`
       }
       if (distance == 5 && getNotchType(c1) != getNotchType(c2)) {
         // case 7, inner to outer at a disnce of 5
@@ -366,11 +364,9 @@ const fourCurveFactory = {
           new QuadraticBezier(p1, p1plus, midprime),
           new QuadraticBezier(midprime, p2prime, p2),
         )
-        // return `M ${printPt(p1)} Q ${printPt(p1plus)} ${printPt(midprime)} Q ${printPt(p2prime)} ${printPt(p2)}`
       }
       // case X, fallback to direct line
       return new StraightLine(p1, p2)
-      // return `M ${printPt(p1)} L ${printPt(p2)}` // last resort, return direct line
     },
   },
 }
@@ -437,7 +433,6 @@ const fourTileFactory = {
   },
   methods: {
     computeCurve: function (tile, n) {
-      console.log('tile', this.notch1, this.notch2)
       return getPairs(tile)[n]
     },
   },
@@ -485,6 +480,7 @@ const catalan3 = arrayOfArrayToArrayOfNumStrings(generateCatalanNumberSet(3))
 
 export {
   triangleTwoPointFactory,
+  triangleFourPointFactory,
   twoTileFactory,
   fourCurveFactory,
   fourTileFactory,

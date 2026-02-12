@@ -35,13 +35,11 @@ class Point {
 
   // return the midpoint between two points
   midpoint(p) {
-    // console.log("midpoint between", this, "and", p, "is", this.towards(p, 1/2))
     return this.towards(p, 1 / 2)
   }
 
   // from this point towards p, travel t of the distance
   towards(p, t) {
-    // console.log("towards",this, p, t, "is",  this.addVect(p.subPt(this).mult(t)), "vector is", p.subPt(this))
     return this.addVect(p.subPt(this).mult(t))
   }
 
@@ -109,12 +107,9 @@ class Vector {
   rotate(angle) {
     // rotate the vector by angle in degrees, counterclockwise
     const radians = (2 * Math.PI * angle) / 360
-    // console.log("rotating", this, "by angle", angle, radians)
     const cos = Math.cos(radians)
     const sin = Math.sin(radians)
-    // console.log(cos, sin)
     const ret = new Vector(cos * this.x + sin * this.y, -sin * this.x + cos * this.y)
-    // console.log(ret)
     return ret
   }
 

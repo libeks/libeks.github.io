@@ -1,0 +1,98 @@
+svg {
+  polygon {
+    stroke: hsl(0, 0%, 70%);
+    stroke-width: 1;
+  }
+
+  .stroke {
+    fill: none;
+    stroke-width: 5px;
+    stroke: black;
+
+    &.rounded {
+      stroke-linecap: round;
+    }
+
+    &.thin {
+      stroke-width: 0.2px;
+      stroke: hsl(0, 0%, 70%);
+
+      &.red {
+        stroke: red;
+        stroke-width: 1px;
+      }
+
+      &.blue {
+        stroke: blue;
+        stroke-width: 1px;
+      }
+    }
+
+    &.thick {
+      stroke-width: 20px;
+    }
+
+    &.red {
+      stroke: red;
+    }
+
+    &.blue {
+      stroke: blue;
+    }
+
+    &.medium {
+      stroke-width: 2px;
+    }
+
+    &.notch {
+      stroke-width: 2px;
+    }
+  }
+
+  text {
+    font-size: 0.95rem;
+    pointer-events: none;
+    fill: black;
+    font-family: var(--sans-serif);
+
+    .x-coord {
+      fill: hsl(0, 80%, 40%);
+    }
+
+    .y-coord {
+      fill: hsl(240, 80%, 40%);
+    }
+
+    .r-coord {
+      fill: hsl(280, 80%, 40%);
+    }
+
+    .z-coord {
+      fill: hsl(120, 80%, 30%);
+    }
+
+    .b-coord {
+      fill: hsl(40, 80%, 30%);
+    }
+
+    &.annotation {
+      font-size: 0.8em;
+    }
+
+    &.small {
+      font-size: 4px;
+    }
+
+    &.medium {
+      font-size: 8px;
+    }
+
+    &.large {
+      font-size: 12px;
+    }
+
+    &.center {
+      text-anchor: middle;
+    }
+  }
+}

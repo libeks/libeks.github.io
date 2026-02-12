@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>SVG Pseudo-3D Rendering</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="style.css" rel="stylesheet" />
+    <link href="three-d.css" rel="stylesheet" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Libertinus+Math&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <header>
+      <h1>SVG Pseudo-3D Renderings</h1>
+      <div class="subhead"><a href="index.html">Home</a></div>
+    </header>
+    <main>
+      <section>
+        <p>
+          I kept wanting to expore how to turn a 3D scene into lines that can be plotted by a pen
+          plotter. So here goes. I don't think I'm inventing anything new here, but I want to
+          understand how it works.
+        </p>
+      </section>
+      <section>
+        <h2 id="simple-cube">
+          <a class="anchor" href="#simple-cube"></a>
+          <span>Simple Cube</span>
+        </h2>
+        <div class="flex-container">
+          <p>
+            Let's start by drawing a cube which rotates around its vertical axis and plotting the
+            corner points. Consider this the initial step in the project. Behind the scenes this
+            involves a lot of math, including but not limited to matrix multiplication in 2-, 3- and
+            4-D (the latter to use Homogeneous coordinates). I've already set up all this math once
+            before for my CPU-based 3D renderer, so most of the work was to adapt the go code to
+            JavaScript.
+          </p>
+          <figure id="cube-corners" class="float-right small">
+            <svg viewBox="0 0 600 300">
+              <three-d-scene :frame="t" :scene="scene" :screen="screen" show-lines />
+            </svg>
+            <figcaption>
+              The eight corners of a cube rotating around its vertical axis.<br />t={{t}}
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <p>No LLMs were consulted in the making of this site.</p>
+      <p>© 2026 Jānis Lībeks</p>
+    </footer>
+    <script type="module">
+      const { createApp, ref, defineComponent } = Vue
+      import { threeDScene } from './js/3d.js'
+      import { Scene3D, Object3D, StaticTransform, ParameterizedTransform } from './js/scene3d.js'
+      import { Point3D, Vector3D } from './js/geometry3D.js'
+      import { TranslateHomo, RotateXHomo, RotateYHomo, RotateZHomo } from './js/geometryHomo.js'
+      import { Screen } from './js/pixelSpace.js'
+
+      // cube of side length 200 centered around the origin
+      const cube = new Object3D(
+        // faces
+        [
+          [0, 1, 2, 3],
+          [4, 5, 6, 7],
+          [0, 1, 5, 4],
+          [1, 2, 6, 5],
+          [2, 3, 7, 6],
+          [3, 0, 4, 7],
+        ],
+        // points
+        [
+          new Point3D(-100, -100, 100), // 0
+          new Point3D(-100, 100, 100), // 1
+          new Point3D(100, 100, 100), // 2
+          new Point3D(100, -100, 100), // 3
+          new Point3D(-100, -100, -100), // 4
+          new Point3D(-100, 100, -100), // 5
+          new Point3D(100, 100, -100), // 6
+          new Point3D(100, -100, -100), // 7
+        ],
+      )
+        .withTransform(
+          new ParameterizedTransform((t) =>
+            RotateZHomo(t / 20)
+              .matrixMult(RotateYHomo(t / 10))
+              .matrixMult(RotateXHomo(t / 50)),
+          ),
+        )
+        .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 100))))
+      // console.log('translation', )
+      console.log('cube', cube)
+
+      createApp({
+        data() {
+          return {
+            t: 0,
+            scene: new Scene3D(cube),
+            screen: new Screen(600, 300),
+          }
+        },
+        components: { threeDScene },
+        mounted() {
+          setInterval(() => {
+            this.t++
+          }, 1000 / 30)
+        },
+      }).mount('#cube-corners')
+    </script>
+  </body>
+</html>

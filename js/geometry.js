@@ -109,8 +109,7 @@ class Vector {
     const radians = (2 * Math.PI * angle) / 360
     const cos = Math.cos(radians)
     const sin = Math.sin(radians)
-    const ret = new Vector(cos * this.x + sin * this.y, -sin * this.x + cos * this.y)
-    return ret
+    return new Vector(cos * this.x + sin * this.y, -sin * this.x + cos * this.y)
   }
 
   // do the two vectors point in the same direction?

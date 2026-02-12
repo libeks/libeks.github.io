@@ -16,7 +16,7 @@ class Face3D {
 class FrameObject3D {
   constructor(faces, points) {
     this.faces = faces
-    this.points = points
+    this.points = points // homo coordinates
   }
 }
 
@@ -61,7 +61,7 @@ class ParameterizedTransform {
 class Object3D {
   constructor(faces, points) {
     this.faces = faces // faces of this object, each referring to the indices of the points
-    this.points = points // a list of the unique points of this object
+    this.points = points // a list of the unique points of this object, in 3d
     this.transform = new StaticTransform(NoopTransformHomo) // function from (t) to the homogeneous matrix that all points should be mutated with
   }
 
@@ -70,22 +70,12 @@ class Object3D {
     return this // allow chaining
   }
 
-  // facePts() {
-  //   return this.faces.map((face) => face.map((ptIdx) => this.transform.mult(this.points[ptIdx])))
-  // }
-
-  // getPoints(t) {
-  //   // return all the unique points describing this object
-  //   return this.points
-  // }
-
-  // lines() {}
-
   getFrame(t) {
     const transform = this.transform.getFrame(t)
+    // console.log('transform', transform)
     return new FrameObject3D(
       this.faces,
-      this.points.map((pt) => transform.multPt(pt.toHomo()).to3D()),
+      this.points.map((pt) => transform.multPt(pt.toHomo())),
     )
   }
 }
@@ -110,10 +100,4 @@ class Scene3D {
   }
 }
 
-// given a homogeneous coordinate, return the 2-d pixel value, along with the depth z-coordinate
-function cameraTransform(homoCoords, screen) {
-  const point2d = MatrixProjectionHomo.multPt(homoCoords).to3D().to2D()
-  return screen.getPixel(point2d, homoCoords.z)
-}
-
-export { Object3D, Scene3D, cameraTransform, StaticTransform, ParameterizedTransform }
+export { Object3D, Scene3D, StaticTransform, ParameterizedTransform }

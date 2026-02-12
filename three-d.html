@@ -28,22 +28,73 @@
         </p>
       </section>
       <section>
-        <h2 id="simple-cube">
-          <a class="anchor" href="#simple-cube"></a>
-          <span>Simple Cube</span>
+        <h2 id="simple-cube-wireframe">
+          <a class="anchor" href="#simple-cube-wireframe"></a>
+          <span>Simple Cube Wireframe</span>
+        </h2>
+        <div class="flex-container">
+          <div>
+            <p>
+              Let's start by drawing a cube which rotates around its axes and plotting the corner
+              points along with lines between them. Consider this the initial step in the project.
+              Behind the scenes this involves a lot of math, including, but not limited to, matrix
+              multiplication in 2-, 3- and 4-D (the latter to use Homogeneous coordinates). I've
+              already set up all this math once before for my CPU-based 3D renderer, so most of the
+              work was to adapt the go code to JavaScript.
+            </p>
+            <p>
+              Critically, I want to accomplish a 3D look using only SVG elements, which is
+              inherently a 2D display. In fact, I will also ignore SVG render order for occlusion,
+              and will do all of the math myself. So for the display to the right, I am doing the
+              math in 3D, but rendering SVG lines and points in 2D.
+            </p>
+            <p>
+              A funny side-effect is that if you look at the animation long enough, your brain can
+              flip its direction of perception, making it seem that the deeper points appear more
+              shallow, which is kinda fun. This is inherent to wireframe-only rendering. I'll start
+              dealing with occlusion in the next section.
+            </p>
+          </div>
+          <figure id="cube-wireframe" class="float-right small">
+            <svg viewBox="0 0 600 300">
+              <three-d-scene
+                :frame="t"
+                :scene="scene"
+                :screen="screen"
+                show-points
+                show-wireframe
+              />
+            </svg>
+            <figcaption>
+              The eight corners of a cube rotating around its vertical axis.<br />t={{t}}
+              <div class="button" @click="active = !active">{{active ? 'Pause' : 'Resume'}}</div>
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+      <section>
+        <h2 id="simple-cube-occlusion">
+          <a class="anchor" href="#simple-cube-occlusion"></a>
+          <span>Simple Cube Occlusion</span>
         </h2>
         <div class="flex-container">
           <p>
-            Let's start by drawing a cube which rotates around its vertical axis and plotting the
-            corner points. Consider this the initial step in the project. Behind the scenes this
-            involves a lot of math, including but not limited to matrix multiplication in 2-, 3- and
-            4-D (the latter to use Homogeneous coordinates). I've already set up all this math once
-            before for my CPU-based 3D renderer, so most of the work was to adapt the go code to
-            JavaScript.
+            Next, I want to start rendering the faces. With the previous section, I am rendering all
+            faces as transparent, but I'd like to change it so that the faces in the foreground
+            occlude the faces in the background. For this, I need a way to check whether a ray that
+            is shot out from the camera towards any point in the scene intersects with another face,
+            and if so, whether this intersection point is closer to the camera (the point is
+            obscured) or not (the point is in the foreground).
           </p>
-          <figure id="cube-corners" class="float-right small">
+          <figure id="cube-faces" class="float-right small">
             <svg viewBox="0 0 600 300">
-              <three-d-scene :frame="t" :scene="scene" :screen="screen" show-lines />
+              <three-d-scene
+                :frame="t"
+                :scene="scene"
+                :screen="screen"
+                show-wireframe
+                show-points
+              />
             </svg>
             <figcaption>
               The eight corners of a cube rotating around its vertical axis.<br />t={{t}}
@@ -94,25 +145,43 @@
               .matrixMult(RotateXHomo(t / 50)),
           ),
         )
-        .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 100))))
-      // console.log('translation', )
-      console.log('cube', cube)
+        .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 187))))
 
       createApp({
         data() {
           return {
             t: 0,
             scene: new Scene3D(cube),
-            screen: new Screen(600, 300),
+            screen: new Screen(600, 300, 'projective'),
+            // camera: new ParallelCamera(200),
+            active: true,
           }
         },
         components: { threeDScene },
         mounted() {
           setInterval(() => {
-            this.t++
+            if (this.active) {
+              this.t++
+            }
           }, 1000 / 30)
         },
-      }).mount('#cube-corners')
+      }).mount('#cube-wireframe')
+
+      // createApp({
+      //   data() {
+      //     return {
+      //       t: 0,
+      //       scene: new Scene3D(cube),
+      //       screen: new Screen(600, 300),
+      //     }
+      //   },
+      //   components: { threeDScene },
+      //   mounted() {
+      //     setInterval(() => {
+      //       this.t++
+      //     }, 1000 / 30)
+      //   },
+      // }).mount('#cube-faces')
     </script>
   </body>
 </html>

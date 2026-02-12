@@ -238,7 +238,27 @@ class MatrixHomo {
   }
 }
 
-const MatrixProjectionHomo = new MatrixHomo(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0)
+const MatrixProjectionHomo = new MatrixHomo(
+  1,
+  0,
+  0,
+  0,
+
+  0,
+  1,
+  0,
+  0,
+
+  0,
+  0,
+  1,
+  0,
+
+  0,
+  0,
+  1,
+  0,
+)
 const MatrixProjectionI = new MatrixHomo(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
 const NoopTransformHomo = MatrixProjectionI
 

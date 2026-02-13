@@ -2,13 +2,29 @@ import { MatrixProjectionHomo, NoopTransformHomo } from './geometryHomo.js'
 import { Pixel } from './pixelSpace.js'
 
 class Face3D {
-  // represents a planar face of a 3D polyhedron
+  // represents a planar face of a convex planar polygon in  3D
   constructor(...pts) {
     this.pts = pts
+    triangles = []
+    for (let i = 1; i < this.pts.length - 1; i++) {
+      triangles.push(new Triangle(this.pts[0], this.pts[i], this.pts[i + 1]))
+    }
+    this.triangles = triangles // this will be wrong for non-convex polygons
   }
 
   transform(homoMat) {
     return this.pts.map((pt) => homoMat.apply(pt))
+  }
+
+  intersectRay(ray) {
+    for (let tri of this.triangles) {
+      let intersect = tri.intersectRay(ray)
+      if (intersect !== null) {
+        let { a, b, depth } = intersect
+        return { point: tri.at(a, b), depth }
+      }
+    }
+    return null
   }
 }
 

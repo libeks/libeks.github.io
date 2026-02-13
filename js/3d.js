@@ -1,4 +1,5 @@
 import { Point, Vector } from './geometry.js'
+import { PointHomo } from './geometryHomo.js'
 import { StraightStroke, CompositeCurve, Polygon } from './lines.js'
 import { Screen } from './pixelSpace.js'
 
@@ -25,10 +26,13 @@ const threeDScene = {
       for (let obj of this.scene.objects) {
         for (let pt of obj.getFrame(this.frame).points) {
           let projectedPt = this.screen.homoToPixel(pt)
-          pts.push(projectedPt)
+
+          let ray = this.screen.reverseRay(projectedPt.point.x, projectedPt.point.y)
+          let p = ray.at(1)
+          let newPixel = this.screen.homoToPixel(new PointHomo(p.x, p.y, p.z, 1))
+          pts.push(newPixel)
         }
       }
-      // pts.forEach((pt) => console.log('depth', pt.point, pt.depth))
       pts = pts.filter((pt) => pt.depth > 0) // filter out points behind the camera
       return pts
     },
@@ -36,7 +40,6 @@ const threeDScene = {
       let lines = []
       for (let obj of this.scene.objects) {
         let objFrame = obj.getFrame(this.frame)
-        // console.log(objFrame.points)
         let pts = objFrame.points.map((pt) => this.screen.homoToPixel(pt))
         let validPts = pts.map((pt) => pt.depth > 0) // bool value mapping whether a point is in front of the camera
         for (let face of objFrame.faces) {

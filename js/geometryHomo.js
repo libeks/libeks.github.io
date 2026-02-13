@@ -49,7 +49,7 @@ class PointHomo {
 
   to3D() {
     const v = PointHomoOrigin.vectTo(this)
-    const scaled = v.mult(1 / v.len())
+    const scaled = v.mult(1 / this.t)
     const ret = new Point3D(scaled.x, scaled.y, scaled.z)
     return ret
   }

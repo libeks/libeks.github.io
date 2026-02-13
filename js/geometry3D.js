@@ -82,6 +82,9 @@ class Vector3D {
   }
 
   add(v) {
+    if (v.type != 'Vector3D') {
+      throw `Invalid argument to cross: ${v.type}`
+    }
     return new Vector3D(this.x + v.x, this.y + v.y, this.z + v.z)
   }
 
@@ -94,6 +97,9 @@ class Vector3D {
   }
 
   dot(v) {
+    if (v.type != 'Vector3D') {
+      throw `Invalid argument to cross: ${v.type}`
+    }
     return this.x * v.x + this.y * v.y + this.z * v.z
   }
 
@@ -104,6 +110,18 @@ class Vector3D {
       return this
     }
     return this.mult(1 / this.len())
+  }
+
+  // cross product between two vectors
+  cross(v) {
+    if (v.type != 'Vector3D') {
+      throw `Invalid argument to cross: ${v.type}`
+    }
+    return new Vector3D(
+      this.Y * v.z - this.Z * v.y,
+      this.Z * v.x - this.X * v.z,
+      this.X * v.y - this.Y * v.x,
+    )
   }
 
   toHomo() {
@@ -264,7 +282,115 @@ class Matrix3D {
   }
 }
 
+class Ray {
+  constructor(p, v) {
+    if (p.type != 'Point3D') {
+      throw `Invalid argument to Ray ${p}`
+    }
+    if (v.type != 'Vector3D') {
+      throw `Invalid argument to Ray ${v}`
+    }
+    this.p = p
+    this.v = v
+  }
+
+  at(t) {
+    return this.p.addVect(this.v.mult(t))
+  }
+}
+
+class Plane {
+  constructor(n, d) {
+    if (n.type != 'Vector3D') {
+      throw `Invalid argument to Plane ${n}`
+    }
+    this.n = n
+    this.d = d
+  }
+
+  intersectRay(r) {
+    const denominator = this.n.dot(d)
+    if (denominator == 0) {
+      return null // ray is parallel to plane, no intersection
+    }
+    const t = (this.d - this.n.dot(r.p.subPt(Point3DOrigin))) / denominator
+    if (t < 0.0) {
+      return null // ray intersects plane before ray's starting point
+    }
+    const point = r.at(t)
+    return point
+  }
+}
+
+class Triangle {
+  constructor(a, b, c) {
+    if (a.type != 'Point3D' || a.type != 'Point3D' || a.type != 'Point3D') {
+      throw `Invalid argument to Triangle ${a}, ${b}, ${c}`
+    }
+    this.a = a
+    this.b = b
+    this.c = c
+  }
+
+  bVect() {
+    return a.towards(b)
+  }
+
+  cVect() {
+    return a.towards(c)
+  }
+
+  // return a point inside the triangle with parameters a and b, where a+b < 1 and a>0 and b>0
+  at(a, b) {
+    return this.a.addVect(this.bVect().mult(a)).addVect(this.cVect().mult(c))
+  }
+
+  getPlane() {
+    const nVector = this.bVect().CrossProduct(this.cVect())
+    return new Plane(nVector, Origin3D.vectTO(this.a).dot(nVector))
+  }
+
+  rayIntersectLocalCoords(ray) {
+    const bVect = this.bVect()
+    const cVect = this.cVect()
+    const plane = this.getPlane()
+    const normal = this.plane.n
+    const normalMagSq = this.normal.len() ** 2
+    let intersectPt = this.plane.intersectRay(ray)
+    if (intersectPt === null) {
+      return null
+    }
+    const iVect = intersectPt.subPt(this.a)
+    // const zDepth = -intersectDot.z
+
+    const b = iVect.cross(cVect).dot(normal) / normalMagSq
+    const c = bVect.cross(iVect).dot(normal) / normalMagSq
+    // check if vector (b,c) is inside the triangle [(0,0), (1,0), (0,1)]
+    if (b < 0 || b > 1 || c < 0 || c > 1) {
+      // outside the unit square
+      return null
+    }
+    if (b + c > 1) {
+      // inside unit square, but on far side of hypotenuse
+      return null
+    }
+    // inside unit square and inside the hypotenuse
+    return { b, c, depth: ray.p.distance(intersectPt) }
+  }
+}
+
 const Matrix3DI = new Matrix3D(1, 0, 0, 0, 1, 0, 0, 0, 1)
 const Matrix3DNull = new Matrix3D(0, 0, 0, 0, 0, 0, 0, 0, 0)
 
-export { Point3D, Point3DOrigin, Vector3D, Vector3DNull, Matrix3D, Matrix3DI, Matrix3DNull }
+export {
+  Point3D,
+  Point3DOrigin,
+  Vector3D,
+  Vector3DNull,
+  Matrix3D,
+  Matrix3DI,
+  Matrix3DNull,
+  Ray,
+  Triangle,
+  Plane,
+}

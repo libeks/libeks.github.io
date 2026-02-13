@@ -68,6 +68,13 @@
             <figcaption>
               The eight corners of a cube rotating around its vertical axis.<br />t={{t}}
               <div class="button" @click="active = !active">{{active ? 'Pause' : 'Resume'}}</div>
+              <div>
+                <input type="radio" id="one" value="parallel" v-model="camera" />
+                <label for="one">Isometric</label>
+
+                <input type="radio" id="two" value="projective" v-model="camera" />
+                <label for="two">Projective</label>
+              </div>
             </figcaption>
           </figure>
         </div>
@@ -113,7 +120,7 @@
       import { Scene3D, Object3D, StaticTransform, ParameterizedTransform } from './js/scene3d.js'
       import { Point3D, Vector3D } from './js/geometry3D.js'
       import { TranslateHomo, RotateXHomo, RotateYHomo, RotateZHomo } from './js/geometryHomo.js'
-      import { Screen } from './js/pixelSpace.js'
+      import { Screen, ProjectiveCamera, IsometricCamera } from './js/pixelSpace.js'
 
       // cube of side length 200 centered around the origin
       const cube = new Object3D(
@@ -145,17 +152,25 @@
               .matrixMult(RotateXHomo(t / 50)),
           ),
         )
-        .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 187))))
+        .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 300))))
 
       createApp({
         data() {
           return {
             t: 0,
             scene: new Scene3D(cube),
-            screen: new Screen(600, 300, 'projective'),
-            // camera: new ParallelCamera(200),
+            camera: 'projective',
+            // camera: 'parallel',
             active: true,
           }
+        },
+        computed: {
+          screen() {
+            if (this.camera == 'projective') {
+              return new Screen(600, 300, new ProjectiveCamera(1.5))
+            }
+            return new Screen(600, 300, new IsometricCamera(200))
+          },
         },
         components: { threeDScene },
         mounted() {

@@ -167,7 +167,7 @@
         computed: {
           screen() {
             if (this.camera == 'projective') {
-              return new Screen(600, 300, new ProjectiveCamera(1.5))
+              return new Screen(600, 300, new ProjectiveCamera(1))
             }
             return new Screen(600, 300, new IsometricCamera(200))
           },

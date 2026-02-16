@@ -1,5 +1,11 @@
 class StraightStroke {
   constructor(from, to) {
+    if (from.type != 'Point') {
+      throw `StraighStroke received invalid argument ${from.type}`
+    }
+    if (to.type != 'Point') {
+      throw `StraighStroke received invalid argument ${to.type}`
+    }
     this.from = from
     this.to = to
   }

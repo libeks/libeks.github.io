@@ -24,74 +24,44 @@ const threeDScene = {
   },
   computed: {
     sceneFrame() {
-      // console.log(this.screen)
       return this.scene.getFrame(this.screen, this.frame)
     },
     points() {
-      let pts = []
-      // console.log(this.sceneFrame)
-      for (let obj of this.sceneFrame.objects) {
-        // console.log('obj', obj)
-        for (let pt of obj.points) {
-          // console.log(this.screen)
-          let projectedPt = this.screen.homoToPixel(pt)
-
-          // for debugging purposes, reverse engineer the position of the point by sending a ray back into the scene
-          let ray = this.screen.reverseRay(projectedPt.point.x, projectedPt.point.y)
-          let p = ray.at(1)
-          let newPixel = this.screen.homoToPixel(new PointHomo(p.x, p.y, p.z, 1))
-          pts.push(newPixel)
-        }
-      }
-      pts = pts.filter((pt) => pt.depth > 0) // filter out points behind the camera
-      return pts
+      return this.sceneFrame.getPointsInCamera()
     },
     wireframe() {
-      let lines = []
-      for (let obj of this.sceneFrame.objects) {
-        // let objFrame = obj.getFrame(this.frame)
-
-        let pts = obj.points.map((pt) => this.screen.homoToPixel(pt))
-        let validPts = pts.map((pt) => pt.depth > 0) // bool value mapping whether a point is in front of the camera
-        for (let face of obj.faces) {
-          if (face.map((id) => validPts[id]).every((val) => val)) {
-            // all points are in front of the camera
-            let faceLines = []
-            for (let i = 0; i < face.length; i++) {
-              faceLines.push(
-                new StraightStroke(pts[face[i]].point, pts[face[(i + 1) % face.length]].point),
-              )
-            }
-            lines.push(new CompositeCurve(...faceLines))
-          } else {
-            console.log('face has some points behind the camera')
-          }
-        }
-      }
-      return lines
+      return this.sceneFrame
+        .getLineObjs()
+        .map(
+          (line) =>
+            new StraightStroke(
+              line.pointObjs[0].projected.point,
+              line.pointObjs[1].projected.point,
+            ),
+        )
     },
     faces() {
-      let faces = []
-      for (let obj of this.scene.objects) {
-        let objFrame = obj.getFrame(this.frame)
-        let pts = objFrame.points.map((pt) => this.screen.homoToPixel(pt))
-        let validPts = pts.map((pt) => pt.depth > 0) // bool value mapping whether a point is in front of the camera
-        for (let face of objFrame.faces) {
-          if (face.map((id) => validPts[id]).every((val) => val)) {
-            // all points are in front of the camera
-            let faceLines = []
-            for (let i = 0; i < face.length; i++) {
-              faceLines.push(
-                new StraightStroke(pts[face[i]].point, pts[face[(i + 1) % face.length]].point),
-              )
-            }
-            lines.push(new CompositeCurve(...faceLines))
-          } else {
-            console.log('face has some points behind the camera')
+      let ret = []
+      for (let face of this.sceneFrame.getFaceObjs()) {
+        if (!face.facesCamera) {
+          continue
+        }
+        let lines = []
+        for (let line of face.lines) {
+          let ptA = line.line.pointObjs[0].projected.point
+          let ptB = line.line.pointObjs[1].projected.point
+          if (line.reverse) {
+            let temp = ptA
+            ptA = ptB
+            ptB = temp
           }
+          lines.push(new StraightStroke(ptA, ptB))
+        }
+        if (lines.length > 0) {
+          ret.push(new CompositeCurve(...lines))
         }
       }
-      return faces
+      return ret
     },
   },
 }

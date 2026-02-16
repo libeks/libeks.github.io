@@ -24,7 +24,7 @@ class IsometricCamera {
 
   // rayToPoint returns a ray from the camera to the point in 3d, this is used to decide whether a face is facing the camera
   rayTo3DPoint(pt) {
-    return new Ray(new Point3D(pt.x, pt.y, 0), Point3DOrigin.vectTo(pt))
+    return new Ray(new Point3D(pt.x, pt.y, 0), new Point3D(pt.x, pt.y, 0).vectTo(pt))
   }
 }
 

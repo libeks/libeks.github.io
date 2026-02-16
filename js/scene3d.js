@@ -25,9 +25,9 @@ class Face3D {
       .vectTo(this.points[1].point.to3D())
       .cross(this.points[0].point.to3D().vectTo(this.points[2].point.to3D()))
     let ray = camera.rayTo3DPoint(this.points[0].point.to3D())
-
-    // console.log('facesCamera', norm, ray, norm.dot(ray.v), norm.dot(ray.v) < 0)
-    return norm.dot(ray.v) < 0
+    let dotProduct = norm.dot(ray.v)
+    // console.log('dot product', norm, ray, dotProduct)
+    return dotProduct < 0
   }
 
   intersectRay(ray) {
@@ -114,17 +114,69 @@ class SceneFrame {
     this.objects = objects
     this.screen = screen
     this.projectedObjects = this.computeObjects(screen)
-    // console.log(this.projectedObjects)
   }
 
   computeObjects(screen) {
     return this.objects.map((obj) => this.computeObject(screen, obj))
   }
 
+  getWireframe() {
+    let ret = []
+    for (let obj of this.projectedObjects) {
+      ret.push(obj.lines.values().map((line) => new StraightStroke(line.a.point, line.b.point)))
+    }
+    console.log('wireframe', ret)
+    return ret
+  }
+
+  getVisibleWireframe() {
+    let ret = []
+    for (let obj of this.projectedObjects) {
+      ret.push(obj.lines.values().map((line) => new StraightStroke(line.a.point, line.b.point)))
+    }
+    return ret
+  }
+
+  getPointsInCamera() {
+    let ret = []
+    for (let point of this.getPointObjs()) {
+      // console.log('point', point)
+      if (point.inFrontOfCamera) {
+        ret.push(point.projected.point)
+      }
+    }
+    return ret
+  }
+
+  getPointObjs() {
+    let ret = []
+    for (let obj of this.projectedObjects) {
+      ret.push(...obj.points)
+    }
+    return ret
+  }
+
+  getFaceObjs() {
+    let ret = []
+    for (let obj of this.projectedObjects) {
+      ret.push(...obj.faces)
+    }
+    return ret
+  }
+
+  getLineObjs() {
+    let ret = []
+    for (let obj of this.projectedObjects) {
+      ret.push(...Object.values(obj.lines))
+    }
+    return ret
+  }
+
   computeObject(screen, obj) {
     let points = []
     for (let [ptID, pt] of obj.points.entries()) {
       let projectedPt = this.screen.homoToPixel(pt)
+      // console.log('point depth', projectedPt.depth)
       points.push({
         // objID,
         ptID,
@@ -132,6 +184,7 @@ class SceneFrame {
         projected: projectedPt,
         lines: [],
         faces: [],
+        inFrontOfCamera: projectedPt.depth > 0,
       })
     }
     let faces = []
@@ -140,7 +193,8 @@ class SceneFrame {
       let pts = pointIDs.map((ptID) => points[ptID])
       let face = new Face3D(...pts)
       let faceObj = {
-        points,
+        // points,
+        pointIDs,
         faceID,
         // objID,
         face,
@@ -152,7 +206,9 @@ class SceneFrame {
         let ptBID = (ptAID + 1) % pointIDs.length
         let a = pointIDs[ptAID]
         let b = pointIDs[ptBID]
+        let reverse = false
         if (b < a) {
+          reverse = true
           let temp = a
           a = b
           b = temp
@@ -171,17 +227,34 @@ class SceneFrame {
           points[b].lines.push(lineObj)
         }
         lines[key].faces.push(faceObj)
+        faceObj.lines.push({
+          line: lines[key],
+          reverse,
+        })
       }
       faces.push(faceObj)
       for (let pt of pts) {
         pt.faces.push(faceObj)
       }
     }
-
-    console.log(
-      'visible',
-      faces.map((face) => face.facesCamera),
-    )
+    for (let pt of points) {
+      let visible = false
+      for (let face of pt.faces) {
+        if (face.facesCamera) {
+          visible = true
+        }
+      }
+      pt.visible = visible
+    }
+    for (let line of Object.values(lines)) {
+      let visible = false
+      for (let face of line.faces) {
+        if (face.facesCamera) {
+          visible = true
+        }
+      }
+      line.visible = visible
+    }
 
     return {
       points,

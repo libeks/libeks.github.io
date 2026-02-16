@@ -1,19 +1,33 @@
 import { MatrixProjectionHomo, NoopTransformHomo } from './geometryHomo.js'
+import { Triangle } from './geometry3D.js'
 import { Pixel } from './pixelSpace.js'
 
 class Face3D {
   // represents a planar face of a convex planar polygon in  3D
   constructor(...pts) {
-    this.pts = pts
-    triangles = []
-    for (let i = 1; i < this.pts.length - 1; i++) {
-      triangles.push(new Triangle(this.pts[0], this.pts[i], this.pts[i + 1]))
+    this.points = pts
+    let triangles = []
+    for (let i = 1; i < this.points.length - 1; i++) {
+      triangles.push(
+        new Triangle(
+          this.points[0].point.to3D(),
+          this.points[i].point.to3D(),
+          this.points[i + 1].point.to3D(),
+        ),
+      )
     }
     this.triangles = triangles // this will be wrong for non-convex polygons
   }
 
-  transform(homoMat) {
-    return this.pts.map((pt) => homoMat.apply(pt))
+  facesCamera(camera) {
+    let norm = this.points[0].point
+      .to3D()
+      .vectTo(this.points[1].point.to3D())
+      .cross(this.points[0].point.to3D().vectTo(this.points[2].point.to3D()))
+    let ray = camera.rayTo3DPoint(this.points[0].point.to3D())
+
+    // console.log('facesCamera', norm, ray, norm.dot(ray.v), norm.dot(ray.v) < 0)
+    return norm.dot(ray.v) < 0
   }
 
   intersectRay(ray) {
@@ -76,7 +90,7 @@ class ParameterizedTransform {
 
 class Object3D {
   constructor(faces, points) {
-    this.faces = faces // faces of this object, each referring to the indices of the points
+    this.faces = faces // faces of this object, array of faces, each an array of indices of the points
     this.points = points // a list of the unique points of this object, in 3d
     this.transform = new StaticTransform(NoopTransformHomo) // function from (t) to the homogeneous matrix that all points should be mutated with
   }
@@ -88,7 +102,6 @@ class Object3D {
 
   getFrame(t) {
     const transform = this.transform.getFrame(t)
-    // console.log('transform', transform)
     return new FrameObject3D(
       this.faces,
       this.points.map((pt) => transform.multPt(pt.toHomo())),
@@ -97,8 +110,84 @@ class Object3D {
 }
 
 class SceneFrame {
-  constructor(...objects) {
+  constructor(screen, ...objects) {
     this.objects = objects
+    this.screen = screen
+    this.projectedObjects = this.computeObjects(screen)
+    // console.log(this.projectedObjects)
+  }
+
+  computeObjects(screen) {
+    return this.objects.map((obj) => this.computeObject(screen, obj))
+  }
+
+  computeObject(screen, obj) {
+    let points = []
+    for (let [ptID, pt] of obj.points.entries()) {
+      let projectedPt = this.screen.homoToPixel(pt)
+      points.push({
+        // objID,
+        ptID,
+        point: pt,
+        projected: projectedPt,
+        lines: [],
+        faces: [],
+      })
+    }
+    let faces = []
+    let lines = {}
+    for (let [faceID, pointIDs] of obj.faces.entries()) {
+      let pts = pointIDs.map((ptID) => points[ptID])
+      let face = new Face3D(...pts)
+      let faceObj = {
+        points,
+        faceID,
+        // objID,
+        face,
+        facesCamera: face.facesCamera(this.screen.camera),
+        pointIDs,
+        lines: [],
+      }
+      for (let ptAID = 0; ptAID < pointIDs.length; ptAID++) {
+        let ptBID = (ptAID + 1) % pointIDs.length
+        let a = pointIDs[ptAID]
+        let b = pointIDs[ptBID]
+        if (b < a) {
+          let temp = a
+          a = b
+          b = temp
+        }
+        let key = `${a},${b}`
+        if (!(key in lines)) {
+          let lineObj = {
+            a,
+            b,
+            points: [a, b],
+            pointObjs: [points[a], points[b]],
+            faces: [],
+          }
+          lines[key] = lineObj
+          points[a].lines.push(lineObj)
+          points[b].lines.push(lineObj)
+        }
+        lines[key].faces.push(faceObj)
+      }
+      faces.push(faceObj)
+      for (let pt of pts) {
+        pt.faces.push(faceObj)
+      }
+    }
+
+    console.log(
+      'visible',
+      faces.map((face) => face.facesCamera),
+    )
+
+    return {
+      points,
+      faces,
+      lines,
+    }
   }
 }
 
@@ -111,8 +200,8 @@ class Scene3D {
     this.objects.push(object)
   }
 
-  getT(t) {
-    return this.objects.map((obj) => obj.getT(t))
+  getFrame(screen, t) {
+    return new SceneFrame(screen, ...this.objects.map((obj) => obj.getFrame(t)))
   }
 }
 

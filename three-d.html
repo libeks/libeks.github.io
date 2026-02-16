@@ -16,7 +16,7 @@
 
   <body>
     <header>
-      <h1>SVG Pseudo-3D Renderings</h1>
+      <h1>SVG Pseudo-3D Rendering</h1>
       <div class="subhead"><a href="index.html">Home</a></div>
     </header>
     <main>
@@ -36,17 +36,19 @@
           <div>
             <p>
               Let's start by drawing a cube which rotates around its axes and plotting the corner
-              points along with lines between them. Consider this the initial step in the project.
-              Behind the scenes this involves a lot of math, including, but not limited to, matrix
-              multiplication in 2-, 3- and 4-D (the latter to use Homogeneous coordinates). I've
-              already set up all this math once before for my CPU-based 3D renderer, so most of the
-              work was to adapt the go code to JavaScript.
+              points along with the wireframe lines between those points. Consider this the initial
+              step in the project. Behind the scenes this involves a lot of math, including, but not
+              limited to, matrix multiplication in 2-, 3- and 4-D (the latter to use Homogeneous
+              coordinates), both parallel and projective camera transforms. I've already set up all
+              this math once before for my
+              <a href="https://github.com/libeks/go-scene-renderer">CPU-based 3D renderer</a>, so
+              most of the work was to adapt the go code to JavaScript.
             </p>
             <p>
               Critically, I want to accomplish a 3D look using only SVG elements, which is
-              inherently a 2D display. In fact, I will also ignore SVG render order for occlusion,
-              and will do all of the math myself. So for the display to the right, I am doing the
-              math in 3D, but rendering SVG lines and points in 2D.
+              inherently a 2D display technoloyg. In fact, I will also ignore SVG render order for
+              occlusion, and will do all of the math myself. So for the display to the right, I am
+              doing the math in 3D, but rendering SVG lines and points in 2D.
             </p>
             <p>
               A funny side-effect is that if you look at the animation long enough, your brain can
@@ -104,7 +106,15 @@
               />
             </svg>
             <figcaption>
-              The eight corners of a cube rotating around its vertical axis.<br />t={{t}}
+              The same cube, this time with self-occlusion enabled.<br />t={{t}}
+              <div class="button" @click="active = !active">{{active ? 'Pause' : 'Resume'}}</div>
+              <div>
+                <input type="radio" id="one" value="parallel" v-model="camera" />
+                <label for="one">Isometric</label>
+
+                <input type="radio" id="two" value="projective" v-model="camera" />
+                <label for="two">Projective</label>
+              </div>
             </figcaption>
           </figure>
         </div>
@@ -126,12 +136,18 @@
       const cube = new Object3D(
         // faces
         [
-          [0, 1, 2, 3],
-          [4, 5, 6, 7],
+          // [0, 1, 2, 3],
+          // [4, 5, 6, 7],
+          // [0, 1, 5, 4],
+          // [1, 2, 6, 5],
+          // [2, 3, 7, 6],
+          // [3, 0, 4, 7],
+          [0, 3, 2, 1],
           [0, 1, 5, 4],
-          [1, 2, 6, 5],
+          [0, 4, 7, 3],
           [2, 3, 7, 6],
-          [3, 0, 4, 7],
+          [1, 2, 6, 5],
+          [4, 5, 6, 7],
         ],
         // points
         [
@@ -161,7 +177,7 @@
             scene: new Scene3D(cube),
             camera: 'projective',
             // camera: 'parallel',
-            active: true,
+            active: false,
           }
         },
         computed: {
@@ -182,21 +198,33 @@
         },
       }).mount('#cube-wireframe')
 
-      // createApp({
-      //   data() {
-      //     return {
-      //       t: 0,
-      //       scene: new Scene3D(cube),
-      //       screen: new Screen(600, 300),
-      //     }
-      //   },
-      //   components: { threeDScene },
-      //   mounted() {
-      //     setInterval(() => {
-      //       this.t++
-      //     }, 1000 / 30)
-      //   },
-      // }).mount('#cube-faces')
+      createApp({
+        data() {
+          return {
+            t: 29,
+            scene: new Scene3D(cube),
+            camera: 'projective',
+            // camera: 'parallel',
+            active: false,
+          }
+        },
+        computed: {
+          screen() {
+            if (this.camera == 'projective') {
+              return new Screen(600, 300, new ProjectiveCamera(1))
+            }
+            return new Screen(600, 300, new IsometricCamera(200))
+          },
+        },
+        components: { threeDScene },
+        mounted() {
+          setInterval(() => {
+            if (this.active) {
+              this.t++
+            }
+          }, 1000 / 30)
+        },
+      }).mount('#cube-faces')
     </script>
   </body>
 </html>

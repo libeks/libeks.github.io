@@ -21,6 +21,11 @@ class IsometricCamera {
       new Vector3D((x * this.scale) / 2, (y * this.scale) / 2, 1), // why do we need to divide by 2 here?
     )
   }
+
+  // rayToPoint returns a ray from the camera to the point in 3d, this is used to decide whether a face is facing the camera
+  rayTo3DPoint(pt) {
+    return new Ray(new Point3D(pt.x, pt.y, 0), Point3DOrigin.vectTo(pt))
+  }
 }
 
 class ProjectiveCamera {
@@ -57,6 +62,14 @@ class ProjectiveCamera {
   // given a pixel (in the x-y range (0,1); not scaled to the screen)
   reverseRay(x, y) {
     return new Ray(Point3DOrigin, new Vector3D(x, y, this.f))
+  }
+
+  // rayToPoint returns a ray from the camera to the point in 3d, this is used to decide whether a face is facing the camera
+  rayTo3DPoint(pt) {
+    if (pt.type != 'Point3D') {
+      throw `Invalid parameter for ProjectiveCamera.rayTo3DPoint ${pt.type}`
+    }
+    return new Ray(Point3DOrigin, Point3DOrigin.vectTo(pt))
   }
 }
 

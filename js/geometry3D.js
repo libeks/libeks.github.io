@@ -118,9 +118,9 @@ class Vector3D {
       throw `Invalid argument to cross: ${v.type}`
     }
     return new Vector3D(
-      this.Y * v.z - this.Z * v.y,
-      this.Z * v.x - this.X * v.z,
-      this.X * v.y - this.Y * v.x,
+      this.y * v.z - this.z * v.y,
+      this.z * v.x - this.x * v.z,
+      this.x * v.y - this.y * v.x,
     )
   }
 
@@ -325,7 +325,7 @@ class Plane {
 class Triangle {
   constructor(a, b, c) {
     if (a.type != 'Point3D' || a.type != 'Point3D' || a.type != 'Point3D') {
-      throw `Invalid argument to Triangle ${a}, ${b}, ${c}`
+      throw `Invalid argument to Triangle ${a.type}, ${b.type}, ${c.type}`
     }
     this.a = a
     this.b = b

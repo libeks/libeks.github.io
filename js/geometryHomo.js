@@ -12,15 +12,24 @@ class PointHomo {
   }
 
   addVect(v) {
+    if (v.type != 'VectorHomo') {
+      throw `Invalid parameter for PointHomo.addVect ${v.type}`
+    }
     return new PointHomo(this.x + v.x, this.y + v.y, this.z + v.z, this.t + v.t)
   }
 
   subPt(p) {
+    if (p.type != 'PointHomo') {
+      throw `Invalid parameter for PointHomo.subPt ${p.type}`
+    }
     return new VectorHomo(this.x - p.x, this.y - p.y, this.z - p.z, this.t - p.t)
   }
 
   vectTo(p) {
     // more intuitive than subPt, gives a vector from this point to the other point
+    if (p.type != 'PointHomo') {
+      throw `Invalid parameter for PointHomo.vectTo ${p.type}`
+    }
     return p.subPt(this)
   }
 

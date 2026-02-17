@@ -154,6 +154,11 @@ class CompositeCurve {
     this.curves = args
   }
 
+  withColor(color) {
+    this.color = color
+    return this
+  }
+
   add(curve) {
     if (
       this.curves.length > 0 &&

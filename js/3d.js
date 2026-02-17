@@ -8,7 +8,7 @@ const threeDScene = {
   <g>
   	<circle v-if="showPoints" v-for="point in points" class="stroke medium" v-bind="point.cxcyProps()" r="2" />
   	<path v-if="showWireframe" v-for="line in wireframe" class="stroke notch" :d="line.d()" />
-  	<path v-if="showFaces" v-for="face in faces" class="face" :d="face.d()" />
+  	<path v-if="showFaces" v-for="face in faces" class="face" :d="face.d()" :style="{fill: face.color}" />
   </g>
   `,
   props: {
@@ -58,9 +58,10 @@ const threeDScene = {
           lines.push(new StraightStroke(ptA, ptB))
         }
         if (lines.length > 0) {
-          ret.push(new CompositeCurve(...lines))
+          ret.push(new CompositeCurve(...lines).withColor(face.color))
         }
       }
+      // console.log(ret)
       return ret
     },
   },

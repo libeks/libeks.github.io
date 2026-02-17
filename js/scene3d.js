@@ -26,7 +26,6 @@ class Face3D {
       .cross(this.points[0].point.to3D().vectTo(this.points[2].point.to3D()))
     let ray = camera.rayTo3DPoint(this.points[0].point.to3D())
     let dotProduct = norm.dot(ray.v)
-    // console.log('dot product', norm, ray, dotProduct)
     return dotProduct < 0
   }
 
@@ -189,7 +188,8 @@ class SceneFrame {
     }
     let faces = []
     let lines = {}
-    for (let [faceID, pointIDs] of obj.faces.entries()) {
+    for (let [faceID, { points: pointIDs, color }] of obj.faces.entries()) {
+      // let pointIDs = faceDict.points
       let pts = pointIDs.map((ptID) => points[ptID])
       let face = new Face3D(...pts)
       let faceObj = {
@@ -201,6 +201,7 @@ class SceneFrame {
         facesCamera: face.facesCamera(this.screen.camera),
         pointIDs,
         lines: [],
+        color,
       }
       for (let ptAID = 0; ptAID < pointIDs.length; ptAID++) {
         let ptBID = (ptAID + 1) % pointIDs.length

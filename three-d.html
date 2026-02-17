@@ -82,19 +82,26 @@
         </div>
       </section>
       <section>
-        <h2 id="simple-cube-occlusion">
-          <a class="anchor" href="#simple-cube-occlusion"></a>
-          <span>Simple Cube Occlusion</span>
+        <h2 id="hiding-invisible-faces">
+          <a class="anchor" href="#hiding-invisible-faces"></a>
+          <span>Hiding Invisible Faces</span>
         </h2>
         <div class="flex-container">
-          <p>
-            Next, I want to start rendering the faces. With the previous section, I am rendering all
-            faces as transparent, but I'd like to change it so that the faces in the foreground
-            occlude the faces in the background. For this, I need a way to check whether a ray that
-            is shot out from the camera towards any point in the scene intersects with another face,
-            and if so, whether this intersection point is closer to the camera (the point is
-            obscured) or not (the point is in the foreground).
-          </p>
+          <div>
+            <p>
+              Next, I want to start drawing faces. Notice that some faces are pointing away from the
+              camera, and I can use the vertex order of each polygon to decide which direction that
+              face is pointing. The rule I came up is that a face is facing the camera only if its
+              vertexes appear in a counter-clockwise order. In other words, a face points in the
+              same direction as the cross product between any subsequent edges of that face,
+              presented in counter-clockwise order.
+            </p>
+            <p>
+              The resulting render of a cube now looks stunning, I only get the faces that are
+              visible, the other faces are not even attempted to be rendered. However, the choice to
+              display a cube hides a bigger issue with this algorithm - occlusion.
+            </p>
+          </div>
           <figure id="cube-faces" class="float-right small">
             <svg viewBox="0 0 600 300">
               <three-d-scene :frame="t" :scene="scene" :screen="screen" show-faces />
@@ -103,15 +110,26 @@
               The same cube, this time with self-occlusion enabled.<br />t={{t}}
               <div class="button" @click="active = !active">{{active ? 'Pause' : 'Resume'}}</div>
               <div>
-                <input type="radio" id="one" value="parallel" v-model="camera" />
-                <label for="one">Isometric</label>
+                <input type="radio" id="cube-faces-isometric" value="parallel" v-model="camera" />
+                <label for="cube-faces-isometric">Isometric</label>
 
-                <input type="radio" id="two" value="projective" v-model="camera" />
-                <label for="two">Projective</label>
+                <input
+                  type="radio"
+                  id="cube-faces-projective"
+                  value="projective"
+                  v-model="camera"
+                />
+                <label for="cube-faces-projective">Projective</label>
               </div>
             </figcaption>
           </figure>
         </div>
+      </section>
+      <section>
+        <h2 id="face-occlusion">
+          <a class="anchor" href="#face-occlusion"></a>
+          <span>Face Occlusion</span>
+        </h2>
       </section>
     </main>
     <footer>
@@ -130,12 +148,12 @@
       const cube = new Object3D(
         // faces
         [
-          [0, 3, 2, 1],
-          [0, 1, 5, 4],
-          [0, 4, 7, 3],
-          [2, 3, 7, 6],
-          [1, 2, 6, 5],
-          [4, 5, 6, 7],
+          { points: [0, 3, 2, 1], color: 'red' },
+          { points: [0, 1, 5, 4], color: 'yellow' },
+          { points: [0, 4, 7, 3], color: 'blue' },
+          { points: [2, 3, 7, 6], color: 'orange' },
+          { points: [1, 2, 6, 5], color: 'cyan' },
+          { points: [4, 5, 6, 7], color: 'green' },
         ],
         // points
         [
@@ -165,7 +183,7 @@
             scene: new Scene3D(cube),
             camera: 'projective',
             // camera: 'parallel',
-            active: false,
+            active: true,
           }
         },
         computed: {
@@ -189,11 +207,11 @@
       createApp({
         data() {
           return {
-            t: 280, //29
+            t: 0, //29
             scene: new Scene3D(cube),
-            // camera: 'projective',
-            camera: 'parallel',
-            active: false,
+            camera: 'projective',
+            // camera: 'parallel',
+            active: true,
           }
         },
         computed: {

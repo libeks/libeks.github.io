@@ -18,7 +18,7 @@ class Face3D {
       )
     }
     this.triangles = triangles // this will be wrong for non-convex polygons
-    console.log('Face3D plane', this.points)
+    // console.log('Face3D plane', this.points)
     this.plane = new Plane(
       this.points[0].point.to3D(),
       this.points[1].point.to3D(),
@@ -135,12 +135,12 @@ class SceneFrame {
     this.projectedObjects = this.computeObjects(screen)
     this.computeLineIntersections(screen)
     this.computeFacePointOverlap(screen)
-    console.log(
-      'intersections',
-      this.getLineObjs()
-        .filter((l) => l.visible)
-        .map((l) => l.intersections.length),
-    )
+    // console.log(
+    //   'intersections',
+    //   this.getLineObjs()
+    //     .filter((l) => l.visible)
+    //     .map((l) => l.intersections.length),
+    // )
     this.computeFaceDisplay(screen)
   }
 

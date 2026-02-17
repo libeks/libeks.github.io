@@ -273,7 +273,6 @@ const NoopTransformHomo = MatrixProjectionI
 
 function TranslateHomo(v) {
   if (v.type != 'Vector3D') {
-    console.log('invalid')
     throw `Invalid parameter type ${v.type}`
   }
   return new MatrixHomo(

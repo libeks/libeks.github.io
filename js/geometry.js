@@ -68,6 +68,7 @@ class Vector {
   constructor(x, y) {
     this.x = x
     this.y = y
+    this.type = 'Vector'
   }
 
   len() {
@@ -130,6 +131,7 @@ class Line {
   constructor(p, v) {
     this.p = p
     this.v = v
+    this.type = 'Line'
   }
 
   at(t) {
@@ -140,6 +142,27 @@ class Line {
   // from https://github.com/libeks/go-plotter-svg/blob/main/lines/line.go
   // and https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
   intersectT(l) {
+    // const x1x2 = -this.v.x
+    // const x3x4 = -l.v.x
+    // const y1y2 = -this.v.y
+    // const y3y4 = -l.v.y
+    // const x1x3 = this.p.x - l.p.x
+    // const y1y3 = this.p.y - l.p.y
+
+    // const divisor = x1x2 * y3y4 - y1y2 * x3x4
+    // if (divisor == 0) {
+    //   return null
+    // }
+    // return (x1x3 * y3y4 - y1y3 * x3x4) / divisor
+    let intersection = this.intersectTU(l)
+    if (intersection == null) {
+      return null
+    }
+    return intersection.t
+  }
+
+  // intersect another line, return the t and u parameters for the two lines
+  intersectTU(l) {
     const x1x2 = -this.v.x
     const x3x4 = -l.v.x
     const y1y2 = -this.v.y
@@ -151,7 +174,10 @@ class Line {
     if (divisor == 0) {
       return null
     }
-    return (x1x3 * y3y4 - y1y3 * x3x4) / divisor
+    return {
+      t: (x1x3 * y3y4 - y1y3 * x3x4) / divisor,
+      u: -(x1x2 * y1y3 - y1y2 * x1x3) / divisor,
+    }
   }
 
   intersect(l) {
@@ -163,4 +189,45 @@ class Line {
   }
 }
 
-export { Point, Vector, Line }
+// LineSegment to do geometry on, use StraightStroke for renderable lines
+class LineSegment {
+  constructor(p, v) {
+    if (p.type != 'Point' || v.type != 'Vector') {
+      throw `LineSegment called with invalid params ${p.type}, ${v.type}`
+    }
+    this.p = p
+    this.v = v
+    this.type = 'LineSegment'
+  }
+
+  at(t) {
+    return this.p.addVect(this.v.mult(t))
+  }
+
+  line() {
+    return new Line(this.p, this.v)
+  }
+
+  intersectTU(ls) {
+    let intersect = this.line().intersectTU(ls.line())
+    if (intersect == null) {
+      return null
+    }
+    let { t, u } = intersect
+    if (t < 0 || t > 1 || u < 0 || u > 1) {
+      // console.log('intersection is out of bounds')
+      return null
+    }
+    return intersect
+  }
+
+  intersect(ls) {
+    let intersect = this.intersectTU(ls)
+    if (intersect == null) {
+      return null
+    }
+    return this.at(intersect.t)
+  }
+}
+
+export { Point, Vector, Line, LineSegment }

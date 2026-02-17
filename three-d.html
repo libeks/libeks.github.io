@@ -104,10 +104,10 @@
           </div>
           <figure id="cube-faces" class="float-right small">
             <svg viewBox="0 0 600 300">
-              <three-d-scene :frame="t" :scene="scene" :screen="screen" show-faces />
+              <three-d-scene :frame="t" :scene="scene" :screen="screen" show-transparent-faces />
             </svg>
             <figcaption>
-              The same cube, this time with self-occlusion enabled.<br />t={{t}}
+              The same cube, showing only faces that point towards the camera.<br />t={{t}}
               <div class="button" @click="active = !active">{{active ? 'Pause' : 'Resume'}}</div>
               <div>
                 <input type="radio" id="cube-faces-isometric" value="parallel" v-model="camera" />
@@ -130,6 +130,82 @@
           <a class="anchor" href="#face-occlusion"></a>
           <span>Face Occlusion</span>
         </h2>
+        <div class="flex-container">
+          <p>
+            A cube is simple in that no visible face occludes any other face. Let's add another
+            object to the scene to be rendered behind the cube. With the current approach, faces
+            from the two objects are rendered on top of each other, occlusion is completely ignored.
+            Time to work on a solution.
+          </p>
+          <figure id="cube-rectangle-transparent" class="float-right small">
+            <svg viewBox="0 0 600 300">
+              <three-d-scene :frame="t" :scene="scene" :screen="screen" show-transparent-faces />
+            </svg>
+            <figcaption>
+              A cube and a rectangular prism rendered in the same scene.<br />t={{t}}
+              <div class="button" @click="active = !active">{{active ? 'Pause' : 'Resume'}}</div>
+              <div>
+                <input
+                  type="radio"
+                  id="cube-rect-transparent-isometric"
+                  value="parallel"
+                  v-model="camera"
+                />
+                <label for="cube-rect-transparent-isometric">Isometric</label>
+
+                <input
+                  type="radio"
+                  id="ccube-rect-transparent-projective"
+                  value="projective"
+                  v-model="camera"
+                />
+                <label for="cube-rect-transparent-projective">Projective</label>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+        <div class="flex-container">
+          <p>
+            I have to start looking at whether the projected edge line segments intersect. If so,
+            I'll decide which line segment is in front of the other one, and use this information to
+            deduce the points defining the polygon from the camera's viewpoint. There are several
+            edge cases to consider. A face can end up being split into multiple display polygons. A
+            face can be obstructed my multiple other faces, and finally, a face polygon can
+            completely contain another face's polygon. My algorithm has to account for all of these.
+          </p>
+          <figure id="cube-rectangle-occlusion" class="float-right small">
+            <svg viewBox="0 0 600 300">
+              <three-d-scene
+                :frame="t"
+                :scene="scene"
+                :screen="screen"
+                show-faces
+                show-intersection-points
+              />
+            </svg>
+            <figcaption>
+              A cube and a rectangular prism rendered in the same scene.<br />t={{t}}
+              <div class="button" @click="active = !active">{{active ? 'Pause' : 'Resume'}}</div>
+              <div>
+                <input
+                  type="radio"
+                  id="cube-rect-occlusion-isometric"
+                  value="parallel"
+                  v-model="camera"
+                />
+                <label for="cube-rect-occlusion-isometric">Isometric</label>
+
+                <input
+                  type="radio"
+                  id="cube-rect-occlusion-projective"
+                  value="projective"
+                  v-model="camera"
+                />
+                <label for="cube-rect-occlusion-projective">Projective</label>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
       </section>
     </main>
     <footer>
@@ -176,42 +252,173 @@
         )
         .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 300))))
 
-      createApp({
-        data() {
-          return {
-            t: 0,
-            scene: new Scene3D(cube),
-            camera: 'projective',
-            // camera: 'parallel',
-            active: true,
-          }
-        },
-        computed: {
-          screen() {
-            if (this.camera == 'projective') {
-              return new Screen(600, 300, new ProjectiveCamera(1))
-            }
-            return new Screen(600, 300, new IsometricCamera(200))
-          },
-        },
-        components: { threeDScene },
-        mounted() {
-          setInterval(() => {
-            if (this.active) {
-              this.t++
-            }
-          }, 1000 / 30)
-        },
-      }).mount('#cube-wireframe')
+      const farRectangle = new Object3D(
+        // faces
+        [
+          { points: [0, 3, 2, 1], color: 'red' },
+          { points: [0, 1, 5, 4], color: 'yellow' },
+          { points: [0, 4, 7, 3], color: 'blue' },
+          { points: [2, 3, 7, 6], color: 'orange' },
+          { points: [1, 2, 6, 5], color: 'cyan' },
+          { points: [4, 5, 6, 7], color: 'green' },
+        ],
+        // points
+        [
+          new Point3D(-1000, -100, 100), // 0
+          new Point3D(-1000, 100, 100), // 1
+          new Point3D(1000, 100, 100), // 2
+          new Point3D(1000, -100, 100), // 3
+          new Point3D(-1000, -100, -100), // 4
+          new Point3D(-1000, 100, -100), // 5
+          new Point3D(1000, 100, -100), // 6
+          new Point3D(1000, -100, -100), // 7
+        ],
+      )
+        .withTransform(new ParameterizedTransform((t) => RotateXHomo(t / 5)))
+        .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 1000))))
+
+      const faceA = new Object3D(
+        // faces
+        [
+          // { points: [0, 3, 2, 1], color: 'red' },
+          // { points: [0, 1, 5, 4], color: 'yellow' },
+          // { points: [0, 4, 7, 3], color: 'blue' },
+          { points: [2, 3, 7, 6], color: 'orange' },
+          // { points: [1, 2, 6, 5], color: 'cyan' },
+          // { points: [4, 5, 6, 7], color: 'green' },
+        ],
+        // points
+        [
+          new Point3D(-100, -100, 100), // 0
+          new Point3D(-100, 100, 100), // 1
+          new Point3D(100, 100, 100), // 2
+          new Point3D(100, -100, 100), // 3
+          new Point3D(-100, -100, -100), // 4
+          new Point3D(-100, 100, -100), // 5
+          new Point3D(100, 100, -100), // 6
+          new Point3D(100, -100, -100), // 7
+        ],
+      )
+        .withTransform(
+          new ParameterizedTransform((t) =>
+            RotateZHomo(t / 20)
+              .matrixMult(RotateYHomo(t / 10))
+              .matrixMult(RotateXHomo(t / 50)),
+          ),
+        )
+        .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 300))))
+
+      const faceB = new Object3D(
+        // faces
+        [{ points: [4, 5, 6, 7], color: 'green' }],
+        // points
+        [
+          new Point3D(-1000, -100, 100), // 0
+          new Point3D(-1000, 100, 100), // 1
+          new Point3D(1000, 100, 100), // 2
+          new Point3D(1000, -100, 100), // 3
+          new Point3D(-1000, -100, -100), // 4
+          new Point3D(-1000, 100, -100), // 5
+          new Point3D(1000, 100, -100), // 6
+          new Point3D(1000, -100, -100), // 7
+        ],
+      )
+        .withTransform(new ParameterizedTransform((t) => RotateXHomo(t / 5)))
+        .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 1000))))
+
+      // createApp({
+      //   data() {
+      //     return {
+      //       t: 0,
+      //       scene: new Scene3D(cube),
+      //       camera: 'projective',
+      //       // camera: 'parallel',
+      //       active: false,
+      //     }
+      //   },
+      //   computed: {
+      //     screen() {
+      //       if (this.camera == 'projective') {
+      //         return new Screen(600, 300, new ProjectiveCamera(1))
+      //       }
+      //       return new Screen(600, 300, new IsometricCamera(200))
+      //     },
+      //   },
+      //   components: { threeDScene },
+      //   mounted() {
+      //     setInterval(() => {
+      //       if (this.active) {
+      //         this.t++
+      //       }
+      //     }, 1000 / 30)
+      //   },
+      // }).mount('#cube-wireframe')
+
+      // createApp({
+      //   data() {
+      //     return {
+      //       t: 0, //29
+      //       scene: new Scene3D(cube),
+      //       camera: 'projective',
+      //       // camera: 'parallel',
+      //       active: false,
+      //     }
+      //   },
+      //   computed: {
+      //     screen() {
+      //       if (this.camera == 'projective') {
+      //         return new Screen(600, 300, new ProjectiveCamera(1))
+      //       }
+      //       return new Screen(600, 300, new IsometricCamera(200))
+      //     },
+      //   },
+      //   components: { threeDScene },
+      //   mounted() {
+      //     setInterval(() => {
+      //       if (this.active) {
+      //         this.t++
+      //       }
+      //     }, 1000 / 30)
+      //   },
+      // }).mount('#cube-faces')
+
+      // createApp({
+      //   data() {
+      //     return {
+      //       t: 25, //29
+      //       scene: new Scene3D(cube, farRectangle),
+      //       camera: 'projective',
+      //       // camera: 'parallel',
+      //       active: false,
+      //     }
+      //   },
+      //   computed: {
+      //     screen() {
+      //       if (this.camera == 'projective') {
+      //         return new Screen(600, 300, new ProjectiveCamera(1))
+      //       }
+      //       return new Screen(600, 300, new IsometricCamera(200))
+      //     },
+      //   },
+      //   components: { threeDScene },
+      //   mounted() {
+      //     setInterval(() => {
+      //       if (this.active) {
+      //         this.t++
+      //       }
+      //     }, 1000 / 30)
+      //   },
+      // }).mount('#cube-rectangle-transparent')
 
       createApp({
         data() {
           return {
-            t: 0, //29
-            scene: new Scene3D(cube),
+            t: 25,
+            scene: new Scene3D(cube, farRectangle),
+            // scene: new Scene3D(faceA, faceB),
             camera: 'projective',
             // camera: 'parallel',
-            active: true,
+            active: false,
           }
         },
         computed: {
@@ -230,7 +437,7 @@
             }
           }, 1000 / 30)
         },
-      }).mount('#cube-faces')
+      }).mount('#cube-rectangle-occlusion')
     </script>
   </body>
 </html>

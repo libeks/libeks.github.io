@@ -8,14 +8,18 @@ const threeDScene = {
   <g>
   	<circle v-if="showPoints" v-for="point in points" class="stroke medium" v-bind="point.cxcyProps()" r="2" />
   	<path v-if="showWireframe" v-for="line in wireframe" class="stroke notch" :d="line.d()" />
-  	<path v-if="showFaces" v-for="face in faces" class="face" :d="face.d()" :style="{fill: face.color}" />
+  	<path v-if="showTransparentFaces" v-for="face in faces" class="face" :d="face.d()" :style="{fill: face.color}" />
+  	<path v-if="showFaces" v-for="face in visibleFaces" class="face" :d="face.d()" :style="{fill: face.color}" />
+  	<circle v-if="showIntersectionPoints" v-for="point in sceneFrame.getIntersectionPoints()" class="stroke medium" v-bind="point.cxcyProps()" r="2" />
   </g>
   `,
   props: {
     frame: Number,
-    showPoints: Boolean,
-    showWireframe: Boolean,
-    showFaces: Boolean,
+    showPoints: Boolean, // show all the points as little circles
+    showWireframe: Boolean, // show the wireframe of the scene, all edges drawn
+    showTransparentFaces: Boolean, // show all faces facing the camere, ignore occlusion
+    showFaces: Boolean, // show only face segments that are visible from the camera
+    showIntersectionPoints: Boolean, // show the points where visible lines intersect
     scene: Object,
     screen: Object,
   },
@@ -61,8 +65,11 @@ const threeDScene = {
           ret.push(new CompositeCurve(...lines).withColor(face.color))
         }
       }
-      // console.log(ret)
       return ret
+    },
+    visibleFaces() {
+      // let
+      return this.faces
     },
   },
 }

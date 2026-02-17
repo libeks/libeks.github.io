@@ -8,6 +8,9 @@ class IsometricCamera {
   }
 
   getPixel(pointHomo) {
+    if (pointHomo.type != 'PointHomo') {
+      throw `getPixel recevied unrecognized argument ${pointHomo.type}`
+    }
     return {
       point: new Point(pointHomo.x / this.scale, pointHomo.y / this.scale),
       depth: pointHomo.z,
@@ -15,15 +18,22 @@ class IsometricCamera {
   }
 
   // given a pixel (in the x-y range (0,1); not scaled to the screen)
-  reverseRay(x, y) {
+  reverseRay(pt) {
+    if (pt.type != 'Point') {
+      console.trace()
+      throw `reverseRay recevied unrecognized argument ${pt.type}`
+    }
     return new Ray(
-      new Point3D((x * this.scale) / 2, (y * this.scale) / 2, 0), // why do we need to divide by 2 here?
-      new Vector3D((x * this.scale) / 2, (y * this.scale) / 2, 1), // why do we need to divide by 2 here?
+      new Point3D((pt.x * this.scale) / 2, (pt.y * this.scale) / 2, 0), // why do we need to divide by 2 here?
+      new Vector3D((pt.x * this.scale) / 2, (pt.y * this.scale) / 2, 1), // why do we need to divide by 2 here?
     )
   }
 
   // rayToPoint returns a ray from the camera to the point in 3d, this is used to decide whether a face is facing the camera
   rayTo3DPoint(pt) {
+    if (pt.type != 'Point3D') {
+      throw `rayTo3DPoint recevied unrecognized argument ${pt.type}`
+    }
     return new Ray(new Point3D(pt.x, pt.y, 0), new Point3D(pt.x, pt.y, 0).vectTo(pt))
   }
 }
@@ -55,13 +65,20 @@ class ProjectiveCamera {
   }
 
   getPixel(pointHomo) {
+    if (pointHomo.type != 'PointHomo') {
+      throw `getPixel recevied unrecognized argument ${pointHomo.type}`
+    }
     const point2d = this.matrix.multPt(pointHomo).to3D().to2D()
     return { point: point2d, depth: pointHomo.z }
   }
 
   // given a pixel (in the x-y range (0,1); not scaled to the screen)
-  reverseRay(x, y) {
-    return new Ray(Point3DOrigin, new Vector3D(x, y, this.f))
+  reverseRay(pt) {
+    if (pt.type != 'Point') {
+      console.trace()
+      throw `reverseRay recevied unrecognized argument ${pt.type}`
+    }
+    return new Ray(Point3DOrigin, new Vector3D(pt.x, pt.y, this.f))
   }
 
   // rayToPoint returns a ray from the camera to the point in 3d, this is used to decide whether a face is facing the camera
@@ -100,8 +117,7 @@ class Screen {
   // given a screen pixel
   reverseRay(x, y) {
     return this.camera.reverseRay(
-      (x - this.width / 2) / this.scale,
-      (y - this.height / 2) / this.scale,
+      new Point((x - this.width / 2) / this.scale, (y - this.height / 2) / this.scale),
     )
   }
 }

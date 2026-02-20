@@ -12,6 +12,9 @@ class Point3D {
   }
 
   addVect(v) {
+    if (v.type != 'Vector3D') {
+      throw `Point3D.addVect with unexpected argument ${v.type}`
+    }
     return new Point3D(this.x + v.x, this.y + v.y, this.z + v.z)
   }
 
@@ -21,15 +24,26 @@ class Point3D {
   }
 
   subPt(p) {
+    if (p.type != 'Point3D') {
+      throw `Point3D.subPt with unexpected argument ${p.type}`
+    }
     return new Vector3D(this.x - p.x, this.y - p.y, this.z - p.z)
   }
 
   vectTo(p) {
+    if (p.type != 'Point3D') {
+      console.trace()
+      throw `Point3D.vectTo got unexpected argument ${p.type}`
+    }
     // more intuitive than subPt, gives a vector from this point to the other point
     return p.subPt(this)
   }
 
   distance(p) {
+    if (p.type != 'Point3D') {
+      console.trace()
+      throw `Point3D.distance got unexpected argument ${p.type}`
+    }
     return this.subPt(p).len()
   }
 
@@ -39,16 +53,28 @@ class Point3D {
 
   // return the midpoint between two points
   midpoint(p) {
+    if (p.type != 'Point3D') {
+      console.trace()
+      throw `Point3D.midpoint got unexpected argument ${p.type}`
+    }
     return this.towards(p, 1 / 2)
   }
 
   // from this point towards p, travel t of the distance
   towards(p, t) {
+    if (p.type != 'Point3D') {
+      console.trace()
+      throw `Point3D.towards got unexpected argument ${p.type}`
+    }
     return this.addVect(p.subPt(this).mult(t))
   }
 
   // returns true if the two points are close enough, within tolerance
   same(p) {
+    if (p.type != 'Point3D') {
+      console.trace()
+      throw `Point3D.same got unexpected argument ${p.type}`
+    }
     return this.distance(p) < THRESHOLD
   }
 
@@ -94,7 +120,7 @@ class Vector3D {
     if (t == 1) {
       return this
     }
-    return new Vector(this.x * t, this.y * t, this.z * t)
+    return new Vector3D(this.x * t, this.y * t, this.z * t)
   }
 
   dot(v) {
@@ -283,6 +309,24 @@ class Matrix3D {
   }
 }
 
+class Line {
+  constructor(p, v) {
+    if (p.type != 'Point3D') {
+      throw `Invalid argument to Ray ${p}`
+    }
+    if (v.type != 'Vector3D') {
+      throw `Invalid argument to Ray ${v}`
+    }
+    this.p = p
+    this.v = v
+    this.type = 'Line'
+  }
+
+  at(t) {
+    return this.p.addVect(this.v.mult(t))
+  }
+}
+
 class Ray {
   constructor(p, v) {
     if (p.type != 'Point3D') {
@@ -293,6 +337,7 @@ class Ray {
     }
     this.p = p
     this.v = v
+    this.type = 'Ray'
   }
 
   at(t) {
@@ -306,35 +351,59 @@ class Plane {
       throw `Plane got unexpected arguments ${a.type}, ${b.type}, ${c.type}`
     }
     // given three non-colinear points, return the plane that contains them
-    const nVector = a.vectTo(b).cross(a.vectTo(b))
-
+    const nVector = a.vectTo(b).cross(a.vectTo(c))
     this.n = nVector
     this.d = Point3DOrigin.vectTo(a).dot(nVector)
+    this.type = 'Plane'
   }
 
   // return the 3D Point where the ray intersects with the plane, or null
   intersectRay(r) {
-    const denominator = this.n.dot(r.v)
-    if (denominator == 0) {
-      return null // ray is parallel to plane, no intersection
-    }
-    const t = (this.d - this.n.dot(Point3DOrigin.vectTo(r.p))) / denominator
-    if (t < 0.0) {
-      return null // ray intersects plane before ray's starting point
+    let t = this.intersectRayT(r)
+    if (t == null) {
+      return null
     }
     const point = r.at(t)
     return point
   }
 
+  intersectLine(l) {
+    let t = this.intersectLineT(l)
+    if (t == null) {
+      return null
+    }
+    const point = l.at(t)
+    return point
+  }
+
+  intersectLineT(l) {
+    if (l.type != 'Line') {
+      throw `Plane.intersectLineT got unexpected argument ${l.type}`
+    }
+    const denominator = this.n.dot(l.v)
+    console.log('intersectLine', l, this, denominator)
+    if (denominator == 0) {
+      return null // ray is parallel to plane, no intersection
+    }
+    const t = (this.d - this.n.dot(Point3DOrigin.vectTo(l.p))) / denominator
+    return t
+  }
+
   intersectRayT(r) {
+    if (r.type != 'Ray') {
+      throw `Plane.intersectRayT got unexpected argument ${r.type}`
+    }
     const denominator = this.n.dot(r.v)
+    console.log('intersectRay', r, this, denominator, this.n, r.v)
     if (denominator == 0) {
       return null // ray is parallel to plane, no intersection
     }
     const t = (this.d - this.n.dot(Point3DOrigin.vectTo(r.p))) / denominator
     if (t < 0.0) {
+      console.log('intersect behind', t)
       return null // ray intersects plane before ray's starting point
     }
+    console.log('intersects in front', t)
     return t
   }
 }
@@ -359,7 +428,7 @@ class Triangle {
 
   // return a point inside the triangle with parameters a and b, where a+b < 1 and a>0 and b>0
   at(a, b) {
-    return this.a.addVect(this.bVect().mult(a)).addVect(this.cVect().mult(c))
+    return this.a.addVect(this.bVect().mult(a)).addVect(this.cVect().mult(b))
   }
 
   getPlane() {
@@ -419,4 +488,5 @@ export {
   Ray,
   Triangle,
   Plane,
+  Line,
 }

@@ -100,6 +100,10 @@ class Screen {
 
   // given a point in 3d, return its pixel representation
   getPixel(point, depth) {
+    if (point.type != 'Point') {
+      console.trace()
+      throw `Screen.getPixel get unexpected argument ${point.type}`
+    }
     const px = point.x * this.scale + this.width / 2
     const py = point.y * this.scale + this.height / 2
     return new Pixel(
@@ -110,15 +114,25 @@ class Screen {
 
   // given a homogeneous coordinates, return the corresponding pixel value
   homoToPixel(pointHomo) {
+    if (pointHomo.type != 'PointHomo') {
+      console.trace()
+      throw `Screen.homoToPixel get unexpected argument ${pointHomo.type}`
+    }
     const { point, depth } = this.camera.getPixel(pointHomo)
     return this.getPixel(point, depth)
   }
 
   // given a screen pixel
-  reverseRay(x, y) {
-    return this.camera.reverseRay(
-      new Point((x - this.width / 2) / this.scale, (y - this.height / 2) / this.scale),
+  reverseRay(pt) {
+    if (pt.type != 'Point') {
+      console.trace()
+      throw `Screen.reverseRay get unexpected argument ${pt.type}`
+    }
+    let ret = this.camera.reverseRay(
+      new Point((pt.x - this.width / 2) / this.scale, (pt.y - this.height / 2) / this.scale),
     )
+    console.log('reverse ray to', pt, 'is', ret)
+    return ret
   }
 }
 

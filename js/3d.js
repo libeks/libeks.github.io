@@ -6,11 +6,12 @@ import { Screen } from './pixelSpace.js'
 const threeDScene = {
   template: `
   <g>
-  	<circle v-if="showPoints" v-for="point in points" class="stroke medium" v-bind="point.cxcyProps()" r="2" />
-  	<path v-if="showWireframe" v-for="line in wireframe" class="stroke notch" :d="line.d()" />
-  	<path v-if="showTransparentFaces" v-for="face in faces" class="face" :d="face.d()" :style="{fill: face.color}" />
-  	<path v-if="showFaces" v-for="face in visibleFaces" class="face" :d="face.d()" :style="{fill: face.color}" />
-  	<circle v-if="showIntersectionPoints" v-for="point in sceneFrame.getIntersectionPoints()" class="stroke medium" v-bind="point.cxcyProps()" r="2" />
+    <circle v-if="showPoints" v-for="point in points" class="stroke medium" v-bind="point.cxcyProps()" r="2" />
+    <path v-if="showWireframe" v-for="line in wireframe" class="stroke notch" :d="line.d()" />
+    <path v-if="showTransparentFaces" v-for="face in faces" class="face" :d="face.d()" :style="{fill: face.color}" />
+    <path v-if="showFaces" v-for="face in visibleFaces" class="face" :d="face.d()" :style="{fill: face.color}" />
+    <path v-if="showVisibleLines" v-for="line in visibleLines" class="stroke notch segment" :d="line.d()" :style="{stroke: line.color}" />
+    <circle v-if="showIntersectionPoints" v-for="point in sceneFrame.getIntersectionPoints()" class="stroke medium" v-bind="point.cxcyProps()" r="2" />
   </g>
   `,
   props: {
@@ -20,6 +21,7 @@ const threeDScene = {
     showTransparentFaces: Boolean, // show all faces facing the camere, ignore occlusion
     showFaces: Boolean, // show only face segments that are visible from the camera
     showIntersectionPoints: Boolean, // show the points where visible lines intersect
+    showVisibleLines: Boolean, // show all the line segments that are visible from the camera (without fill or sequential joining)
     scene: Object,
     screen: Object,
   },
@@ -70,6 +72,17 @@ const threeDScene = {
     visibleFaces() {
       // let
       return this.faces
+    },
+    visibleLines() {
+      // let segments = [];
+      // for (let ls of this.sceneFrame().getVisibleLineSegments(this.screen)) {
+
+      // }
+      return this.sceneFrame.getAllSegments().map((seg) => {
+        let stroke = new StraightStroke(seg.a, seg.b)
+        stroke.color = seg.color
+        return stroke
+      })
     },
   },
 }

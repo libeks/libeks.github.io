@@ -131,7 +131,6 @@ class Screen {
     let ret = this.camera.reverseRay(
       new Point((pt.x - this.width / 2) / this.scale, (pt.y - this.height / 2) / this.scale),
     )
-    console.log('reverse ray to', pt, 'is', ret)
     return ret
   }
 }

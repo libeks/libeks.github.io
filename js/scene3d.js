@@ -19,16 +19,13 @@ class Face3D {
       )
     }
     this.triangles = triangles // this will be wrong for non-convex polygons
-    // console.log('Face3D plane', this.points)
     this.plane = new Plane(
       this.points[0].point.to3D(),
       this.points[1].point.to3D(),
       this.points[2].point.to3D(),
     )
     for (let pt of pts) {
-      console.log('pt', pt)
       let ray = new Ray(Point3DOrigin, Point3DOrigin.vectTo(pt.point.to3D()))
-      console.log('plane intersection', this.plane.intersectRayT(ray))
     }
   }
 
@@ -57,7 +54,6 @@ class Face3D {
   intersectApproxRayDepth(ray) {
     // given a ray (likely from the camera), compute the 3D point where plane of this face intersects the ray, possibly outside of the Face
     let pt = this.plane.intersectRay(ray)
-    console.log('depth', ray, this.plane, pt)
     if (pt == null) {
       return null
     }
@@ -220,34 +216,22 @@ class SceneFrame {
     for (let line of this.getLineObjs()) {
       segments.push(...line.segments)
     }
-    console.log(segments)
     return segments
   }
 
   computeLineSegmentVisibility(screen) {
     let segments = []
-    console.log('computeLineSegmentVisibility', Object.entries(this.getLineObjs()))
     for (let [lineID, line] of Object.entries(this.getLineObjs())) {
-      // console.log(line)
-      // console.log(lineID, line.intersections)
-      console.log(
-        lineID,
-        line.pointObjs.map((pt) => pt.projected.point.string()),
-      )
-      console.log('intersections', line.intersections)
       for (let iA = 0; iA < line.intersections.length - 1; iA++) {
         let interA = line.intersections[iA]
         let interB = line.intersections[iA + 1]
-        console.log('inters', interA, interB)
-        if (interA.inFront || interB.inFront) {
-          segments.push({
-            a: interA.point,
-            b: interB.point,
-            color: lineID == 0 ? 'red' : 'black',
-          })
-        }
+        segments.push({
+          a: interA.point,
+          b: interB.point,
+          // the line segment is in the foreground if at least one of the endpoints is visible from the camera
+          inFront: interA.inFront || interB.inFront,
+        })
       }
-      console.log('line segments', segments)
       line.segments = segments
     }
   }
@@ -280,11 +264,9 @@ class SceneFrame {
     let allLines = Object.values(this.getLineObjs())
     for (let a = 0; a < allLines.length; a++) {
       let lineA = allLines[a]
-      // console.log('line', lineA)
       if (!lineA.visible) {
         continue
       }
-      // console.log(lineA.pointObjs[1])
       lineA.intersections.push({
         with: null,
         t: 0,
@@ -318,25 +300,14 @@ class SceneFrame {
           let { t, u } = intersection
           let point = lineA.lineSegment.at(t)
           let ray = screen.reverseRay(point)
-          console.log('reverse ray', ray, 'to', point)
 
           let facesA = lineA.faces.filter((face) => face.facesCamera)
           let facesB = lineB.faces.filter((face) => face.facesCamera)
-          console.log('faces', lineA, facesA)
-          // console.log('face', facesA[0].facesCamera, lineB.faces[0].facesCamera)
           let pt = facesA[0].face.plane.intersectLine(new Line(ray.p, ray.v))
-          console.log('point from line', pt)
           let ray2 = new Ray(Point3DOrigin, Point3DOrigin.vectTo(pt))
           let depthA = facesA[0].face.intersectApproxRayDepth(ray)
           let depthB = facesB[0].face.intersectApproxRayDepth(ray)
 
-          console.log(
-            'depths',
-            depthA,
-            depthB,
-            facesA[0].face.intersectApproxRayDepth(ray2),
-            facesB[0].face.intersectApproxRayDepth(ray2),
-          )
           lineA.intersections.push({
             with: lineB,
             t,
@@ -388,26 +359,6 @@ class SceneFrame {
     for (let [faceID, { points: pointIDs, color }] of obj.faces.entries()) {
       let pts = pointIDs.map((ptID) => points[ptID])
       let face = new Face3D(...pts)
-      // debug
-      for (let ptID = 0; ptID < pts.length - 1; ptID++) {
-        let pt2ID = ptID + 1
-        let ptA = pts[ptID]
-        let ptB = pts[pt2ID]
-        console.log('pta', ptA.point, ptB.point)
-        let pixA = screen.homoToPixel(ptA.point)
-        let pixB = screen.homoToPixel(ptB.point)
-        let line = new LineSegment(pixA.point, pixA.point.vectTo(pixB.point))
-        let t = Math.random()
-        console.log('line', line)
-        let pt = line.at(t)
-        let ray = screen.reverseRay(pt)
-        let depth = face.intersectApproxRayDepth(ray)
-        console.log('tval', t, pt, ptA.projected.point)
-        console.log('tval', t, depth, pixA.depth, pixB.depth)
-
-        // project the point onto the screen, then for each line on the face, project the point along that line back onto the scene, see what the depths are
-      }
-      // end debug
       let faceObj = {
         pointIDs,
         faceID,

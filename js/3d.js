@@ -10,7 +10,7 @@ const threeDScene = {
     <path v-if="showWireframe" v-for="line in wireframe" class="stroke notch" :d="line.d()" />
     <path v-if="showTransparentFaces" v-for="face in faces" class="face" :d="face.d()" :style="{fill: face.color}" />
     <path v-if="showFaces" v-for="face in visibleFaces" class="face" :d="face.d()" :style="{fill: face.color}" />
-    <path v-if="showVisibleLines" v-for="line in visibleLines" class="stroke notch segment" :d="line.d()" :style="{stroke: line.color}" />
+    <path v-if="showVisibleLines" v-for="line in visibleLines" class="stroke notch segment" :d="line.d()" :style="{stroke:line.color}" />
     <circle v-if="showIntersectionPoints" v-for="point in sceneFrame.getIntersectionPoints()" class="stroke medium" v-bind="point.cxcyProps()" r="2" />
   </g>
   `,
@@ -74,13 +74,9 @@ const threeDScene = {
       return this.faces
     },
     visibleLines() {
-      // let segments = [];
-      // for (let ls of this.sceneFrame().getVisibleLineSegments(this.screen)) {
-
-      // }
       return this.sceneFrame.getAllSegments().map((seg) => {
         let stroke = new StraightStroke(seg.a, seg.b)
-        stroke.color = seg.color
+        stroke.color = seg.inFront ? 'black' : 'orange'
         return stroke
       })
     },

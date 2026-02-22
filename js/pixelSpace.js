@@ -23,10 +23,7 @@ class IsometricCamera {
       console.trace()
       throw `reverseRay recevied unrecognized argument ${pt.type}`
     }
-    return new Ray(
-      new Point3D((pt.x * this.scale) / 2, (pt.y * this.scale) / 2, 0), // why do we need to divide by 2 here?
-      new Vector3D((pt.x * this.scale) / 2, (pt.y * this.scale) / 2, 1), // why do we need to divide by 2 here?
-    )
+    return new Ray(new Point3D(pt.x * this.scale, pt.y * this.scale, 0), new Vector3D(0, 0, 1))
   }
 
   // rayToPoint returns a ray from the camera to the point in 3d, this is used to decide whether a face is facing the camera
@@ -34,7 +31,7 @@ class IsometricCamera {
     if (pt.type != 'Point3D') {
       throw `rayTo3DPoint recevied unrecognized argument ${pt.type}`
     }
-    return new Ray(new Point3D(pt.x, pt.y, 0), new Point3D(pt.x, pt.y, 0).vectTo(pt))
+    return new Ray(new Point3D(pt.x, pt.y, 0), new Vector3D(0, 0, pt.z))
   }
 }
 
@@ -104,8 +101,8 @@ class Screen {
       console.trace()
       throw `Screen.getPixel get unexpected argument ${point.type}`
     }
-    const px = point.x * this.scale + this.width / 2
-    const py = point.y * this.scale + this.height / 2
+    // const px = point.x * this.scale + this.width / 2
+    // const py = point.y * this.scale + this.height / 2
     return new Pixel(
       new Point(point.x * this.scale + this.width / 2, point.y * this.scale + this.height / 2),
       depth,
@@ -131,6 +128,7 @@ class Screen {
     let ret = this.camera.reverseRay(
       new Point((pt.x - this.width / 2) / this.scale, (pt.y - this.height / 2) / this.scale),
     )
+    console.log('reverseRay', pt, ret)
     return ret
   }
 }

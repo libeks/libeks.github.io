@@ -367,6 +367,23 @@ class Plane {
     return point
   }
 
+  intersectRayT(r) {
+    if (r.type != 'Ray') {
+      throw `Plane.intersectRayT got unexpected argument ${r.type}`
+    }
+    const denominator = this.n.dot(r.v)
+    console.log('denominator', this, r, denominator)
+    if (denominator == 0) {
+      return null // ray is parallel to plane, no intersection
+    }
+    const t = (this.d - this.n.dot(Point3DOrigin.vectTo(r.p))) / denominator
+    console.log('t', t)
+    if (t < 0.0) {
+      return null // ray intersects plane before ray's starting point
+    }
+    return t
+  }
+
   intersectLine(l) {
     let t = this.intersectLineT(l)
     if (t == null) {
@@ -385,21 +402,6 @@ class Plane {
       return null // ray is parallel to plane, no intersection
     }
     const t = (this.d - this.n.dot(Point3DOrigin.vectTo(l.p))) / denominator
-    return t
-  }
-
-  intersectRayT(r) {
-    if (r.type != 'Ray') {
-      throw `Plane.intersectRayT got unexpected argument ${r.type}`
-    }
-    const denominator = this.n.dot(r.v)
-    if (denominator == 0) {
-      return null // ray is parallel to plane, no intersection
-    }
-    const t = (this.d - this.n.dot(Point3DOrigin.vectTo(r.p))) / denominator
-    if (t < 0.0) {
-      return null // ray intersects plane before ray's starting point
-    }
     return t
   }
 }

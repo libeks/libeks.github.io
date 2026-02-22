@@ -75,7 +75,7 @@ const threeDScene = {
     },
     visibleFaces() {
       // let
-      return this.faces
+      return this.sceneFrame.visibleFaces
     },
     visibleLines() {
       return this.sceneFrame.getAllSegments().map((seg) => {

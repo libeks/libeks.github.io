@@ -2,7 +2,7 @@ import { MatrixProjectionHomo, NoopTransformHomo } from './geometryHomo.js'
 import { LineSegment } from './geometry.js'
 import { Triangle, Plane, Ray, Line, Point3DOrigin } from './geometry3D.js'
 import { Pixel } from './pixelSpace.js'
-import { StraightStroke } from './lines.js'
+import { StraightStroke, CompositeCurve } from './lines.js'
 
 class Face3D {
   // represents a planar face of a convex planar polygon in  3D
@@ -147,6 +147,19 @@ class ObjectLine {
   }
 }
 
+function reverseSegment(seg) {
+  return {
+    a: seg.b,
+    b: seg.a,
+    inFront: seg.inFront,
+    line: seg.line,
+    tA: seg.tB,
+    tB: seg.tA,
+    keyA: seg.keyB,
+    keyB: seg.keyA,
+  }
+}
+
 class SceneFrame {
   constructor(screen, ...objects) {
     this.objects = objects
@@ -253,6 +266,8 @@ class SceneFrame {
           line,
           tA: interA.t,
           tB: interB.t,
+          keyA: interA.key,
+          keyB: interB.key,
           // the line segment is in the foreground if at least one of the endpoints is visible from the camera
           inFront: interA.inFront || interB.inFront,
         })
@@ -271,28 +286,86 @@ class SceneFrame {
       }
 
       for (let seg of line.segments) {
-        if (seg.inFront) {
-          for (let face of line.faces) {
-            if (!face.facesCamera) {
-              continue
-            }
-            let faceHash = `${line.obj.objectID}:${face.faceID}`
-            if (!(faceHash in lineSegmentsByFace)) {
-              lineSegmentsByFace[faceHash] = []
-            }
-            lineSegmentsByFace[faceHash].push(seg)
+        if (!seg.inFront) {
+          continue
+        }
+        console.log(
+          'segment',
+          seg,
+          line.key,
+          Object.entries(line.faces).map(([key, value]) => `${key}: ${value.key}`),
+        )
+
+        for (let [direction, face] of Object.entries(line.faces)) {
+          if (!face.facesCamera) {
+            continue
           }
+          console.log('segment appears in the direction', seg.keyA, seg.keyB, face.key, direction)
+          let faceHash = `${line.obj.objectID}:${face.faceID}`
+          if (!(faceHash in lineSegmentsByFace)) {
+            lineSegmentsByFace[faceHash] = []
+          }
+          let newSegment
+          if (direction == 'left') {
+            console.log('segment will be reversed', seg)
+            newSegment = reverseSegment(seg)
+          } else {
+            console.log('segment will not be reversed', seg, direction)
+            newSegment = seg
+          }
+          lineSegmentsByFace[faceHash].push(newSegment)
         }
       }
     }
+
     for (let face of this.getFaceObjs()) {
+      let retObjects = []
+      console.log('computeFaceDisplay.face', face)
       let faceHash = `${face.obj.objectID}:${face.faceID}`
       if (!(faceHash in lineSegmentsByFace)) {
         console.log('face', faceHash, 'has no visible segments')
         continue
       }
       let segments = lineSegmentsByFace[faceHash]
-      console.log('face', faceHash, 'has segments', segments)
+      console.log(
+        'face',
+        faceHash,
+        'has segments',
+        segments.map((seg) => `${seg.keyA}->${seg.keyB}`),
+      )
+      let byStartPoint = {}
+      let unprocessed = {}
+      let nProcessed = 0
+      for (let seg of segments) {
+        if (seg.keyA in byStartPoint) {
+          throw `Segment startpoint ${seg.keyA} appears multiple times for face ${face.key}`
+        }
+        byStartPoint[seg.keyA] = seg
+        unprocessed[seg.keyA] = seg
+      }
+      let lineSegments = []
+      while (nProcessed < segments.length) {
+        console.log('while', nProcessed, segments.length)
+        let current = Object.values(unprocessed)[0]
+        console.log('current', current)
+        let firstKey = current.keyA
+        while (current.keyB != firstKey) {
+          console.log('current', current, firstKey, unprocessed)
+          lineSegments.push(new StraightStroke(current.a, current.b))
+          delete unprocessed[current.keyA]
+          if (!(current.keyB in byStartPoint)) {
+            // yeah, because lines where one face is invisible don't know what face appears on the other side
+            throw `endpoint ${current.keyB} does not appear among startpoints ${byStartPoint}`
+          }
+          current = byStartPoint[current.keyB]
+          console.log('current', current, firstKey, unprocessed)
+          nProcessed += 1
+        }
+        console.log('Adding face', lineSegments)
+        retObjects.push(new CompositeCurve(...lineSegments))
+      }
+      face.visibleSurfaces = retObjects
+      console.log('face has surfaces', face.visibleSurfaces)
     }
   }
 
@@ -300,6 +373,7 @@ class SceneFrame {
     let allLines = Object.values(this.getLineObjs())
     for (let a = 0; a < allLines.length; a++) {
       let lineA = allLines[a]
+      console.log('lineA', lineA)
       if (!lineA.visible) {
         continue
       }
@@ -308,12 +382,14 @@ class SceneFrame {
         t: 0,
         point: lineA.pointObjs[0].projected.point,
         inFront: lineA.pointObjs[0].visible,
+        key: lineA.pointObjs[0].key,
       })
       lineA.intersections.push({
         with: null,
         t: 1,
         point: lineA.pointObjs[1].projected.point,
         inFront: lineA.pointObjs[1].visible,
+        key: lineA.pointObjs[1].key,
       })
       for (let b = a + 1; b < allLines.length; b++) {
         let lineB = allLines[b]
@@ -337,8 +413,8 @@ class SceneFrame {
           let point = lineA.lineSegment.at(t)
           let ray = screen.reverseRay(point)
 
-          let facesA = lineA.faces.filter((face) => face.facesCamera)
-          let facesB = lineB.faces.filter((face) => face.facesCamera)
+          let facesA = Object.values(lineA.faces).filter((face) => face.facesCamera)
+          let facesB = Object.values(lineB.faces).filter((face) => face.facesCamera)
           let pt = facesA[0].face.plane.intersectLine(new Line(ray.p, ray.v))
           let ray2 = new Ray(Point3DOrigin, Point3DOrigin.vectTo(pt))
           let depthA = facesA[0].face.intersectApproxRayDepth(ray)
@@ -351,6 +427,7 @@ class SceneFrame {
             u,
             point,
             inFront: depthA < depthB,
+            key: `${lineA.key}x${lineB.key}`,
           })
           lineB.intersections.push({
             with: lineA,
@@ -358,6 +435,7 @@ class SceneFrame {
             u: t,
             point,
             inFront: depthA > depthB,
+            key: `${lineA.key}x${lineB.key}`,
           })
         }
       }
@@ -371,6 +449,7 @@ class SceneFrame {
       //   line.pointObjs.map((p) => p.projected.point.string()),
       //   line.intersections.map((l) => `${l.t} ${l.inFront}`),
       // )
+      console.log('line intersections', line.intersections)
     }
   }
 
@@ -396,6 +475,7 @@ class SceneFrame {
         faces: [],
         inFrontOfCamera: projectedPt.depth > 0,
         ray: screen.reverseRay(projectedPt.point),
+        key: `pt(${obj.objectID}:${ptID})`,
       })
     }
     let faces = []
@@ -440,6 +520,7 @@ class SceneFrame {
         pointIDs,
         lines: [],
         color,
+        key: `face(${obj.objectID}_${faceID})`,
       }
       for (let ptAID = 0; ptAID < pointIDs.length; ptAID++) {
         let ptBID = (ptAID + 1) % pointIDs.length
@@ -464,14 +545,28 @@ class SceneFrame {
             ),
             points: [a, b],
             pointObjs: [points[a], points[b]],
-            faces: [],
+            faces: { left: null, right: null },
             intersections: [],
+            key: `line(${obj.objectID}:${a}-${b})`,
           }
           lines[key] = lineObj
           points[a].lines.push(lineObj)
           points[b].lines.push(lineObj)
         }
-        lines[key].faces.push(faceObj)
+        // lines[key].faces.push(faceObj)
+        let side = a == pointIDs[ptAID] ? 'right' : 'left'
+        console.log(
+          'face appears in direction of line',
+          faceObj.key,
+          lines[key].key,
+          side,
+          pointIDs[ptAID],
+          pointIDs[ptBID],
+        )
+        if (lines[key].faces[side] != null) {
+          throw `Two faces cannot be on the same side of a line: ${lines[key].faces[side]} and ${faceObj}`
+        }
+        lines[key].faces[side] = faceObj
         faceObj.lines.push({
           line: lines[key],
           reverse,
@@ -493,7 +588,8 @@ class SceneFrame {
     }
     for (let line of Object.values(lines)) {
       let visible = false
-      for (let face of line.faces) {
+      console.log('line.faces', line.faces)
+      for (let face of Object.values(line.faces)) {
         if (face.facesCamera) {
           visible = true
         }

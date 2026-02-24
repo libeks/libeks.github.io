@@ -76,6 +76,10 @@ class Vector {
   }
 
   add(v) {
+    if (v.type != 'Vector') {
+      console.trace()
+      throw `Vector.add got unexpected argument ${v.type}`
+    }
     return new Vector(this.x + v.x, this.y + v.y)
   }
 
@@ -88,6 +92,10 @@ class Vector {
   }
 
   dot(v) {
+    if (v.type != 'Vector') {
+      console.trace()
+      throw `Vector.dot got unexpected argument ${v.type}`
+    }
     return this.x * v.x + this.y * v.y
   }
 
@@ -116,9 +124,23 @@ class Vector {
   // do the two vectors point in the same direction?
   // I wonder whether this is the rigth approach, should I measure the angle instead?
   sameDirection(v) {
+    if (v.type != 'Vector') {
+      console.trace()
+      throw `Vector.sameDirection got unexpected argument ${v.type}`
+    }
     u1 = this.unit()
     u2 = v.unit()
     return u1.add(u2.mult(-1)).len() < THRESHOLD
+  }
+
+  //returns a perpendicular vector to this one, rotated 90° CCw, and same length
+  perp() {
+    let perp = new Vector(-this.y, this.x)
+    // console.log('perp', perp.dot(this))
+    // if (perp.dot(this) != 0) {
+    //   throw `perp is not perpendicular ${this} ${perp}`
+    // }
+    return perp
   }
 
   same(v) {
@@ -129,6 +151,10 @@ class Vector {
 // a line
 class Line {
   constructor(p, v) {
+    if (p.type != 'Point' || v.type != 'Vector') {
+      console.trace()
+      throw `Line got unexpected arguments ${p.type} ${v.type}`
+    }
     this.p = p
     this.v = v
     this.type = 'Line'
@@ -142,6 +168,10 @@ class Line {
   // from https://github.com/libeks/go-plotter-svg/blob/main/lines/line.go
   // and https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
   intersectT(l) {
+    if (l.type != 'Line') {
+      console.trace()
+      throw `Line.intersectT got unexpected argument ${l.type}`
+    }
     // const x1x2 = -this.v.x
     // const x3x4 = -l.v.x
     // const y1y2 = -this.v.y
@@ -163,6 +193,10 @@ class Line {
 
   // intersect another line, return the t and u parameters for the two lines
   intersectTU(l) {
+    if (l.type != 'Line') {
+      console.trace()
+      throw `Line.intersectTU got unexpected argument ${l.type}`
+    }
     const x1x2 = -this.v.x
     const x3x4 = -l.v.x
     const y1y2 = -this.v.y
@@ -181,11 +215,26 @@ class Line {
   }
 
   intersect(l) {
+    if (l.type != 'Line') {
+      console.trace()
+      throw `Line.intersect got unexpected argument ${l.type}`
+    }
     const t = this.intersectT(l)
     if (t === null) {
       return null
     }
     return this.at(t)
+  }
+
+  pointOnSide(p) {
+    if (p.type != 'Point') {
+      console.trace()
+      throw `Unrecognized argument to pointOnSide: ${p.type}`
+    }
+
+    let d = this.v.perp().dot(this.p.vectTo(p))
+    // console.log('pointOnSide', this, p, d)
+    return d
   }
 }
 
@@ -209,6 +258,10 @@ class LineSegment {
   }
 
   intersectTU(ls) {
+    if (ls.type != 'LineSegment') {
+      console.trace()
+      throw `LineSegment.intersectTU got unexpected argument ${ls.type}`
+    }
     let intersect = this.line().intersectTU(ls.line())
     if (intersect == null) {
       return null
@@ -222,11 +275,19 @@ class LineSegment {
   }
 
   intersect(ls) {
+    if (ls.type != 'LineSegment') {
+      console.trace()
+      throw `LineSegment.intersect got unexpected argument ${ls.type}`
+    }
     let intersect = this.intersectTU(ls)
     if (intersect == null) {
       return null
     }
     return this.at(intersect.t)
+  }
+
+  reverse() {
+    return new LineSegment(this.p.addVect(this.v), this.v.mult(-1))
   }
 }
 

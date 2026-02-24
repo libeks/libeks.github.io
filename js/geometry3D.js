@@ -44,6 +44,7 @@ class Point3D {
       console.trace()
       throw `Point3D.distance got unexpected argument ${p.type}`
     }
+    // console.log('distance', this.subPt(p), this.subPt(p).len())
     return this.subPt(p).len()
   }
 
@@ -104,7 +105,7 @@ class Vector3D {
   }
 
   len() {
-    return Math.sqrt(this.x * this.x + this.y * this.y, this.z * this.z)
+    return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z)
   }
 
   add(v) {
@@ -309,13 +310,11 @@ class Matrix3D {
   }
 }
 
-class Line {
+class Line3D {
   constructor(p, v) {
-    if (p.type != 'Point3D') {
-      throw `Invalid argument to Ray ${p}`
-    }
-    if (v.type != 'Vector3D') {
-      throw `Invalid argument to Ray ${v}`
+    if (p.type != 'Point3D' || v.type != 'Vector3D') {
+      console.trace()
+      throw `Invalid argument to Line ${p.type} ${v.type}`
     }
     this.p = p
     this.v = v
@@ -329,11 +328,9 @@ class Line {
 
 class Ray {
   constructor(p, v) {
-    if (p.type != 'Point3D') {
-      throw `Invalid argument to Ray ${p}`
-    }
-    if (v.type != 'Vector3D') {
-      throw `Invalid argument to Ray ${v}`
+    if (p.type != 'Point3D' || v.type != 'Vector3D') {
+      console.trace()
+      throw `Invalid argument to Ray ${p.type} ${v.type}`
     }
     this.p = p
     this.v = v
@@ -369,15 +366,16 @@ class Plane {
 
   intersectRayT(r) {
     if (r.type != 'Ray') {
+      console.trace()
       throw `Plane.intersectRayT got unexpected argument ${r.type}`
     }
     const denominator = this.n.dot(r.v)
-    console.log('denominator', this, r, denominator)
+    // console.log('denominator', this, r, denominator)
     if (denominator == 0) {
       return null // ray is parallel to plane, no intersection
     }
     const t = (this.d - this.n.dot(Point3DOrigin.vectTo(r.p))) / denominator
-    console.log('t', t)
+    // console.log('t', t)
     if (t < 0.0) {
       return null // ray intersects plane before ray's starting point
     }
@@ -460,7 +458,8 @@ class Triangle {
       return null
     }
     // inside unit square and inside the hypotenuse
-    return { b, c, depth: ray.p.distance(intersectPt) }
+    // console.log('rayIntersectLocalCoords', ray.p, intersectPt, ray.p.distance(intersectPt))
+    return { b, c, depth: ray.p.distance(intersectPt), point: intersectPt }
   }
 
   intersectRay(ray) {
@@ -468,7 +467,7 @@ class Triangle {
     if (intersection == null) {
       return null
     }
-    return intersection.depth
+    return { point: intersection.point, depth: intersection.depth }
   }
 }
 
@@ -486,5 +485,5 @@ export {
   Ray,
   Triangle,
   Plane,
-  Line,
+  Line3D,
 }

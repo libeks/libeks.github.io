@@ -181,7 +181,14 @@
           </p>
           <figure id="cube-rectangle-occlusion" class="float-right small">
             <svg viewBox="0 0 600 300">
-              <three-d-scene :frame="t" :scene="scene" :screen="screen" show-faces />
+              <three-d-scene
+                :frame="t"
+                :scene="scene"
+                :screen="screen"
+                show-transparent-faces
+                show-intersection-points
+                show-visible-lines
+              />
             </svg>
             <figcaption>
               For each face, compute the line segments that are fully visible from the camera,
@@ -206,6 +213,45 @@
                   v-model="camera"
                 />
                 <label for="cube-rect-occlusion-projective">Projective</label>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+        <div class="flex-container">
+          <p>
+            In addition, for each point of intersection between lines, there is some funny business
+            to figure out which face sits behind both faces that adjoin the intersection point. The
+            code was a mess, and it took me several days of debugging, but here it is!
+            Unfortunately, I'm not done yet. If any of the objects in the scene intersect, my code
+            will crash!
+          </p>
+          <figure id="cube-rectangle-surfaces" class="float-right small">
+            <svg viewBox="0 0 600 300">
+              <three-d-scene :frame="t" :scene="scene" :screen="screen" show-faces />
+            </svg>
+            <figcaption>
+              For each face, compute the line segments that are fully visible from the camera,
+              highlighting the segments that are obscured in orange. The points of interest are
+              shown here.<br />t={{t}}
+              <div class="button" @click="t--">⏮</div>
+              <div class="button" @click="active = !active">{{active ? '⏸' : '▶'}}</div>
+              <div class="button" @click="t++">⏭</div>
+              <div>
+                <input
+                  type="radio"
+                  id="cube-rect-surface-isometric"
+                  value="parallel"
+                  v-model="camera"
+                />
+                <label for="cube-rect-surface-isometric">Isometric</label>
+
+                <input
+                  type="radio"
+                  id="cube-rect-surface-projective"
+                  value="projective"
+                  v-model="camera"
+                />
+                <label for="cube-rect-surface-projective">Projective</label>
               </div>
             </figcaption>
           </figure>
@@ -512,6 +558,41 @@
           },
         },
       }).mount('#cube-rectangle-occlusion')
+
+      createApp({
+        data() {
+          return {
+            t: 0,
+            // scene: new Scene3D(cube, farRectangle, cube2, cube3),
+            scene: new Scene3D(cube, farRectangle),
+            // scene: new Scene3D(faceA, faceB),
+            camera: 'projective',
+            // camera: 'parallel',
+            active: true,
+          }
+        },
+        computed: {
+          screen() {
+            if (this.camera == 'projective') {
+              return new Screen(600, 300, new ProjectiveCamera(1))
+            }
+            return new Screen(600, 300, new IsometricCamera(200))
+          },
+        },
+        components: { threeDScene },
+        mounted() {
+          setInterval(() => {
+            if (this.active) {
+              this.t++
+            }
+          }, 1000 / 30)
+        },
+        methods: {
+          nextFrame() {
+            this.t++
+          },
+        },
+      }).mount('#cube-rectangle-surfaces')
     </script>
   </body>
 </html>

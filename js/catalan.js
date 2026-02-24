@@ -56,7 +56,6 @@ function generateCatalanParenthesisSet(n) {
     let right = generateCatalanParenthesisSet(n - i - 1)
     for (let [i, l] of left.entries()) {
       for (let [j, r] of right.entries()) {
-        // console.log("AAA",retList.length, i,j)
         retList.push(['(', ...l, ')', ...r])
       }
     }
@@ -130,7 +129,6 @@ function numericalToParentheses(st) {
   for (let i = 0; i < st.length; i++) {
     ret.push(dict[i])
   }
-  // console.log('numericalToParentheses', st, ret)
   return ret.join('')
 }
 
@@ -148,7 +146,6 @@ function numericalToPartition(st) {
 
 function parenthesesToPartitions(st) {
   // compute in reverse to ensure correct order of first element of each partition
-  // console.log("st", st)
   let ret = []
   let dict = {}
   let val = 0

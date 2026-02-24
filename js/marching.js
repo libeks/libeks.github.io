@@ -208,7 +208,7 @@ const marchingSquares = {
           }
         }
       }
-      console.log('finalCurves', finalCurves)
+      // console.log('finalCurves', finalCurves)
       return finalCurves
     },
     megacurve() {
@@ -221,7 +221,7 @@ const marchingSquares = {
         }
       }
       // const a = this.componentCurves
-      console.log('megacurve', curves)
+      // console.log('megacurve', curves)
       return curves.d()
     },
   },

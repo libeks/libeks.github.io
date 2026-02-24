@@ -52,9 +52,9 @@ svg {
   path {
     &.face {
       fill: yellow;
+      fill-opacity: 0.8;
       stroke: black;
       stroke-width: 2px;
-      /*stroke-linecap: round;*/
       stroke-linejoin: round;
 
       &.transparent {

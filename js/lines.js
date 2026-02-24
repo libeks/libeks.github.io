@@ -150,7 +150,6 @@ class CircleArc {
 
 class CompositeCurve {
   constructor(...args) {
-    // console.log('compositeCurve', args)
     this.curves = args
   }
 
@@ -213,14 +212,13 @@ class CompositeCurve {
     if (this.curves.lenght == 0) {
       return ''
     }
-    // console.log(this.curves[0])
     let components = [this.curves[0].d()]
     let end = this.curves[0].endpoint()
     for (let i = 1; i < this.curves.length; i++) {
       if (this.curves[i - 1].endpoint().same(this.curves[i].startpoint())) {
         components.push(this.curves[i].dContinued())
       } else {
-        console.log(
+        console.warn(
           'curves are not continuous',
           this.curves[i - 1].endpoint(),
           this.curves[i].startpoint(),

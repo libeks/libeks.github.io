@@ -26,7 +26,6 @@ class Face3D {
     )
     for (let pt of pts) {
       let ray = new Ray(Point3DOrigin, Point3DOrigin.vectTo(pt.point.to3D()))
-      // console.log('face3d', this.plane.intersectRay(ray), pt.point.to3D())
     }
   }
 
@@ -47,7 +46,6 @@ class Face3D {
       if (intersect == null) {
         continue
       }
-      // console.log('intersectRay', intersect)
       let { a, b, depth, point } = intersect
 
       return { point, depth: point.z }
@@ -251,47 +249,15 @@ class SceneFrame {
       let ray = screen.reverseRay(point.projected.point)
       let overlayStack = this.getPixelFaceOverlays(ray)
 
-      // console.log('stack before', overlayStack)
       // filter out the faces that this point adjoins
       overlayStack = overlayStack.filter(
         (entry) => !point.faces.map((face) => face.key).includes(entry.face.key),
       )
-      // console.log('stack after', overlayStack)
       point.overlapFaceStack = overlayStack
-      // console.log('stack', point, point.overlapFaceStack, point.projected.point)
 
       if (point.overlapFaceStack.length > 0 && point.overlapFaceStack[0].depth < point.point.z) {
         point.obscured = true
       }
-      // for (let face of this.getFaceObjs()) {
-      //   console.log('face', face)
-      //   if (!face.facesCamera) {
-      //     continue
-      //   }
-      //   if (face.face.points.some((pt) => pt.key == point.key)) {
-      //     console.log('face contains the point', face.key, point.key)
-      //     continue
-      //   }
-      //   console.log('computeFacePointOverlap.ray', ray, point.key)
-      //   let intersection = face.face.intersectRay(ray)
-      //   console.log('intersection is', intersection)
-      //   if (intersection != null) {
-      //     let { depth } = intersection
-
-      //     console.log('point face depth', depth, point, face)
-      //     if (!depth) {
-      //       continue
-      //       // throw `Depth is undefined`
-      //     }
-      //     if (depth < point.point.z) {
-      //       console.log('setting point as obscured', point.key)
-      //       point.obscured = true
-      //     } else {
-      //       console.log('point overlays face', point.key, face.key, depth)
-      //       point.overlapFaceStack.push({ face, depth })
-      //     }
-      //   }
-      // }
     }
   }
 
@@ -326,23 +292,6 @@ class SceneFrame {
         }
         let faces = []
         if (visible) {
-          // console.log(
-          //   'computeLineSegmentVisibility.intersection',
-          //   line.key,
-          //   interA.key,
-          //   interB.key,
-          //   'start:',
-          //   interA.intersectionType,
-          //   // '[' + interA.faces.before.map((face) => face.key).join(',') + ']',
-          //   // '->',
-          //   '[' + interA.faces.after.map((face) => face.key).join(',') + ']',
-
-          //   'end:',
-          //   interB.intersectionType,
-          //   '[' + interB.faces.before.map((face) => face.key).join(',') + ']',
-          //   // '->',
-          //   // '[' + interB.faces.after.map((face) => face.key).join(',') + ']',
-          // )
           if (interA.faces.after.length != interB.faces.before.length) {
             throw `Faces between the two endpoints of a segment do not match`
           }
@@ -411,12 +360,6 @@ class SceneFrame {
         continue
       }
       let segments = lineSegmentsByFace[face.key]
-      // console.log(
-      //   'face',
-      //   face.key,
-      //   'has segments',
-      //   segments.map((seg) => `${seg.keyA}->${seg.keyB}`),
-      // )
       let byStartPoint = {}
       let unprocessed = {}
       let nProcessed = 0
@@ -437,17 +380,11 @@ class SceneFrame {
         let current = Object.values(unprocessed)[0]
         let firstKey = current.keyA
         while (current) {
-          // console.log('current', current.keyA, current.keyB, firstKey, unprocessed)
           lineSegments.push(new StraightStroke(current.a, current.b))
           delete unprocessed[current.keyA]
           current = unprocessed[current.keyB]
           nProcessed += 1
         }
-        // console.log(
-        //   'Adding face',
-        //   face.key,
-        //   lineSegments.map((seg) => `${seg.from.string()} ${seg.to.string()}`),
-        // )
         retObjects.push(new CompositeCurve(...lineSegments))
       }
       face.visibleSurfaces = retObjects
@@ -462,13 +399,10 @@ class SceneFrame {
     // WARNING: this might miss faces that the ray slices exactly on the edge, due to floating point arithmetic quirks
     let depthStack = []
     for (let face of this.getFaceObjs()) {
-      // console.log('face', face)
       if (!face.facesCamera) {
         continue
       }
-      // console.log('computeFacePointOverlap.ray', ray, point.key)
       let intersection = face.face.intersectRay(ray)
-      // console.log('intersection is', intersection)
       if (intersection != null) {
         let { depth, point } = intersection
 
@@ -487,14 +421,12 @@ class SceneFrame {
     for (let a = 0; a < allLines.length; a++) {
       let lineA = allLines[a]
 
-      // console.log('linseA', lineA.pointObjs[0])
       if (!lineA.visible) {
         continue
       }
       let facesA = Object.values(lineA.faces).filter((face) => face.facesCamera)
 
       let startPoint = lineA.pointObjs[0]
-      // console.log('startPoint', startPoint)
       let startFaces = facesA
       if (startFaces.length < 2) {
         if (startPoint.overlapFaceStack.length > 0) {
@@ -557,28 +489,17 @@ class SceneFrame {
 
           let allFaces = [...facesA, ...facesB]
           let allFaceKeys = allFaces.map((face) => face.key)
-          // console.log('all faces', allFaces, allFaceKeys)
           let pt = facesA[0].face.plane.intersectLine(new Line3D(ray.p, ray.v))
           let ray2 = new Ray(Point3DOrigin, Point3DOrigin.vectTo(pt))
           let depthA = facesA[0].face.intersectApproxRayDepth(ray)
           let depthB = facesB[0].face.intersectApproxRayDepth(ray)
-          // console.log(
-          //   'computeLineIntersections.intersection',
-          //   t,
-          //   depthA,
-          //   depthB,
-          //   facesA.length,
-          //   facesB.length,
-          // )
 
           if (depthA < depthB && facesA.length == 2) {
             // the line in front has both faces visible, meaning that lineB is out of view and we can ignore this intersection
-            // console.log('exiting early, lineA is way in front of the intersection')
             continue
           }
           if (depthA > depthB && facesB.length == 2) {
             // the line in front has both faces visible, meaning that lineB is out of view and we can ignore this intersection
-            // console.log('exiting early, lineB is way in front of the intersection')
             continue
           }
 
@@ -607,9 +528,7 @@ class SceneFrame {
           // that is on its side
           let lineOverReverse = overFace.lines.filter((line) => line.line.key == lineOver.key)[0]
             .reverse
-          // console.log('lineOverReversed', lineOverReverse)
           let lineUnder = depthA < depthB ? lineB : lineA
-          // console.log('lineOverUnder', lineOver, lineUnder)
           let lineOverSegment = lineOverReverse
             ? lineOver.lineSegment.reverse()
             : lineOver.lineSegment
@@ -618,32 +537,6 @@ class SceneFrame {
               ? 'come_out'
               : 'duck_under'
 
-          // console.log(
-          //   'line under direction',
-          //   overFace,
-          //   lineUnderDirection,
-          //   lineOver.key,
-          //   lineUnder.key,
-          //   lineUnder.lineSegment.p,
-          //   lineUnder.pointObjs.map((obj) => obj.projected.point),
-          //   lineOver.lineSegment.line().pointOnSide(lineUnder.lineSegment.p),
-          // )
-
-          // {
-          //   let testLine = new Line(new Point(0, 0), new Vector(100, 0))
-          //   let ptA = new Point(0, 100)
-          //   let ptB = new Point(0, -100)
-          //   console.log('debugdebug', testLine.pointOnSide(ptA), testLine.pointOnSide(ptB))
-          // }
-          // console.log(
-          //   'overlap stack for intersection',
-          //   intersectionKey,
-          //   depthA,
-          //   depthB,
-          //   allFaceKeys,
-          //   overlapStack.map(({ face, depth }) => `${face.key}: ${depth}`),
-          //   bareOverlapStack,
-          // )
           let underFaceMap =
             lineUnderDirection == 'come_out'
               ? { before: [overFace], after: underFaces }
@@ -697,13 +590,6 @@ class SceneFrame {
     // ensure that intersections are ordered along the t-value
     for (let [lineID, line] of Object.entries(allLines)) {
       line.intersections.sort((a, b) => a.t - b.t)
-      // console.log(
-      //   'line',
-      //   lineID,
-      //   line.pointObjs.map((p) => p.projected.point.string()),
-      //   line.intersections.map((l) => `${l.t} ${l.inFront}`),
-      // )
-      // console.log('line intersections', line.intersections)
     }
   }
 
@@ -738,33 +624,6 @@ class SceneFrame {
     for (let [faceID, { points: pointIDs, color }] of obj.faces.entries()) {
       let pts = pointIDs.map((ptID) => points[ptID])
       let face = new Face3D(...pts)
-      // debug
-
-      // for (let ptID = 0; ptID < pts.length - 1; ptID++) {
-      //   let pt2ID = ptID + 1
-      //   let ptA = pts[ptID]
-      //   let ptB = pts[pt2ID]
-      //   console.log('pta', ptA.point, ptB.point)
-      //   let pixA = screen.homoToPixel(ptA.point)
-      //   let pixB = screen.homoToPixel(ptB.point)
-      //   let line = new LineSegment(pixA.point, pixA.point.vectTo(pixB.point))
-      //   let t = 0
-      //   console.log('line', line)
-      //   let pt = line.at(t)
-      //   let ray = screen.reverseRay(pt)
-      //   for (let i = 1; i < 5; i++) {
-      //     let rayPoint = ray.at(i)
-      //     console.log('ray point', rayPoint)
-      //     let pixel = this.screen.homoToPixel(rayPoint.toHomo())
-      //     this.debugPoints.push(pixel)
-      //   }
-      //   let depth = face.intersectApproxRayDepth(ray)
-      //   console.log('tval', t, ray, pt, ptA.projected.point)
-      //   console.log('tval', t, depth, pixA.depth, pixB.depth)
-      //   // project the point onto the screen, then for each line on the face, project the point along that line back onto the scene, see what the depths are
-      // }
-
-      // end debug
 
       let faceObj = {
         pointIDs,
@@ -810,14 +669,6 @@ class SceneFrame {
         }
         // lines[key].faces.push(faceObj)
         let side = a == pointIDs[ptAID] ? 'right' : 'left'
-        // console.log(
-        //   'face appears in direction of line',
-        //   faceObj.key,
-        //   lines[key].key,
-        //   side,
-        //   pointIDs[ptAID],
-        //   pointIDs[ptBID],
-        // )
         if (lines[key].faces[side] != null) {
           throw `Two faces cannot be on the same side of a line: ${lines[key].faces[side]} and ${faceObj}`
         }
@@ -844,7 +695,6 @@ class SceneFrame {
     }
     for (let line of Object.values(lines)) {
       let visible = false
-      // console.log('line.faces', line.faces)
       for (let face of Object.values(line.faces)) {
         if (face.facesCamera) {
           visible = true

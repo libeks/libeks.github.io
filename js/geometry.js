@@ -136,10 +136,6 @@ class Vector {
   //returns a perpendicular vector to this one, rotated 90° CCw, and same length
   perp() {
     let perp = new Vector(-this.y, this.x)
-    // console.log('perp', perp.dot(this))
-    // if (perp.dot(this) != 0) {
-    //   throw `perp is not perpendicular ${this} ${perp}`
-    // }
     return perp
   }
 
@@ -233,7 +229,6 @@ class Line {
     }
 
     let d = this.v.perp().dot(this.p.vectTo(p))
-    // console.log('pointOnSide', this, p, d)
     return d
   }
 }
@@ -268,7 +263,6 @@ class LineSegment {
     }
     let { t, u } = intersect
     if (t < 0 || t > 1 || u < 0 || u > 1) {
-      // console.log('intersection is out of bounds')
       return null
     }
     return intersect

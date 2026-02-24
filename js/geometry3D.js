@@ -44,7 +44,6 @@ class Point3D {
       console.trace()
       throw `Point3D.distance got unexpected argument ${p.type}`
     }
-    // console.log('distance', this.subPt(p), this.subPt(p).len())
     return this.subPt(p).len()
   }
 
@@ -370,12 +369,10 @@ class Plane {
       throw `Plane.intersectRayT got unexpected argument ${r.type}`
     }
     const denominator = this.n.dot(r.v)
-    // console.log('denominator', this, r, denominator)
     if (denominator == 0) {
       return null // ray is parallel to plane, no intersection
     }
     const t = (this.d - this.n.dot(Point3DOrigin.vectTo(r.p))) / denominator
-    // console.log('t', t)
     if (t < 0.0) {
       return null // ray intersects plane before ray's starting point
     }
@@ -458,7 +455,6 @@ class Triangle {
       return null
     }
     // inside unit square and inside the hypotenuse
-    // console.log('rayIntersectLocalCoords', ray.p, intersectPt, ray.p.distance(intersectPt))
     return { b, c, depth: ray.p.distance(intersectPt), point: intersectPt }
   }
 

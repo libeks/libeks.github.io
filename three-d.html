@@ -69,7 +69,9 @@
             </svg>
             <figcaption>
               The eight corners of a cube rotating around its vertical axis.<br />t={{t}}
-              <div class="button" @click="active = !active">{{active ? 'Pause' : 'Resume'}}</div>
+              <div class="button" @click="t--">⏮</div>
+              <div class="button" @click="active = !active">{{active ? '⏸' : '▶'}}</div>
+              <div class="button" @click="t++">⏭</div>
               <div>
                 <input type="radio" id="one" value="parallel" v-model="camera" />
                 <label for="one">Isometric</label>
@@ -108,7 +110,9 @@
             </svg>
             <figcaption>
               The same cube, showing only faces that point towards the camera.<br />t={{t}}
-              <div class="button" @click="active = !active">{{active ? 'Pause' : 'Resume'}}</div>
+              <div class="button" @click="t--">⏮</div>
+              <div class="button" @click="active = !active">{{active ? '⏸' : '▶'}}</div>
+              <div class="button" @click="t++">⏭</div>
               <div>
                 <input type="radio" id="cube-faces-isometric" value="parallel" v-model="camera" />
                 <label for="cube-faces-isometric">Isometric</label>
@@ -143,7 +147,9 @@
             </svg>
             <figcaption>
               A cube and a rectangular prism rendered in the same scene.<br />t={{t}}
-              <div class="button" @click="active = !active">{{active ? 'Pause' : 'Resume'}}</div>
+              <div class="button" @click="t--">⏮</div>
+              <div class="button" @click="active = !active">{{active ? '⏸' : '▶'}}</div>
+              <div class="button" @click="t++">⏭</div>
               <div>
                 <input
                   type="radio"
@@ -175,20 +181,15 @@
           </p>
           <figure id="cube-rectangle-occlusion" class="float-right small">
             <svg viewBox="0 0 600 300">
-              <three-d-scene
-                :frame="t"
-                :scene="scene"
-                :screen="screen"
-                show-intersection-points
-                show-visible-lines
-                show-transparent-faces
-              />
+              <three-d-scene :frame="t" :scene="scene" :screen="screen" show-faces />
             </svg>
             <figcaption>
               For each face, compute the line segments that are fully visible from the camera,
               highlighting the segments that are obscured in orange. The points of interest are
               shown here.<br />t={{t}}
-              <div class="button" @click="active = !active">{{active ? 'Pause' : 'Resume'}}</div>
+              <div class="button" @click="t--">⏮</div>
+              <div class="button" @click="active = !active">{{active ? '⏸' : '▶'}}</div>
+              <div class="button" @click="t++">⏭</div>
               <div>
                 <input
                   type="radio"
@@ -393,100 +394,14 @@
         .withTransform(new ParameterizedTransform((t) => RotateXHomo(t / 5)))
         .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 1000))))
 
-      // createApp({
-      //   data() {
-      //     return {
-      //       t: 0,
-      //       scene: new Scene3D(cube),
-      //       camera: 'projective',
-      //       // camera: 'parallel',
-      //       active: true,
-      //     }
-      //   },
-      //   computed: {
-      //     screen() {
-      //       if (this.camera == 'projective') {
-      //         return new Screen(600, 300, new ProjectiveCamera(1))
-      //       }
-      //       return new Screen(600, 300, new IsometricCamera(200))
-      //     },
-      //   },
-      //   components: { threeDScene },
-      //   mounted() {
-      //     setInterval(() => {
-      //       if (this.active) {
-      //         this.t++
-      //       }
-      //     }, 1000 / 30)
-      //   },
-      // }).mount('#cube-wireframe')
-
-      // createApp({
-      //   data() {
-      //     return {
-      //       t: 0, //29
-      //       scene: new Scene3D(cube),
-      //       camera: 'projective',
-      //       // camera: 'parallel',
-      //       active: true,
-      //     }
-      //   },
-      //   computed: {
-      //     screen() {
-      //       if (this.camera == 'projective') {
-      //         return new Screen(600, 300, new ProjectiveCamera(1))
-      //       }
-      //       return new Screen(600, 300, new IsometricCamera(200))
-      //     },
-      //   },
-      //   components: { threeDScene },
-      //   mounted() {
-      //     setInterval(() => {
-      //       if (this.active) {
-      //         this.t++
-      //       }
-      //     }, 1000 / 30)
-      //   },
-      // }).mount('#cube-faces')
-
-      // createApp({
-      //   data() {
-      //     return {
-      //       t: 25, //29
-      //       scene: new Scene3D(cube, farRectangle),
-      //       camera: 'projective',
-      //       // camera: 'parallel',
-      //       active: true,
-      //     }
-      //   },
-      //   computed: {
-      //     screen() {
-      //       if (this.camera == 'projective') {
-      //         return new Screen(600, 300, new ProjectiveCamera(1))
-      //       }
-      //       return new Screen(600, 300, new IsometricCamera(200))
-      //     },
-      //   },
-      //   components: { threeDScene },
-      //   mounted() {
-      //     setInterval(() => {
-      //       if (this.active) {
-      //         this.t++
-      //       }
-      //     }, 1000 / 30)
-      //   },
-      // }).mount('#cube-rectangle-transparent')
-
       createApp({
         data() {
           return {
-            t: 112,
-            // scene: new Scene3D(cube, farRectangle, cube2, cube3),
-            scene: new Scene3D(cube, farRectangle, cube2, cube3),
-            // scene: new Scene3D(faceA, faceB),
+            t: 0,
+            scene: new Scene3D(cube),
             camera: 'projective',
             // camera: 'parallel',
-            active: false,
+            active: true,
           }
         },
         computed: {
@@ -504,6 +419,97 @@
               this.t++
             }
           }, 1000 / 30)
+        },
+      }).mount('#cube-wireframe')
+
+      createApp({
+        data() {
+          return {
+            t: 0, //29
+            scene: new Scene3D(cube),
+            camera: 'projective',
+            // camera: 'parallel',
+            active: true,
+          }
+        },
+        computed: {
+          screen() {
+            if (this.camera == 'projective') {
+              return new Screen(600, 300, new ProjectiveCamera(1))
+            }
+            return new Screen(600, 300, new IsometricCamera(200))
+          },
+        },
+        components: { threeDScene },
+        mounted() {
+          setInterval(() => {
+            if (this.active) {
+              this.t++
+            }
+          }, 1000 / 30)
+        },
+      }).mount('#cube-faces')
+
+      createApp({
+        data() {
+          return {
+            t: 25, //29
+            scene: new Scene3D(cube, farRectangle),
+            camera: 'projective',
+            // camera: 'parallel',
+            active: true,
+          }
+        },
+        computed: {
+          screen() {
+            if (this.camera == 'projective') {
+              return new Screen(600, 300, new ProjectiveCamera(1))
+            }
+            return new Screen(600, 300, new IsometricCamera(200))
+          },
+        },
+        components: { threeDScene },
+        mounted() {
+          setInterval(() => {
+            if (this.active) {
+              this.t++
+            }
+          }, 1000 / 30)
+        },
+      }).mount('#cube-rectangle-transparent')
+
+      createApp({
+        data() {
+          return {
+            t: 0,
+            // scene: new Scene3D(cube, farRectangle, cube2, cube3),
+            scene: new Scene3D(cube, farRectangle),
+            // scene: new Scene3D(faceA, faceB),
+            camera: 'projective',
+            // camera: 'parallel',
+            active: true,
+          }
+        },
+        computed: {
+          screen() {
+            if (this.camera == 'projective') {
+              return new Screen(600, 300, new ProjectiveCamera(1))
+            }
+            return new Screen(600, 300, new IsometricCamera(200))
+          },
+        },
+        components: { threeDScene },
+        mounted() {
+          setInterval(() => {
+            if (this.active) {
+              this.t++
+            }
+          }, 1000 / 30)
+        },
+        methods: {
+          nextFrame() {
+            this.t++
+          },
         },
       }).mount('#cube-rectangle-occlusion')
     </script>

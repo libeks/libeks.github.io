@@ -175,7 +175,7 @@ class SceneFrame {
     this.computeFacePointOverlap(screen)
     this.computeLineIntersections(screen)
     this.computeLineSegmentVisibility(screen)
-    // this.computeFaceDisplay(screen)
+    this.computeFaceDisplay(screen)
   }
 
   computeObjects(screen) {
@@ -228,6 +228,20 @@ class SceneFrame {
     let ret = []
     for (let obj of this.projectedObjects) {
       ret.push(...Object.values(obj.lines))
+    }
+    return ret
+  }
+
+  getVisibleFaceSurfaces() {
+    let ret = []
+    for (let face of this.getFaceObjs()) {
+      if (!('visibleSurfaces' in face)) {
+        continue
+      }
+      for (let surface of face.visibleSurfaces) {
+        surface.color = face.color
+        ret.push(surface)
+      }
     }
     return ret
   }
@@ -292,11 +306,10 @@ class SceneFrame {
   computeLineSegmentVisibility(screen) {
     for (let [lineID, line] of Object.entries(this.getLineObjs())) {
       let segments = []
-      // console.log('line', line)
       for (let iA = 0; iA < line.intersections.length - 1; iA++) {
         let interA = line.intersections[iA]
         let interB = line.intersections[iA + 1]
-        // console.log('computeLineSegmentVisibility.intersection', interA, interB)
+
         let visible = false
         if (
           interA.intersectionType == 'come_out' ||
@@ -311,12 +324,30 @@ class SceneFrame {
         if (interB.intersectionType == 'endpoint' && interB.visible) {
           visible = true
         }
-        // console.log(
-        //   'computeLineSegmentVisibility.visibility',
-        //   interA.intersectionType,
-        //   interB.intersectionType,
-        //   visible,
-        // )
+        let faces = []
+        if (visible) {
+          // console.log(
+          //   'computeLineSegmentVisibility.intersection',
+          //   line.key,
+          //   interA.key,
+          //   interB.key,
+          //   'start:',
+          //   interA.intersectionType,
+          //   // '[' + interA.faces.before.map((face) => face.key).join(',') + ']',
+          //   // '->',
+          //   '[' + interA.faces.after.map((face) => face.key).join(',') + ']',
+
+          //   'end:',
+          //   interB.intersectionType,
+          //   '[' + interB.faces.before.map((face) => face.key).join(',') + ']',
+          //   // '->',
+          //   // '[' + interB.faces.after.map((face) => face.key).join(',') + ']',
+          // )
+          if (interA.faces.after.length != interB.faces.before.length) {
+            throw `Faces between the two endpoints of a segment do not match`
+          }
+          faces = interA.faces.after
+        }
         segments.push({
           a: interA.point,
           b: interB.point,
@@ -330,10 +361,10 @@ class SceneFrame {
           inFront: interA.inFront || interB.inFront,
           // inFront:
           visible,
+          faces,
         })
       }
       line.segments = segments
-      // console.log('segments', line.segments)
     }
   }
 
@@ -346,50 +377,43 @@ class SceneFrame {
       }
 
       for (let seg of line.segments) {
-        if (!seg.inFront) {
+        if (!seg.visible) {
           continue
         }
-        // console.log(
-        //   'segment',
-        //   seg,
-        //   line.key,
-        //   Object.entries(line.faces).map(([key, value]) => `${key}: ${value.key}`),
-        // )
+        let allFaces = Object.entries(line.faces).filter(([direction, face]) => face.facesCamera)
+        let allFaceKeys = allFaces.map(([direction, face]) => face.key)
+        let additionalFaces = seg.faces.filter((face) => !allFaceKeys.includes(face.key))
+        let allFacesKeys = allFaces.map(([direction, face]) => direction)
+        let outsideKey = allFacesKeys[0] == 'right' ? 'leftOutside' : 'rightOutside'
+        allFaces = [...allFaces, ...additionalFaces.map((face) => [outsideKey, face])]
 
-        for (let [direction, face] of Object.entries(line.faces)) {
+        for (let [direction, face] of allFaces) {
           if (!face.facesCamera) {
             continue
           }
-          // console.log('segment appears in the direction', seg.keyA, seg.keyB, face.key, direction)
-          let faceHash = `${line.obj.objectID}:${face.faceID}`
-          if (!(faceHash in lineSegmentsByFace)) {
-            lineSegmentsByFace[faceHash] = []
+          if (!(face.key in lineSegmentsByFace)) {
+            lineSegmentsByFace[face.key] = []
           }
           let newSegment
-          if (direction == 'left') {
-            // console.log('segment will be reversed', seg)
+          if (direction == 'left' || direction == 'leftOutside') {
             newSegment = reverseSegment(seg)
           } else {
-            // console.log('segment will not be reversed', seg, direction)
             newSegment = seg
           }
-          lineSegmentsByFace[faceHash].push(newSegment)
+          lineSegmentsByFace[face.key].push(newSegment)
         }
       }
     }
 
     for (let face of this.getFaceObjs()) {
       let retObjects = []
-      // console.log('computeFaceDisplay.face', face)
-      let faceHash = `${face.obj.objectID}:${face.faceID}`
-      if (!(faceHash in lineSegmentsByFace)) {
-        // console.log('face', faceHash, 'has no visible segments')
+      if (!(face.key in lineSegmentsByFace)) {
         continue
       }
-      let segments = lineSegmentsByFace[faceHash]
+      let segments = lineSegmentsByFace[face.key]
       // console.log(
       //   'face',
-      //   faceHash,
+      //   face.key,
       //   'has segments',
       //   segments.map((seg) => `${seg.keyA}->${seg.keyB}`),
       // )
@@ -403,29 +427,30 @@ class SceneFrame {
         byStartPoint[seg.keyA] = seg
         unprocessed[seg.keyA] = seg
       }
-      let lineSegments = []
-      while (nProcessed < segments.length) {
-        // console.log('while', nProcessed, segments.length)
+      for (let seg of segments) {
+        if (!(seg.keyB in byStartPoint)) {
+          throw `endpoint ${seg.keyB} does not appear among startpoints ${byStartPoint} for face ${face.key}`
+        }
+      }
+      while (Object.keys(unprocessed).length > 0) {
+        let lineSegments = []
         let current = Object.values(unprocessed)[0]
-        // console.log('current', current)
         let firstKey = current.keyA
-        while (current.keyB != firstKey) {
-          // console.log('current', current, firstKey, unprocessed)
+        while (current) {
+          // console.log('current', current.keyA, current.keyB, firstKey, unprocessed)
           lineSegments.push(new StraightStroke(current.a, current.b))
           delete unprocessed[current.keyA]
-          if (!(current.keyB in byStartPoint)) {
-            // yeah, because lines where one face is invisible don't know what face appears on the other side
-            throw `endpoint ${current.keyB} does not appear among startpoints ${byStartPoint}`
-          }
-          current = byStartPoint[current.keyB]
-          // console.log('current', current, firstKey, unprocessed)
+          current = unprocessed[current.keyB]
           nProcessed += 1
         }
-        // console.log('Adding face', lineSegments)
+        // console.log(
+        //   'Adding face',
+        //   face.key,
+        //   lineSegments.map((seg) => `${seg.from.string()} ${seg.to.string()}`),
+        // )
         retObjects.push(new CompositeCurve(...lineSegments))
       }
       face.visibleSurfaces = retObjects
-      // console.log('face has surfaces', face.visibleSurfaces)
     }
   }
 
@@ -447,18 +472,10 @@ class SceneFrame {
       if (intersection != null) {
         let { depth, point } = intersection
 
-        // console.log('point face depth', depth, point, face)
         if (!depth) {
           continue
-          // throw `Depth is undefined`
         }
-        // if (depth < point.point.z) {
-        //   console.log('setting point as obscured', point.key)
-        //   // point.obscured = true
-        // } else {
-        // console.log('point overlays face', point.key, face.key, depth)
         depthStack.push({ face, depth, point })
-        // }
       }
     }
     depthStack.sort((a, b) => a.depth - b.depth)
@@ -469,12 +486,29 @@ class SceneFrame {
     let allLines = Object.values(this.getLineObjs())
     for (let a = 0; a < allLines.length; a++) {
       let lineA = allLines[a]
+
       // console.log('linseA', lineA.pointObjs[0])
       if (!lineA.visible) {
         continue
       }
+      let facesA = Object.values(lineA.faces).filter((face) => face.facesCamera)
+
       let startPoint = lineA.pointObjs[0]
+      // console.log('startPoint', startPoint)
+      let startFaces = facesA
+      if (startFaces.length < 2) {
+        if (startPoint.overlapFaceStack.length > 0) {
+          startFaces = [...facesA, startPoint.overlapFaceStack[0].face]
+        }
+      }
       let endPoint = lineA.pointObjs[1]
+      let endFaces = facesA
+      if (endFaces.length < 2) {
+        if (endPoint.overlapFaceStack.length > 0) {
+          endFaces = [...facesA, endPoint.overlapFaceStack[0].face]
+        }
+      }
+      // let faces = Object.values(lineA.faces).filter((face) => face.facesCamera)
       lineA.intersections.push({
         with: null,
         t: 0,
@@ -484,6 +518,7 @@ class SceneFrame {
         key: startPoint.key,
         overlapStack: lineA.pointObjs[0].overlapFaceStack,
         intersectionType: 'endpoint',
+        faces: { before: [], after: startFaces },
       })
       lineA.intersections.push({
         with: null,
@@ -494,6 +529,7 @@ class SceneFrame {
         key: endPoint.key,
         overlapStack: endPoint.overlapFaceStack,
         intersectionType: 'endpoint',
+        faces: { before: endFaces, after: [] },
       })
       for (let b = a + 1; b < allLines.length; b++) {
         let lineB = allLines[b]
@@ -511,6 +547,7 @@ class SceneFrame {
             continue
           }
         }
+        let facesB = Object.values(lineB.faces).filter((face) => face.facesCamera)
         let intersection = lineA.lineSegment.intersectTU(lineB.lineSegment)
         if (intersection != null) {
           let intersectionKey = `${lineA.key}x${lineB.key}`
@@ -518,8 +555,6 @@ class SceneFrame {
           let point = lineA.lineSegment.at(t)
           let ray = screen.reverseRay(point)
 
-          let facesA = Object.values(lineA.faces).filter((face) => face.facesCamera)
-          let facesB = Object.values(lineB.faces).filter((face) => face.facesCamera)
           let allFaces = [...facesA, ...facesB]
           let allFaceKeys = allFaces.map((face) => face.key)
           // console.log('all faces', allFaces, allFaceKeys)
@@ -559,9 +594,17 @@ class SceneFrame {
             // at least one of the intersection lines is obscured at the intersection point by an unrelated face, can ignore
             continue
           }
+          let remainingFace = null
+          if (bareOverlapStack.length > 0) {
+            remainingFace = bareOverlapStack[0].face
+          }
 
           let lineOver = depthA < depthB ? lineA : lineB
           let overFace = depthA < depthB ? facesA[0] : facesB[0]
+          let underFaces = depthA < depthB ? facesB : facesA
+          // the line is not correctly ordered from the perspective of the overlaying face, so we need to figure out
+          // if it needs to be flipped to perform the logic. Critically, a face is on the left of the directed line
+          // that is on its side
           let lineOverReverse = overFace.lines.filter((line) => line.line.key == lineOver.key)[0]
             .reverse
           // console.log('lineOverReversed', lineOverReverse)
@@ -601,7 +644,27 @@ class SceneFrame {
           //   overlapStack.map(({ face, depth }) => `${face.key}: ${depth}`),
           //   bareOverlapStack,
           // )
+          let underFaceMap =
+            lineUnderDirection == 'come_out'
+              ? { before: [overFace], after: underFaces }
+              : { before: underFaces, after: [overFace] }
 
+          let underLeft = lineUnder.faces.left.facesCamera ? lineUnder.faces.left : remainingFace
+          let underRight = lineUnder.faces.right.facesCamera ? lineUnder.faces.right : remainingFace
+
+          // this is some funky logic, to do with the direction of the over line and the under line. There are four cases
+          // and they effectively form an XOR. The first case is when the under line is coming out and the over line is not reversed
+          // it also holds if the under line is dipping down and the over line is reversed. Otherwise, the second case applies
+          let overFaceMap =
+            (lineUnderDirection == 'come_out') == !lineOverReverse
+              ? {
+                  before: underLeft != null ? [overFace, underLeft] : [overFace],
+                  after: underRight != null ? [overFace, underRight] : [overFace],
+                }
+              : {
+                  before: underRight != null ? [overFace, underRight] : [overFace],
+                  after: underLeft != null ? [overFace, underLeft] : [overFace],
+                }
           lineA.intersections.push({
             with: lineB,
             t,
@@ -613,6 +676,7 @@ class SceneFrame {
             key: intersectionKey,
             overlapStack: overlapStack,
             intersectionType: depthA < depthB ? 'pass-over' : lineUnderDirection,
+            faces: depthA < depthB ? overFaceMap : underFaceMap,
           })
           lineB.intersections.push({
             with: lineA,
@@ -625,6 +689,7 @@ class SceneFrame {
             key: intersectionKey,
             overlapFaceStack: overlapStack,
             intersectionType: depthA > depthB ? 'pass-over' : lineUnderDirection,
+            faces: depthA < depthB ? underFaceMap : overFaceMap,
           })
         }
       }

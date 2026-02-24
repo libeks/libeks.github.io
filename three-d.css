@@ -52,11 +52,14 @@ svg {
   path {
     &.face {
       fill: yellow;
-      fill-opacity: 0.2;
       stroke: black;
       stroke-width: 2px;
       /*stroke-linecap: round;*/
       stroke-linejoin: round;
+
+      &.transparent {
+        fill-opacity: 0.2;
+      }
     }
   }
 
@@ -110,7 +113,10 @@ svg {
 
 div.button {
   display: inline-block;
-  padding: 0.4em;
+  padding: 0 0.4em;
+  margin: 0.2em;
   background-color: hsl(0, 0%, 90%);
   border-radius: 0.2em;
+  user-select: none;
+  webkit-user-select: none; /* For Safari only */
 }

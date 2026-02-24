@@ -8,7 +8,7 @@ const threeDScene = {
   <g>
     <circle v-if="showPoints" v-for="point in points" class="stroke medium" v-bind="point.cxcyProps()" r="2" />
     <path v-if="showWireframe" v-for="line in wireframe" class="stroke notch" :d="line.d()" />
-    <path v-if="showTransparentFaces" v-for="face in faces" class="face" :d="face.d()" :style="{fill: face.color}" />
+    <path v-if="showTransparentFaces" v-for="face in faces" class="face transparent" :d="face.d()" :style="{fill: face.color}" />
     <path v-if="showFaces" v-for="face in visibleFaces" class="face" :d="face.d()" :style="{fill: face.color}" />
     <path v-if="showVisibleLines" v-for="line in visibleLines" class="stroke notch segment" :d="line.d()" :style="{stroke:line.color}" />
     <circle v-for="point in debugPoints" class="stroke medium red" v-bind="point.cxcyProps()" r="1" stroke="red" />
@@ -82,8 +82,7 @@ const threeDScene = {
       })
     },
     visibleFaces() {
-      // let
-      return this.sceneFrame.visibleFaces
+      return this.sceneFrame.getVisibleFaceSurfaces()
     },
     visibleLines() {
       return this.sceneFrame.getAllSegments().map((seg) => {

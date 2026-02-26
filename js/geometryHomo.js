@@ -1,4 +1,4 @@
-import { Point3D, Vector3D } from './geometry3D.js'
+import { Point3D, Vector3D } from '/js/geometry3D.js'
 
 const THRESHOLD = 0.01
 

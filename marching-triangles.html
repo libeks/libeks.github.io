@@ -5,7 +5,8 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link href="style.css" rel="stylesheet" />
     <link href="triangles.css" rel="stylesheet" />
-    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -133,17 +134,9 @@
     </footer>
     <script type="module">
       const { createApp, ref, defineComponent } = Vue
-      import { TriangleGrid, TrianglePositioner, triSimpleClassName } from './js/triangles.js'
-      import { SquareGrid, SquarePositioner, setActiveSquare, sqClassName } from './js/squares.js'
-      // import {
-      //   tilesetTri5,
-      //   tilesetTri15,
-      //   twoTileFactory,
-      //   fourCurveFactory,
-      //   fourTileFactory,
-      //   catalan6,
-      // } from './js/triangular-tiles.js'
-      import { marchingSquares, functions } from './js/marching.js'
+      import { TriangleGrid, TrianglePositioner, triSimpleClassName } from '/js/triangles.js'
+      import { SquareGrid, SquarePositioner, setActiveSquare, sqClassName } from '/js/squares.js'
+      import { marchingSquares, functions } from '/js/marching.js'
 
       const initialFunction = 'sinsin'
 

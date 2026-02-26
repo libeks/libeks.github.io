@@ -1,7 +1,13 @@
-import { generateCatalanNumberSet, numericalToHex, hexToNumerical } from './catalan.js'
-import { Point, Vector, Line } from './geometry.js'
-import { StraightStroke, QuadraticBezier, CubicBezier, CircleArc, CompositeCurve } from './lines.js'
-import { memoize } from './memoize.js'
+import { generateCatalanNumberSet, numericalToHex, hexToNumerical } from '/js/catalan.js'
+import { Point, Vector, Line } from '/js/geometry.js'
+import {
+  StraightStroke,
+  QuadraticBezier,
+  CubicBezier,
+  CircleArc,
+  CompositeCurve,
+} from '/js/lines.js'
+import { memoize } from '/js/memoize.js'
 
 const triangleTwoPointFactory = memoize(function (size, notch) {
   const halfwidth = size / 2

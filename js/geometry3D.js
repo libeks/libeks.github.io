@@ -1,5 +1,5 @@
-import { PointHomo, VectorHomo } from './geometryHomo.js'
-import { Point } from './geometry.js'
+import { PointHomo, VectorHomo } from '/js/geometryHomo.js'
+import { Point } from '/js/geometry.js'
 
 const THRESHOLD = 0.01
 

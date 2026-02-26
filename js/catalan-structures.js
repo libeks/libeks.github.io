@@ -1,6 +1,6 @@
-import { Point, Vector } from './geometry.js'
-import { StraightStroke, CircleArc, CompositeCurve, Polygon } from './lines.js'
-import { numericalToHex, hexToNumerical, numericalToPartition } from './catalan.js'
+import { Point, Vector } from '/js/geometry.js'
+import { StraightStroke, CircleArc, CompositeCurve, Polygon } from '/js/lines.js'
+import { numericalToHex, hexToNumerical, numericalToPartition } from '/js/catalan.js'
 
 // Given a string, return an array of strings of two characters each, which add up to the input string
 function getPairs(s) {

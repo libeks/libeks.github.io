@@ -5,7 +5,8 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link href="style.css" rel="stylesheet" />
     <link href="three-d.css" rel="stylesheet" />
-    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -297,12 +298,12 @@
     </footer>
     <script type="module">
       const { createApp, ref, defineComponent } = Vue
-      import { threeDScene } from './js/3d.js'
-      import { Scene3D, Object3D, StaticTransform, ParameterizedTransform } from './js/scene3d.js'
-      import { Point3D, Vector3D } from './js/geometry3D.js'
-      import { TranslateHomo, RotateXHomo, RotateYHomo, RotateZHomo } from './js/geometryHomo.js'
-      import { Screen, ProjectiveCamera, IsometricCamera } from './js/pixelSpace.js'
-      import { playControls, radioButtons, toggleButton } from './js/buttons.js'
+      import { threeDScene } from '/js/3d.js'
+      import { Scene3D, Object3D, StaticTransform, ParameterizedTransform } from '/js/scene3d.js'
+      import { Point3D, Vector3D } from '/js/geometry3D.js'
+      import { TranslateHomo, RotateXHomo, RotateYHomo, RotateZHomo } from '/js/geometryHomo.js'
+      import { Screen, ProjectiveCamera, IsometricCamera } from '/js/pixelSpace.js'
+      import { playControls, radioButtons, toggleButton } from '/js/buttons.js'
 
       // cube of side length 200 centered around the origin
       const cube = new Object3D(
@@ -480,70 +481,6 @@
         )
         .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 300))))
 
-      // cube of side length 200 centered around the origin
-      const cube2 = new Object3D(
-        // faces
-        [
-          { points: [0, 3, 2, 1], color: 'red' },
-          { points: [0, 1, 5, 4], color: 'yellow' },
-          { points: [0, 4, 7, 3], color: 'blue' },
-          { points: [2, 3, 7, 6], color: 'orange' },
-          { points: [1, 2, 6, 5], color: 'cyan' },
-          { points: [4, 5, 6, 7], color: 'green' },
-        ],
-        // points
-        [
-          new Point3D(-100, -100, 100), // 0
-          new Point3D(-100, 100, 100), // 1
-          new Point3D(100, 100, 100), // 2
-          new Point3D(100, -100, 100), // 3
-          new Point3D(-100, -100, -100), // 4
-          new Point3D(-100, 100, -100), // 5
-          new Point3D(100, 100, -100), // 6
-          new Point3D(100, -100, -100), // 7
-        ],
-      )
-        .withTransform(
-          new ParameterizedTransform((t) =>
-            RotateZHomo(t / 20)
-              .matrixMult(RotateYHomo(t / 10))
-              .matrixMult(RotateXHomo(t / 50)),
-          ),
-        )
-        .withTransform(new StaticTransform(TranslateHomo(new Vector3D(-270, 0, 300))))
-
-      // cube of side length 200 centered around the origin
-      const cube3 = new Object3D(
-        // faces
-        [
-          { points: [0, 3, 2, 1], color: 'red' },
-          { points: [0, 1, 5, 4], color: 'yellow' },
-          { points: [0, 4, 7, 3], color: 'blue' },
-          { points: [2, 3, 7, 6], color: 'orange' },
-          { points: [1, 2, 6, 5], color: 'cyan' },
-          { points: [4, 5, 6, 7], color: 'green' },
-        ],
-        // points
-        [
-          new Point3D(-100, -100, 100), // 0
-          new Point3D(-100, 100, 100), // 1
-          new Point3D(100, 100, 100), // 2
-          new Point3D(100, -100, 100), // 3
-          new Point3D(-100, -100, -100), // 4
-          new Point3D(-100, 100, -100), // 5
-          new Point3D(100, 100, -100), // 6
-          new Point3D(100, -100, -100), // 7
-        ],
-      )
-        .withTransform(
-          new ParameterizedTransform((t) =>
-            RotateZHomo(t / 20)
-              .matrixMult(RotateYHomo(t / 10))
-              .matrixMult(RotateXHomo(t / 50)),
-          ),
-        )
-        .withTransform(new StaticTransform(TranslateHomo(new Vector3D(+400, 0, 300))))
-
       const farRectangle = new Object3D(
         // faces
         [
@@ -569,38 +506,12 @@
         .withTransform(new ParameterizedTransform((t) => RotateXHomo(t / 5)))
         .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 1000))))
 
-      const farRectangleGray = new Object3D(
-        // faces
-        [
-          { points: [0, 3, 2, 1], color: 'gray' },
-          { points: [0, 1, 5, 4], color: 'gray' },
-          { points: [0, 4, 7, 3], color: 'gray' },
-          { points: [2, 3, 7, 6], color: 'gray' },
-          { points: [1, 2, 6, 5], color: 'gray' },
-          { points: [4, 5, 6, 7], color: 'gray' },
-        ],
-        // points
-        [
-          new Point3D(-1000, -100, 100), // 0
-          new Point3D(-1000, 100, 100), // 1
-          new Point3D(1000, 100, 100), // 2
-          new Point3D(1000, -100, 100), // 3
-          new Point3D(-1000, -100, -100), // 4
-          new Point3D(-1000, 100, -100), // 5
-          new Point3D(1000, 100, -100), // 6
-          new Point3D(1000, -100, -100), // 7
-        ],
-      )
-        .withTransform(new ParameterizedTransform((t) => RotateXHomo(t / 15)))
-        .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 1000))))
-
       createApp({
         data() {
           return {
             t: 0,
             scene: new Scene3D(cube),
             camera: 'projective',
-            // camera: 'parallel',
             active: true,
           }
         },
@@ -625,10 +536,9 @@
       createApp({
         data() {
           return {
-            t: 0, //29
+            t: 0,
             scene: new Scene3D(cube),
             camera: 'projective',
-            // camera: 'parallel',
             active: true,
           }
         },
@@ -653,10 +563,9 @@
       createApp({
         data() {
           return {
-            t: 25, //29
+            t: 25,
             scene: new Scene3D(cube, farRectangle),
             camera: 'projective',
-            // camera: 'parallel',
             active: true,
           }
         },
@@ -682,11 +591,8 @@
         data() {
           return {
             t: 0,
-            // scene: new Scene3D(cube, farRectangle, cube2, cube3),
             scene: new Scene3D(cube, farRectangle),
-            // scene: new Scene3D(faceA, faceB),
             camera: 'projective',
-            // camera: 'parallel',
             active: true,
           }
         },
@@ -712,11 +618,8 @@
         data() {
           return {
             t: 0,
-            // scene: new Scene3D(cube, farRectangle, cube2, cube3),
             scene: new Scene3D(cube, farRectangle),
-            // scene: new Scene3D(faceA, faceB),
             camera: 'projective',
-            // camera: 'parallel',
             active: true,
           }
         },

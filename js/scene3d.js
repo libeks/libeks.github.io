@@ -1,8 +1,8 @@
-import { MatrixProjectionHomo, NoopTransformHomo } from './geometryHomo.js'
-import { LineSegment, Vector, Point, Line } from './geometry.js'
-import { Triangle, Plane, Ray, Line3D, Point3DOrigin } from './geometry3D.js'
-import { Pixel } from './pixelSpace.js'
-import { StraightStroke, CompositeCurve } from './lines.js'
+import { MatrixProjectionHomo, NoopTransformHomo } from '/js/geometryHomo.js'
+import { LineSegment, Vector, Point, Line } from '/js/geometry.js'
+import { Triangle, Plane, Ray, Line3D, Point3DOrigin } from '/js/geometry3D.js'
+import { Pixel } from '/js/pixelSpace.js'
+import { StraightStroke, CompositeCurve } from '/js/lines.js'
 
 class Face3D {
   // represents a planar face of a convex planar polygon in  3D
@@ -153,7 +153,6 @@ function reverseSegment(seg) {
   return {
     a: seg.b,
     b: seg.a,
-    inFront: seg.inFront,
     line: seg.line,
     tA: seg.tB,
     tB: seg.tA,
@@ -173,7 +172,6 @@ class SceneFrame {
     this.projectedObjects = this.computeObjects(screen)
     this.computeFacePointOverlap(screen)
     this.computeLineIntersections(screen)
-    // this.computeLineSegmentVisibility(screen)
   }
 
   computeObjects(screen) {
@@ -313,7 +311,6 @@ class SceneFrame {
               interB.faces.before.map((face) => face.key),
               interB.faces.after.map((face) => face.key),
             )
-            // throw `Faces between the two endpoints of segment ${interA.key}->${interB.key} do not match: ${interA.faces.after.map((face) => face.key)} ${interB.faces.before.map((face) => face.key)}`
             console.error(
               `Faces between the two endpoints of segment ${interA.key}->${interB.key} do not match: ${interA.faces.after.map((face) => face.key)} ${interB.faces.before.map((face) => face.key)}`,
             )
@@ -329,9 +326,6 @@ class SceneFrame {
           tB: interB.t,
           keyA: interA.key,
           keyB: interB.key,
-          // the line segment is in the foreground if at least one of the endpoints is visible from the camera
-          // FIXME: This doesn't work for line segments that are between two intersections and are in the background
-          inFront: interA.inFront || interB.inFront,
           visible,
           faces,
           failure,
@@ -446,6 +440,7 @@ class SceneFrame {
   }
 
   computeLineIntersections(screen) {
+    let debugPoints = ['line(1:0-1)xline(2:0-1)']
     let allLines = Object.values(this.getLineObjs())
     for (let a = 0; a < allLines.length; a++) {
       let lineA = allLines[a]
@@ -513,7 +508,7 @@ class SceneFrame {
         if (intersection != null) {
           let intersectionKey = `${lineA.key}x${lineB.key}`
           let { t, u } = intersection
-          if (['line(1:0-1)xline(2:0-1)'].includes(intersectionKey)) {
+          if (debugPoints.includes(intersectionKey)) {
             console.log(
               'line intersect',
               intersectionKey,
@@ -585,13 +580,7 @@ class SceneFrame {
               ? { before: [overFace], after: underFaces }
               : { before: underFaces, after: [overFace] }
 
-          if (
-            [
-              // 'line(0:2-3)xline(1:0-3)',
-              // 'line(0:2-3)xline(2:3-7)'
-              'line(1:0-1)xline(2:0-1)',
-            ].includes(intersectionKey)
-          ) {
+          if (debugPoints.includes(intersectionKey)) {
             console.log(
               'faces',
               intersectionKey,
@@ -619,14 +608,7 @@ class SceneFrame {
                   before: underRight != null ? [overFace, underRight] : [overFace],
                   after: underLeft != null ? [overFace, underLeft] : [overFace],
                 }
-          if (
-            [
-              // 'line(0:2-3)xline(1:0-3)',
-              // 'line(0:2-3)xline(2:3-7)'
-              'line(1:0-1)xline(2:0-1)',
-            ].includes(intersectionKey)
-          ) {
-            // if (true) {
+          if (debugPoints.includes(intersectionKey)) {
             console.log(
               'intersection',
               intersectionKey,
@@ -686,7 +668,6 @@ class SceneFrame {
     for (let [ptID, pt] of obj.points.entries()) {
       let projectedPt = this.screen.homoToPixel(pt)
       points.push({
-        // objID,
         obj,
         ptID,
         point: pt,
@@ -747,7 +728,6 @@ class SceneFrame {
           points[a].lines.push(lineObj)
           points[b].lines.push(lineObj)
         }
-        // lines[key].faces.push(faceObj)
         let side = a == pointIDs[ptAID] ? 'right' : 'left'
         if (lines[key].faces[side] != null) {
           throw `Two faces cannot be on the same side of a line: ${lines[key].faces[side]} and ${faceObj}`

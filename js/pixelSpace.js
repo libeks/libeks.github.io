@@ -1,6 +1,6 @@
-import { Point } from './geometry.js'
-import { Ray, Point3DOrigin, Vector3D, Point3D } from './geometry3D.js'
-import { MatrixProjectionHomo, MatrixHomo } from './geometryHomo.js'
+import { Point } from '/js/geometry.js'
+import { Ray, Point3DOrigin, Vector3D, Point3D } from '/js/geometry3D.js'
+import { MatrixProjectionHomo, MatrixHomo } from '/js/geometryHomo.js'
 
 class IsometricCamera {
   constructor(scale) {

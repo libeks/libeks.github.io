@@ -1,4 +1,4 @@
-import { memoize } from './memoize.js'
+import { memoize } from '/js/memoize.js'
 
 function catNum(n) {
   if (n == 0 || n == 1) {

@@ -1,8 +1,8 @@
-import { toTransform } from './svg-utils.js'
-import { SquareGrid, SquarePositioner, setActiveSquare, sqClassName } from './squares.js'
-import { Point, Vector } from './geometry.js'
-import { reverseInterpolate } from './math.js'
-import { StraightStroke, CompositeCurve, CurveSet } from './lines.js'
+import { toTransform } from '/js/svg-utils.js'
+import { SquareGrid, SquarePositioner, setActiveSquare, sqClassName } from '/js/squares.js'
+import { Point, Vector } from '/js/geometry.js'
+import { reverseInterpolate } from '/js/math.js'
+import { StraightStroke, CompositeCurve, CurveSet } from '/js/lines.js'
 
 function squareCurves(corners, threshold, size) {
   // corners are presented in the order of [NW, NE, SW, SE, saddle]

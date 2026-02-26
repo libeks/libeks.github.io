@@ -1,7 +1,7 @@
-import { Point, Vector } from './geometry.js'
-import { PointHomo } from './geometryHomo.js'
-import { StraightStroke, CompositeCurve, Polygon } from './lines.js'
-import { Screen } from './pixelSpace.js'
+import { Point, Vector } from '/js//geometry.js'
+import { PointHomo } from '/js/geometryHomo.js'
+import { StraightStroke, CompositeCurve, Polygon } from '/js/lines.js'
+import { Screen } from '/js/pixelSpace.js'
 
 const threeDScene = {
   template: `

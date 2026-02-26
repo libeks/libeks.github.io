@@ -7,10 +7,10 @@ const threeDScene = {
   template: `
   <g>
     <circle v-if="showPoints" v-for="point in points" class="stroke medium" v-bind="point.cxcyProps()" r="2" />
-    <path v-if="showWireframe" v-for="line in wireframe" class="stroke notch" :d="line.d()" />
+    <path v-if="showWireframe" v-for="line in wireframe" class="stroke notch" :d="line.d()" :style="{stroke: line.color}"/>
     <path v-if="showTransparentFaces" v-for="face in faces" class="face transparent" :d="face.d()" :style="{fill: face.color}" />
     <path v-if="showFaces" v-for="face in visibleFaces" class="face" :d="face.d()" :style="{fill: face.color}" />
-    <path v-if="showVisibleLines" v-for="line in visibleLines" class="stroke notch segment" :d="line.d()" :style="{stroke:line.color}" />
+    <path v-if="showVisibleLines" v-for="line in visibleSegments" class="stroke notch segment" :d="line.d()" :style="{stroke:line.color}" />
     <circle v-if="showIntersectionPoints" v-for="point in intersectionPoints" class="stroke medium" v-bind="point.cxcyProps()" r="2" :style="{stroke:point.color}" />
   </g>
   `,
@@ -24,6 +24,7 @@ const threeDScene = {
     showVisibleLines: Boolean, // show all the line segments that are visible from the camera (without fill or sequential joining)
     scene: Object,
     screen: Object,
+    debugColors: Object, // has two keys: points and lines, with a mapping from keys to colors
   },
   methods: {
     range: (n) => Array(n).keys(),
@@ -39,15 +40,25 @@ const threeDScene = {
       return this.sceneFrame.getPointsInCamera()
     },
     wireframe() {
-      return this.sceneFrame
-        .getLineObjs()
-        .map(
-          (line) =>
-            new StraightStroke(
-              line.pointObjs[0].projected.point,
-              line.pointObjs[1].projected.point,
-            ),
+      return this.sceneFrame.getLineObjs().map((line) => {
+        let stroke = new StraightStroke(
+          line.pointObjs[0].projected.point,
+          line.pointObjs[1].projected.point,
         )
+        stroke.color = 'black' // default color
+        if (this.debugColors && this.debugColors.lines && line.key in this.debugColors.lines) {
+          stroke.color = this.debugColors.lines[line.key]
+        }
+        if (this.debugColors && this.debugColors.faces) {
+          let lineFaces = Object.values(line.faces).map((face) => face.key)
+          for (let faceID of lineFaces) {
+            if (faceID in this.debugColors.faces) {
+              stroke.color = this.debugColors.faces[faceID]
+            }
+          }
+        }
+        return stroke
+      })
     },
     faces() {
       let ret = []
@@ -75,17 +86,29 @@ const threeDScene = {
     intersectionPoints() {
       return this.sceneFrame.getIntersectionPoints().map((ptObj) => {
         let point = ptObj.point
-        point.color = ptObj.visible ? 'black' : 'red'
+        // console.log('this.debugColors.points', this.debugColors.points, ptObj.key)
+        if (this.debugColors && this.debugColors.points && ptObj.key in this.debugColors.points) {
+          point.color = this.debugColors.points[ptObj.key]
+        } else {
+          point.color = ptObj.visible ? 'black' : 'red'
+        }
         return point
       })
     },
     visibleFaces() {
       return this.sceneFrame.getVisibleFaceSurfaces()
     },
-    visibleLines() {
+    visibleSegments() {
       return this.sceneFrame.getAllSegments().map((seg) => {
         let stroke = new StraightStroke(seg.a, seg.b)
-        stroke.color = seg.visible ? 'black' : 'orange'
+        if (this.debugColors && this.debugColors.segments && seg.key in this.debugColors.segments) {
+          stroke.color = this.debugColors.segments[seg.key]
+        } else {
+          stroke.color = seg.visible ? 'black' : 'orange'
+        }
+        if (seg.failure) {
+          stroke.color = 'cyan'
+        }
         return stroke
       })
     },

@@ -69,16 +69,22 @@
             </svg>
             <figcaption>
               The eight corners of a cube rotating around its vertical axis.<br />t={{t}}
-              <div class="button" @click="t--">⏮</div>
-              <div class="button" @click="active = !active">{{active ? '⏸' : '▶'}}</div>
-              <div class="button" @click="t++">⏭</div>
-              <div>
-                <input type="radio" id="one" value="parallel" v-model="camera" />
-                <label for="one">Isometric</label>
-
-                <input type="radio" id="two" value="projective" v-model="camera" />
-                <label for="two">Projective</label>
-              </div>
+              <play-controls
+                @previous-frame="active=false;t--"
+                @next-frame="active=false; t++"
+                @toggle-play="active = !active"
+                :active="active"
+              >
+              </play-controls>
+              <radio-buttons :choices="['isometric', 'projective']" :value="camera">
+              </radio-buttons>
+              <radio-buttons
+                class="inline-buttons button-block"
+                :choices="[{value:'parallel', display:'Isometric'}, {value:'projective', display:'Projective'}]"
+                :value="camera"
+                @set-choice="(v) => camera = v"
+              >
+              </radio-buttons>
             </figcaption>
           </figure>
         </div>
@@ -110,21 +116,20 @@
             </svg>
             <figcaption>
               The same cube, showing only faces that point towards the camera.<br />t={{t}}
-              <div class="button" @click="t--">⏮</div>
-              <div class="button" @click="active = !active">{{active ? '⏸' : '▶'}}</div>
-              <div class="button" @click="t++">⏭</div>
-              <div>
-                <input type="radio" id="cube-faces-isometric" value="parallel" v-model="camera" />
-                <label for="cube-faces-isometric">Isometric</label>
-
-                <input
-                  type="radio"
-                  id="cube-faces-projective"
-                  value="projective"
-                  v-model="camera"
-                />
-                <label for="cube-faces-projective">Projective</label>
-              </div>
+              <play-controls
+                @previous-frame="active=false;t--"
+                @next-frame="active=false; t++"
+                @toggle-play="active = !active"
+                :active="active"
+              >
+              </play-controls>
+              <radio-buttons
+                class="inline-buttons button-block"
+                :choices="[{value:'parallel', display:'Isometric'}, {value:'projective', display:'Projective'}]"
+                :value="camera"
+                @set-choice="(v) => camera = v"
+              >
+              </radio-buttons>
             </figcaption>
           </figure>
         </div>
@@ -147,26 +152,20 @@
             </svg>
             <figcaption>
               A cube and a rectangular prism rendered in the same scene.<br />t={{t}}
-              <div class="button" @click="t--">⏮</div>
-              <div class="button" @click="active = !active">{{active ? '⏸' : '▶'}}</div>
-              <div class="button" @click="t++">⏭</div>
-              <div>
-                <input
-                  type="radio"
-                  id="cube-rect-transparent-isometric"
-                  value="parallel"
-                  v-model="camera"
-                />
-                <label for="cube-rect-transparent-isometric">Isometric</label>
-
-                <input
-                  type="radio"
-                  id="ccube-rect-transparent-projective"
-                  value="projective"
-                  v-model="camera"
-                />
-                <label for="cube-rect-transparent-projective">Projective</label>
-              </div>
+              <play-controls
+                @previous-frame="active=false;t--"
+                @next-frame="active=false; t++"
+                @toggle-play="active = !active"
+                :active="active"
+              >
+              </play-controls>
+              <radio-buttons
+                class="inline-buttons button-block"
+                :choices="[{value:'parallel', display:'Isometric'}, {value:'projective', display:'Projective'}]"
+                :value="camera"
+                @set-choice="(v) => camera = v"
+              >
+              </radio-buttons>
             </figcaption>
           </figure>
         </div>
@@ -194,26 +193,20 @@
               For each face, compute the line segments that are fully visible from the camera,
               highlighting the segments that are obscured in orange. The points of interest are
               shown here.<br />t={{t}}
-              <div class="button" @click="t--">⏮</div>
-              <div class="button" @click="active = !active">{{active ? '⏸' : '▶'}}</div>
-              <div class="button" @click="t++">⏭</div>
-              <div>
-                <input
-                  type="radio"
-                  id="cube-rect-occlusion-isometric"
-                  value="parallel"
-                  v-model="camera"
-                />
-                <label for="cube-rect-occlusion-isometric">Isometric</label>
-
-                <input
-                  type="radio"
-                  id="cube-rect-occlusion-projective"
-                  value="projective"
-                  v-model="camera"
-                />
-                <label for="cube-rect-occlusion-projective">Projective</label>
-              </div>
+              <play-controls
+                @previous-frame="active=false;t--"
+                @next-frame="active=false; t++"
+                @toggle-play="active = !active"
+                :active="active"
+              >
+              </play-controls>
+              <radio-buttons
+                class="inline-buttons button-block"
+                :choices="[{value:'parallel', display:'Isometric'}, {value:'projective', display:'Projective'}]"
+                :value="camera"
+                @set-choice="(v) => camera = v"
+              >
+              </radio-buttons>
             </figcaption>
           </figure>
         </div>
@@ -230,32 +223,72 @@
               <three-d-scene :frame="t" :scene="scene" :screen="screen" show-faces />
             </svg>
             <figcaption>
-              For each face, compute the line segments that are fully visible from the camera,
-              highlighting the segments that are obscured in orange. The points of interest are
-              shown here.<br />t={{t}}
-              <div class="button" @click="t--">⏮</div>
-              <div class="button" @click="active = !active">{{active ? '⏸' : '▶'}}</div>
-              <div class="button" @click="t++">⏭</div>
-              <div>
-                <input
-                  type="radio"
-                  id="cube-rect-surface-isometric"
-                  value="parallel"
-                  v-model="camera"
-                />
-                <label for="cube-rect-surface-isometric">Isometric</label>
-
-                <input
-                  type="radio"
-                  id="cube-rect-surface-projective"
-                  value="projective"
-                  v-model="camera"
-                />
-                <label for="cube-rect-surface-projective">Projective</label>
-              </div>
+              Figure out the segments on the perimeter for each face's visible surface.<br />t={{t}}
+              <play-controls
+                @previous-frame="active=false;t--"
+                @next-frame="active=false; t++"
+                @toggle-play="active = !active"
+                :active="active"
+              >
+              </play-controls>
+              <radio-buttons
+                class="inline-buttons button-block"
+                :choices="[{value:'parallel', display:'Isometric'}, {value:'projective', display:'Projective'}]"
+                :value="camera"
+                @set-choice="(v) => camera = v"
+              >
+              </radio-buttons>
             </figcaption>
           </figure>
         </div>
+        <figure id="cube-rectangle-surfaces-full" class="full">
+          <svg viewBox="0 0 3000 1500">
+            <three-d-scene
+              :frame="t"
+              :scene="scene"
+              :screen="screen"
+              :show-faces="displayMode == 'faces'"
+              :show-intersection-points="displayMode == 'wireframe' || displayMode == 'segments' || displayMode == 'transparent'"
+              :show-wireframe="displayMode == 'wireframe'"
+              :show-transparent-faces="displayMode == 'transparent'"
+              :show-visible-lines="displayMode == 'segments'"
+            />
+          </svg>
+          <figcaption>
+            t={{t}}
+            <play-controls
+              @previous-frame="active=false;t--"
+              @next-frame="active=false; t++"
+              @toggle-play="active = !active"
+              :active="active"
+            >
+            </play-controls>
+            <radio-buttons
+              class="inline-buttons button-block"
+              :choices="[{value:'parallel', display:'Isometric'}, {value:'projective', display:'Projective'}]"
+              :value="camera"
+              @set-choice="(v) => camera = v"
+            >
+            </radio-buttons>
+            <radio-buttons
+              class="inline-buttons button-block"
+              :choices="[{value:'wireframe', display:'Wireframe'}, {value: 'segments', display:'Segments'}, {value:'transparent', display: 'Transparent'}, {value:'faces', display:'Faces'}]"
+              :value="displayMode"
+              @set-choice="(v) => displayMode = v"
+            >
+            </radio-buttons>
+          </figcaption>
+        </figure>
+      </section>
+      <section>
+        <h2 id="further-ideas">
+          <a class="anchor" href="#further-ideas"></a>
+          <span>Further ideas to explore</span>
+        </h2>
+        <ul>
+          <li>A face that is completely in front of another face gets drawn incorrectly</li>
+          <li>Faces that intersect in 3D space cause a crash, this should be supported</li>
+        </ul>
       </section>
     </main>
     <footer>
@@ -269,6 +302,7 @@
       import { Point3D, Vector3D } from './js/geometry3D.js'
       import { TranslateHomo, RotateXHomo, RotateYHomo, RotateZHomo } from './js/geometryHomo.js'
       import { Screen, ProjectiveCamera, IsometricCamera } from './js/pixelSpace.js'
+      import { playControls, radioButtons, toggleButton } from './js/buttons.js'
 
       // cube of side length 200 centered around the origin
       const cube = new Object3D(
@@ -298,6 +332,150 @@
             RotateZHomo(t / 20)
               .matrixMult(RotateYHomo(t / 10))
               .matrixMult(RotateXHomo(t / 50)),
+          ),
+        )
+        .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 300))))
+
+      const cubeGray = new Object3D(
+        // faces
+        [
+          { points: [0, 3, 2, 1], color: 'white' },
+          { points: [0, 1, 5, 4], color: 'gray' },
+          { points: [0, 4, 7, 3], color: 'black' },
+          { points: [2, 3, 7, 6], color: 'gray' },
+          { points: [1, 2, 6, 5], color: 'black' },
+          { points: [4, 5, 6, 7], color: 'white' },
+        ],
+        // points
+        [
+          new Point3D(-100, -100, 100), // 0
+          new Point3D(-100, 100, 100), // 1
+          new Point3D(100, 100, 100), // 2
+          new Point3D(100, -100, 100), // 3
+          new Point3D(-100, -100, -100), // 4
+          new Point3D(-100, 100, -100), // 5
+          new Point3D(100, 100, -100), // 6
+          new Point3D(100, -100, -100), // 7
+        ],
+      )
+        .withTransform(
+          new ParameterizedTransform((t) =>
+            RotateZHomo(t / 60)
+              .matrixMult(RotateYHomo(t / 30))
+              .matrixMult(RotateXHomo(t / 150)),
+          ),
+        )
+        .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 300))))
+
+      const smallCube = new Object3D(
+        // faces
+        [
+          { points: [0, 3, 2, 1], color: 'white' },
+          { points: [0, 1, 5, 4], color: 'gray' },
+          { points: [0, 4, 7, 3], color: 'black' },
+          { points: [2, 3, 7, 6], color: 'gray' },
+          { points: [1, 2, 6, 5], color: 'black' },
+          { points: [4, 5, 6, 7], color: 'white' },
+        ],
+        // points
+        [
+          new Point3D(-20, -20, 20), // 0
+          new Point3D(-20, 20, 20), // 1
+          new Point3D(20, 20, 20), // 2
+          new Point3D(20, -20, 20), // 3
+          new Point3D(-20, -20, -20), // 4
+          new Point3D(-20, 20, -20), // 5
+          new Point3D(20, 20, -20), // 6
+          new Point3D(20, -20, -20), // 7
+        ],
+      )
+
+      const cubeGray1 = smallCube
+        .withTransform(
+          new ParameterizedTransform((t) =>
+            TranslateHomo(new Vector3D(170 + 40 * Math.sin(t / 12), 0, 0)),
+          ),
+        )
+        .withTransform(
+          new ParameterizedTransform((t) =>
+            RotateZHomo(t / 60)
+              .matrixMult(RotateYHomo(t / 30))
+              .matrixMult(RotateXHomo(t / 150)),
+          ),
+        )
+        .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 300))))
+
+      const cubeGray2 = smallCube
+        .withTransform(
+          new ParameterizedTransform((t) =>
+            TranslateHomo(new Vector3D(-170 + -40 * Math.sin(t / 12), 0, 0)),
+          ),
+        )
+        .withTransform(
+          new ParameterizedTransform((t) =>
+            RotateZHomo(t / 60)
+              .matrixMult(RotateYHomo(t / 30))
+              .matrixMult(RotateXHomo(t / 150)),
+          ),
+        )
+        .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 300))))
+
+      const cubeGray3 = smallCube
+        .withTransform(
+          new ParameterizedTransform((t) =>
+            TranslateHomo(new Vector3D(0, 170 + 40 * Math.sin(t / 12), 0)),
+          ),
+        )
+        .withTransform(
+          new ParameterizedTransform((t) =>
+            RotateZHomo(t / 60)
+              .matrixMult(RotateYHomo(t / 30))
+              .matrixMult(RotateXHomo(t / 150)),
+          ),
+        )
+        .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 300))))
+
+      const cubeGray4 = smallCube
+        .withTransform(
+          new ParameterizedTransform((t) =>
+            TranslateHomo(new Vector3D(0, -170 - 40 * Math.sin(t / 12), 0)),
+          ),
+        )
+        .withTransform(
+          new ParameterizedTransform((t) =>
+            RotateZHomo(t / 60)
+              .matrixMult(RotateYHomo(t / 30))
+              .matrixMult(RotateXHomo(t / 150)),
+          ),
+        )
+        .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 300))))
+
+      const cubeGray5 = smallCube
+        .withTransform(
+          new ParameterizedTransform((t) =>
+            TranslateHomo(new Vector3D(0, 0, 170 + 40 * Math.sin(t / 12))),
+          ),
+        )
+        .withTransform(
+          new ParameterizedTransform((t) =>
+            RotateZHomo(t / 60)
+              .matrixMult(RotateYHomo(t / 30))
+              .matrixMult(RotateXHomo(t / 150)),
+          ),
+        )
+        .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 300))))
+
+      const cubeGray6 = smallCube
+        .withTransform(
+          new ParameterizedTransform((t) =>
+            TranslateHomo(new Vector3D(0, 0, -170 - 40 * Math.sin(t / 12))),
+          ),
+        )
+        .withTransform(
+          new ParameterizedTransform((t) =>
+            RotateZHomo(t / 60)
+              .matrixMult(RotateYHomo(t / 30))
+              .matrixMult(RotateXHomo(t / 150)),
           ),
         )
         .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 300))))
@@ -391,40 +569,16 @@
         .withTransform(new ParameterizedTransform((t) => RotateXHomo(t / 5)))
         .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 1000))))
 
-      const faceA = new Object3D(
+      const farRectangleGray = new Object3D(
         // faces
         [
-          // { points: [0, 3, 2, 1], color: 'red' },
-          // { points: [0, 1, 5, 4], color: 'yellow' },
-          // { points: [0, 4, 7, 3], color: 'blue' },
-          { points: [2, 3, 6], color: 'orange' },
-          // { points: [1, 2, 6, 5], color: 'cyan' },
-          // { points: [4, 5, 6, 7], color: 'green' },
+          { points: [0, 3, 2, 1], color: 'gray' },
+          { points: [0, 1, 5, 4], color: 'gray' },
+          { points: [0, 4, 7, 3], color: 'gray' },
+          { points: [2, 3, 7, 6], color: 'gray' },
+          { points: [1, 2, 6, 5], color: 'gray' },
+          { points: [4, 5, 6, 7], color: 'gray' },
         ],
-        // points
-        [
-          new Point3D(-100, -100, 100), // 0
-          new Point3D(-100, 100, 100), // 1
-          new Point3D(100, 100, 100), // 2
-          new Point3D(100, -100, 100), // 3
-          new Point3D(-100, -100, -100), // 4
-          new Point3D(-100, 100, -100), // 5
-          new Point3D(100, 100, -100), // 6
-          new Point3D(100, -100, -100), // 7
-        ],
-      )
-        .withTransform(
-          new ParameterizedTransform((t) =>
-            RotateZHomo(t / 20)
-              .matrixMult(RotateYHomo(t / 10))
-              .matrixMult(RotateXHomo(t / 50)),
-          ),
-        )
-        .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 300))))
-
-      const faceB = new Object3D(
-        // faces
-        [{ points: [4, 5, 6, 7], color: 'green' }],
         // points
         [
           new Point3D(-1000, -100, 100), // 0
@@ -437,7 +591,7 @@
           new Point3D(1000, -100, -100), // 7
         ],
       )
-        .withTransform(new ParameterizedTransform((t) => RotateXHomo(t / 5)))
+        .withTransform(new ParameterizedTransform((t) => RotateXHomo(t / 15)))
         .withTransform(new StaticTransform(TranslateHomo(new Vector3D(0, 0, 1000))))
 
       createApp({
@@ -458,7 +612,7 @@
             return new Screen(600, 300, new IsometricCamera(200))
           },
         },
-        components: { threeDScene },
+        components: { threeDScene, playControls, radioButtons },
         mounted() {
           setInterval(() => {
             if (this.active) {
@@ -486,7 +640,7 @@
             return new Screen(600, 300, new IsometricCamera(200))
           },
         },
-        components: { threeDScene },
+        components: { threeDScene, playControls, radioButtons },
         mounted() {
           setInterval(() => {
             if (this.active) {
@@ -514,7 +668,7 @@
             return new Screen(600, 300, new IsometricCamera(200))
           },
         },
-        components: { threeDScene },
+        components: { threeDScene, playControls, radioButtons },
         mounted() {
           setInterval(() => {
             if (this.active) {
@@ -544,18 +698,13 @@
             return new Screen(600, 300, new IsometricCamera(200))
           },
         },
-        components: { threeDScene },
+        components: { threeDScene, playControls, radioButtons },
         mounted() {
           setInterval(() => {
             if (this.active) {
               this.t++
             }
           }, 1000 / 30)
-        },
-        methods: {
-          nextFrame() {
-            this.t++
-          },
         },
       }).mount('#cube-rectangle-occlusion')
 
@@ -579,7 +728,7 @@
             return new Screen(600, 300, new IsometricCamera(200))
           },
         },
-        components: { threeDScene },
+        components: { threeDScene, playControls, radioButtons },
         mounted() {
           setInterval(() => {
             if (this.active) {
@@ -587,12 +736,43 @@
             }
           }, 1000 / 30)
         },
-        methods: {
-          nextFrame() {
-            this.t++
+      }).mount('#cube-rectangle-surfaces')
+
+      createApp({
+        data() {
+          return {
+            t: 0,
+            scene: new Scene3D(
+              cubeGray,
+              cubeGray1,
+              cubeGray2,
+              cubeGray3,
+              cubeGray4,
+              cubeGray5,
+              cubeGray6,
+            ),
+            camera: 'parallel',
+            active: true,
+            displayMode: 'faces',
+          }
+        },
+        computed: {
+          screen() {
+            if (this.camera == 'projective') {
+              return new Screen(3000, 1500, new ProjectiveCamera(1))
+            }
+            return new Screen(3000, 1500, new IsometricCamera(300))
           },
         },
-      }).mount('#cube-rectangle-surfaces')
+        components: { threeDScene, playControls, radioButtons },
+        mounted() {
+          setInterval(() => {
+            if (this.active) {
+              this.t++
+            }
+          }, 1000 / 60)
+        },
+      }).mount('#cube-rectangle-surfaces-full')
     </script>
   </body>
 </html>

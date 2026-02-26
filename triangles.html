@@ -1180,15 +1180,15 @@
                 </g>
               </g>
             </svg>
-            <div class="coordinate-buttons">
-              <button @click='coordinates = "xyr"' :class="{ active: coordinates=='xyr'}">
-                xyR
-              </button>
-              <button @click='coordinates = "xyz"' :class="{ active: coordinates=='xyz'}">
-                xyz
-              </button>
-              <button @click='coordinates = "yb"' :class="{ active: coordinates=='yb'}">yb</button>
-            </div>
+            <figcaption>
+              <radio-buttons
+                class="inline-buttons button-block"
+                :choices="[{value:'xyr', display:'xyR'}, {value:'xyz', display:'xyz'}, {value: 'yb', display:'yb'}]"
+                :value="coordinates"
+                @set-choice="(v) => coordinates = v"
+              >
+              </radio-buttons>
+            </figcaption>
           </figure>
         </p>
       </section>
@@ -1210,6 +1210,7 @@
         yb,
       } from './js/triangles.js'
       import { SquareGrid, SquarePositioner, setActiveSquare, sqClassName } from './js/squares.js'
+      import { radioButtons } from './js/buttons.js'
 
       function toTransform(offsetVect) {
         if (offsetVect.rotate) {
@@ -1229,35 +1230,6 @@
       function mouseSquare(event) {
         this.setActiveSquare(event.target.parentElement.dataset.sq)
       }
-
-      const fullTriangleApp = createApp({
-        data() {
-          return {
-            selected: null,
-            grid: new TrianglePositioner({
-              padding: { x: 100, y: 70 },
-              grid: new TriangleGrid({
-                nB: 18,
-                nY: 7,
-              }),
-              size: 100,
-            }),
-            coordinates: 'xyr',
-          }
-        },
-        methods: {
-          mouse: mouseTriangle,
-          click: mouseTriangle,
-          triClassName,
-          setActiveTriangle,
-          toTransform,
-        },
-        components: {
-          xyz,
-          xyr,
-          yb,
-        },
-      }).mount('#triangle-grid-complete')
 
       const triangleXYRApp = createApp({
         data() {
@@ -1414,6 +1386,36 @@
           toTransform,
         },
       }).mount('#square-grid')
+
+      const fullTriangleApp = createApp({
+        data() {
+          return {
+            selected: null,
+            grid: new TrianglePositioner({
+              padding: { x: 100, y: 70 },
+              grid: new TriangleGrid({
+                nB: 18,
+                nY: 7,
+              }),
+              size: 100,
+            }),
+            coordinates: 'xyr',
+          }
+        },
+        methods: {
+          mouse: mouseTriangle,
+          click: mouseTriangle,
+          triClassName,
+          setActiveTriangle,
+          toTransform,
+        },
+        components: {
+          xyz,
+          xyr,
+          yb,
+          radioButtons,
+        },
+      }).mount('#triangle-grid-complete')
     </script>
   </body>
 </html>

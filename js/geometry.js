@@ -1,4 +1,5 @@
 const THRESHOLD = 0.01
+const DIVISOR_THRESHOLD = 1e-10
 
 class Point {
   constructor(x, y) {
@@ -201,7 +202,7 @@ class Line {
     const y1y3 = this.p.y - l.p.y
 
     const divisor = x1x2 * y3y4 - y1y2 * x3x4
-    if (divisor == 0) {
+    if (Math.abs(divisor) < DIVISOR_THRESHOLD) {
       return null
     }
     return {

@@ -1,5 +1,5 @@
 /*html {
-	font-size: 16px;
+  font-size: 16px;
 }
 */
 body {
@@ -213,4 +213,40 @@ div.annotation {
 
 .nowrap {
   white-space: nowrap;
+}
+
+div.button-block {
+  padding: 0.2em;
+
+  &.inline-buttons {
+    display: inline-block;
+  }
+
+  div.button {
+    display: inline-block;
+    padding: 0 0.4em;
+    /*margin: 0.2em;*/
+    background-color: hsl(0, 0%, 80%);
+    /*border-radius: 0.2em;*/
+    user-select: none;
+    webkit-user-select: none; /* For Safari only */
+
+    &.active {
+      background-color: hsl(0, 0%, 90%);
+    }
+
+    & + div.button {
+      border-left: 2px solid hsl(0, 0%, 70%);
+    }
+  }
+
+  div.button:first-of-type {
+    border-top-left-radius: 0.2em;
+    border-bottom-left-radius: 0.2em;
+  }
+
+  div.button:last-of-type {
+    border-top-right-radius: 0.2em;
+    border-bottom-right-radius: 0.2em;
+  }
 }

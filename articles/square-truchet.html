@@ -241,9 +241,10 @@
         <div class="flex-container">
           <p>
             We can extend this to have two notches on each side of the square, parameterizing its
-            position from the midpoint of the square edge. Since we get
+            position from the midpoint of the square edge. Since I think that non-crossing tilings
+            look much better, and we have
             <math><mn>4</mn></math> pairs to connect, this results in the
-            <a href="/articles/catalan.html">Catalan number</a>
+            <a href="/articles/catalan.html">Catalan number</a> 
             <math>
               <msub>
                 <mi>C</mi>
@@ -330,19 +331,20 @@
             <svg viewBox="0 0 460 460">
               <g class="grid squares">
                 <g
-                  v-for="i in range(14)"
+                  v-for="i in range(16)"
                   :style="toTransform({x:(i%4)*120, y:120*Math.floor(i/4)})"
                   class="square"
                 >
                   <three-tile-factory
                     @click="click"
-                    :tile="generateIterativeCatalanNumerical(6, i)"
+                    :tile="generateIterativeCatalanNumerical(6, Math.floor(i*132/16))"
                     :notch="notch"
                   />
                 </g>
               </g>
             </svg>
             <figcaption>
+              A sampling of the 132 Catalan tiles with 3 notches per side
               <div class="annotation">
                 <div class="row">
                   <div>Notch:</div>

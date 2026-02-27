@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Hexagon Truchet Tiles</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="/style.css" rel="stylesheet" />
+    <link href="triangles.css" rel="stylesheet" />
+    <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Libertinus+Math&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <header>
+      <h1>Hexagon Truchet Tiles</h1>
+      <div class="subhead"><a href="/index.html">Home</a></div>
+    </header>
+    <main>
+      <section>
+        <h2 id="simple-tile">
+          <a class="anchor" href="#simple-tile"></a>
+          <span>Simple tile</span>
+        </h2>
+        <div class="flex-container">
+          <p>
+            We start by coming up with code to tile the plane with regular hexagons. I will take
+            inspiration from
+            <a href="/articles/triangles.html">Triangular Grid Math</a>, but we don't have to worry
+            about upwards- and downwards-directions. No rotations are needed.
+          </p>
+          <figure id="hex-grid" class="float-right small">
+            <svg viewBox="0 0 1500 800">
+              <g class="grid hex">
+                <g
+                  v-for="hex in grid.grid.hexagons"
+                  :style="toTransform(grid.mapHex(hex))"
+                  :data-hex="hex.string()"
+                >
+                  <hexagon :side="100"></hexagon>
+                </g>
+              </g>
+            </svg>
+            <figcaption>A hexagonal grid</figcaption>
+          </figure>
+        </div>
+        <p>For the grid, we randomly choose from either of the two tiles. Lovely, isn't it?</p>
+        <figure id="square-grid-two-tile" class="full-width">
+          <svg viewBox="0 0 3000 1500">
+            <g class="grid squares">
+              <g
+                v-for="sq in grid.grid.getSquares()"
+                :style="toTransform(grid.mapSquare(sq))"
+                :class="sqClassName(sq, selected)"
+                :data-sq="sq.string()"
+              >
+                <one-tile-factory
+                  @click="click"
+                  :tile="generateIterativeCatalanNumerical(2, [sq.data])"
+                />
+              </g>
+            </g>
+          </svg>
+        </figure>
+      </section>
+    </main>
+    <footer>
+      <p>No LLMs were consulted in the making of this site.</p>
+      <p>© 2026 Jānis Lībeks</p>
+    </footer>
+
+    <script type="module">
+      const { createApp, ref, defineComponent } = Vue
+      import { generateIterativeCatalanNumerical } from '/js/catalan.js'
+      // import { SquareGrid, SquarePositioner, setActiveSquare, sqClassName } from '/js/squares.js'
+      import { Hexagon, HexagonPositioner, HexagonGrid } from '/js/hexagons.js'
+      // import { oneTileFactory, twoTileFactory, threeTileFactory } from '/js/square-tiles.js'
+      import { StraightStroke } from '/js/lines.js'
+      import { toTransform } from '/js/svg-utils.js'
+      import { hexagon } from '/js/hexagon-tiles.js'
+
+      createApp({
+        data() {
+          return {
+            grid: new HexagonPositioner({
+              padding: { x: 0, y: 10 },
+              grid: new HexagonGrid({ nY: 10, nB: 10 }),
+              size: 100,
+            }),
+          }
+        },
+        methods: {
+          toTransform,
+        },
+        components: {
+          hexagon,
+        },
+      }).mount('#hex-grid')
+
+      // createApp({
+      //   data() {
+      //     return {
+      //       selected: null,
+      //       grid: new SquarePositioner({
+      //         padding: { x: 0, y: 0 },
+      //         grid: new SquareGrid({
+      //           nX: 30,
+      //           nY: 15,
+      //         }),
+      //         size: 100,
+      //         data_range: 2,
+      //       }).randomize(),
+      //     }
+      //   },
+      //   methods: {
+      //     sqClassName,
+      //     setActiveSquare,
+      //     toTransform,
+      //     generateIterativeCatalanNumerical,
+      //     click: function (event) {
+      //       const sq_data = event.target.parentElement.parentElement.dataset.sq
+      //       this.grid.increaseSquareData(sq_data)
+      //     },
+      //   },
+      //   components: {
+      //     oneTileFactory,
+      //   },
+      // }).mount('#square-grid-two-tile')
+
+      // createApp({
+      //   data() {
+      //     return {
+      //       selected: null,
+      //       grid: new SquarePositioner({
+      //         padding: { x: 0, y: 0 },
+      //         grid: new SquareGrid({
+      //           nX: 30,
+      //           nY: 15,
+      //         }),
+      //         size: 100,
+      //         data_range: 6,
+      //       }).randomize(),
+      //     }
+      //   },
+      //   methods: {
+      //     sqClassName,
+      //     toTransform,
+      //   },
+      // }).mount('#square-grid-five-tile')
+
+      // // controls two figures
+      // createApp({
+      //   data() {
+      //     return {
+      //       selected: null,
+      //       grid: new SquarePositioner({
+      //         padding: { x: 0, y: 0 },
+      //         grid: new SquareGrid({
+      //           nX: 30,
+      //           nY: 15,
+      //         }),
+      //         size: 100,
+      //         data_range: 14,
+      //       }).randomize(),
+      //       notch: 0.33,
+      //     }
+      //   },
+      //   methods: {
+      //     sqClassName,
+      //     setActiveSquare,
+      //     toTransform,
+      //     generateIterativeCatalanNumerical,
+      //     click: function (event) {
+      //       const sq_data = event.target.parentElement.parentElement.dataset.sq
+      //       // if not in a grid, don't attempt to increment value
+      //       if (sq_data) {
+      //         this.grid.increaseSquareData(sq_data)
+      //       }
+      //     },
+      //     range: (n) => Array(n).keys(),
+      //   },
+      //   components: {
+      //     twoTileFactory,
+      //   },
+      // }).mount('#two-notch-tiles')
+
+      // // controls two figures
+      // createApp({
+      //   data() {
+      //     return {
+      //       selected: null,
+      //       grid: new SquarePositioner({
+      //         padding: { x: 0, y: 0 },
+      //         grid: new SquareGrid({
+      //           nX: 30,
+      //           nY: 15,
+      //         }),
+      //         size: 100,
+      //         data_range: 132,
+      //       }).randomize(),
+      //       notch: 0.33,
+      //     }
+      //   },
+      //   methods: {
+      //     sqClassName,
+      //     setActiveSquare,
+      //     toTransform,
+      //     generateIterativeCatalanNumerical,
+      //     click: function (event) {
+      //       const sq_data = event.target.parentElement.parentElement.dataset.sq
+      //       // if not in a grid, don't attempt to increment value
+      //       if (sq_data) {
+      //         this.grid.increaseSquareData(sq_data)
+      //       }
+      //     },
+      //     range: (n) => Array(n).keys(),
+      //   },
+      //   components: {
+      //     threeTileFactory,
+      //   },
+      // }).mount('#three-notch-tiles')
+    </script>
+  </body>
+</html>

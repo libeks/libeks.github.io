@@ -148,7 +148,8 @@ svg {
     fill: hsl(147, 0%, 85%);
   }
 
-  .grid.triangles .tile polygon {
+  .grid.triangles .tile polygon,
+  .grid.squares .tile polygon {
     fill: white;
   }
 

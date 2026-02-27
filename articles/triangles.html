@@ -1313,7 +1313,7 @@
       const triangleDistanceApp = createApp({
         data() {
           return {
-            selected: triangleGridAnonymous.triangles[55], // pick a triangle somewhere in the middle
+            selected: Object.values(triangleGridAnonymous.triangles)[55], // pick a triangle somewhere in the middle
             grid: new TrianglePositioner({
               padding: { x: 0, y: 0 },
               grid: triangleGridAnonymous,
@@ -1368,14 +1368,14 @@
         data() {
           return {
             selected: null,
-            grid: new SquarePositioner(
-              { x: 0, y: 50 },
-              new SquareGrid({
+            grid: new SquarePositioner({
+              padding: { x: 0, y: 50 },
+              grid: new SquareGrid({
                 nX: 4,
                 nY: 4,
               }),
-              100,
-            ),
+              size: 100,
+            }),
             coordinates: 'xyr',
           }
         },

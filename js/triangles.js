@@ -1,6 +1,6 @@
 class TriangleGrid {
   constructor({ nX, nY, nB, filter }) {
-    this.triangles = []
+    this.triangles = {}
     if (nX !== undefined && nY !== undefined) {
       for (let x = 0; x <= nX; x++) {
         for (let y = 0; y <= nY; y++) {
@@ -9,14 +9,16 @@ class TriangleGrid {
               // Remove triangles that should be filtered out, to get the right output shape
               continue
             }
-            this.triangles.push(new Triangle({ x, y, R }))
+            let triangle = new Triangle({ x, y, R })
+            this.triangles[triangle.string()] = triangle
           }
         }
       }
     } else if (nY !== undefined && nB !== undefined) {
       for (let b = 0; b <= nB; b++) {
         for (let y = 0; y <= nY; y++) {
-          this.triangles.push(new Triangle({ b, y }))
+          let triangle = new Triangle({ b, y })
+          this.triangles[triangle.string()] = triangle
         }
       }
     } else {
@@ -26,7 +28,7 @@ class TriangleGrid {
 
   widthByY(y) {
     let n = 0
-    for (const tri of this.triangles) {
+    for (const tri of Object.values(this.triangles)) {
       if (tri.y == y) {
         n++
       }
@@ -35,11 +37,11 @@ class TriangleGrid {
   }
 
   upTriangles() {
-    return this.triangles.filter((tri) => tri.R == 0)
+    return Object.values(this.triangles).filter((tri) => tri.R == 0)
   }
 
   downTriangles() {
-    return this.triangles.filter((tri) => tri.R == 1)
+    return Object.values(this.triangles).filter((tri) => tri.R == 1)
   }
 }
 
@@ -95,11 +97,12 @@ class TrianglePositioner {
   }
 
   getTriangle(data) {
-    for (const tri of this.grid.triangles) {
-      if (tri.string() == data) {
-        return tri
-      }
-    }
+    return this.grid.triangles[data]
+    // for (const tri of this.grid.triangles) {
+    //   if (tri.string() == data) {
+    //     return tri
+    //   }
+    // }
   }
 
   increaseTriangleData(tri_data) {
@@ -120,13 +123,13 @@ class TrianglePositioner {
 
   randomize(options) {
     if (options == null) {
-      for (let sq of this.grid.triangles) {
+      for (let sq of Object.values(this.grid.triangles)) {
         const r = Math.floor(Math.random() * this.data_range)
         sq.data = r
       }
       return this
     }
-    for (let sq of this.grid.triangles) {
+    for (let sq of Object.values(this.grid.triangles)) {
       const r = Math.floor(Math.random() * options.length)
       sq.data = options[r]
     }
@@ -180,12 +183,14 @@ class TrianglePositioner {
 }
 
 function setActiveTriangle(triString) {
-  for (const tri of this.grid.grid.triangles) {
-    if (tri.string() == triString) {
-      this.selected = tri
-      return
-    }
-  }
+  let tri = this.grid.grid.triangles[triString]
+  this.selected = tri
+  // for (const tri of this.grid.grid.triangles) {
+  //   if (tri.string() == triString) {
+  //     this.selected = tri
+  //     return
+  //   }
+  // }
 }
 
 function triClassName(tri, selected) {

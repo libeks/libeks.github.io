@@ -84,10 +84,11 @@ class Square {
 }
 
 class SquarePositioner {
-  constructor(padding, grid, size) {
+  constructor({ padding, grid, size, data_range }) {
     this.padding = padding
     this.grid = grid
     this.size = size
+    this.data_range = data_range
   }
 
   mapSquare(sq) {
@@ -98,11 +99,31 @@ class SquarePositioner {
   }
 
   randomize(options) {
-    for (let sq of this.grid.getSquares()) {
+    if (!options) {
+      for (let sq of Object.values(this.grid.squares)) {
+        const r = Math.floor(Math.random() * this.data_range)
+        sq.data = r
+      }
+      return this
+    }
+    for (let sq of Object.values(this.grid.squares)) {
       const r = Math.floor(Math.random() * options.length)
       sq.data = options[r]
     }
     return this
+  }
+
+  getSquare(data) {
+    return this.grid.squares[data]
+  }
+
+  increaseSquareData(sq_data) {
+    const sq = this.getSquare(sq_data)
+    if (this.data_range === undefined) {
+      sq.data += 1
+    } else {
+      sq.data = (sq.data + 1) % this.data_range
+    }
   }
 
   mapXCoord(coord) {

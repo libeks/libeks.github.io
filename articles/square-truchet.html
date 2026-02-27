@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Square Truchet Tiles</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="/style.css" rel="stylesheet" />
+    <link href="triangles.css" rel="stylesheet" />
+    <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Libertinus+Math&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <header>
+      <h1>Square Truchet Tiles</h1>
+      <div class="subhead"><a href="/index.html">Home</a></div>
+    </header>
+    <main>
+      <section>
+        <h2 id="rectangular-simple-tile">
+          <a class="anchor" href="#rectangular-simple-tile"></a>
+          <span>Simple tile</span>
+        </h2>
+        <div class="flex-container">
+          <p>
+            We start, as always, with the simple Cartesian grid, and the simplest set of two Truchet
+            tiles.
+          </p>
+          <figure id="two-tile-listing" class="float-right small">
+            <svg viewBox="0 0 400 200">
+              <g class="grid square">
+                <g class="square" style="transform: translate(75px, 50px)">
+                  <one-tile-factory tile="1234"></one-tile-factory>
+                </g>
+                <g class="square" style="transform: translate(275px, 50px)">
+                  <one-tile-factory tile="1423"></one-tile-factory>
+                </g>
+              </g>
+            </svg>
+            <figcaption>Simplest two Truchet tiles with quarter-circle sections</figcaption>
+          </figure>
+        </div>
+        <p>For the grid, we randomly choose from either of the two tiles. Lovely, isn't it?</p>
+        <figure id="square-grid-two-tile" class="full-width">
+          <svg viewBox="0 0 3000 1500">
+            <g class="grid squares">
+              <g
+                v-for="sq in grid.grid.getSquares()"
+                :style="toTransform(grid.mapSquare(sq))"
+                :class="sqClassName(sq, selected)"
+                :data-sq="sq.string()"
+              >
+                <one-tile-factory
+                  @click="click"
+                  :tile="generateIterativeCatalanNumerical(2, [sq.data])"
+                />
+              </g>
+            </g>
+          </svg>
+        </figure>
+      </section>
+      <section>
+        <h2 id="more-complex-tiles">
+          <a class="anchor" href="#more-complex-tiles"></a>
+          <span>More complex tiles</span>
+        </h2>
+        <div class="flex-container">
+          <p>
+            We of course are not limited to these two tiles. In fact, we can come up with as many
+            tiles as we like, as long as they contain strokes that "exit" the tile at the four
+            cardinal directions.
+          </p>
+          <figure id="square-grid" class="float-right small">
+            <svg viewBox="0 0 430 220">
+              <g class="grid square">
+                <g class="square" style="transform: translate(0px, 10px)">
+                  <!-- Two quarter circles -->
+                  <g class="tile">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path class="stroke" d="M 0 50 A 50 50 1 0 0 50 0" />
+                    <path class="stroke" d="M 100 50 A 50 50 1 0 0 50 100" />
+                  </g>
+                </g>
+                <g class="square" style="transform: translate(110px, 10px)">
+                  <!-- Two quarter circles, turned 90 degrees -->
+                  <g class="tile rot90deg">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path class="stroke" d="M 0 50 A 50 50 1 0 0 50 0" />
+                    <path class="stroke" d="M 100 50 A 50 50 1 0 0 50 100" />
+                  </g>
+                </g>
+                <g class="square" style="transform: translate(220px, 10px)">
+                  <!-- Cross -->
+                  <g class="tile">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path class="stroke" d="M 0 50 L 100 50" />
+                    <path class="stroke" d="M 50 0 L 50 100" />
+                  </g>
+                </g>
+                <g class="square" style="transform: translate(330px, 10px)">
+                  <!-- Cross under -->
+                  <g class="tile">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path class="stroke" d="M 0 50 L 30 50 M 70 50 L 100 50" />
+                    <path class="stroke" d="M 50 0 L 50 100" />
+                  </g>
+                </g>
+                <g class="square" style="transform: translate(0px, 120px)">
+                  <!-- Cross over -->
+                  <g class="tile rot90deg">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path class="stroke" d="M 0 50 L 30 50 M 70 50 L 100 50" />
+                    <path class="stroke" d="M 50 0 L 50 100" />
+                  </g>
+                </g>
+                <g class="square" style="transform: translate(110px, 120px)">
+                  <!-- Wiggle -->
+                  <g class="tile">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path
+                      class="stroke"
+                      d="M 0 50 A 16.6 16.6 1 0 0 16.6 33.3 A 16.6 16.6 1 0 1 33.3 16.6 A 16.6 16.6 1 0 0 50 0"
+                    />
+                    <path
+                      class="stroke"
+                      d="M 100 50 A 16.6 16.6 1 0 0 83.3 66.6 A 16.6 16.6 1 0 1 66.6 83.3 A 16.6 16.6 1 0 0 50 100"
+                    />
+                  </g>
+                </g>
+                <g class="square" style="transform: translate(220px, 120px)">
+                  <!-- Wiggle rotated 90deg -->
+                  <g class="tile rot90deg">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path
+                      class="stroke"
+                      d="M 0 50 A 16.6 16.6 1 0 0 16.6 33.3 A 16.6 16.6 1 0 1 33.3 16.6 A 16.6 16.6 1 0 0 50 0"
+                    />
+                    <path
+                      class="stroke"
+                      d="M 100 50 A 16.6 16.6 1 0 0 83.3 66.6 A 16.6 16.6 1 0 1 66.6 83.3 A 16.6 16.6 1 0 0 50 100"
+                    />
+                  </g>
+                </g>
+              </g>
+            </svg>
+            <figcaption>Some other tiles added for fun</figcaption>
+          </figure>
+        </div>
+        <figure id="square-grid-five-tile" class="full-width">
+          <svg viewBox="0 0 3000 1500">
+            <g class="grid squares">
+              <g
+                v-for="sq in grid.grid.getSquares()"
+                :style="toTransform(grid.mapSquare(sq))"
+                :class="sqClassName(sq, selected)"
+                :data-sq="sq.string()"
+              >
+                <g v-if="sq.data==0" class="square">
+                  <!-- Two quarter circles -->
+                  <g class="tile">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path class="stroke" d="M 0 50 A 50 50 1 0 0 50 0" />
+                    <path class="stroke" d="M 100 50 A 50 50 1 0 0 50 100" />
+                  </g>
+                </g>
+                <g v-if="sq.data==1" class="square">
+                  <!-- Two quarter circles, turned 90 degrees -->
+                  <g class="tile rot90deg">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path class="stroke" d="M 0 50 A 50 50 1 0 0 50 0" />
+                    <path class="stroke" d="M 100 50 A 50 50 1 0 0 50 100" />
+                  </g>
+                </g>
+                <g v-if="sq.data==2" class="square">
+                  <!-- Cross -->
+                  <g class="tile">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path class="stroke" d="M 0 50 L 100 50" />
+                    <path class="stroke" d="M 50 0 L 50 100" />
+                  </g>
+                </g>
+                <g v-if="sq.data==3" class="square">
+                  <!-- Cross under -->
+                  <g class="tile">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path class="stroke" d="M 0 50 L 30 50 M 70 50 L 100 50" />
+                    <path class="stroke" d="M 50 0 L 50 100" />
+                  </g>
+                </g>
+                <g v-if="sq.data==4" class="square">
+                  <!-- Cross over -->
+                  <g class="tile rot90deg">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path class="stroke" d="M 0 50 L 30 50 M 70 50 L 100 50" />
+                    <path class="stroke" d="M 50 0 L 50 100" />
+                  </g>
+                </g>
+                <g v-if="sq.data==5" class="square">
+                  <!-- Wiggle -->
+                  <g class="tile">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path
+                      class="stroke"
+                      d="M 0 50 A 16.6 16.6 1 0 0 16.6 33.3 A 16.6 16.6 1 0 1 33.3 16.6 A 16.6 16.6 1 0 0 50 0"
+                    />
+                    <path
+                      class="stroke"
+                      d="M 100 50 A 16.6 16.6 1 0 0 83.3 66.6 A 16.6 16.6 1 0 1 66.6 83.3 A 16.6 16.6 1 0 0 50 100"
+                    />
+                  </g>
+                </g>
+                <g v-if="sq.data==6" class="square">
+                  <!-- Wiggle rotated 90deg -->
+                  <g class="tile rot90deg">
+                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <path
+                      class="stroke"
+                      d="M 0 50 A 16.6 16.6 1 0 0 16.6 33.3 A 16.6 16.6 1 0 1 33.3 16.6 A 16.6 16.6 1 0 0 50 0"
+                    />
+                    <path
+                      class="stroke"
+                      d="M 100 50 A 16.6 16.6 1 0 0 83.3 66.6 A 16.6 16.6 1 0 1 66.6 83.3 A 16.6 16.6 1 0 0 50 100"
+                    />
+                  </g>
+                </g>
+              </g>
+            </g>
+          </svg>
+        </figure>
+      </section>
+      <section id="two-notch-tiles">
+        <h2>
+          <a class="anchor" href="#two-notch-tiles"></a>
+          <span>Two-notch tiles</span>
+        </h2>
+        <div class="flex-container">
+          <p>
+            We can extend this to have two notches on each side of the square, parameterizing its
+            position from the midpoint of the square edge. Since we get
+            <math><mn>4</mn></math> pairs to connect, this results in the
+            <a href="/articles/catalan.html">Catalan number</a>
+            <math>
+              <msub>
+                <mi>C</mi>
+                <mn>4</mn>
+              </msub>
+              <mo>=</mo>
+              <mn>14</mn>
+            </math>
+            tiles to consider.
+          </p>
+          <figure class="float-right small">
+            <svg viewBox="0 0 460 460">
+              <g class="grid squares">
+                <g
+                  v-for="i in range(14)"
+                  :style="toTransform({x:(i%4)*120, y:120*Math.floor(i/4)})"
+                  class="square"
+                >
+                  <two-tile-factory
+                    @click="click"
+                    :tile="generateIterativeCatalanNumerical(4, i)"
+                    :notch="notch"
+                  />
+                </g>
+              </g>
+            </svg>
+            <figcaption>
+              <div class="annotation">
+                <div class="row">
+                  <div>Notch:</div>
+                  <input
+                    class="slider"
+                    type="range"
+                    name="notch"
+                    min="0.05"
+                    max="0.95"
+                    step="0.01"
+                    v-model.number="notch"
+                  />
+                </div>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+        <figure id="square-grid-two-notch" class="full-width">
+          <svg viewBox="0 0 3000 1500">
+            <g class="grid squares">
+              <g
+                v-for="sq in grid.grid.getSquares()"
+                :style="toTransform(grid.mapSquare(sq))"
+                :class="sqClassName(sq, selected)"
+                :data-sq="sq.string()"
+              >
+                <two-tile-factory
+                  @click="click"
+                  :tile="generateIterativeCatalanNumerical(4, [sq.data])"
+                  :notch="notch"
+                />
+              </g>
+            </g>
+          </svg>
+        </figure>
+      </section>
+      <section id="three-notch-tiles">
+        <h2>
+          <a class="anchor" href="#three-notch-tiles"></a>
+          <span>Three-notch tiles</span>
+        </h2>
+        <div class="flex-container">
+          <p>
+            Since a square has an even number of sides, we can put three notches on each side,
+            resulting in <math><mn>6</mn></math> pairs of notches to connect. We have
+            <math>
+              <msub>
+                <mi>C</mi>
+                <mn>6</mn>
+              </msub>
+              <mo>=</mo>
+              <mn>132</mn>
+            </math>
+            tiles to consider.
+          </p>
+          <figure class="float-right small">
+            <svg viewBox="0 0 460 460">
+              <g class="grid squares">
+                <g
+                  v-for="i in range(14)"
+                  :style="toTransform({x:(i%4)*120, y:120*Math.floor(i/4)})"
+                  class="square"
+                >
+                  <three-tile-factory
+                    @click="click"
+                    :tile="generateIterativeCatalanNumerical(6, i)"
+                    :notch="notch"
+                  />
+                </g>
+              </g>
+            </svg>
+            <figcaption>
+              <div class="annotation">
+                <div class="row">
+                  <div>Notch:</div>
+                  <input
+                    class="slider"
+                    type="range"
+                    name="notch"
+                    min="0.05"
+                    max="0.95"
+                    step="0.01"
+                    v-model.number="notch"
+                  />
+                </div>
+              </div>
+            </figcaption>
+          </figure>
+        </div>
+        <figure id="square-grid-two-notch" class="full-width">
+          <svg viewBox="0 0 3000 1500">
+            <g class="grid squares">
+              <g
+                v-for="sq in grid.grid.getSquares()"
+                :style="toTransform(grid.mapSquare(sq))"
+                :class="sqClassName(sq, selected)"
+                :data-sq="sq.string()"
+              >
+                <three-tile-factory
+                  @click="click"
+                  :tile="generateIterativeCatalanNumerical(6, [sq.data])"
+                  :notch="notch"
+                />
+              </g>
+            </g>
+          </svg>
+        </figure>
+      </section>
+    </main>
+    <footer>
+      <p>No LLMs were consulted in the making of this site.</p>
+      <p>© 2026 Jānis Lībeks</p>
+    </footer>
+
+    <script type="module">
+      const { createApp, ref, defineComponent } = Vue
+      import { generateIterativeCatalanNumerical } from '/js/catalan.js'
+      import { SquareGrid, SquarePositioner, setActiveSquare, sqClassName } from '/js/squares.js'
+      import { oneTileFactory, twoTileFactory, threeTileFactory } from '/js/square-tiles.js'
+      import { StraightStroke } from '/js/lines.js'
+      import { toTransform } from '/js/svg-utils.js'
+
+      createApp({
+        components: {
+          oneTileFactory,
+        },
+      }).mount('#two-tile-listing')
+
+      createApp({
+        data() {
+          return {
+            selected: null,
+            grid: new SquarePositioner({
+              padding: { x: 0, y: 0 },
+              grid: new SquareGrid({
+                nX: 30,
+                nY: 15,
+              }),
+              size: 100,
+              data_range: 2,
+            }).randomize(),
+          }
+        },
+        methods: {
+          sqClassName,
+          setActiveSquare,
+          toTransform,
+          generateIterativeCatalanNumerical,
+          click: function (event) {
+            const sq_data = event.target.parentElement.parentElement.dataset.sq
+            this.grid.increaseSquareData(sq_data)
+          },
+        },
+        components: {
+          oneTileFactory,
+        },
+      }).mount('#square-grid-two-tile')
+
+      createApp({
+        data() {
+          return {
+            selected: null,
+            grid: new SquarePositioner({
+              padding: { x: 0, y: 0 },
+              grid: new SquareGrid({
+                nX: 30,
+                nY: 15,
+              }),
+              size: 100,
+              data_range: 6,
+            }).randomize(),
+          }
+        },
+        methods: {
+          sqClassName,
+          toTransform,
+        },
+      }).mount('#square-grid-five-tile')
+
+      // controls two figures
+      createApp({
+        data() {
+          return {
+            selected: null,
+            grid: new SquarePositioner({
+              padding: { x: 0, y: 0 },
+              grid: new SquareGrid({
+                nX: 30,
+                nY: 15,
+              }),
+              size: 100,
+              data_range: 14,
+            }).randomize(),
+            notch: 0.33,
+          }
+        },
+        methods: {
+          sqClassName,
+          setActiveSquare,
+          toTransform,
+          generateIterativeCatalanNumerical,
+          click: function (event) {
+            const sq_data = event.target.parentElement.parentElement.dataset.sq
+            // if not in a grid, don't attempt to increment value
+            if (sq_data) {
+              this.grid.increaseSquareData(sq_data)
+            }
+          },
+          range: (n) => Array(n).keys(),
+        },
+        components: {
+          twoTileFactory,
+        },
+      }).mount('#two-notch-tiles')
+
+      // controls two figures
+      createApp({
+        data() {
+          return {
+            selected: null,
+            grid: new SquarePositioner({
+              padding: { x: 0, y: 0 },
+              grid: new SquareGrid({
+                nX: 30,
+                nY: 15,
+              }),
+              size: 100,
+              data_range: 132,
+            }).randomize(),
+            notch: 0.33,
+          }
+        },
+        methods: {
+          sqClassName,
+          setActiveSquare,
+          toTransform,
+          generateIterativeCatalanNumerical,
+          click: function (event) {
+            const sq_data = event.target.parentElement.parentElement.dataset.sq
+            // if not in a grid, don't attempt to increment value
+            if (sq_data) {
+              this.grid.increaseSquareData(sq_data)
+            }
+          },
+          range: (n) => Array(n).keys(),
+        },
+        components: {
+          threeTileFactory,
+        },
+      }).mount('#three-notch-tiles')
+    </script>
+  </body>
+</html>

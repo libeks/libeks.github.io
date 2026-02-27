@@ -9,11 +9,11 @@ import {
 } from '/js/lines.js'
 import { memoize } from '/js/memoize.js'
 
-const triangleTwoPointFactory = memoize(function (size, notch) {
-  const halfwidth = size / 2
-  const c1 = new Point(-size / 2, 0)
-  const c2 = new Point(size / 2, 0)
-  const c3 = new Point(0, (Math.sqrt(3) / 2) * size)
+const triangleTwoPointFactory = memoize(function (side, notch) {
+  const halfwidth = side / 2
+  const c1 = new Point(-side / 2, 0)
+  const c2 = new Point(side / 2, 0)
+  const c3 = new Point(0, (Math.sqrt(3) / 2) * side)
   const origin = new Point(0, 0)
   const center = origin.addVect(origin.vectTo(c3).mult(1 / 3))
   const e1mid = origin
@@ -70,11 +70,11 @@ const triangleTwoPointFactory = memoize(function (size, notch) {
   }
 })
 
-const triangleFourPointFactory = memoize(function (size, notch1, notch2) {
-  const halfwidth = size / 2
-  const c1 = new Point(-size / 2, 0)
-  const c2 = new Point(size / 2, 0)
-  const c3 = new Point(0, (Math.sqrt(3) / 2) * size)
+const triangleFourPointFactory = memoize(function (side, notch1, notch2) {
+  const halfwidth = side / 2
+  const c1 = new Point(-side / 2, 0)
+  const c2 = new Point(side / 2, 0)
+  const c3 = new Point(0, (Math.sqrt(3) / 2) * side)
   const origin = new Point(0, 0)
   const center = origin.addVect(origin.vectTo(c3).mult(1 / 3))
   const e1mid = origin
@@ -337,10 +337,6 @@ const fourCurveFactory = {
       }
       if (getNotchType(c1) == 'inner' && getNotchType(c2) == 'inner') {
         // case 5, pair of far inner notches
-        // return new CompositeCurve(
-        //   new QuadraticBezier(p1, fourPoints['n' + c1 + 'star'], fourPoints['center']),
-        //   new QuadraticBezier(fourPoints['center'], fourPoints['n' + c2 + 'star'], p2),
-        // )
         return new CubicBezier(p1, fourPoints['n' + c1 + 'star'], fourPoints['n' + c2 + 'star'], p2)
       }
       if (distance == 3 && getNotchType(c1) != getNotchType(c2)) {
@@ -392,7 +388,7 @@ const twoTileFactory = {
   template: `
   <g class="tile">
     <polygon points="0,86.6 -50,0 50,0" />
-    <two-curve-factory v-for="i in [0,1,2]" :size="side" :notch="notch" :curve="computeCurve(tile,i)" />
+    <two-curve-factory v-for="i in [0,1,2]" :side="side" :notch="notch" :curve="computeCurve(tile,i)" />
   </g>
   `,
   props: {
@@ -457,10 +453,9 @@ function generateAllPairs(fullList) {
       for (let b of firstChoice) {
         let remainder = firstChoice.filter((num) => num !== b)
         let res = rec(remainder)
-        for (const ret of res) {
+        for (let ret of res) {
           // prepend (a,b) to the returned array
-          ret.unshift(b)
-          ret.unshift(a)
+          ret = [a, b, ...ret]
           retList.push(ret)
         }
       }

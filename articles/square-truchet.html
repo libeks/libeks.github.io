@@ -81,7 +81,7 @@
                 <g class="square" style="transform: translate(0px, 10px)">
                   <!-- Two quarter circles -->
                   <g class="tile">
-                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <polygon class="polygon" points="0,0 0,100 100,100 100,0" />
                     <path class="stroke" d="M 0 50 A 50 50 1 0 0 50 0" />
                     <path class="stroke" d="M 100 50 A 50 50 1 0 0 50 100" />
                   </g>
@@ -89,7 +89,7 @@
                 <g class="square" style="transform: translate(110px, 10px)">
                   <!-- Two quarter circles, turned 90 degrees -->
                   <g class="tile rot90deg">
-                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <polygon class="polygon" points="0,0 0,100 100,100 100,0" />
                     <path class="stroke" d="M 0 50 A 50 50 1 0 0 50 0" />
                     <path class="stroke" d="M 100 50 A 50 50 1 0 0 50 100" />
                   </g>
@@ -97,7 +97,7 @@
                 <g class="square" style="transform: translate(220px, 10px)">
                   <!-- Cross -->
                   <g class="tile">
-                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <polygon class="polygon" points="0,0 0,100 100,100 100,0" />
                     <path class="stroke" d="M 0 50 L 100 50" />
                     <path class="stroke" d="M 50 0 L 50 100" />
                   </g>
@@ -105,7 +105,7 @@
                 <g class="square" style="transform: translate(330px, 10px)">
                   <!-- Cross under -->
                   <g class="tile">
-                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <polygon class="polygon" points="0,0 0,100 100,100 100,0" />
                     <path class="stroke" d="M 0 50 L 30 50 M 70 50 L 100 50" />
                     <path class="stroke" d="M 50 0 L 50 100" />
                   </g>
@@ -113,7 +113,7 @@
                 <g class="square" style="transform: translate(0px, 120px)">
                   <!-- Cross over -->
                   <g class="tile rot90deg">
-                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <polygon class="polygon" points="0,0 0,100 100,100 100,0" />
                     <path class="stroke" d="M 0 50 L 30 50 M 70 50 L 100 50" />
                     <path class="stroke" d="M 50 0 L 50 100" />
                   </g>
@@ -121,7 +121,7 @@
                 <g class="square" style="transform: translate(110px, 120px)">
                   <!-- Wiggle -->
                   <g class="tile">
-                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <polygon class="polygon" points="0,0 0,100 100,100 100,0" />
                     <path
                       class="stroke"
                       d="M 0 50 A 16.6 16.6 1 0 0 16.6 33.3 A 16.6 16.6 1 0 1 33.3 16.6 A 16.6 16.6 1 0 0 50 0"
@@ -135,7 +135,7 @@
                 <g class="square" style="transform: translate(220px, 120px)">
                   <!-- Wiggle rotated 90deg -->
                   <g class="tile rot90deg">
-                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <polygon class="polygon" points="0,0 0,100 100,100 100,0" />
                     <path
                       class="stroke"
                       d="M 0 50 A 16.6 16.6 1 0 0 16.6 33.3 A 16.6 16.6 1 0 1 33.3 16.6 A 16.6 16.6 1 0 0 50 0"
@@ -163,7 +163,7 @@
                 <g v-if="sq.data==0" class="square">
                   <!-- Two quarter circles -->
                   <g class="tile">
-                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <polygon class="polygon" points="0,0 0,100 100,100 100,0" />
                     <path class="stroke" d="M 0 50 A 50 50 1 0 0 50 0" />
                     <path class="stroke" d="M 100 50 A 50 50 1 0 0 50 100" />
                   </g>
@@ -171,7 +171,7 @@
                 <g v-if="sq.data==1" class="square">
                   <!-- Two quarter circles, turned 90 degrees -->
                   <g class="tile rot90deg">
-                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <polygon class="polygon" points="0,0 0,100 100,100 100,0" />
                     <path class="stroke" d="M 0 50 A 50 50 1 0 0 50 0" />
                     <path class="stroke" d="M 100 50 A 50 50 1 0 0 50 100" />
                   </g>
@@ -179,7 +179,7 @@
                 <g v-if="sq.data==2" class="square">
                   <!-- Cross -->
                   <g class="tile">
-                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <polygon class="polygon" points="0,0 0,100 100,100 100,0" />
                     <path class="stroke" d="M 0 50 L 100 50" />
                     <path class="stroke" d="M 50 0 L 50 100" />
                   </g>
@@ -187,7 +187,7 @@
                 <g v-if="sq.data==3" class="square">
                   <!-- Cross under -->
                   <g class="tile">
-                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <polygon class="polygon" points="0,0 0,100 100,100 100,0" />
                     <path class="stroke" d="M 0 50 L 30 50 M 70 50 L 100 50" />
                     <path class="stroke" d="M 50 0 L 50 100" />
                   </g>
@@ -195,7 +195,7 @@
                 <g v-if="sq.data==4" class="square">
                   <!-- Cross over -->
                   <g class="tile rot90deg">
-                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <polygon class="polygon" points="0,0 0,100 100,100 100,0" />
                     <path class="stroke" d="M 0 50 L 30 50 M 70 50 L 100 50" />
                     <path class="stroke" d="M 50 0 L 50 100" />
                   </g>
@@ -203,7 +203,7 @@
                 <g v-if="sq.data==5" class="square">
                   <!-- Wiggle -->
                   <g class="tile">
-                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <polygon class="polygon" points="0,0 0,100 100,100 100,0" />
                     <path
                       class="stroke"
                       d="M 0 50 A 16.6 16.6 1 0 0 16.6 33.3 A 16.6 16.6 1 0 1 33.3 16.6 A 16.6 16.6 1 0 0 50 0"
@@ -217,7 +217,7 @@
                 <g v-if="sq.data==6" class="square">
                   <!-- Wiggle rotated 90deg -->
                   <g class="tile rot90deg">
-                    <polygon points="0,0 0,100 100,100 100,0" />
+                    <polygon class="polygon" points="0,0 0,100 100,100 100,0" />
                     <path
                       class="stroke"
                       d="M 0 50 A 16.6 16.6 1 0 0 16.6 33.3 A 16.6 16.6 1 0 1 33.3 16.6 A 16.6 16.6 1 0 0 50 0"

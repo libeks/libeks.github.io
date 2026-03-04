@@ -18,7 +18,7 @@
 }
 
 svg {
-  polygon {
+  .polygon {
     stroke: hsl(0, 0%, 70%);
     stroke-width: 1;
   }
@@ -122,19 +122,19 @@ svg {
     font-weight: 600;
   }
 
-  .sameX polygon {
+  .sameX .polygon {
     fill: hsl(0, 50%, 70%);
   }
 
-  .sameY polygon {
+  .sameY .polygon {
     fill: hsl(240, 50%, 70%);
   }
 
-  .sameZ polygon {
+  .sameZ .polygon {
     fill: hsl(120, 50%, 70%);
   }
 
-  .sameB polygon {
+  .sameB .polygon {
     fill: hsl(280, 50%, 70%);
   }
 
@@ -148,8 +148,9 @@ svg {
     fill: hsl(147, 0%, 85%);
   }
 
-  .grid.triangles .tile polygon,
-  .grid.squares .tile polygon {
+  .grid.triangles .tile .polygon,
+  .grid.squares .tile .polygon,
+  .grid.hex .tile .polygon {
     fill: white;
   }
 

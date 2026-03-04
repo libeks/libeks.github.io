@@ -36,6 +36,13 @@ class StraightStroke {
     // move the stroke by a vector v
     return new StraightStroke(this.from.addVect(v), this.to.addVect(v))
   }
+
+  transform2D(matrix) {
+    if (matrix.type != 'Matrix2DHomo') {
+      throw `StraightStroke.transform2D got unexpected argument ${matrix.type}`
+    }
+    return new StraightStroke(matrix.multPoint(this.from), matrix.multPoint(this.to))
+  }
 }
 
 class QuadraticBezier {
@@ -69,6 +76,17 @@ class QuadraticBezier {
   move(v) {
     // move the stroke by a vector v
     return new QuadraticBezier(this.from.addVect(v), this.c1.addVect(v), this.to.addVect(v))
+  }
+
+  transform2D(matrix) {
+    if (matrix.type != 'Matrix2DHomo') {
+      throw `QuadraticBezier.transform2D got unexpected argument ${matrix.type}`
+    }
+    return new QuadraticBezier(
+      matrix.multPoint(this.from),
+      matrix.multPoint(this.c1),
+      matrix.multPoint(this.to),
+    )
   }
 }
 
@@ -110,6 +128,18 @@ class CubicBezier {
       this.to.addVect(v),
     )
   }
+
+  transform2D(matrix) {
+    if (matrix.type != 'Matrix2DHomo') {
+      throw `CubicBezier.transform2D got unexpected argument ${matrix.type}`
+    }
+    return new CubicBezier(
+      matrix.multPoint(this.from),
+      matrix.multPoint(this.c1),
+      matrix.multPoint(this.c2),
+      matrix.multPoint(this.to),
+    )
+  }
 }
 
 class CircleArc {
@@ -146,6 +176,19 @@ class CircleArc {
   d() {
     return `M ${this.from.string()} ${this.dContinued()}`
   }
+
+  transform2D(matrix) {
+    if (matrix.type != 'Matrix2DHomo') {
+      throw `CircleArc.transform2D got unexpected argument ${matrix.type}`
+    }
+    return new CircleArc(
+      matrix.multPoint(this.from),
+      matrix.multPoint(this.to),
+      this.radius,
+      this.largeArc,
+      this.sweep,
+    )
+  }
 }
 
 class CompositeCurve {
@@ -163,7 +206,8 @@ class CompositeCurve {
       this.curves.length > 0 &&
       !curve.startpoint().same(this.curves[this.curves.length - 1].endpoint())
     ) {
-      throw `Adding a new curve that is not continuous`
+      console.trace()
+      throw `Adding a new curve that is not continuous ${curve.d()}`
     }
     this.curves.push(curve)
   }
@@ -229,8 +273,16 @@ class CompositeCurve {
     }
     return components.join(' ')
   }
+
+  transform2D(matrix) {
+    if (matrix.type != 'Matrix2DHomo') {
+      throw `CompositeCurve.transform2D got unexpected argument ${matrix.type}`
+    }
+    return new CompositeCurve(...this.curves.map((curve) => transform2D(matrix)))
+  }
 }
 
+// Polygon is a wrapper around CompositeCurve for when we have a polygon around a set of points
 class Polygon {
   constructor(points) {
     this.points = points
@@ -242,6 +294,13 @@ class Polygon {
       components.add(new StraightStroke(this.points[i], this.points[(i + 1) % this.points.length]))
     }
     return components.d()
+  }
+
+  transform2D(matrix) {
+    if (matrix.type != 'Matrix2DHomo') {
+      throw `Polygon.transform2D got unexpected argument ${matrix.type}`
+    }
+    return new Polygon(...this.points.map((point) => matrix.multPt(point)))
   }
 }
 

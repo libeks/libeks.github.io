@@ -89,7 +89,7 @@
                   @mousemove="mouse"
                   @click="click"
                 >
-                  <polygon points="0,0 0,100 100,100 100,0" />
+                  <polygon class="polygon" points="0,0 0,100 100,100 100,0" />
                   <text x="50" y="60" text-anchor="middle">
                     <tspan class="x-y-coord">
                       <tspan class="x-coord">{{sq.x}}</tspan>
@@ -129,7 +129,7 @@
                   :class="triClassName(tri, selected)"
                   :data-tri="tri.string()"
                 >
-                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <polygon class="polygon" points="0,0 -50,86.6 50,86.6" />
                 </g>
                 <g
                   v-for="tri in grid.grid.downTriangles()"
@@ -137,7 +137,7 @@
                   :class="triClassName(tri, selected)"
                   :data-tri="tri.string()"
                 >
-                  <polygon points="0,86.6 -50,0 50,0" />
+                  <polygon class="polygon" points="0,86.6 -50,0 50,0" />
                 </g>
               </g>
             </svg>
@@ -164,7 +164,7 @@
             <svg viewBox="0 0 400 400">
               <g class="grid square" style="transform: translate(30px, 0px)">
                 <g class="square odd">
-                  <polygon points="0,100 100,100 100,0 0,0" />
+                  <polygon class="polygon" points="0,100 100,100 100,0 0,0" />
                   <text x="50" y="55" text-anchor="middle">
                     <tspan class="x-y-coord">
                       <tspan class="x-coord">x</tspan>
@@ -187,14 +187,14 @@
               </g>
               <g class="grid square" style="transform: translate(0px, 150px)">
                 <g class="square odd">
-                  <polygon points="50,0 150,0 100,86.6 0,86.6" />
+                  <polygon class="polygon" points="50,0 150,0 100,86.6 0,86.6" />
                   <line x1="100" y1="86.6" x2="50" y2="0" stroke-dasharray="4" stroke="black" />
                 </g>
                 <text x="170" y="55" class="annotation">Divide along short diagonal.</text>
               </g>
               <g class="grid triangles" style="transform: translate(0px, 300px)">
                 <g class="uptriangle" style="transform: translate(0px, 0px)">
-                  <polygon points="50,0 0,86.6 100,86.6" />
+                  <polygon class="polygon" points="50,0 0,86.6 100,86.6" />
                   <text x="50" y="75" text-anchor="middle">
                     <tspan class="x-y-r-coord">
                       <tspan class="x-coord">x</tspan>
@@ -206,7 +206,7 @@
                   </text>
                 </g>
                 <g class="downtriangle" style="transform: translate(50px, 0px)">
-                  <polygon points="50,86.6 0,0 100,0" />
+                  <polygon class="polygon" points="50,86.6 0,0 100,0" />
                   <text x="50" y="25" text-anchor="middle">
                     <tspan class="x-y-r-coord">
                       <tspan class="x-coord">x</tspan>
@@ -261,7 +261,7 @@
                   @mousemove="mouse"
                   @click="click"
                 >
-                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <polygon class="polygon" points="0,0 -50,86.6 50,86.6" />
                   <text x="0" y="75" text-anchor="middle">
                     <component :is="coordinates" :tri="tri"></component>
                   </text>
@@ -274,7 +274,7 @@
                   @mousemove="mouse"
                   @click="click"
                 >
-                  <polygon points="0,86.6 -50,0 50,0" />
+                  <polygon class="polygon" points="0,86.6 -50,0 50,0" />
                   <text x="0" y="25" text-anchor="middle">
                     <component :is="coordinates" :tri="tri"></component>
                   </text>
@@ -312,7 +312,7 @@
             <svg viewBox="0 0 300 320">
               <g class="grid triangles" style="transform: translate(50px, 20px)">
                 <g style="transform: translate(50px, 0px)" class="uptriangle">
-                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <polygon class="polygon" points="0,0 -50,86.6 50,86.6" />
                   <text x="0" y="75" text-anchor="middle">
                     <tspan class="x-y-r-coord">
                       <tspan class="x-coord">x</tspan>
@@ -324,7 +324,7 @@
                   </text>
                 </g>
                 <g style="transform: translate(0px, 0px)" class="downtriangle">
-                  <polygon points="0,86.6 -50,0 50,0" />
+                  <polygon class="polygon" points="0,86.6 -50,0 50,0" />
                   <text x="0" y="25" text-anchor="middle">
                     <tspan class="x-y-r-coord">
                       <tspan class="x-coord">-1</tspan>
@@ -336,7 +336,7 @@
                   </text>
                 </g>
                 <g style="transform: translate(100px, 0px)" class="downtriangle">
-                  <polygon points="0,86.6 -50,0 50,0" />
+                  <polygon class="polygon" points="0,86.6 -50,0 50,0" />
                   <text x="0" y="25" text-anchor="middle">
                     <tspan class="x-y-r-coord">
                       <tspan class="x-coord">0</tspan>
@@ -348,7 +348,7 @@
                   </text>
                 </g>
                 <g style="transform: translate(50px, 86.6px)" class="downtriangle">
-                  <polygon points="0,86.6 -50,0 50,0" />
+                  <polygon class="polygon" points="0,86.6 -50,0 50,0" />
                   <text x="0" y="25" text-anchor="middle">
                     <tspan class="x-y-r-coord">
                       <tspan class="x-coord">0</tspan>
@@ -362,7 +362,7 @@
               </g>
               <g class="grid triangles" style="transform: translate(150px, 120px)">
                 <g style="transform: translate(50px, 100px)" class="downtriangle">
-                  <polygon points="0,86.6 -50,0 50,0" />
+                  <polygon class="polygon" points="0,86.6 -50,0 50,0" />
                   <text x="0" y="25" text-anchor="middle">
                     <tspan class="x-y-r-coord">
                       <tspan class="x-coord">x</tspan>
@@ -374,7 +374,7 @@
                   </text>
                 </g>
                 <g style="transform: translate(0px, 100px)" class="uptriangle">
-                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <polygon class="polygon" points="0,0 -50,86.6 50,86.6" />
                   <text x="0" y="75" text-anchor="middle">
                     <tspan class="x-y-r-coord">
                       <tspan class="x-coord">0</tspan>
@@ -386,7 +386,7 @@
                   </text>
                 </g>
                 <g style="transform: translate(100px, 100px)" class="uptriangle">
-                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <polygon class="polygon" points="0,0 -50,86.6 50,86.6" />
                   <text x="0" y="75" text-anchor="middle">
                     <tspan class="x-y-r-coord">
                       <tspan class="x-coord">+1</tspan>
@@ -398,7 +398,7 @@
                   </text>
                 </g>
                 <g style="transform: translate(50px, 13.4px)" class="uptriangle">
-                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <polygon class="polygon" points="0,0 -50,86.6 50,86.6" />
                   <text x="0" y="75" text-anchor="middle">
                     <tspan class="x-y-r-coord">
                       <tspan class="x-coord">0</tspan>
@@ -478,7 +478,7 @@
             <svg viewBox="0 0 300 320">
               <g class="grid triangles" style="transform: translate(50px, 20px)">
                 <g style="transform: translate(50px, 0px)" class="uptriangle">
-                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <polygon class="polygon" points="0,0 -50,86.6 50,86.6" />
                   <text x="0" y="75" text-anchor="middle">
                     <tspan class="x-y-z-coord">
                       <tspan class="x-coord">x</tspan>
@@ -490,7 +490,7 @@
                   </text>
                 </g>
                 <g style="transform: translate(0px, 0px)" class="downtriangle">
-                  <polygon points="0,86.6 -50,0 50,0" />
+                  <polygon class="polygon" points="0,86.6 -50,0 50,0" />
                   <text x="0" y="25" text-anchor="middle">
                     <tspan class="x-y-z-coord">
                       <tspan class="x-coord">-1</tspan>
@@ -502,7 +502,7 @@
                   </text>
                 </g>
                 <g style="transform: translate(100px, 0px)" class="downtriangle">
-                  <polygon points="0,86.6 -50,0 50,0" />
+                  <polygon class="polygon" points="0,86.6 -50,0 50,0" />
                   <text x="0" y="25" text-anchor="middle">
                     <tspan class="x-y-z-coord">
                       <tspan class="x-coord">0</tspan>
@@ -514,7 +514,7 @@
                   </text>
                 </g>
                 <g style="transform: translate(50px, 86.6px)" class="downtriangle">
-                  <polygon points="0,86.6 -50,0 50,0" />
+                  <polygon class="polygon" points="0,86.6 -50,0 50,0" />
                   <text x="0" y="25" text-anchor="middle">
                     <tspan class="x-y-z-coord">
                       <tspan class="x-coord">0</tspan>
@@ -528,7 +528,7 @@
               </g>
               <g class="grid triangles" style="transform: translate(150px, 120px)">
                 <g style="transform: translate(50px, 100px)" class="downtriangle">
-                  <polygon points="0,86.6 -50,0 50,0" />
+                  <polygon class="polygon" points="0,86.6 -50,0 50,0" />
                   <text x="0" y="25" text-anchor="middle">
                     <tspan class="x-y-z-coord">
                       <tspan class="x-coord">x</tspan>
@@ -540,7 +540,7 @@
                   </text>
                 </g>
                 <g style="transform: translate(0px, 100px)" class="uptriangle">
-                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <polygon class="polygon" points="0,0 -50,86.6 50,86.6" />
                   <text x="0" y="75" text-anchor="middle">
                     <tspan class="x-y-z-coord">
                       <tspan class="x-coord">0</tspan>
@@ -552,7 +552,7 @@
                   </text>
                 </g>
                 <g style="transform: translate(100px, 100px)" class="uptriangle">
-                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <polygon class="polygon" points="0,0 -50,86.6 50,86.6" />
                   <text x="0" y="75" text-anchor="middle">
                     <tspan class="x-y-z-coord">
                       <tspan class="x-coord">+1</tspan>
@@ -564,7 +564,7 @@
                   </text>
                 </g>
                 <g style="transform: translate(50px, 13.4px)" class="uptriangle">
-                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <polygon class="polygon" points="0,0 -50,86.6 50,86.6" />
                   <text x="0" y="75" text-anchor="middle">
                     <tspan class="x-y-z-coord">
                       <tspan class="x-coord">0</tspan>
@@ -630,7 +630,7 @@
                   @mousemove="mouse"
                   @click="click"
                 >
-                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <polygon class="polygon" points="0,0 -50,86.6 50,86.6" />
                   <text x="0" y="75" text-anchor="middle">
                     <component :is="coordinates" :tri="tri"></component>
                   </text>
@@ -643,7 +643,7 @@
                   @mousemove="mouse"
                   @click="click"
                 >
-                  <polygon points="0,86.6 -50,0 50,0" />
+                  <polygon class="polygon" points="0,86.6 -50,0 50,0" />
                   <text x="0" y="25" text-anchor="middle">
                     <component :is="coordinates" :tri="tri"></component>
                   </text>
@@ -701,7 +701,7 @@
                   @mousemove="mouse"
                   @click="click"
                 >
-                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <polygon class="polygon" points="0,0 -50,86.6 50,86.6" />
                   <text x="0" y="75" text-anchor="middle">
                     <tspan>{{distance(tri,selected)}}</tspan>
                   </text>
@@ -714,7 +714,7 @@
                   @mousemove="mouse"
                   @click="click"
                 >
-                  <polygon points="0,86.6 -50,0 50,0" />
+                  <polygon class="polygon" points="0,86.6 -50,0 50,0" />
                   <text x="0" y="25" text-anchor="middle">
                     <tspan>{{distance(tri,selected)}}</tspan>
                   </text>
@@ -772,7 +772,7 @@
                   @mousemove="mouse"
                   @click="click"
                 >
-                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <polygon class="polygon" points="0,0 -50,86.6 50,86.6" />
                   <text x="0" y="75" text-anchor="middle">
                     <component :is="coordinates" :tri="tri"></component>
                   </text>
@@ -785,7 +785,7 @@
                   @mousemove="mouse"
                   @click="click"
                 >
-                  <polygon points="0,86.6 -50,0 50,0" />
+                  <polygon class="polygon" points="0,86.6 -50,0 50,0" />
                   <text x="0" y="25" text-anchor="middle">
                     <component :is="coordinates" :tri="tri"></component>
                   </text>
@@ -838,7 +838,7 @@
             <svg viewBox="0 0 300 320">
               <g class="grid triangles" style="transform: translate(50px, 20px)">
                 <g style="transform: translate(50px, 0px)" class="uptriangle">
-                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <polygon class="polygon" points="0,0 -50,86.6 50,86.6" />
                   <text x="0" y="75" text-anchor="middle">
                     <tspan class="y-b-coord">
                       <tspan class="y-coord">y</tspan>
@@ -848,7 +848,7 @@
                   </text>
                 </g>
                 <g style="transform: translate(0px, 0px)" class="downtriangle">
-                  <polygon points="0,86.6 -50,0 50,0" />
+                  <polygon class="polygon" points="0,86.6 -50,0 50,0" />
                   <text x="0" y="25" text-anchor="middle">
                     <tspan class="y-b-coord">
                       <tspan class="y-coord">0</tspan>
@@ -858,7 +858,7 @@
                   </text>
                 </g>
                 <g style="transform: translate(100px, 0px)" class="downtriangle">
-                  <polygon points="0,86.6 -50,0 50,0" />
+                  <polygon class="polygon" points="0,86.6 -50,0 50,0" />
                   <text x="0" y="25" text-anchor="middle">
                     <tspan class="y-b-coord">
                       <tspan class="y-coord">0</tspan>
@@ -868,7 +868,7 @@
                   </text>
                 </g>
                 <g style="transform: translate(50px, 86.6px)" class="downtriangle">
-                  <polygon points="0,86.6 -50,0 50,0" />
+                  <polygon class="polygon" points="0,86.6 -50,0 50,0" />
                   <text x="0" y="25" text-anchor="middle">
                     <tspan class="y-b-coord">
                       <tspan class="y-coord">+1</tspan>
@@ -880,7 +880,7 @@
               </g>
               <g class="grid triangles" style="transform: translate(150px, 120px)">
                 <g style="transform: translate(50px, 100px)" class="downtriangle">
-                  <polygon points="0,86.6 -50,0 50,0" />
+                  <polygon class="polygon" points="0,86.6 -50,0 50,0" />
                   <text x="0" y="25" text-anchor="middle">
                     <tspan class="y-b-coord">
                       <tspan class="y-coord">y</tspan>
@@ -890,7 +890,7 @@
                   </text>
                 </g>
                 <g style="transform: translate(50px, 13.4px)" class="uptriangle">
-                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <polygon class="polygon" points="0,0 -50,86.6 50,86.6" />
                   <text x="0" y="75" text-anchor="middle">
                     <tspan class="y-b-coord">
                       <tspan class="y-coord">-1</tspan>
@@ -900,7 +900,7 @@
                   </text>
                 </g>
                 <g style="transform: translate(0px, 100px)" class="uptriangle">
-                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <polygon class="polygon" points="0,0 -50,86.6 50,86.6" />
                   <text x="0" y="75" text-anchor="middle">
                     <tspan class="y-b-coord">
                       <tspan class="y-coord">0</tspan>
@@ -910,7 +910,7 @@
                   </text>
                 </g>
                 <g style="transform: translate(100px, 100px)" class="uptriangle">
-                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <polygon class="polygon" points="0,0 -50,86.6 50,86.6" />
                   <text x="0" y="75" text-anchor="middle">
                     <tspan class="y-b-coord">
                       <tspan class="y-coord">0</tspan>
@@ -1161,7 +1161,7 @@
                   @mousemove="mouse"
                   @click="click"
                 >
-                  <polygon points="0,0 -50,86.6 50,86.6" />
+                  <polygon class="polygon" points="0,0 -50,86.6 50,86.6" />
                   <text x="0" y="75" text-anchor="middle">
                     <component :is="coordinates" :tri="tri"></component>
                   </text>
@@ -1174,7 +1174,7 @@
                   @mousemove="mouse"
                   @click="click"
                 >
-                  <polygon points="0,86.6 -50,0 50,0" />
+                  <polygon class="polygon" points="0,86.6 -50,0 50,0" />
                   <text x="0" y="25" text-anchor="middle">
                     <component :is="coordinates" :tri="tri"></component>
                   </text>

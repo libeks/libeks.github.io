@@ -1,3 +1,5 @@
+import { degToRad } from '/js/math.js'
+
 const THRESHOLD = 0.01
 const DIVISOR_THRESHOLD = 1e-10
 
@@ -65,6 +67,8 @@ class Point {
   }
 }
 
+const Point2DOrigin = new Point(0, 0)
+
 class Vector {
   constructor(x, y) {
     this.x = x
@@ -110,13 +114,18 @@ class Vector {
   }
 
   angle() {
-    // return the angle from 0-x, counterclockwise, in degrees
-    throw 'Unimplemented'
+    // return the angle from 0-x, counterclockwise, in radians. It should be the opposite of rotateRad
+    return Math.atan2(-this.y, this.x) // -this.y because my Y-axis is flipped.
   }
 
-  rotate(angle) {
+  rotateDeg(angle) {
     // rotate the vector by angle in degrees, counterclockwise
-    const radians = (2 * Math.PI * angle) / 360
+    const radians = degToRad(angle)
+    return this.rotateRad(radians)
+  }
+
+  rotateRad(radians) {
+    // rotate the vector by angle in radians, counterclockwise
     const cos = Math.cos(radians)
     const sin = Math.sin(radians)
     return new Vector(cos * this.x + sin * this.y, -sin * this.x + cos * this.y)
@@ -234,6 +243,69 @@ class Line {
   }
 }
 
+class Matrix2DHomo {
+  construction(matrix) {
+    if (matrix.type != 'Matrix3D') {
+      console.trace()
+      throw `Matrix2DHomo got unexpected argument ${matrix.type}`
+    }
+    this.matrix = matrix
+    this.type == 'Matrix2DHomo'
+  }
+
+  add(m) {
+    if (m.type != 'Matrix2DHomo') {
+      console.trace()
+      throw `Matrix2DHomo.add got unexpected argument ${m.type}`
+    }
+    return new Matrix2DHomo(this.matrix.add(m.matrix))
+  }
+
+  mult(m) {
+    if (m.type != 'Matrix2DHomo') {
+      console.trace()
+      throw `Matrix2DHomo.add got unexpected argument ${m.type}`
+    }
+    return new Matrix2DHomo(this.matrix.mult(m.matrix))
+  }
+
+  normalizeVector(v) {
+    if (v.z == 0) {
+      console.trace()
+      throw `Can't normalize Vector3D into Vector, z value is 0`
+    }
+    return new Vector(v.x / v.z, v.y / v.z)
+  }
+
+  normalizePoint(p) {
+    if (p.z == 0) {
+      console.trace()
+      throw `Can't normalize Vector3D into Vector, z value is 0`
+    }
+    return new Point(p.x / p.z, p.y / p.z)
+  }
+
+  multVect(v) {
+    if (v.type != 'Vector') {
+      console.trace()
+      throw `Invalid parameter type ${v.type}`
+    }
+    let v3 = new Vector(v.x, v.y, 1)
+    let ret = this.matrix.multVect(v3)
+    return this.normalizeVector(ret)
+  }
+
+  multPoint(p) {
+    if (p.type != 'Point') {
+      console.trace()
+      throw `Invalid parameter type ${v.type}`
+    }
+    let p3 = new Vector(v.x, v.y, 1)
+    let ret = this.matrix.multVect(v3)
+    return this.normalizePoint(ret)
+  }
+}
+
 // LineSegment to do geometry on, use StraightStroke for renderable lines
 class LineSegment {
   constructor(p, v) {
@@ -269,6 +341,10 @@ class LineSegment {
     return intersect
   }
 
+  string() {
+    return `LineSegment from ${this.p.string()} to ${this.p.addVect(this.v).string()}`
+  }
+
   intersect(ls) {
     if (ls.type != 'LineSegment') {
       console.trace()
@@ -286,4 +362,4 @@ class LineSegment {
   }
 }
 
-export { Point, Vector, Line, LineSegment }
+export { Point, Vector, Line, LineSegment, Point2DOrigin }

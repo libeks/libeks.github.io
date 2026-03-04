@@ -387,7 +387,7 @@ function getPairs(s) {
 const twoTileFactory = {
   template: `
   <g class="tile">
-    <polygon points="0,86.6 -50,0 50,0" />
+    <polygon class="polygon" points="0,86.6 -50,0 50,0" />
     <two-curve-factory v-for="i in [0,1,2]" :side="side" :notch="notch" :curve="computeCurve(tile,i)" />
   </g>
   `,
@@ -414,7 +414,7 @@ const twoTileFactory = {
 const fourTileFactory = {
   template: `
   <g class="tile">
-    <polygon points="0,86.6 -50,0 50,0" />
+    <polygon class="polygon" points="0,86.6 -50,0 50,0" />
     <four-curve-factory v-for="i in [0,1,2,3,4,5]" :side="side" :notch1="notch1" :notch2="notch2" :curve="computeCurve(tile,i)" />
   </g>
   `,

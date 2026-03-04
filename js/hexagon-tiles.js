@@ -8,7 +8,7 @@ import {
 } from '/js/lines.js'
 
 const hexagon = {
-  template: `<path class="stroke" :d="getCurve().d()" />`,
+  template: `<path class="polygon" :d="getCurve().d()" />`,
   props: {
     side: {
       type: Number,
@@ -33,33 +33,6 @@ const hexagon = {
         new StraightStroke(p5, p6),
         new StraightStroke(p6, p1),
       )
-
-      // const points = squareTwoPointFactory(this.side, this.notch)
-      // let center = points['center']
-      // let p1 = curve[0]
-      // let p2 = curve[1]
-      // let n1 = points['n' + p1]
-      // let n2 = points['n' + p2]
-      // let n1star = points['n' + p1 + 'star']
-      // let n2star = points['n' + p2 + 'star']
-
-      // if (['12', '34', '56', '78'].includes(curve)) {
-      //   // same side
-      //   return new CubicBezier(n1, n1star, n2star, n2)
-      // }
-      // if (['18', '23', '45', '67'].includes(curve)) {
-      //   // wrap around a corner
-      //   return new QuadraticBezier(n1, n1star, n2)
-      // }
-      // if (['16', '25', '38', '47'].includes(curve)) {
-      //   // straight across
-      //   return new StraightStroke(n1, n2)
-      // }
-      // if (['14', '27', '36', '58'].includes(curve)) {
-      //   return new CubicBezier(n1, n1star, n2star, n2)
-      // }
-      // // catch-all
-      // return new StraightStroke(n1, n2)
     },
   },
 }

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Semiregular Tilings</title>
+    <!-- <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script> -->
+    <script src="/js/vue.js"></script>
+    <link href="/style.css" rel="stylesheet" />
+    <link href="triangles.css" rel="stylesheet" />
+    <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Libertinus+Math&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <header>
+      <h1>Semiregular Tilings</h1>
+      <div class="subhead"><a href="/index.html">Home</a></div>
+    </header>
+    <main>
+      <section>
+        <h2 id="rectangular-simple-tile">
+          <a class="anchor" href="#rectangular-simple-tile"></a>
+          <span>N-gons</span>
+        </h2>
+        <div class="flex-container">
+          <p>
+            To start, let's make a class that can render any regular n-gon. This will come in handy
+            later.
+          </p>
+          <figure id="ngons" class="float-right small">
+            <svg viewBox="0 0 300 300">
+              <g class="grid">
+                <g
+                  v-for="(poly,i) in polygons"
+                  :style="toTransform({x: 50 + (i%3)*100, y:50 + 100 * Math.floor(i/3)})"
+                >
+                  <path class="polygon" :d="poly.d" :style="{fill: poly.color, stroke: 'black'}" />
+                </g>
+              </g>
+            </svg>
+            <figcaption>Some regular n-gons with the same side-length</figcaption>
+          </figure>
+        </div>
+        <p>For the grid, we randomly choose from either of the two tiles. Lovely, isn't it?</p>
+        <figure id="grid1" class="full-width">
+          <svg viewBox="0 0 1000 500">
+            <g class="grid squares">
+              <g v-for="face in grid.getFaces()" class="face">
+                <path
+                  class="polygon"
+                  :data-face="face.id"
+                  :d="face.face.d"
+                  :style="{fill: face.face.color, stroke: 'black', 'fill-opacity':0.8}"
+                />
+                <text text-anchor="middle" v-bind="face.face.center.xyProps()">{{face.id}}</text>
+              </g>
+              <g v-for="vertex in grid.getVertices()">
+                <circle class="stroke medium" v-bind="vertex.point.cxcyProps()" r="2" />
+                <text
+                  text-anchor="middle"
+                  v-bind="vertex.point.d(-15,5).xyProps()"
+                  :style="{stroke: 'hsl(0,0%,40%)'}"
+                >
+                  {{vertex.id}}
+                </text>
+              </g>
+            </g>
+          </svg>
+          <figcaption></figcaption>
+        </figure>
+      </section>
+    </main>
+    <footer>
+      <p>No LLMs were consulted in the making of this site.</p>
+      <p>© 2026 Jānis Lībeks</p>
+    </footer>
+
+    <script type="module">
+      const { createApp, ref, defineComponent } = Vue
+      import { NGon, VertexGrid } from '/js/grid.js'
+      import { toTransform } from '/js/svg-utils.js'
+      import { BBox } from '/js/bbox.js'
+      import { Point2DOrigin, Point } from '/js/geometry.js'
+      import { degToRad } from '/js/math.js'
+
+      createApp({
+        data() {
+          return {
+            polygons: [3, 4, 5, 6, 7, 8, 10, 12, 15].map(
+              (n) => new NGon({ n, side: 20, angleFraction: 0.5 }),
+            ),
+          }
+        },
+        methods: {
+          toTransform,
+        },
+      }).mount('#ngons')
+
+      createApp({
+        data() {
+          return {
+            grid: new VertexGrid({
+              bbox: new BBox(0, 0, 3000, 1500),
+              // start: Point2DOrigin,
+              start: new Point(300, 300),
+              size: 100,
+              angle: degToRad(0),
+              // pattern: '3.4.6.4'.split('.'),
+              // pattern: '3.3.4.3.4'.split('.'),
+              // pattern: '3.4.3.12'.split('.'),
+              pattern: '5.5.10'.split('.'),
+              // pattern: ['3'],
+            }).generate(),
+            // degrees: 0,
+          }
+        },
+        // computed: {
+        //   grid() {
+        //     return new VertexGrid({
+        //       bbox: new BBox(0, 0, 3000, 1500),
+        //       // start: Point2DOrigin,
+        //       start: new Point(300, 300),
+        //       size: 100,
+        //       angle: degToRad(this.degrees),
+        //       // pattern: '3.4.6.4'.split('.'),
+        //       pattern: ['3', '4', '6', '4'],
+        //     }).generate()
+        //   },
+        // },
+        methods: {
+          toTransform,
+        },
+      }).mount('#grid1')
+    </script>
+  </body>
+</html>

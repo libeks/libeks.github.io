@@ -323,7 +323,7 @@ const threeCurveFactory = {
 const oneTileFactory = {
   template: `
   <g class="tile">
-    <polygon points="0,0 0,100 100,100 100,0" />
+    <polygon class="polygon" points="0,0 0,100 100,100 100,0" />
     <one-curve-factory v-for="curve in getPairs(tile,2)" :curve="curve" :side="side" />
   </g>
   `,
@@ -343,7 +343,7 @@ const oneTileFactory = {
 const twoTileFactory = {
   template: `
   <g class="tile">
-    <polygon points="0,0 0,100 100,100 100,0" />
+    <polygon class="polygon" points="0,0 0,100 100,100 100,0" />
     <two-curve-factory v-for="curve in getPairs(tile,2)" :curve="curve" :notch="notch" :side="side" />
   </g>
   `,
@@ -367,7 +367,7 @@ const twoTileFactory = {
 const threeTileFactory = {
   template: `
   <g class="tile">
-    <polygon points="0,0 0,100 100,100 100,0" />
+    <polygon class="polygon" points="0,0 0,100 100,100 100,0" />
     <three-curve-factory v-for="curve in getPairs(tile,2)" :curve="curve" :notch="notch" :side="side" />
   </g>
   `,

@@ -80,7 +80,7 @@ const circleChords = {
       let ret = []
       const initialAngle = this.rotateDegrees + 180 - 180 / this.n // ensure that notch number 1 is the top left-most notch, right after the leftmost clockwise
       for (let i = 0; i < 2 * this.n; i++) {
-        ret.push(new Vector(1, 0).rotate(initialAngle - i * (180 / this.n)).mult(this.radius))
+        ret.push(new Vector(1, 0).rotateDeg(initialAngle - i * (180 / this.n)).mult(this.radius))
       }
       return ret
     },
@@ -141,7 +141,9 @@ const circleChords = {
       const initialAngle = this.rotateDegrees + 180 - 180 / this.n // ensure that notch number 1 is the top left-most notch, right after the leftmost clockwise
       for (let i = 0; i < this.n; i++) {
         ret.push(
-          new Vector(1, 0).rotate(initialAngle - (2 * i + 0.5) * (180 / this.n)).mult(this.radius),
+          new Vector(1, 0)
+            .rotateDeg(initialAngle - (2 * i + 0.5) * (180 / this.n))
+            .mult(this.radius),
         )
       }
       return ret
@@ -150,7 +152,7 @@ const circleChords = {
       let ret = []
       const initialAngle = this.rotateDegrees + 180 - 180 / this.n // ensure that notch number 1 is the top left-most notch, right after the leftmost clockwise
       for (let i = 0; i < this.n; i++) {
-        let nv = new Vector(1, 0).rotate(initialAngle - (2 * i + 0.5) * (180 / this.n))
+        let nv = new Vector(1, 0).rotateDeg(initialAngle - (2 * i + 0.5) * (180 / this.n))
         ret.push(this.center.addVect(nv.mult(this.radius * 1.35)).addVect(new Vector(0, 10)))
       }
       return ret

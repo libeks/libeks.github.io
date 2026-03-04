@@ -144,14 +144,14 @@
         data() {
           return {
             selected: null,
-            grid: new SquarePositioner(
-              { x: 0, y: 0 },
-              new SquareGrid({
+            grid: new SquarePositioner({
+              padding: { x: 0, y: 0 },
+              grid: new SquareGrid({
                 nX: 30,
                 nY: 15,
               }),
-              100,
-            ),
+              size: 100,
+            }),
             functions,
             fn: initialFunction, // controlled by select
             threshold: 0.0, // controled by input
@@ -170,14 +170,14 @@
         data() {
           return {
             selected: null,
-            grid: new SquarePositioner(
-              { x: 0, y: 0 },
-              new SquareGrid({
+            grid: new SquarePositioner({
+              padding: { x: 0, y: 0 },
+              grid: new SquareGrid({
                 nX: 300,
                 nY: 150,
               }),
-              10,
-            ),
+              size: 10,
+            }),
             functions,
             fn: initialFunction, // controlled by select
             threshold: 0.0, // controled by input

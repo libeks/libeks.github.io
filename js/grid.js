@@ -115,17 +115,34 @@ class RotatedFace {
   }
 }
 
+class TilingPattern {
+  constructor(...patterns) {
+    console.log('patterns', patterns)
+    // input is a list of strings, each string consists of a sequence of polygon numbers that add up to 360 degrees
+    this.patterns = patterns.map((pattern) => pattern.split('.'))
+    console.log(this.patterns)
+    this.potentials = getPatternPotentials(...this.patterns)
+    console.log('potentials', this.potentials)
+  }
+}
+
 function shiftPattern(pattern) {
   return [pattern[pattern.length - 1], ...pattern.slice(0, pattern.length - 1)]
 }
 
-function getPatternPotentials(pattern) {
+function getPatternPotentials(...patterns) {
+  console.log('getPatternPotentials', patterns)
   let potentials = new Set()
-  for (let i = 0; i < pattern.length; i++) {
-    pattern = shiftPattern(pattern)
-    potentials.add(pattern.join('.'))
+  for (let pattern of patterns) {
+    let reverse = [...pattern].reverse()
+    for (let i = 0; i < pattern.length; i++) {
+      pattern = shiftPattern(pattern)
+      reverse = shiftPattern(reverse)
+      potentials.add(pattern.join('.'))
+      potentials.add(reverse.join('.'))
+    }
   }
-  return [...potentials.keys().map((key) => key.split('.'))]
+  return Array.from(potentials).map((key) => key.split('.'))
 }
 
 class Vertex {
@@ -133,13 +150,15 @@ class Vertex {
     this.id = id
     this.point = point
     this.pattern = pattern
-    this.patternPotentials = getPatternPotentials(pattern)
+    this.patternPotentials = pattern.potentials
     // console.log('initial pattern potential', this.patternPotentials)
     this.faces = []
   }
 
   isComplete() {
-    return this.faces.length == this.pattern.length
+    // return this.faces.length == this.pattern.length
+    let totalAngle = this.faces.reduce((acc, current) => acc + current.vertexAngle, 0)
+    return radToDeg(totalAngle) == 360
   }
 
   faceAngles() {
@@ -162,7 +181,7 @@ class Vertex {
     for (let [face, _, angle] of this.faces) {
       faceAngles[`${face.face.n}:${normalizeRadianString(angle)}`] = [face, angle]
     }
-    // console.log(`vertex ${this.id} faceAngles`, faceAngles)
+    console.log(`vertex ${this.id} faceAngles`, faceAngles)
     let faceAngleSet = new Set(Object.keys(faceAngles))
     for (let pat of this.patternPotentials) {
       let angle = firstAngle
@@ -174,7 +193,7 @@ class Vertex {
         angle = normalizeRadians(angle + degToRad(180 - 360 / n))
       }
       let patternAngleSet = new Set(Object.keys(patternAngles))
-      // console.log(`vertex ${this.id} patternAngles`, patternAngles)
+      console.log(`vertex ${this.id} patternAngles`, patternAngles)
 
       if (faceAngleSet.difference(patternAngleSet).size == 0) {
         newPatterns.push(pat)
@@ -183,7 +202,9 @@ class Vertex {
     if (newPatterns.length == 0) {
       throw `Got no potentials for vertex ${this.id}`
     }
-    // console.log(`after refinding, vertex ${this.id} got new patterns ${newPatterns}`)
+    console.log(
+      `after refinding, vertex ${this.id} got new patterns ${newPatterns.map((pat) => pat.join(',')).join(';')}`,
+    )
     this.patternPotentials = newPatterns
   }
 
@@ -217,10 +238,10 @@ class Vertex {
     }
     // console.log(`vertex ${this.id} pattern angles`, patternAngles)
     let patternAngleSet = new Set(Object.keys(patternAngles))
-    let missingKeys = [...patternAngleSet.difference(faceAngleSet).keys()]
-    if (missingKeys.length + this.faces.length != this.pattern.length) {
-      throw `Inconsistent number of missings for ${this.id}: ${missingKeys.length}, ${this.faces.length}, ${this.pattern.length}`
-    }
+    let missingKeys = Array.from(patternAngleSet.difference(faceAngleSet))
+    // if (missingKeys.length + this.faces.length != this.pattern.length) {
+    //   throw `Inconsistent number of missings for ${this.id}: ${missingKeys.length}, ${this.faces.length}, ${this.pattern.length}`
+    // }
     let missing = missingKeys.map((key) => patternAngles[key])
     // console.log(`vertex ${this.id} will have new faces ${missing}`)
     return missing
@@ -311,7 +332,7 @@ class VertexGrid {
     this.vertices[0] = new Vertex(0, this.start, this.pattern)
     // console.log('generate', this.faces, this.vertices, this.angle)
     let angle = this.angle
-    for (let n of this.pattern.map((val) => Number(val))) {
+    for (let n of this.pattern.patterns[0].map((val) => Number(val))) {
       // console.log('new ngon', radToDeg(angle))
       let face = new NGon({ n, side: this.size, angle, firstVertex: this.vertices[0] })
       let oldAngle = face.vertexAngle
@@ -320,7 +341,7 @@ class VertexGrid {
     }
     let isUpdated = true
     let nAdded = 0
-    while (isUpdated && nAdded < 1000) {
+    while (isUpdated && nAdded < 200) {
       // continue until no changes are made
       isUpdated = false
       for (let vertex of Object.values(this.vertices)) {
@@ -373,4 +394,4 @@ class VertexGrid {
   }
 }
 
-export { VertexGrid, NGon }
+export { VertexGrid, NGon, TilingPattern }

@@ -82,7 +82,7 @@
 
     <script type="module">
       const { createApp, ref, defineComponent } = Vue
-      import { NGon, VertexGrid } from '/js/grid.js'
+      import { NGon, VertexGrid, TilingPattern } from '/js/grid.js'
       import { toTransform } from '/js/svg-utils.js'
       import { BBox } from '/js/bbox.js'
       import { Point2DOrigin, Point } from '/js/geometry.js'
@@ -108,12 +108,18 @@
               bbox: new BBox(0, 0, 3000, 1500),
               // start: Point2DOrigin,
               start: new Point(300, 300),
-              size: 100,
+              size: 40,
               angle: degToRad(0),
               // pattern: '3.4.6.4'.split('.'),
               // pattern: '3.3.4.3.4'.split('.'),
+              // pattern: new TilingPattern('3.4.6.4', '3.4.3.3.4'),
+              // pattern: new TilingPattern('4.6.12', '3.4.6.4'),
+              pattern: new TilingPattern('3.4.3.12', '3.12.12'),
+              // [3.12.12; 3.4.3.12]
+              // pattern: new TilingPattern('4.6.12'),
+              // pattern: '5.5.10'.split('.'),
+              // pattern: '3.3.3.3.3.3'.split('.'),
               // pattern: '3.4.3.12'.split('.'),
-              pattern: '5.5.10'.split('.'),
               // pattern: ['3'],
             }).generate(),
             // degrees: 0,

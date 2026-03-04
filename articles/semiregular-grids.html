@@ -2,8 +2,8 @@
 <html lang="en">
   <head>
     <title>Semiregular Tilings</title>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <!-- <script src="/js/vue.js"></script> -->
+    <!-- <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script> -->
+    <script src="/js/vue.js"></script>
     <link href="/style.css" rel="stylesheet" />
     <link href="triangles.css" rel="stylesheet" />
     <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
@@ -46,7 +46,34 @@
             <figcaption>Some regular n-gons with the same side-length</figcaption>
           </figure>
         </div>
-        <p>For the grid, we randomly choose from either of the two tiles. Lovely, isn't it?</p>
+        <p>
+          Now let's start working on implementing an applet that could render any
+          <a
+            href="https://en.wikipedia.org/wiki/Euclidean_tilings_by_convex_regular_polygons#Archimedean,_uniform_or_semiregular_tilings"
+            >semi-regular tiling</a
+          >. The approach is as follows:
+        </p>
+        <ul>
+          <li>Pick a point, this will be the initial vertex.</li>
+          <li>Surround that vertex by the polygons contained in the pattern</li>
+          <li>
+            For each new vertex, consider whether there is only one way to fill in the remaining
+            gaps with polygons such that the pattern would be preserved. If so, add such polygons,
+            which will inevitably produce new vertices.
+          </li>
+          <li>Rinse and repeat until the viewport is filled</li>
+        </ul>
+        <p>
+          There are some complications to consider. For some tilings, such as the '4.6.12', you also
+          need to consider the mirrored version of the tiling, i.e. '6.4.12', otherwise the process
+          will stop very early. For other tilings, such as the '3.3.3.3.6' tiling, there is an
+          inherent ambiguity that requires a choice to be made.
+        </p>
+        <p>
+          In fact, if we want to extend this to k-vertex tilings, we will very quickly run into
+          ambiguous cases.
+        </p>
+
         <figure id="grid1" class="full-width">
           <svg viewBox="0 0 1000 500">
             <g class="grid squares">
@@ -57,11 +84,19 @@
                   :d="face.face.d"
                   :style="{fill: face.face.color, stroke: 'black', 'fill-opacity':0.8}"
                 />
-                <text text-anchor="middle" v-bind="face.face.center.xyProps()">{{face.id}}</text>
+                <text v-if="debugFaces" text-anchor="middle" v-bind="face.face.center.xyProps()">
+                  {{face.id}}
+                </text>
               </g>
               <g v-for="vertex in grid.getVertices()">
-                <circle class="stroke medium" v-bind="vertex.point.cxcyProps()" r="2" />
+                <circle
+                  class="stroke medium"
+                  v-bind="vertex.point.cxcyProps()"
+                  :style="{stroke: vertex.color}"
+                  r="2"
+                />
                 <text
+                  v-if="debugVertices"
                   text-anchor="middle"
                   v-bind="vertex.point.d(-15,5).xyProps()"
                   :style="{stroke: 'hsl(0,0%,40%)'}"
@@ -71,7 +106,26 @@
               </g>
             </g>
           </svg>
-          <figcaption></figcaption>
+          <figcaption>
+            <select v-model="tiling">
+              <option disabled value="">Pick a tiling</option>
+              <option disabled value="">Regular</option>
+              <option v-for="tile in regularTilings" :value="[tile]">{{tile}}</option>
+              <option disabled value="">Semi-Regular</option>
+              <option v-for="tile in semiregularTilings" :value="[tile]">{{tile}}</option>
+              <option disabled value="">2-uniform</option>
+              <option v-for="tile in uniform2Tilings" :value="tile">{{tile}}</option>
+            </select>
+            <input
+              class="slider"
+              type="range"
+              name="iterations"
+              min="0"
+              max="200"
+              step="2"
+              v-model.number="iterations"
+            />
+          </figcaption>
         </figure>
       </section>
     </main>
@@ -82,7 +136,14 @@
 
     <script type="module">
       const { createApp, ref, defineComponent } = Vue
-      import { NGon, VertexGrid, TilingPattern } from '/js/grid.js'
+      import {
+        NGon,
+        VertexGrid,
+        TilingPattern,
+        regularTilings,
+        semiregularTilings,
+        uniform2Tilings,
+      } from '/js/grid.js'
       import { toTransform } from '/js/svg-utils.js'
       import { BBox } from '/js/bbox.js'
       import { Point2DOrigin, Point } from '/js/geometry.js'
@@ -104,40 +165,47 @@
       createApp({
         data() {
           return {
-            grid: new VertexGrid({
+            // grid: new VertexGrid({
+            //   bbox: new BBox(0, 0, 3000, 1500),
+            //   // start: Point2DOrigin,
+            //   start: new Point(300, 300),
+            //   size: 40,
+            //   angle: degToRad(0),
+            //   pattern: new TilingPattern('3.4.6.4'),
+            //   // pattern: '3.3.4.3.4'.split('.'),
+            //   // pattern: new TilingPattern('3.4.6.4', '3.4.3.3.4'),
+            //   // pattern: new TilingPattern('4.6.12', '3.4.6.4'),
+            //   // pattern: new TilingPattern('3.4.3.12', '3.12.12'),
+            //   // [3.12.12; 3.4.3.12]
+            //   // pattern: new TilingPattern('4.6.12'),
+            //   // pattern: '5.5.10'.split('.'),
+            //   // pattern: '3.3.3.3.3.3'.split('.'),
+            //   // pattern: '3.4.3.12'.split('.'),
+            //   // pattern: ['3'],
+            //   iterations: 12,
+            // }).generate(),
+            tiling: ['3.3.3.3.3.3'],
+            debugVertices: false,
+            debugFaces: false,
+            iterations: 100,
+            regularTilings,
+            semiregularTilings,
+            uniform2Tilings,
+          }
+        },
+        computed: {
+          grid() {
+            console.log(this.tiling)
+            return new VertexGrid({
               bbox: new BBox(0, 0, 3000, 1500),
-              // start: Point2DOrigin,
               start: new Point(300, 300),
               size: 40,
               angle: degToRad(0),
-              // pattern: '3.4.6.4'.split('.'),
-              // pattern: '3.3.4.3.4'.split('.'),
-              // pattern: new TilingPattern('3.4.6.4', '3.4.3.3.4'),
-              // pattern: new TilingPattern('4.6.12', '3.4.6.4'),
-              pattern: new TilingPattern('3.4.3.12', '3.12.12'),
-              // [3.12.12; 3.4.3.12]
-              // pattern: new TilingPattern('4.6.12'),
-              // pattern: '5.5.10'.split('.'),
-              // pattern: '3.3.3.3.3.3'.split('.'),
-              // pattern: '3.4.3.12'.split('.'),
-              // pattern: ['3'],
-            }).generate(),
-            // degrees: 0,
-          }
+              pattern: new TilingPattern(...this.tiling),
+              iterations: this.iterations,
+            }).generate()
+          },
         },
-        // computed: {
-        //   grid() {
-        //     return new VertexGrid({
-        //       bbox: new BBox(0, 0, 3000, 1500),
-        //       // start: Point2DOrigin,
-        //       start: new Point(300, 300),
-        //       size: 100,
-        //       angle: degToRad(this.degrees),
-        //       // pattern: '3.4.6.4'.split('.'),
-        //       pattern: ['3', '4', '6', '4'],
-        //     }).generate()
-        //   },
-        // },
         methods: {
           toTransform,
         },

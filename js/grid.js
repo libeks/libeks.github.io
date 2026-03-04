@@ -36,6 +36,15 @@ const planeVertexTilings = [
   '5.5.10',
 ]
 
+const uniform2Tilings = [
+  ['3.3.3.3.3.3', '3.3.4.3.4'],
+  ['3.4.6.4', '3.3.4.3.4'],
+  ['3.4.6.4', '3.3.3.4.4'],
+  ['3.4.6.4', '3.4.4.6'],
+  ['4.6.12', '3.4.6.4'],
+  ['3.3.3.3.3.3', '3.3.4.12'],
+]
+
 class NGon {
   constructor({ n, side, angleFraction, angle, center, firstVertex }) {
     // center is assumed to be the origin
@@ -117,12 +126,12 @@ class RotatedFace {
 
 class TilingPattern {
   constructor(...patterns) {
-    console.log('patterns', patterns)
+    // console.log('patterns', patterns)
     // input is a list of strings, each string consists of a sequence of polygon numbers that add up to 360 degrees
     this.patterns = patterns.map((pattern) => pattern.split('.'))
     console.log(this.patterns)
     this.potentials = getPatternPotentials(...this.patterns)
-    console.log('potentials', this.potentials)
+    // console.log('potentials', this.potentials)
   }
 }
 
@@ -151,18 +160,38 @@ class Vertex {
     this.point = point
     this.pattern = pattern
     this.patternPotentials = pattern.potentials
-    // console.log('initial pattern potential', this.patternPotentials)
     this.faces = []
   }
 
   isComplete() {
-    // return this.faces.length == this.pattern.length
-    let totalAngle = this.faces.reduce((acc, current) => acc + current.vertexAngle, 0)
-    return radToDeg(totalAngle) == 360
+    let totalAngle = this.faces.reduce((acc, face) => acc + face[0].face.vertexAngle, 0)
+    // console.log('isComplete', radToDeg(totalAngle))
+    return closeEnough(radToDeg(totalAngle), 360)
   }
 
   faceAngles() {
     return this.faces.map((face) => face[2])
+  }
+
+  get deficit() {
+    // return the deficit, i.e. how many faces are missing from this vertex
+    let minPat = Math.min(...this.pattern.patterns.map((pat) => pat.length))
+    return minPat - this.faces.length
+  }
+
+  get color() {
+    console.log(this.id, this.isComplete())
+    if (this.isComplete()) {
+      return 'black'
+    }
+    // console.log(this.pattern.patterns.map((pat) => pat.length))
+    // let minPat = Math.min(...this.pattern.patterns.map((pat) => pat.length))
+    let deficit = this.deficit
+    // console.log(this.id, minPat, deficit)
+    if (deficit < 3) {
+      return { 0: 'teal', 1: 'red', 2: 'orange' }[deficit]
+    }
+    return 'gray'
   }
 
   refinePatterns() {
@@ -267,7 +296,7 @@ class Edge {
 }
 
 class VertexGrid {
-  constructor({ bbox, start, size, angle, pattern }) {
+  constructor({ bbox, start, size, angle, pattern, iterations }) {
     this.start = start
     this.angle = angle
     this.bbox = bbox
@@ -276,6 +305,7 @@ class VertexGrid {
     this.vertices = {}
     this.edges = {}
     this.faces = {}
+    this.iterations = iterations
   }
 
   vertexAt(pt) {
@@ -341,8 +371,13 @@ class VertexGrid {
     }
     let isUpdated = true
     let nAdded = 0
-    while (isUpdated && nAdded < 200) {
-      // continue until no changes are made
+    // let mode = 'scanForTrivial'
+    // iterate until no changes are made
+    while (isUpdated) {
+      if (this.iterations && nAdded >= this.iterations) {
+        break
+      }
+      // if (mode == 'scanForTrivial') {
       isUpdated = false
       for (let vertex of Object.values(this.vertices)) {
         if (vertex.isComplete()) {
@@ -368,7 +403,35 @@ class VertexGrid {
           break
         }
       }
-      // break
+      if (!isUpdated) {
+        // switch to making decisive choices
+        let verticesByDeficit = {}
+        for (let vertex of Object.values(this.vertices)) {
+          if (vertex.isComplete()) {
+            continue
+          }
+          let deficit = vertex.deficit
+          if (!(deficit in verticesByDeficit)) {
+            verticesByDeficit[deficit] = []
+          }
+          verticesByDeficit[deficit].push(vertex)
+        }
+        let minDeficit = Math.min(...Object.keys(verticesByDeficit).map((key) => Number(key)))
+        let vertex = verticesByDeficit[minDeficit][0]
+        vertex.patternPotentials = [vertex.patternPotentials[0]]
+        let updates = vertex.computeMissing()
+        if (updates.length == 0) {
+          continue
+        }
+        for (let [n, angle] of updates) {
+          let face = new NGon({ n, side: this.size, angle, firstVertex: vertex })
+          this.addFace(face, angle, 0)
+        }
+        isUpdated = true
+        nAdded += 1
+      }
+
+      // }
     }
     return this // allow chaining
   }
@@ -394,4 +457,4 @@ class VertexGrid {
   }
 }
 
-export { VertexGrid, NGon, TilingPattern }
+export { VertexGrid, NGon, TilingPattern, regularTilings, semiregularTilings, uniform2Tilings }

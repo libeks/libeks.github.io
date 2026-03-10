@@ -353,9 +353,7 @@ const fourCurveFactory = {
         // case 7, inner to outer at a disnce of 5
         // start by ordering so that c1 is the inner point
         if (getNotchType(c2) == 'inner') {
-          let temp = c1
-          c1 = c2
-          c2 = temp
+          ;[c1, c2] = [c2, c1]
         }
         const p1 = fourPoints['n' + c1]
         const p2 = fourPoints['n' + c2]

@@ -71,9 +71,7 @@ const threeDScene = {
           let ptA = line.line.pointObjs[0].projected.point
           let ptB = line.line.pointObjs[1].projected.point
           if (line.reverse) {
-            let temp = ptA
-            ptA = ptB
-            ptB = temp
+            ;[ptA, ptB] = [ptB, ptA] // swap
           }
           lines.push(new StraightStroke(ptA, ptB))
         }

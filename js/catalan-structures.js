@@ -108,9 +108,7 @@ const circleChords = {
         let distance = b - a
         if (distance > this.n) {
           // swap a and b
-          let temp = a
-          a = b
-          b = temp
+          ;[a, b] = [b, a]
           distance = 2 * this.n - distance // use the shorter distance the other way around the circle
         }
         const angle = (angleStep * distance) / 2

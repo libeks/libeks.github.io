@@ -704,9 +704,7 @@ class SceneFrame {
         let reverse = false
         if (b < a) {
           reverse = true
-          let temp = a
-          a = b
-          b = temp
+          ;[a, b] = [b, a] // swap
         }
         let key = `${a},${b}`
         if (!(key in lines)) {

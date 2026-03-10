@@ -33,23 +33,37 @@ class BBox {
       return 0
     }
     if (point.x < this.x1 && point.y >= this.y1 && point.y <= this.y2) {
-      return Math.abs(point.x - this.x1)
+      let ret = Math.abs(point.x - this.x1)
+      // console.log(`distnce between`, point, 'and box', this, 'is', ret)
+      return ret
     }
     if (point.x > this.x2 && point.y >= this.y1 && point.y <= this.y2) {
-      return Math.abs(point.x - this.x2)
+      let ret = Math.abs(point.x - this.x2)
+      // console.log(`distnce between`, point, 'and box', this, 'is', ret)
+      return ret
     }
     if (point.y < this.y1 && point.x >= this.x1 && point.x <= this.x2) {
-      return Math.abs(point.y - this.y1)
+      let ret = Math.abs(point.y - this.y1)
+      // console.log(`distnce between`, point, 'and box', this, 'is', ret)
+      return ret
     }
     if (point.y > this.y2 && point.x >= this.x1 && point.x <= this.x2) {
-      return Math.abs(point.y - this.y2)
+      let ret = Math.abs(point.y - this.y2)
+      // console.log(`distnce between`, point, 'and box', this, 'is', ret)
+      return ret
     }
-    return Math.min(
+    let ret = Math.min(
       point.distance(new Point(this.x1, this.y1)),
       point.distance(new Point(this.x2, this.y1)),
       point.distance(new Point(this.x1, this.y2)),
       point.distance(new Point(this.x2, this.y2)),
     )
+    // console.log(`distnce between`, point, 'and box', this, 'is', ret)
+    return ret
+  }
+
+  d() {
+    return `M ${this.x1} ${this.y1} L ${this.x2} ${this.y1} L ${this.x2} ${this.y2} L ${this.x1} ${this.y2} L ${this.x1} ${this.y1}`
   }
 }
 

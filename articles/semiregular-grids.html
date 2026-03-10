@@ -2,8 +2,8 @@
 <html lang="en">
   <head>
     <title>Semiregular Tilings</title>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <!-- <script src="/js/vue.js"></script> -->
+    <!-- <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script> -->
+    <script src="/js/vue.js"></script>
     <link href="/style.css" rel="stylesheet" />
     <link href="triangles.css" rel="stylesheet" />
     <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
@@ -76,35 +76,18 @@
 
         <figure id="grid1" class="full-width">
           <svg viewBox="0 0 1000 500">
-            <g class="grid squares">
-              <g v-for="face in grid.getFaces()" class="face">
-                <path
-                  class="polygon"
-                  :data-face="face.id"
-                  :d="face.face.d"
-                  :style="{fill: face.face.color, stroke: 'black', 'fill-opacity':0.8}"
-                />
-                <text v-if="debugFaces" text-anchor="middle" v-bind="face.face.center.xyProps()">
-                  {{face.id}}
-                </text>
-              </g>
-              <g v-for="vertex in grid.getVertices()">
-                <circle
-                  class="stroke medium"
-                  v-bind="vertex.point.cxcyProps()"
-                  :style="{stroke: vertex.color}"
-                  r="2"
-                />
-                <text
-                  v-if="debugVertices"
-                  text-anchor="middle"
-                  v-bind="vertex.point.d(-15,5).xyProps()"
-                  :style="{stroke: 'hsl(0,0%,40%)'}"
-                >
-                  {{vertex.id}}
-                </text>
-              </g>
-            </g>
+            <grid-tiling
+              :bbox="bbox"
+              :start="start"
+              :size="30"
+              :pattern="tiling"
+              :iterations="10000"
+              :debug-face-number="showFaceNumbers"
+              debug-vertex-genus
+              :debug-vertex-number="showVertexNumbers"
+              :debug-show-bbox="showBBox"
+              :show-vertices="showVertices"
+            ></grid-tiling>
           </svg>
           <figcaption>
             <select v-model="tiling">
@@ -115,6 +98,8 @@
               <option v-for="tile in semiregularTilings" :value="[tile]">{{tile}}</option>
               <option disabled value="">2-uniform</option>
               <option v-for="tile in uniform2Tilings" :value="tile">{{tile}}</option>
+              <option disabled value="">3-uniform</option>
+              <option v-for="tile in uniform3Tilings" :value="tile">{{tile}}</option>
             </select>
             <input
               class="slider"
@@ -125,9 +110,40 @@
               step="2"
               v-model.number="iterations"
             />
+
+            <div class="button-block">
+              <toggle-button
+                :active="showVertexNumbers"
+                @toggle-choice="showVertexNumbers = !showVertexNumbers"
+                text="Show vertex numbers"
+              ></toggle-button>
+            </div>
+            <div class="button-block">
+              <toggle-button
+                :active="showBBox"
+                @toggle-choice="showBBox = !showBBox"
+                text="Show bbox"
+              ></toggle-button>
+            </div>
+            <div class="button-block">
+              <toggle-button
+                :active="showVertices"
+                @toggle-choice="showVertices = !showVertices"
+                text="Show vertices"
+              ></toggle-button>
+            </div>
+            <div class="button-block">
+              <toggle-button
+                :active="showFaceNumbers"
+                @toggle-choice="showFaceNumbers = !showFaceNumbers"
+                text="Show face numbers"
+              ></toggle-button>
+            </div>
+            <!-- <input type="checkbox" v-model.boolean="showVertexNumbers" /> -->
           </figcaption>
         </figure>
       </section>
+      <section>Other ideas: Display the aperiodic Penrose Tiling</section>
     </main>
     <footer>
       <p>No LLMs were consulted in the making of this site.</p>
@@ -143,11 +159,14 @@
         regularTilings,
         semiregularTilings,
         uniform2Tilings,
+        uniform3Tilings,
+        gridTiling,
       } from '/js/grid.js'
       import { toTransform } from '/js/svg-utils.js'
       import { BBox } from '/js/bbox.js'
       import { Point2DOrigin, Point } from '/js/geometry.js'
       import { degToRad } from '/js/math.js'
+      import { playControls, radioButtons, toggleButton } from '/js/buttons.js'
 
       createApp({
         data() {
@@ -165,50 +184,34 @@
       createApp({
         data() {
           return {
-            // grid: new VertexGrid({
-            //   bbox: new BBox(0, 0, 3000, 1500),
-            //   // start: Point2DOrigin,
-            //   start: new Point(300, 300),
-            //   size: 40,
-            //   angle: degToRad(0),
-            //   pattern: new TilingPattern('3.4.6.4'),
-            //   // pattern: '3.3.4.3.4'.split('.'),
-            //   // pattern: new TilingPattern('3.4.6.4', '3.4.3.3.4'),
-            //   // pattern: new TilingPattern('4.6.12', '3.4.6.4'),
-            //   // pattern: new TilingPattern('3.4.3.12', '3.12.12'),
-            //   // [3.12.12; 3.4.3.12]
-            //   // pattern: new TilingPattern('4.6.12'),
-            //   // pattern: '5.5.10'.split('.'),
-            //   // pattern: '3.3.3.3.3.3'.split('.'),
-            //   // pattern: '3.4.3.12'.split('.'),
-            //   // pattern: ['3'],
-            //   iterations: 12,
-            // }).generate(),
-            tiling: ['3.3.3.3.3.3'],
+            tiling: ['3.3.3.3.3.3', '3.3.6.6'],
             debugVertices: false,
             debugFaces: false,
+            debugVertexGenus: true,
             iterations: 100,
             regularTilings,
             semiregularTilings,
             uniform2Tilings,
+            uniform3Tilings,
+            showVertexNumbers: false,
+            showFaceNumbers: false,
+            showBBox: false,
+            start: new Point(500, 250),
+            bbox: new BBox(-200, -100, 1200, 600),
+            showVertices: true,
           }
-        },
-        computed: {
-          grid() {
-            console.log(this.tiling)
-            return new VertexGrid({
-              bbox: new BBox(0, 0, 3000, 1500),
-              start: new Point(300, 300),
-              size: 40,
-              angle: degToRad(0),
-              pattern: new TilingPattern(...this.tiling),
-              iterations: this.iterations,
-            }).generate()
-          },
         },
         methods: {
           toTransform,
+          BBox,
+          Point,
         },
+        // computed: {
+        //   bbox() {
+        //     return new BBox(200, 100, 800, 400)
+        //   }
+        // }
+        components: { gridTiling, toggleButton },
       }).mount('#grid1')
     </script>
   </body>

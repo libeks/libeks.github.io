@@ -238,6 +238,18 @@ div.button-block {
     & + div.button {
       border-left: 2px solid hsl(0, 0%, 70%);
     }
+
+    &.button-checkbox.active {
+      &::before {
+        content: '\2611 ';
+      }
+    }
+
+    &.button-checkbox:not(.active) {
+      &::before {
+        content: '\2610 ';
+      }
+    }
   }
 
   div.button:first-of-type {

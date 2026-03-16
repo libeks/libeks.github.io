@@ -84,7 +84,6 @@ class NGon {
     let h = this.side / (2 * Math.sin(this.alphaRad / 2))
     this.v = new Vector(h, 0) // vector in the positive 0x axis direction
     if (firstVertex) {
-      // console.log('firstVertex', firstVertex, firstVertex.point, radToDeg(angle))
       this.center = firstVertex.point.addVect(this.v.rotateRad(angle + this.vertexAngle / 2))
       this.v = this.center.vectTo(firstVertex.point)
     } else {
@@ -145,11 +144,12 @@ class TilingPattern {
       pattern: pattern.split('.'),
       genus: id,
     }))
-    // console.log(this.patterns)
     this.potentials = getPatternPotentials(...this.patterns)
-    console.log('potentials', this.potentials)
-    // console.log('potentials', this.potentials)
   }
+}
+
+function displayKTiling(tiling) {
+  return `[${tiling.join('; ')}]`
 }
 
 function shiftPattern(pattern) {
@@ -161,11 +161,11 @@ function getPatternPotentials(...patterns) {
   // console.log('getPatternPotentials', patterns)
   let potentials = {}
   for (let pt of patterns) {
-    console.log('pattern', pt)
+    // console.log('pattern', pt)
     let reversePattern = [...pt.pattern].reverse()
     let pattern = pt.pattern
     for (let i = 0; i < pt.pattern.length; i++) {
-      console.log('reverse', reversePattern)
+      // console.log('reverse', reversePattern)
       pattern = shiftPattern(pattern)
       reversePattern = shiftPattern(reversePattern)
       potentials[pattern.join('.')] = {
@@ -192,11 +192,12 @@ class Vertex {
     this.point = point
     this.pattern = pattern
     this.patternPotentials = pattern.potentials
-    console.log(`vertex ${id} patternPotentials`, this.patternPotentials)
+    // console.log(`vertex ${id} patternPotentials`, this.patternPotentials)
     this.faces = []
     this.neighbors = {}
     this.finalPattern = null
     this.error = null
+    this.forcedChoice = false // true if a pattern was forced on this vertex
   }
 
   isComplete() {
@@ -241,9 +242,9 @@ class Vertex {
     }
     if (this.patternPotentials.length < 2) {
       // there is nothing to refine
-      if (!this.finalPattern) {
-        console.warn(`Vertex ${this.id} exiting early with ${this.finalPattern}`)
-      }
+      // if (!this.finalPattern) {
+      //   console.warn(`Vertex ${this.id} exiting early with ${this.finalPattern}`)
+      // }
       return
     }
     let firstAngle = normalizeRadians(this.faces[0][2])
@@ -254,7 +255,7 @@ class Vertex {
     }
     // console.log(`vertex ${this.id} faceAngles`, faceAngles)
     let faceAngleSet = new Set(Object.keys(faceAngles))
-    console.log(`vertex ${this.id} patternPotentials`, this.patternPotentials)
+    // console.log(`vertex ${this.id} patternPotentials`, this.patternPotentials)
     for (let pat of this.patternPotentials) {
       let angle = firstAngle
       let patternAngles = {}
@@ -265,20 +266,20 @@ class Vertex {
       }
       let patternAngleSet = new Set(Object.keys(patternAngles))
       if (faceAngleSet.difference(patternAngleSet).size == 0) {
-        console.log(`setting vertex ${this.id} patterns to ${pat}`)
+        // console.log(`setting vertex ${this.id} patterns to ${pat}`)
         newPatterns.push(pat)
       }
     }
     if (newPatterns.length == 0) {
       this.error = true
       console.trace()
-      console.error(`Got no potentials for vertex ${this.id}`)
-      // throw `Got no potentials for vertex ${this.id}`
+      // console.error(`Got no potentials for vertex ${this.id}`)
+      throw `Got no potentials for vertex ${this.id}`
       return
     }
-    console.log(
-      `after refining, vertex ${this.id} got new patterns ${newPatterns.map((pat) => pat.pattern.join(',')).join(';')}`,
-    )
+    // console.log(
+    //   `after refining, vertex ${this.id} got new patterns ${newPatterns.map((pat) => pat.pattern.join(',')).join(';')}`,
+    // )
     if (newPatterns.length == 1) {
       this.finalPattern = newPatterns[0]
     }
@@ -290,7 +291,7 @@ class Vertex {
       return []
     }
     this.refinePatterns()
-    console.log(`vertex ${this.id} has neighbors ${Object.keys(this.neighbors)}`)
+    // console.log(`vertex ${this.id} has neighbors ${Object.keys(this.neighbors)}`)
     if (this.patternPotentials.length > 1) {
       return []
     }
@@ -337,9 +338,7 @@ class VertexGrid {
     this.angle = angle
     this.bbox = bbox
     this.size = size
-    // console.log('vertexGrid constructor with pattern', pattern)
     this.pattern = pattern
-    // console.log('vertexGrid constructor with this.pattern', this.pattern, this.pattern.potentials)
     this.vertices = {}
     this.edges = {}
     this.faces = {}
@@ -361,7 +360,6 @@ class VertexGrid {
   }
 
   addFace(polygon) {
-    // console.log('addFace', polygon)
     let face = new RotatedFace(/** id: **/ Object.values(this.faces).length, polygon)
     this.faces[face.id] = face
 
@@ -372,7 +370,6 @@ class VertexGrid {
       let point = secondLine.p
       let vertex = this.vertexAt(point)
       if (vertex == null) {
-        console.log(`creating new vertex with pattern ${this.pattern}`)
         vertex = new Vertex(Object.values(this.vertices).length, point, this.pattern)
         this.vertices[vertex.id] = vertex
       }
@@ -422,10 +419,6 @@ class VertexGrid {
           // point is too far
           continue
         }
-        // console.log(
-        //   `checking vertex ${vertex.id} a choice with point at a distance of `,
-        //   this.bbox.distance(vertex.point),
-        // )
         try {
           vertex.refinePatterns()
         } catch (err) {
@@ -433,7 +426,13 @@ class VertexGrid {
           return
         }
         if (vertex.patternPotentials.length == 1) {
-          let updates = vertex.computeMissing()
+          let updates
+          try {
+            updates = vertex.computeMissing()
+          } catch (err) {
+            console.error(err)
+            this.error = true
+          }
           if (updates.length == 0) {
             continue
           }
@@ -444,7 +443,7 @@ class VertexGrid {
             } catch (err) {
               this.error = true
               console.error(err)
-              return
+              return this
             }
           }
           isUpdated = true
@@ -463,10 +462,6 @@ class VertexGrid {
             // point is too far
             continue
           }
-          // console.log(
-          //   'forcing a choice with point at a distance of ',
-          //   this.bbox.distance(vertex.point),
-          // )
           let deficit = vertex.deficit
           if (!(deficit in verticesByDeficit)) {
             verticesByDeficit[deficit] = []
@@ -488,11 +483,11 @@ class VertexGrid {
             byGenus[neighbor.finalPattern.genus] += 1
           }
         }
-        console.log(
-          `vertex ${vertex.id} by genus has`,
-          byGenus,
-          vertex.patternPotentials.map((pot) => pot.genus),
-        )
+        // console.log(
+        //   `vertex ${vertex.id} by genus has`,
+        //   byGenus,
+        //   vertex.patternPotentials.map((pot) => pot.genus),
+        // )
 
         let potentialsByGenus = {}
         for (let pot of vertex.patternPotentials) {
@@ -505,20 +500,27 @@ class VertexGrid {
         let potentials = []
         let genusOrder = Object.entries(byGenus)
         genusOrder.sort((a, b) => a[1] - b[1])
-        console.log(`vertex ${vertex.id} has genus order`, genusOrder)
+        // console.log(`vertex ${vertex.id} has genus order`, genusOrder)
         for (let genus of genusOrder.map(([genus, count]) => genus)) {
-          console.log('genus', genus)
+          // console.log('genus', genus)
           if (genus in potentialsByGenus) {
-            console.log(`vertex ${vertex.id} has genus ${genus} among`, potentialsByGenus)
+            // console.log(`vertex ${vertex.id} has genus ${genus} among`, potentialsByGenus)
             potentials.push(...Object.values(potentialsByGenus[genus]))
           }
         }
-        console.log(`vertex ${vertex.id} has potentials`, potentials, genusOrder)
-        console.log(`Forced choice on ${vertex.id} with options`, potentials)
+        // console.log(`vertex ${vertex.id} has potentials`, potentials, genusOrder)
+        // console.log(`Forced choice on ${vertex.id} with options`, potentials)
         this.forcedChoices += 1
+        vertex.forcedChoice = true
         vertex.patternPotentials = [potentials[0]]
         vertex.finalPattern = potentials[0]
-        let updates = vertex.computeMissing()
+        let updates
+        try {
+          updates = vertex.computeMissing()
+        } catch (err) {
+          console.error(err)
+          this.error = true
+        }
         if (updates.length == 0) {
           continue
         }
@@ -546,11 +548,11 @@ class VertexGrid {
 
   getVertices() {
     let vertices = Object.values(this.vertices)
-    for (let vertex of vertices) {
-      console.log(
-        `vertex ${vertex.id} has ${vertex.patternPotentials.length} genus ${vertex.patternPotentials[0].genus}, ${vertex.finalPattern ? vertex.finalPattern.genus : null}`,
-      )
-    }
+    // for (let vertex of vertices) {
+    //   console.log(
+    //     `vertex ${vertex.id} has ${vertex.patternPotentials.length} genus ${vertex.patternPotentials[0].genus}, ${vertex.finalPattern ? vertex.finalPattern.genus : null}`,
+    //   )
+    // }
     return vertices
   }
 
@@ -563,9 +565,9 @@ class VertexGrid {
         }
         summary[vertex.finalPattern.genus] += 1
       }
-      console.log(
-        `vertex ${vertex.id} has ${vertex.patternPotentials.length} genus ${vertex.patternPotentials[0].genus}, ${vertex.finalPattern ? vertex.finalPattern.genus : null}`,
-      )
+      // console.log(
+      //   `vertex ${vertex.id} has ${vertex.patternPotentials.length} genus ${vertex.patternPotentials[0].genus}, ${vertex.finalPattern ? vertex.finalPattern.genus : null}`,
+      // )
     }
     return summary
   }
@@ -574,7 +576,7 @@ class VertexGrid {
 const gridTiling = {
   template: `
 		<g class="grid squares">
-      <g v-for="face in grid.getFaces()" class="face">
+      <g v-if="showFaces" v-for="face in grid.getFaces()" class="face">
         <path
           class="polygon"
           :data-face="face.id"
@@ -593,6 +595,13 @@ const gridTiling = {
           :style="{stroke: (debugVertexGenus && vertex.finalPattern )? {'0': 'green', '1':'blue', '2':'red'}[vertex.finalPattern.genus] : vertex.color}"
           r="2"
         />
+  			<circle
+  				v-if="showForcedVertices && vertex.forcedChoice"
+          class="stroke medium"
+          v-bind="vertex.point.cxcyProps()"
+          :style="{stroke: 'red'}"
+          r="4"
+        />
         <text
           v-if="debugVertexNumber"
           text-anchor="middle"
@@ -602,8 +611,9 @@ const gridTiling = {
           {{vertex.id}}
         </text>
       </g>
-  		<g class="debug">
-  			<text x=0 y=20>Choices forced: {{grid.forcedChoices}}</text>
+  		<g v-if="showDebugPanel" class="debug">
+  			<path :style="{fill:'white'}" d="M 0 0 L 200 0 L 200 60 L 0 60 L 0 0" />
+  			<text v-if="showForcedChoices" x=0 y=20>Choices forced: {{grid.forcedChoices}}</text>
   			<text v-if="grid.error" x=0 y=40 :style="{'fill':'red'}">Errors!</text>
   			<path v-if="debugShowBbox" class="stroke" :d="bbox.d()" />
   		</g>
@@ -633,6 +643,9 @@ const gridTiling = {
     debugVertexGenus: Boolean,
     debugShowBbox: Boolean,
     showVertices: Boolean,
+    showForcedChoices: Boolean,
+    showForcedVertices: Boolean,
+    showFaces: Boolean,
   },
   computed: {
     grid(previous) {
@@ -650,6 +663,9 @@ const gridTiling = {
       console.log('recomputing tilingPattern')
       return new TilingPattern(...this.pattern)
     },
+    showDebugPanel() {
+      return this.grid.error || this.debugShowBbox || this.showForcedChoices
+    },
   },
 }
 
@@ -662,4 +678,5 @@ export {
   uniform2Tilings,
   uniform3Tilings,
   gridTiling,
+  displayKTiling,
 }

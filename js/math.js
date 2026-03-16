@@ -30,12 +30,11 @@ function normalizeRadians(radians) {
     return radians + 2 * Math.PI
   }
   let retval = radians % (2 * Math.PI)
-  // if (Number(retval.toFixed(3)) > 2 * Math.PI) {
-  //   return 0
-  // }
   return retval
 }
 
+// output a canonical string key for a radian value, such that angles that are close enough map to the same key
+// this implemetation uses a conversion to degrees with 0.1 degree accuracy
 function normalizeRadianString(radians) {
   radians = normalizeRadians(radians)
   let degrees = radToDeg(radians)

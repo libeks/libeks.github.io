@@ -102,17 +102,13 @@
             <select v-model="tiling">
               <option disabled value="">Pick a tiling</option>
               <option disabled value="">Regular</option>
-              <option v-for="tile in regularTilings" :value="[tile]">{{tile}}</option>
+              <option v-for="tile in regularTilings" :value="tile">{{tile.string()}}</option>
               <option disabled value="">Semi-Regular</option>
-              <option v-for="tile in semiregularTilings" :value="[tile]">{{tile}}</option>
+              <option v-for="tile in semiregularTilings" :value="tile">{{tile.string()}}</option>
               <option disabled value="">2-uniform</option>
-              <option v-for="tile in uniform2Tilings" :value="tile">
-                {{displayKTiling(tile)}}
-              </option>
+              <option v-for="tile in uniform2Tilings" :value="tile">{{tile.string()}}</option>
               <option disabled value="">3-uniform</option>
-              <option v-for="tile in uniform3Tilings" :value="tile">
-                {{displayKTiling(tile)}}
-              </option>
+              <option v-for="tile in uniform3Tilings" :value="tile">{{tile.string()}}</option>
             </select>
 
             <div class="button-block">
@@ -152,6 +148,34 @@
             </div>
             <!-- <input type="checkbox" v-model.boolean="showVertexNumbers" /> -->
           </figcaption>
+        </figure>
+      </section>
+      <section>
+        <h2 id="tiling-gallery">
+          <a class="anchor" href="#tiling-gallery"></a>
+          <span>Gallery of tilings</span>
+        </h2>
+        <figure id="gallery" class="full-width">
+          <div class="flex-container">
+            <div v-for="tiling in tilings">
+              <p>{{tiling.string()}}</p>
+              <svg viewBox="0 0 300 300" width="33%">
+                <grid-tiling
+                  :bbox="bbox"
+                  :start="start"
+                  :size="20"
+                  :pattern="tiling"
+                  :iterations="-1"
+                  debug-vertex-genus
+                  show-vertices
+                  show-forced-choices
+                  show-forced-vertices
+                  show-faces
+                  show-pattern
+                ></grid-tiling>
+              </svg>
+            </div>
+          </div>
         </figure>
       </section>
       <section>
@@ -243,17 +267,13 @@
             <select v-model="tiling">
               <option disabled value="">Pick a tiling</option>
               <option disabled value="">Regular</option>
-              <option v-for="tile in regularTilings" :value="[tile]">{{tile}}</option>
+              <option v-for="tile in regularTilings" :value="tile">{{tile.string()}}</option>
               <option disabled value="">Semi-Regular</option>
-              <option v-for="tile in semiregularTilings" :value="[tile]">{{tile}}</option>
+              <option v-for="tile in semiregularTilings" :value="tile">{{tile.string()}}</option>
               <option disabled value="">2-uniform</option>
-              <option v-for="tile in uniform2Tilings" :value="tile">
-                {{displayKTiling(tile)}}
-              </option>
+              <option v-for="tile in uniform2Tilings" :value="tile">{{tile.string()}}</option>
               <option disabled value="">3-uniform</option>
-              <option v-for="tile in uniform3Tilings" :value="tile">
-                {{displayKTiling(tile)}}
-              </option>
+              <option v-for="tile in uniform3Tilings" :value="tile">{{tile.string()}}</option>
             </select>
 
             <div class="button-block">
@@ -321,7 +341,7 @@
         uniform2Tilings,
         uniform3Tilings,
         gridTiling,
-        displayKTiling,
+        // displayKTiling,
       } from '/js/grid.js'
       import { toTransform } from '/js/svg-utils.js'
       import { BBox } from '/js/bbox.js'
@@ -346,7 +366,7 @@
       createApp({
         data() {
           return {
-            tiling: ['3.3.3.3.3.3', '3.3.6.6'],
+            tiling: new TilingPattern(['3.3.3.3.3.3', '3.3.6.6']),
             debugVertices: false,
             debugFaces: false,
             debugVertexGenus: true,
@@ -368,7 +388,7 @@
           toTransform,
           BBox,
           Point,
-          displayKTiling,
+          // displayKTiling,
         },
         components: { gridTiling, toggleButton },
       }).mount('#grid1')
@@ -395,7 +415,7 @@
       createApp({
         data() {
           return {
-            tiling: ['3.3.3.3.3.3'],
+            tiling: new TilingPattern(['3.3.3.3.3.3']),
             debugVertices: false,
             debugFaces: false,
             debugVertexGenus: true,
@@ -417,10 +437,32 @@
           toTransform,
           BBox,
           Point,
-          displayKTiling,
+          // displayKTiling,
         },
         components: { gridTiling, toggleButton },
       }).mount('#grid-truchet')
+
+      createApp({
+        data() {
+          return {
+            tilings: [
+              ...regularTilings,
+              ...semiregularTilings,
+              ...uniform2Tilings,
+              ...uniform3Tilings,
+            ],
+            start: new Point(150, 150),
+            bbox: new BBox(-100, -100, 400, 400),
+          }
+        },
+        methods: {
+          toTransform,
+          BBox,
+          Point,
+          // displayKTiling,
+        },
+        components: { gridTiling, toggleButton },
+      }).mount('#gallery')
     </script>
   </body>
 </html>

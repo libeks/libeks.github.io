@@ -12,53 +12,103 @@ import { BBox } from '/js/bbox.js'
 const THRESHOLD = 0.01
 const MAX_DISTANCE = 0
 
-const regularTilings = ['3.3.3.3.3.3', '6.6.6', '4.4.4.4']
+class TilingPattern {
+  constructor(patterns, hints) {
+    // input is a list of strings, each string consists of a sequence of polygon numbers that add up to 360 degrees
+    this.patterns = Object.entries(patterns).map(([id, pattern]) => ({
+      pattern: pattern.split('.'),
+      genus: id,
+    }))
+    this.vertices = patterns
+    this.potentials = this.getPatternPotentials(...this.patterns)
+    this.hints = hints
+  }
+
+  getPatternPotentials(...patterns) {
+    // console.log('getPatternPotentials', patterns)
+    let potentials = {}
+    for (let pt of patterns) {
+      // console.log('pattern', pt)
+      let reversePattern = [...pt.pattern].reverse()
+      let pattern = pt.pattern
+      for (let i = 0; i < pt.pattern.length; i++) {
+        // console.log('reverse', reversePattern)
+        pattern = shiftPattern(pattern)
+        reversePattern = shiftPattern(reversePattern)
+        potentials[pattern.join('.')] = {
+          pattern: pattern,
+          genus: pt.genus,
+          shift: i,
+          reverse: false,
+        }
+        potentials[reversePattern.join('.')] = {
+          pattern: reversePattern,
+          genus: pt.genus,
+          shift: i,
+          reverse: true,
+        }
+      }
+    }
+    // return Array.from(potentials).map((key) => key.split('.'))
+    return Object.values(potentials)
+  }
+
+  string() {
+    return `[${this.vertices.join('; ')}]`
+  }
+}
+
+const regularTilings = [
+  new TilingPattern(['3.3.3.3.3.3']),
+  new TilingPattern(['6.6.6']),
+  new TilingPattern(['4.4.4.4']),
+]
 const semiregularTilings = [
-  '3.12.12',
-  '3.4.6.4',
-  '4.6.12',
-  '3.6.3.6',
-  '4.8.8',
-  '3.3.4.3.4',
-  '3.3.3.4.4',
-  '3.3.3.3.6', // ambiguous, can't get past the initial hex surrounded by triangles
+  new TilingPattern(['3.12.12']),
+  new TilingPattern(['3.4.6.4']),
+  new TilingPattern(['4.6.12']), // causes infinite loop without reverse pattern
+  new TilingPattern(['3.6.3.6']),
+  new TilingPattern(['4.8.8']),
+  new TilingPattern(['3.3.4.3.4']),
+  new TilingPattern(['3.3.3.4.4']),
+  new TilingPattern(['3.3.3.3.6']), // ambiguous, can't get past the initial hex surrounded by triangles
 ]
 const planeVertexTilings = [
-  '3.3.4.12',
-  '3.4.3.12',
-  '3.3.6.6',
-  '3.4.4.6',
-  '3.7.42',
-  '3.8.24',
-  '3.9.18',
-  '3.10.15',
-  '3.12.12',
-  '4.5.20',
-  '4.6.12',
-  '5.5.10',
+  new TilingPattern(['3.3.4.12']),
+  new TilingPattern(['3.4.3.12']),
+  new TilingPattern(['3.3.6.6']),
+  new TilingPattern(['3.4.4.6']),
+  new TilingPattern(['3.7.42']),
+  new TilingPattern(['3.8.24']),
+  new TilingPattern(['3.9.18']),
+  new TilingPattern(['3.10.15']),
+  new TilingPattern(['3.12.12']),
+  new TilingPattern(['4.5.20']),
+  new TilingPattern(['4.6.12']),
+  new TilingPattern(['5.5.10']),
 ]
 
 const uniform2Tilings = [
-  ['3.3.3.3.3.3', '3.3.4.3.4'], // broken
-  ['3.4.6.4', '3.3.4.3.4'], // broken
-  ['3.4.6.4', '3.3.3.4.4'],
-  ['3.4.6.4', '3.4.4.6'], // broken
-  ['4.6.12', '3.4.6.4'],
-  ['3.3.3.3.3.3', '3.3.4.12'],
-  ['3.12.12', '3.4.3.12'], // broken
-  ['3.3.3.3.3.3', '3.3.6.6'],
-  ['3.3.6.6', '3.3.3.3.6'], // broken
-  ['3.6.3.6', '3.3.6.6'],
+  new TilingPattern(['3.3.3.3.3.3', '3.3.4.3.4']), // broken
+  new TilingPattern(['3.4.6.4', '3.3.4.3.4']), // broken
+  new TilingPattern(['3.4.6.4', '3.3.3.4.4']),
+  new TilingPattern(['3.4.6.4', '3.4.4.6']), // broken
+  new TilingPattern(['4.6.12', '3.4.6.4']),
+  new TilingPattern(['3.3.3.3.3.3', '3.3.4.12']),
+  new TilingPattern(['3.12.12', '3.4.3.12']), // broken
+  new TilingPattern(['3.3.3.3.3.3', '3.3.6.6']),
+  new TilingPattern(['3.3.6.6', '3.3.3.3.6']), // broken
+  new TilingPattern(['3.6.3.6', '3.3.6.6']),
 ]
 
 const uniform3Tilings = [
-  ['3.4.4.6', '3.6.3.6', '4.6.12'], // broken
-  ['3.3.3.3.3.3', '3.3.4.12', '4.6.12'],
-  ['3.3.4.12', '3.4.6.4', '3.12.12'],
-  ['3.4.3.12', '3.4.6.4', '3.12.12'], // broken
-  ['3.3.3.4.4', '3.3.4.12', '3.4.6.4'], // broken
-  ['3.3.3.3.3.3', '3.3.3.4.4', '3.3.4.12'], // broken
-  ['3.3.3.3.3.3', '3.3.4.3.4', '3.3.4.12'],
+  new TilingPattern(['3.4.4.6', '3.6.3.6', '4.6.12']), // broken
+  new TilingPattern(['3.3.3.3.3.3', '3.3.4.12', '4.6.12']),
+  new TilingPattern(['3.3.4.12', '3.4.6.4', '3.12.12']),
+  new TilingPattern(['3.4.3.12', '3.4.6.4', '3.12.12']), // broken
+  new TilingPattern(['3.3.3.4.4', '3.3.4.12', '3.4.6.4']), // broken
+  new TilingPattern(['3.3.3.3.3.3', '3.3.3.4.4', '3.3.4.12']), // broken
+  new TilingPattern(['3.3.3.3.3.3', '3.3.4.3.4', '3.3.4.12']),
 ]
 
 class NGon {
@@ -137,53 +187,13 @@ class RotatedFace {
   }
 }
 
-class TilingPattern {
-  constructor(...patterns) {
-    // input is a list of strings, each string consists of a sequence of polygon numbers that add up to 360 degrees
-    this.patterns = Object.entries(patterns).map(([id, pattern]) => ({
-      pattern: pattern.split('.'),
-      genus: id,
-    }))
-    this.potentials = getPatternPotentials(...this.patterns)
-  }
-}
-
-function displayKTiling(tiling) {
-  return `[${tiling.join('; ')}]`
-}
+// function displayKTiling(tiling) {
+//   return `[${tiling.join('; ')}]`
+// }
 
 function shiftPattern(pattern) {
   // console.log(pattern)
   return [pattern[pattern.length - 1], ...pattern.slice(0, pattern.length - 1)]
-}
-
-function getPatternPotentials(...patterns) {
-  // console.log('getPatternPotentials', patterns)
-  let potentials = {}
-  for (let pt of patterns) {
-    // console.log('pattern', pt)
-    let reversePattern = [...pt.pattern].reverse()
-    let pattern = pt.pattern
-    for (let i = 0; i < pt.pattern.length; i++) {
-      // console.log('reverse', reversePattern)
-      pattern = shiftPattern(pattern)
-      reversePattern = shiftPattern(reversePattern)
-      potentials[pattern.join('.')] = {
-        pattern: pattern,
-        genus: pt.genus,
-        shift: i,
-        reverse: false,
-      }
-      potentials[reversePattern.join('.')] = {
-        pattern: reversePattern,
-        genus: pt.genus,
-        shift: i,
-        reverse: true,
-      }
-    }
-  }
-  // return Array.from(potentials).map((key) => key.split('.'))
-  return Object.values(potentials)
 }
 
 class Vertex {
@@ -395,6 +405,7 @@ class VertexGrid {
   generate() {
     this.vertices[0] = new Vertex(0, this.start, this.pattern)
     let angle = this.angle
+    console.log(this.pattern.patterns)
     for (let n of this.pattern.patterns[0].pattern.map((val) => Number(val))) {
       let face = new NGon({ n, side: this.size, angle, firstVertex: this.vertices[0] })
       let oldAngle = face.vertexAngle
@@ -575,7 +586,7 @@ class VertexGrid {
 
 const gridTiling = {
   template: `
-		<g class="grid squares">
+    <g class="grid squares">
       <g v-if="showFaces" v-for="face in grid.getFaces()" class="face">
         <path
           class="polygon"
@@ -589,14 +600,14 @@ const gridTiling = {
       </g>
       <g v-for="vertex in grid.getVertices()">
         <circle
-  				v-if="showVertices"
+          v-if="showVertices"
           class="stroke medium"
           v-bind="vertex.point.cxcyProps()"
-          :style="{stroke: (debugVertexGenus && vertex.finalPattern )? {'0': 'green', '1':'blue', '2':'red'}[vertex.finalPattern.genus] : vertex.color}"
+          :style="{stroke: (debugVertexGenus && vertex.finalPattern )? ['green', 'blue', 'red', 'orange', 'purple', 'cyan'][vertex.finalPattern.genus] : vertex.color}"
           r="2"
         />
-  			<circle
-  				v-if="showForcedVertices && vertex.forcedChoice"
+        <circle
+          v-if="showForcedVertices && vertex.forcedChoice"
           class="stroke medium"
           v-bind="vertex.point.cxcyProps()"
           :style="{stroke: 'red'}"
@@ -611,14 +622,15 @@ const gridTiling = {
           {{vertex.id}}
         </text>
       </g>
-  		<g v-if="showDebugPanel" class="debug">
-  			<path :style="{fill:'white'}" d="M 0 0 L 200 0 L 200 60 L 0 60 L 0 0" />
-  			<text v-if="showForcedChoices" x=0 y=20>Choices forced: {{grid.forcedChoices}}</text>
-  			<text v-if="grid.error" x=0 y=40 :style="{'fill':'red'}">Errors!</text>
-  			<path v-if="debugShowBbox" class="stroke" :d="bbox.d()" />
-  		</g>
+      <g v-if="showDebugPanel" class="debug">
+        <path :style="{fill:'white'}" d="M 0 0 L 200 0 L 200 80 L 0 80 L 0 0" />
+        <text v-if="showForcedChoices" x=0 y=20>Choices forced: {{grid.forcedChoices}}</text>
+        <text v-if="showPattern" x=0 y=40>{{pattern.string()}}</text>
+        <text v-if="grid.error" x=0 y=60 :style="{'fill':'red'}">Errors!</text>
+        <path v-if="debugShowBbox" class="stroke" :d="bbox.d()" />
+      </g>
     </g>
-		`,
+    `,
   props: {
     pattern: Object,
     bbox: Object,
@@ -646,6 +658,7 @@ const gridTiling = {
     showForcedChoices: Boolean,
     showForcedVertices: Boolean,
     showFaces: Boolean,
+    showPattern: Boolean,
   },
   computed: {
     grid(previous) {
@@ -655,14 +668,15 @@ const gridTiling = {
         start: this.start,
         size: this.size,
         angle: this.angle,
-        pattern: this.tilingPattern,
+        // pattern: this.tilingPattern,
+        pattern: this.pattern,
         iterations: this.iterations,
       }).generate()
     },
-    tilingPattern() {
-      console.log('recomputing tilingPattern')
-      return new TilingPattern(...this.pattern)
-    },
+    // tilingPattern() {
+    //   console.log('recomputing tilingPattern')
+    //   return new TilingPattern(...this.pattern)
+    // },
     showDebugPanel() {
       return this.grid.error || this.debugShowBbox || this.showForcedChoices
     },
@@ -678,5 +692,5 @@ export {
   uniform2Tilings,
   uniform3Tilings,
   gridTiling,
-  displayKTiling,
+  // displayKTiling,
 }

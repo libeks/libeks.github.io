@@ -44,7 +44,7 @@
           <a class="anchor" href="#purpose"></a>
           <span>Purpose</span>
         </h2>
-        <div class="flex-container">
+        <div class="text-figure">
           <p>
             While working on
             <a href="https://en.wikipedia.org/wiki/Truchet_tile">Truchet tiles</a> and
@@ -108,7 +108,7 @@
           coordinate system to use is not a trivial decision. As mentioned above, the choices for
           hexagons are many, one should choose the coordinate system that works best.
         </p>
-        <div class="flex-container">
+        <div class="text-figure">
           <p>
             What about triangles though? The plane can be partitioned into equilateral triangles
             trivially. Here I orient them such that one edge is horizontal. I get two triangle
@@ -151,7 +151,7 @@
           <a class="anchor" href="#xyr"></a>
           <span>Skewed-square Grid : xyR</span>
         </h2>
-        <div class="flex-container">
+        <div class="text-figure">
           <p>
             For this first coordinate grid, we take the square grid, and skew it so that it forms a
             grid of parallelogram with 60&#xb0;-120&#xb0; angles. We then split each parallelogram
@@ -222,7 +222,7 @@
             </svg>
           </figure>
         </div>
-        <div class="flex-container">
+        <div class="text-figure">
           <p>
             The resulting grid sets the triangles with the same x-coordinate on an angle, which
             leads to some awkwardness. For example, the trivial for-loop to generate the grid
@@ -294,7 +294,7 @@
             ><mo>}</mo></math
           >.
         </p>
-        <div class="flex-container">
+        <div class="text-figure">
           <div>
             <p>
               What about determining whether two triangles are next to each other? For this we look
@@ -419,7 +419,7 @@
           <a class="anchor" href="#xyz"></a>
           <span>Three-axis Grid: xyz</span>
         </h2>
-        <div class="flex-container">
+        <div class="text-figure">
           <p>
             Another idea is to notice that each triangle lives on three separate axis. As shown
             above, the triangles with the same x-value appear on a diagonal, whereas triangles with
@@ -438,7 +438,7 @@
           </math>
           space; the dimensions have to have a constraint.
         </p>
-        <div class="flex-container">
+        <div class="text-figure">
           <div>
             <p>
               To discover what this constraint is, let's look at how the coordinates would change in
@@ -580,7 +580,7 @@
           </figure>
         </div>
 
-        <div class="flex-container">
+        <div class="text-figure">
           <div>
             <p>
               Here is the resulting grid, rendered using the xyR for-loop above, then converting the
@@ -652,7 +652,7 @@
             </svg>
           </figure>
         </div>
-        <div class="flex-container">
+        <div class="text-figure">
           <div>
             <p>
               What is great about this representation is that calculating the distance between two
@@ -730,7 +730,7 @@
           <a class="anchor" href="#yb"></a>
           <span>The row-column coordinate system: yb</span>
         </h2>
-        <div class="flex-container">
+        <div class="text-figure">
           <p>
             Finally, we notice that our triangles are arranged in diamond-shaped columns, so we
             wonder if there is a way to express the coordinates of a triangle with a two-dimensional
@@ -794,7 +794,7 @@
             </svg>
           </figure>
         </div>
-        <div class="flex-container">
+        <div class="text-figure">
           <p>
             However, while this representation is very easy to loop over, we might want to translate
             back to the xyR or xyz coordinate system for other purposes. Turns out that this
@@ -826,7 +826,7 @@
             </div>
           </div>
         </div>
-        <div class="flex-container">
+        <div class="text-figure">
           <p>
             Just as before, we want to consider adjacency. Notice that triangles along a b-column
             vary in the y-coordinate by one, whereas the distance changes more than that.

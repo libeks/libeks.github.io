@@ -27,7 +27,7 @@
           <a class="anchor" href="#rectangular-simple-tile"></a>
           <span>N-gons</span>
         </h2>
-        <div class="flex-container">
+        <div class="text-figure">
           <p>
             To start, let's make a class that can render any regular n-gon. This will come in handy
             later.
@@ -156,10 +156,10 @@
           <span>Gallery of tilings</span>
         </h2>
         <figure id="gallery" class="full-width">
-          <div class="flex-container">
-            <div v-for="tiling in tilings">
+          <div class="flex-container" style="display: flex; gap: 2em; flex-wrap: wrap">
+            <div v-for="tiling in tilings" style="width: 30%">
               <p>{{tiling.string()}}</p>
-              <svg viewBox="0 0 300 300" width="33%">
+              <svg viewBox="0 0 300 300">
                 <grid-tiling
                   :bbox="bbox"
                   :start="start"
@@ -171,7 +171,6 @@
                   show-forced-choices
                   show-forced-vertices
                   show-faces
-                  show-pattern
                 ></grid-tiling>
               </svg>
             </div>
@@ -183,7 +182,7 @@
           <a class="anchor" href="#truchet-on-k-uniform-tilings"></a>
           <span>Truchet Tiles on k-uniform Tilings</span>
         </h2>
-        <div class="flex-container">
+        <div class="text-figure">
           <p>
             The idea now is as follows. Since I'm working with n-gons, and since I've already worked
             on <a href="/articles/triangle-truchet.html">Triangular</a> and
@@ -353,8 +352,8 @@
       createApp({
         data() {
           return {
-            polygons: [3, 4, 5, 6, 7, 8, 10, 12, 15].map(
-              (n) => new NGon({ n, side: 20, angleFraction: 0.5 }),
+            polygons: ['3', '4', '5', '6', '7', '8', '10', '12', '15'].map(
+              (tile) => new NGon({ tile, side: 20, angleFraction: 0.5 }),
             ),
           }
         },
@@ -366,7 +365,8 @@
       createApp({
         data() {
           return {
-            tiling: new TilingPattern(['3.3.3.3.3.3', '3.3.6.6']),
+            tiling: new TilingPattern(['3a.3a.4.3b.4', '3a.3a.3a.3a.3a.3a']),
+            // tiling: new TilingPattern(['3.3.3.3.3.3', '3.3.6.6']),
             debugVertices: false,
             debugFaces: false,
             debugVertexGenus: true,
@@ -396,7 +396,7 @@
       createApp({
         data() {
           return {
-            triangle: new NGon({ n: 3, side: 100, center: new Point(75, 50) }),
+            triangle: new NGon({ tile: '3', side: 100, center: new Point(75, 50) }),
             notch1: 0.33,
             notch2: 0.66,
           }
@@ -412,35 +412,35 @@
         // components: { gridTiling, toggleButton },
       }).mount('#triangle-control-points')
 
-      createApp({
-        data() {
-          return {
-            tiling: new TilingPattern(['3.3.3.3.3.3']),
-            debugVertices: false,
-            debugFaces: false,
-            debugVertexGenus: true,
-            regularTilings,
-            semiregularTilings,
-            uniform2Tilings,
-            uniform3Tilings,
-            showVertexNumbers: false,
-            showFaceNumbers: false,
-            showBBox: false,
-            start: new Point(500, 250),
-            bbox: new BBox(-200, -100, 1200, 600),
-            // bbox: new BBox(200, 100, 800, 400),
-            showVertices: true,
-            showFaces: true,
-          }
-        },
-        methods: {
-          toTransform,
-          BBox,
-          Point,
-          // displayKTiling,
-        },
-        components: { gridTiling, toggleButton },
-      }).mount('#grid-truchet')
+      // createApp({
+      //   data() {
+      //     return {
+      //       tiling: new TilingPattern(['3.3.3.3.3.3']),
+      //       debugVertices: false,
+      //       debugFaces: false,
+      //       debugVertexGenus: true,
+      //       regularTilings,
+      //       semiregularTilings,
+      //       uniform2Tilings,
+      //       uniform3Tilings,
+      //       showVertexNumbers: false,
+      //       showFaceNumbers: false,
+      //       showBBox: false,
+      //       start: new Point(500, 250),
+      //       bbox: new BBox(-200, -100, 1200, 600),
+      //       // bbox: new BBox(200, 100, 800, 400),
+      //       showVertices: true,
+      //       showFaces: true,
+      //     }
+      //   },
+      //   methods: {
+      //     toTransform,
+      //     BBox,
+      //     Point,
+      //     // displayKTiling,
+      //   },
+      //   components: { gridTiling, toggleButton },
+      // }).mount('#grid-truchet')
 
       createApp({
         data() {

@@ -73,7 +73,7 @@ section {
   padding-bottom: 3em;
 }
 
-div.flex-container {
+div.text-figure {
   display: inline-flex;
   gap: 2em;
   flex-direction: row;

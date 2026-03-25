@@ -89,20 +89,20 @@ const planeVertexTilings = [
 ]
 
 const uniform2Tilings = [
-  new TilingPattern(['3.3.3.3.3.3', '3.3.4.3.4']), // broken
-  new TilingPattern(['3.4.6.4', '3.3.4.3.4']), // broken
+  new TilingPattern(['3a.3a.3a.3a.3a.3a', '3a.3a.4.3b.4']),
+  new TilingPattern(['3a.4.6.4', '3a.3a.4.3b.4']),
   new TilingPattern(['3.4.6.4', '3.3.3.4.4']),
-  new TilingPattern(['3.4.6.4', '3.4.4.6']), // broken
+  new TilingPattern(['3.4a.6a.4a', '3.4a.4b.6b']),
   new TilingPattern(['4.6.12', '3.4.6.4']),
   new TilingPattern(['3.3.3.3.3.3', '3.3.4.12']),
   new TilingPattern(['3.12.12', '3.4.3.12']), // broken
   new TilingPattern(['3.3.3.3.3.3', '3.3.6.6']),
-  new TilingPattern(['3.3.6.6', '3.3.3.3.6']), // broken
+  new TilingPattern(['3.3.6.6', '3.3.3.3.6']), // broken, needs face hint
   new TilingPattern(['3.6.3.6', '3.3.6.6']),
 ]
 
 const uniform3Tilings = [
-  new TilingPattern(['3.4.4.6', '3.6.3.6', '4.6.12']), // broken
+  new TilingPattern(['3a.4a.4b.6', '4a.6.12', '3a.6.3b.6']), // broken, shuffled order, needs face hint
   new TilingPattern(['3.3.3.3.3.3', '3.3.4.12', '4.6.12']),
   new TilingPattern(['3.3.4.12', '3.4.6.4', '3.12.12']),
   new TilingPattern(['3.4.3.12', '3.4.6.4', '3.12.12']), // broken
@@ -112,11 +112,15 @@ const uniform3Tilings = [
 ]
 
 class NGon {
-  constructor({ n, side, angleFraction, angle, center, firstVertex }) {
+  constructor({ tile, side, angleFraction, angle, center, firstVertex }) {
     // center is assumed to be the origin
+    this.tile = tile
+    let { n, genus } = NGon.getNGenus(tile)
     this.n = n
+    this.genus = genus
     this.side = side
     this.angle = 0
+
     this.alphaDeg = 360 / this.n
     this.alphaRad = degToRad(this.alphaDeg)
 
@@ -141,6 +145,15 @@ class NGon {
     }
   }
 
+  static getNGenus(input) {
+    const regex = /^(\d+)(\D?)$/ // match things like '12', '3', '6a', '6b'
+    let [_, n, genus] = input.match(regex)
+    if (genus == '') {
+      genus = 'a'
+    }
+    return { n: Number(n), genus }
+  }
+
   get vertices() {
     let vertices = []
     for (let i = 0; i < this.n; i++) {
@@ -160,9 +173,21 @@ class NGon {
   }
 
   get color() {
-    const colorMap = { 3: 'yellow', 4: 'red', 6: 'lime', 8: 'orange' }
-    if (this.n in colorMap) {
-      return colorMap[this.n]
+    const colorHue = {
+      3: 60, // yellow
+      4: 0, // red
+      6: 120, // lime
+      8: 39, // orange
+      12: 240, // blue
+    }
+    const colorLuma = {
+      a: 50,
+      b: 20,
+      c: 80,
+    }
+    if (this.n in colorHue) {
+      let hue = colorHue[this.n]
+      return `hsl(${hue} 100% ${colorLuma[this.genus]}%)`
     }
     return 'blue'
   }
@@ -250,6 +275,11 @@ class Vertex {
     if (this.faces.length == 0) {
       throw `Cannot refine vertex with no faces`
     }
+    if (this.faces.length == this.validFor) {
+      // early exit, nothing to recompute
+      console.log('early exit')
+      return
+    }
     if (this.patternPotentials.length < 2) {
       // there is nothing to refine
       // if (!this.finalPattern) {
@@ -257,11 +287,12 @@ class Vertex {
       // }
       return
     }
+    // console.log(`vertex ${this.id} has faces ${this.faces.map((face) => face[0].face.tile)}`)
     let firstAngle = normalizeRadians(this.faces[0][2])
     let newPatterns = []
     let faceAngles = {}
     for (let [face, _, angle] of this.faces) {
-      faceAngles[`${face.face.n}:${normalizeRadianString(angle)}`] = [face, angle]
+      faceAngles[`${face.face.tile}:${normalizeRadianString(angle)}`] = [face, angle]
     }
     // console.log(`vertex ${this.id} faceAngles`, faceAngles)
     let faceAngleSet = new Set(Object.keys(faceAngles))
@@ -269,11 +300,14 @@ class Vertex {
     for (let pat of this.patternPotentials) {
       let angle = firstAngle
       let patternAngles = {}
-      for (let n of pat.pattern) {
-        let key = `${n}:${normalizeRadianString(angle)}`
-        patternAngles[`${n}:${normalizeRadianString(angle)}`] = n
+      for (let tile of pat.pattern) {
+        let key = `${tile}:${normalizeRadianString(angle)}`
+        let { n, genus } = NGon.getNGenus(tile)
+        patternAngles[key] = tile
         angle = normalizeRadians(angle + degToRad(180 - 360 / n))
+        // console.log('angle', angle)
       }
+      // console.log('patternAngles', patternAngles)
       let patternAngleSet = new Set(Object.keys(patternAngles))
       if (faceAngleSet.difference(patternAngleSet).size == 0) {
         // console.log(`setting vertex ${this.id} patterns to ${pat}`)
@@ -292,8 +326,10 @@ class Vertex {
     // )
     if (newPatterns.length == 1) {
       this.finalPattern = newPatterns[0]
+      // console.log(`vertex ${this.id} has got final pattern ${this.finalPattern.pattern}`)
     }
     this.patternPotentials = newPatterns
+    this.validFor = this.faces.length
   }
 
   computeMissing() {
@@ -308,13 +344,14 @@ class Vertex {
     let firstAngle = normalizeRadians(this.faces[0][2])
     let faceAngles = {}
     for (let [face, _, angle] of this.faces) {
-      faceAngles[`${face.face.n}:${normalizeRadianString(angle)}`] = [face, angle]
+      faceAngles[`${face.face.tile}:${normalizeRadianString(angle)}`] = [face, angle]
     }
     let faceAngleSet = new Set(Object.keys(faceAngles))
     let angle = firstAngle
     let patternAngles = {}
-    for (let n of this.patternPotentials[0].pattern) {
-      patternAngles[`${n}:${normalizeRadianString(angle)}`] = [n, angle]
+    for (let tile of this.patternPotentials[0].pattern) {
+      let { n, genus } = NGon.getNGenus(tile)
+      patternAngles[`${tile}:${normalizeRadianString(angle)}`] = [tile, angle]
       angle = normalizeRadians(angle + degToRad(180 - 360 / n))
     }
     let patternAngleSet = new Set(Object.keys(patternAngles))
@@ -405,9 +442,10 @@ class VertexGrid {
   generate() {
     this.vertices[0] = new Vertex(0, this.start, this.pattern)
     let angle = this.angle
-    console.log(this.pattern.patterns)
-    for (let n of this.pattern.patterns[0].pattern.map((val) => Number(val))) {
-      let face = new NGon({ n, side: this.size, angle, firstVertex: this.vertices[0] })
+    // console.log(this.pattern.patterns)
+    for (let tile of this.pattern.patterns[0].pattern) {
+      // console.log('generate', tile)
+      let face = new NGon({ tile, side: this.size, angle, firstVertex: this.vertices[0] })
       let oldAngle = face.vertexAngle
       angle += face.vertexAngle
       this.addFace(face, oldAngle, angle)
@@ -447,8 +485,9 @@ class VertexGrid {
           if (updates.length == 0) {
             continue
           }
-          for (let [n, angle] of updates) {
-            let face = new NGon({ n, side: this.size, angle, firstVertex: vertex })
+          for (let [tile, angle] of updates) {
+            // console.log('generate2', tile)
+            let face = new NGon({ tile, side: this.size, angle, firstVertex: vertex })
             try {
               this.addFace(face, angle, 0)
             } catch (err) {
@@ -479,7 +518,7 @@ class VertexGrid {
           }
           verticesByDeficit[deficit].push(vertex)
         }
-        let minDeficit = Math.min(...Object.keys(verticesByDeficit).map((key) => Number(key)))
+        let minDeficit = Math.min(...Object.keys(verticesByDeficit))
         if (!verticesByDeficit[minDeficit]) {
           continue
         }
@@ -535,8 +574,9 @@ class VertexGrid {
         if (updates.length == 0) {
           continue
         }
-        for (let [n, angle] of updates) {
-          let face = new NGon({ n, side: this.size, angle, firstVertex: vertex })
+        for (let [tile, angle] of updates) {
+          // console.log('generate3', tile)
+          let face = new NGon({ tile, side: this.size, angle, firstVertex: vertex })
           try {
             this.addFace(face, angle, 0)
           } catch (err) {
@@ -603,7 +643,7 @@ const gridTiling = {
           v-if="showVertices"
           class="stroke medium"
           v-bind="vertex.point.cxcyProps()"
-          :style="{stroke: (debugVertexGenus && vertex.finalPattern )? ['green', 'blue', 'red', 'orange', 'purple', 'cyan'][vertex.finalPattern.genus] : vertex.color}"
+          :style="{stroke: (debugVertexGenus && vertex.finalPattern )? ['green', 'blue', 'red'][vertex.finalPattern.genus] : vertex.color}"
           r="2"
         />
         <circle
@@ -662,7 +702,7 @@ const gridTiling = {
   },
   computed: {
     grid(previous) {
-      console.log('recomputing computed', previous)
+      // console.log('recomputing computed', previous)
       return new VertexGrid({
         bbox: this.bbox,
         start: this.start,

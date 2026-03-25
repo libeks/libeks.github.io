@@ -41,7 +41,7 @@
             <a class="anchor" href="#triangle-rotation"></a>
             <span>Triangle rotation</span>
           </h3>
-          <div class="flex-container">
+          <div class="text-figure">
             <p>
               As an aside, let me tell you about rotating triangles. When working with triangular
               grids, you'll find yourself wanting to rotate a triangle both at 180° (flip it upside
@@ -123,7 +123,7 @@
             <a class="anchor" href="#simple-truchet-tile"></a>
             <span>Simple Truchet Tile</span>
           </h3>
-          <div class="flex-container">
+          <div class="text-figure">
             <p>
               Surely, we could extend this idea to equilateral triangles, since they, too, can tile
               the plane beautifully! The first problem is that a triangle has three sides, so we
@@ -201,7 +201,7 @@
             <a class="anchor" href="#circular-curves"></a>
             <span>Circular curves</span>
           </h3>
-          <div class="flex-container">
+          <div class="text-figure">
             <p>
               What we really want is to ensure that lines continue throughout the plot, like we see
               in the Rectangular grids above. For this, we can outline two points (or "notches") on
@@ -348,7 +348,7 @@
             tile perpendicularly. Luckily, so long as we keep the first and last Bézier edge
             perpendicular to the tile edge, this should work!
           </p>
-          <div class="flex-container">
+          <div class="text-figure">
             <p>
               For this, it might be helpful to talk about the measurements of the triangle. I've
               decided that it would be best to handle a triangle that has side length of 100 units.
@@ -518,7 +518,7 @@
               </figcaption>
             </figure>
           </div>
-          <div class="flex-container">
+          <div class="text-figure">
             <p>
               Finally, it is helpful to know that Bézier curves are contained within the convex
               polygon outlined by its control points, and the normal vector at each endpoint is
@@ -559,7 +559,7 @@
               </figcaption>
             </figure>
           </div>
-          <div class="flex-container">
+          <div class="text-figure">
             <p>
               So let's take a look at the five tiles using Bézier curves. They look much neater this
               time!
@@ -633,7 +633,7 @@
             <a class="anchor" href="#intersecting-connections"></a>
             <span>Intersecting connections</span>
           </h3>
-          <div class="flex-container">
+          <div class="text-figure">
             <p>
               We of course don't need to restrict ourselves to non-intersecting segments. We can
               start by naively letting them cross all over the place. The number of such unique
@@ -681,7 +681,7 @@
               </figcaption>
             </figure>
           </div>
-          <div class="flex-container">
+          <div class="text-figure">
             <p>
               We merely have to iterate over all possible combinations. I list the tiles vertically,
               starting with ones beginning with "12", then "13", and so on.
@@ -726,7 +726,7 @@
           <a class="anchor" href="#four-notch-triangles"></a>
           <span>Triangular grid with 4 notches</span>
         </h2>
-        <div class="flex-container">
+        <div class="text-figure">
           <p>
             We can try to expand the triangular tiles by etching four instead of two notches on
             every side. This will result in twelve notches in total, which makes 6 pairs of notches
@@ -1000,7 +1000,7 @@
             </figcaption>
           </figure>
         </div>
-        <div class="flex-container">
+        <div class="text-figure">
           <p>
             Figuring out how to connect all of the curves is not very trivial. I start off by
             connecting all pairs of notches that show axial symmetry along one of the heights of the
@@ -1155,7 +1155,7 @@
             </figcaption>
           </figure>
         </div>
-        <div class="flex-container">
+        <div class="text-figure">
           <p>
             Next, we have to consider the remaining curves on only one side of the height of the
             triangle, which only leaves two remaining curves. Again, I chose Quadratic and Cubic

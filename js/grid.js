@@ -97,17 +97,19 @@ const uniform2Tilings = [
   new TilingPattern(['3.3.3.3.3.3', '3.3.4.12']),
   new TilingPattern(['3.12.12', '3.4.3.12']), // broken
   new TilingPattern(['3.3.3.3.3.3', '3.3.6.6']),
-  new TilingPattern(['3.3.6.6', '3.3.3.3.6']), // broken, needs face hint
+  new TilingPattern(['3.3.6.6', '3.3.3.3.6'], { faces: { 3: [0, 1, 1], 6: [0, 0, 1, 0, 0, 1] } }), // broken, needs face hint
   new TilingPattern(['3.6.3.6', '3.3.6.6']),
+  new TilingPattern(['3a.3b.3a.4a.4a', '3a.3b.4a.3a.4b']),
+  new TilingPattern(['3a.3b.4.3a.4', '3a.3a.3b.4.4']), // flipped order, needs face hint
 ]
 
 const uniform3Tilings = [
-  new TilingPattern(['3a.4a.4b.6', '4a.6.12', '3a.6.3b.6']), // broken, shuffled order, needs face hint
-  new TilingPattern(['3.3.3.3.3.3', '3.3.4.12', '4.6.12']),
-  new TilingPattern(['3.3.4.12', '3.4.6.4', '3.12.12']),
-  new TilingPattern(['3.4.3.12', '3.4.6.4', '3.12.12']), // broken
-  new TilingPattern(['3.3.3.4.4', '3.3.4.12', '3.4.6.4']), // broken
-  new TilingPattern(['3.3.3.3.3.3', '3.3.3.4.4', '3.3.4.12']), // broken
+  new TilingPattern(['3a.4b.4a.6', '4a.6.12', '3a.6.3b.6']), // broken, shuffled order, needs face hint
+  new TilingPattern(['3a.3b.3a.3b.3a.3b', '3a.3b.4.12', '4.6.12']),
+  new TilingPattern(['3a.3b.4.12', '3b.4.6.4', '3a.12.12']),
+  new TilingPattern(['3a.4.3b.12', '3b.4.6.4', '3a.12.12']), // broken
+  new TilingPattern(['3a.3b.3a.4b.4b', '3b.3a.4a.12', '3a.4a.6.4b']), // broken
+  new TilingPattern(['3a.3b.3c.3d.3c.3b', '3b.3c.3b.4.4', '3a.3b.4.12']), // broken
   new TilingPattern(['3.3.3.3.3.3', '3.3.4.3.4', '3.3.4.12']),
 ]
 
@@ -212,12 +214,7 @@ class RotatedFace {
   }
 }
 
-// function displayKTiling(tiling) {
-//   return `[${tiling.join('; ')}]`
-// }
-
 function shiftPattern(pattern) {
-  // console.log(pattern)
   return [pattern[pattern.length - 1], ...pattern.slice(0, pattern.length - 1)]
 }
 
@@ -227,7 +224,6 @@ class Vertex {
     this.point = point
     this.pattern = pattern
     this.patternPotentials = pattern.potentials
-    // console.log(`vertex ${id} patternPotentials`, this.patternPotentials)
     this.faces = []
     this.neighbors = {}
     this.finalPattern = null
@@ -599,11 +595,6 @@ class VertexGrid {
 
   getVertices() {
     let vertices = Object.values(this.vertices)
-    // for (let vertex of vertices) {
-    //   console.log(
-    //     `vertex ${vertex.id} has ${vertex.patternPotentials.length} genus ${vertex.patternPotentials[0].genus}, ${vertex.finalPattern ? vertex.finalPattern.genus : null}`,
-    //   )
-    // }
     return vertices
   }
 
@@ -616,9 +607,6 @@ class VertexGrid {
         }
         summary[vertex.finalPattern.genus] += 1
       }
-      // console.log(
-      //   `vertex ${vertex.id} has ${vertex.patternPotentials.length} genus ${vertex.patternPotentials[0].genus}, ${vertex.finalPattern ? vertex.finalPattern.genus : null}`,
-      // )
     }
     return summary
   }
@@ -702,21 +690,15 @@ const gridTiling = {
   },
   computed: {
     grid(previous) {
-      // console.log('recomputing computed', previous)
       return new VertexGrid({
         bbox: this.bbox,
         start: this.start,
         size: this.size,
         angle: this.angle,
-        // pattern: this.tilingPattern,
         pattern: this.pattern,
         iterations: this.iterations,
       }).generate()
     },
-    // tilingPattern() {
-    //   console.log('recomputing tilingPattern')
-    //   return new TilingPattern(...this.pattern)
-    // },
     showDebugPanel() {
       return this.grid.error || this.debugShowBbox || this.showForcedChoices
     },

@@ -57,27 +57,56 @@
           <a
             href="https://en.wikipedia.org/wiki/Euclidean_tilings_by_convex_regular_polygons#Archimedean,_uniform_or_semiregular_tilings"
             >semi-regular tiling</a
-          >. The approach is as follows:
+          >. First, some notation. Each tiling is represented with its vertex notation. The idea is
+          simple, for each type (or genus) of vertex, I list the n-gons that appear around this
+          vertex. So '3.4.6.4' means that that genus of vertex has a triangle, a square, a hexagon,
+          and a square, in that order. Further on in the list, there are cases where the same n-gon
+          can appear in multiple circumstances, in which case I use letter suffixes to differentiate
+          between them. So '3a.3a.3b.3a.6' means that there are two types of triangles, '3a' and
+          '3b', and they must appear in this order.
         </p>
         <ul>
           <li>Pick a point, this will be the initial vertex.</li>
-          <li>Surround that vertex by the polygons contained in the pattern</li>
           <li>
-            For each new vertex, consider whether there is only one way to fill in the remaining
-            gaps with polygons such that the pattern would be preserved. If so, add such polygons,
-            which will inevitably produce new vertices.
+            Surround that vertex by the polygons contained in the pattern for that vertex. Usually
+            this is the first pattern in the vertex notation, but in certain cases the algorithm
+            works better if I choose the second or third pattern.
           </li>
-          <li>Rinse and repeat until the viewport is filled</li>
+          <li>Now iterate like so:</li>
+          <ul>
+            <li>
+              For each incomplete vertex, iterate over its possible vertex patterns and validate
+              that the pattern still applies. If only one possibility remains, populate the vertex
+              with the missing n-gons.
+            </li>
+            <li>
+              (If face hints are provided) For each incomplete face, iterate over its face hints to
+              see if there is only one choice remaining for its incomplete vertices. If so, force
+              those vertices to accept their only valid pattern.
+            </li>
+            <li>
+              (If face edge hints are provided) For each incomplete face, interate over its edges
+              and see if a choice can be forced on it.
+            </li>
+            <li>
+              Rinse and repeat until the viewport is filled or no other additional polygons can be
+              added.
+            </li>
+          </ul>
         </ul>
         <p>
-          There are some complications to consider. For some tilings, such as the '4.6.12', you also
-          need to consider the mirrored version of the tiling, i.e. '6.4.12', otherwise the process
-          will stop very early. For other tilings, such as the '3.3.3.3.6' tiling, there is an
-          inherent ambiguity that requires a choice to be made.
+          This algorithm required a lot of tinkering. I started with only the vertex definitions and
+          only clockwise order for n-gons on a vertex. This ran into issues with the '4.6.12'
+          tiling, which also requires the mirrored pattern to fill the viewport. Eventually I ran
+          into issues where the vertex directions were not sufficient, so I added the face hints.
+          This required further tinkering and debugging. Finally, the ['3.4.4.6', '3.6.3.6'] pattern
+          could not be completed even with both vertex and face hints, so I had to add the face edge
+          hints.
         </p>
         <p>
-          In fact, if we want to extend this to k-vertex tilings, we will very quickly run into
-          ambiguous cases.
+          For the '3.3.3.3.6' tiling, there is an inherent ambiguity that requires a choice to be
+          made. I have listed the two chiral versions of this tiling, '3a.3a.3b.3a.6' and
+          '3a.3b.3a.3a.6'.
         </p>
 
         <figure id="grid1" class="full-width">

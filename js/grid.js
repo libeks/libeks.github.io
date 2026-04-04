@@ -312,7 +312,6 @@ class NGon {
 
   get vertexAngle() {
     // return the angle, in radians, between two consecutive edges
-    // console.log('vertexAngle', this.n, degToRad(180 - 360 / this.n))
     return degToRad(180 - 360 / this.n)
   }
 
@@ -407,7 +406,6 @@ class Vertex {
     }
     if (this.faces.length == this.validFor) {
       // early exit, nothing to recompute
-      // console.log('early exit')
       return
     }
     if (this.patternPotentials.length < 2) {
@@ -434,12 +432,6 @@ class Vertex {
         angle = normalizeRadians(angle + degToRad(180 - 360 / n))
       }
       let patternAngleSet = new Set(Object.keys(patternAngles))
-      // console.log(
-      //   `vertex ${this.id} has face angle set`,
-      //   faceAngleSet,
-      //   'and pattern angle set',
-      //   patternAngleSet,
-      // )
       if (faceAngleSet.difference(patternAngleSet).size == 0) {
         newPatterns.push(pat)
       }
@@ -716,7 +708,7 @@ class VertexGrid {
   }
 
   generate() {
-    console.log(this.pattern)
+    // console.log(this.pattern)
     // this.pattern.firstVertex
     this.vertices[0] = new Vertex(0, this.start, this.pattern)
     this.incompleteVertices.push(this.vertices[0])

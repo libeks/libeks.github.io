@@ -819,7 +819,7 @@ const gridTiling = {
           class="polygon"
           :data-face="face.id"
           :d="face.face.d"
-          :style="{fill: face.face.color, stroke: 'black', 'fill-opacity':0.8}"
+          :style="{fill: showFaceColors ? face.face.color : 'white', stroke: 'black', 'fill-opacity':0.8}"
         />
         <text v-if="debugFaceNumber" text-anchor="middle" v-bind="face.face.center.xyProps()" class="debug">
           {{face.id}}
@@ -850,13 +850,11 @@ const gridTiling = {
           {{vertex.id}}
         </text>
       </g>
-      <g v-if="showDebugPanel" class="debug">
-        <path :style="{fill:'white'}" d="M 0 0 L 200 0 L 200 80 L 0 80 L 0 0" />
-        <text v-if="showForcedChoices" x=0 y=20>Choices forced: {{grid.forcedChoices}}</text>
-        <text v-if="showPattern" x=0 y=40>{{pattern.string()}}</text>
-        <text v-if="grid.error" x=0 y=60 :style="{'fill':'red'}">Errors!</text>
-        <path v-if="debugShowBbox" class="stroke" :d="bbox.d()" />
+      <g v-if="grid.error" class="debug">
+        <path :style="{fill:'white'}" d="M 0 0 L 200 0 L 200 40 L 0 40 L 0 0" />
+        <text v-if="grid.error" x=0 y=20 :style="{'fill':'red'}">Errors!</text>  
       </g>
+      <path v-if="debugShowBbox" class="stroke" :d="bbox.d()" />
     </g>
     `,
   props: {
@@ -886,6 +884,7 @@ const gridTiling = {
     showForcedChoices: Boolean,
     showForcedVertices: Boolean,
     showFaces: Boolean,
+    showFaceColors: Boolean,
     showPattern: Boolean,
   },
   computed: {

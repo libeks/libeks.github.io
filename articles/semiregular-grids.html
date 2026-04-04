@@ -96,6 +96,7 @@
               show-forced-choices
               show-forced-vertices
               :show-faces="showFaces"
+              :show-face-colors="showFaceColors"
             ></grid-tiling>
           </svg>
           <figcaption>
@@ -113,13 +114,6 @@
 
             <div class="button-block">
               <toggle-button
-                :active="showVertexNumbers"
-                @toggle-choice="showVertexNumbers = !showVertexNumbers"
-                text="Show vertex numbers"
-              ></toggle-button>
-            </div>
-            <div class="button-block">
-              <toggle-button
                 :active="showBBox"
                 @toggle-choice="showBBox = !showBBox"
                 text="Show bbox"
@@ -134,11 +128,12 @@
             </div>
             <div class="button-block">
               <toggle-button
-                :active="showFaceNumbers"
-                @toggle-choice="showFaceNumbers = !showFaceNumbers"
-                text="Show face numbers"
+                :active="showVertexNumbers"
+                @toggle-choice="showVertexNumbers = !showVertexNumbers"
+                text="Show vertex numbers"
               ></toggle-button>
             </div>
+
             <div class="button-block">
               <toggle-button
                 :active="showFaces"
@@ -146,7 +141,20 @@
                 text="Show faces"
               ></toggle-button>
             </div>
-            <!-- <input type="checkbox" v-model.boolean="showVertexNumbers" /> -->
+            <div class="button-block">
+              <toggle-button
+                :active="showFaceColors"
+                @toggle-choice="showFaceColors = !showFaceColors"
+                text="Show face colors"
+              ></toggle-button>
+            </div>
+            <div class="button-block">
+              <toggle-button
+                :active="showFaceNumbers"
+                @toggle-choice="showFaceNumbers = !showFaceNumbers"
+                text="Show face numbers"
+              ></toggle-button>
+            </div>
           </figcaption>
         </figure>
       </section>
@@ -171,6 +179,7 @@
                   show-forced-choices
                   show-forced-vertices
                   show-faces
+                  show-face-colors
                 ></grid-tiling>
               </svg>
             </div>
@@ -277,13 +286,6 @@
 
             <div class="button-block">
               <toggle-button
-                :active="showVertexNumbers"
-                @toggle-choice="showVertexNumbers = !showVertexNumbers"
-                text="Show vertex numbers"
-              ></toggle-button>
-            </div>
-            <div class="button-block">
-              <toggle-button
                 :active="showBBox"
                 @toggle-choice="showBBox = !showBBox"
                 text="Show bbox"
@@ -298,11 +300,12 @@
             </div>
             <div class="button-block">
               <toggle-button
-                :active="showFaceNumbers"
-                @toggle-choice="showFaceNumbers = !showFaceNumbers"
-                text="Show face numbers"
+                :active="showVertexNumbers"
+                @toggle-choice="showVertexNumbers = !showVertexNumbers"
+                text="Show vertex numbers"
               ></toggle-button>
             </div>
+
             <div class="button-block">
               <toggle-button
                 :active="showFaces"
@@ -310,7 +313,13 @@
                 text="Show faces"
               ></toggle-button>
             </div>
-            <!-- <input type="checkbox" v-model.boolean="showVertexNumbers" /> -->
+            <div class="button-block">
+              <toggle-button
+                :active="showFaceNumbers"
+                @toggle-choice="showFaceNumbers = !showFaceNumbers"
+                text="Show face numbers"
+              ></toggle-button>
+            </div>
           </figcaption>
         </figure>
       </section>
@@ -381,6 +390,7 @@
             // bbox: new BBox(100, 100, 900, 400),
             // bbox: new BBox(100, 100, 1900, 900),
             showVertices: true,
+            showFaceColors: true,
             showFaces: true,
           }
         },

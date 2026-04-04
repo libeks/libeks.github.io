@@ -21,8 +21,8 @@ class TilingPattern {
       genus: Number(id),
     }))
     this.vertices = patterns
-    this.potentials = this.getPatternPotentials(...this.patterns)
     this.firstVertex = 0
+    this.allowReverse = true
     if (hints) {
       if (hints.faces) {
         this.faceHints = this.precomputeFaceHints(hints.faces)
@@ -30,13 +30,17 @@ class TilingPattern {
       if (hints.firstVertex) {
         this.firstVertex = hints.firstVertex
       }
+      if (hints.noReverse) {
+        this.allowReverse = false
+      }
     }
+    this.potentials = this.getPatternPotentials(...this.patterns)
   }
 
   getPatternPotentials(...patterns) {
     let potentials = {}
     for (let pt of patterns) {
-      let reversePattern = [...pt.pattern].reverse()
+      let reversePattern = reversed(pt.pattern)
       let pattern = pt.pattern
       for (let i = 0; i < pt.pattern.length; i++) {
         pattern = shift(pattern)
@@ -47,11 +51,13 @@ class TilingPattern {
           shift: i,
           reverse: false,
         }
-        potentials[reversePattern.join('.')] = {
-          pattern: reversePattern,
-          genus: pt.genus,
-          shift: i,
-          reverse: true,
+        if (this.allowReverse) {
+          potentials[reversePattern.join('.')] = {
+            pattern: reversePattern,
+            genus: pt.genus,
+            shift: i,
+            reverse: true,
+          }
         }
       }
     }
@@ -99,7 +105,8 @@ const semiregularTilings = [
   new TilingPattern(['4.8.8']),
   new TilingPattern(['3.3.4.3.4']),
   new TilingPattern(['3.3.3.4.4']),
-  new TilingPattern(['3.3.3.3.6']), // ambiguous, can't get past the initial hex surrounded by triangles
+  new TilingPattern(['3a.3a.3b.3a.6'], { noReverse: true }),
+  new TilingPattern(['3a.3b.3a.3a.6'], { noReverse: true }),
 ]
 const planeVertexTilings = [
   new TilingPattern(['3.3.4.12']),
@@ -146,23 +153,78 @@ const uniform2Tilings = [
     faces: { 3: '0.1.1', 4: '1.1.1.1', 12: '0.0.1.0.0.1.0.0.1.0.0.1' },
   }), // broken
   new TilingPattern(['3.3.3.3.3.3', '3.3.6.6'], { firstVertex: 1 }),
-  new TilingPattern(['3.3.6.6', '3.3.3.3.6'], { faces: { 3: '0.1.1', 6: '0.0.1.0.0.1' } }),
-  new TilingPattern(['3.6.3.6', '3.3.6.6'], {
-    faces: { 3: '0.0.1', 6: '0.1.1.0.1.1' },
+  new TilingPattern(['3a.3b.3a.3b.3a.3b', '3a.3b.3b.3a.6'], { firstVertex: 1 }),
+  new TilingPattern(['3a.3b.3b.3c.3d.3c', '3a.3c.3b.3a.6'], {
+    faces: { '3a': '0.1.1', '3b': '0.0.1', '3c': '0.0.1', '3d': '0.0.0', 6: '1.1.1.1.1.1' },
     firstVertex: 1,
   }),
-  new TilingPattern(['3a.3b.3a.4a.4a', '3a.3b.4a.3a.4b']),
-  new TilingPattern(['3a.3b.4.3a.4', '3a.3a.3b.4.4']), // flipped order, needs face hint
+  new TilingPattern(['3.3.6.6', '3.3.3.3.6'], { faces: { 3: '0.1.1', 6: '0.0.1.0.0.1' } }),
+  new TilingPattern(['3.6.3.6', '3.3.6.6'], {
+    faces: { 3: '0.1.1', 6: '0.1.1.0.1.1' },
+    firstVertex: 0,
+  }),
+  new TilingPattern(['3.4.4.6', '3.6.3.6'], {
+    faces: { 3: '0.0.1', 4: '0.0.0.0', 6: '0.0.1.0.0.1' },
+  }), // ambiguous, need to give edge hints
+  new TilingPattern(['3.4a.4b.6', '3.6.3.6'], {
+    faces: { 3: '0.0.1', '4a': '0.0.0.0', '4b': '0.0.0.0', 6: '0.0.1.0.0.1' },
+  }),
+  new TilingPattern(['3a.3b.3a.4a.4a', '3a.3b.4a.3a.4b'], {
+    faces: { '3a': '0.1.1', '3b': '0.1.1', '4a': '0.0.1.1', '4b': '1.1.1.1' },
+  }),
+  new TilingPattern(['3a.3b.4.3a.4', '3a.3b.3b.4.4'], {
+    faces: { '3a': '0.0.1', '3b': '0.1.1', 4: '0.0.1.1' },
+  }),
+  new TilingPattern(['3.3.3.4.4', '4.4.4.4'], { faces: { 3: '0.0.0', 4: '0.0.1.1' } }),
+  new TilingPattern(['3.3.3.4a.4a', '4a.4a.4b.4b'], {
+    faces: { 3: '0.0.0', '4a': '0.0.1.1', '4b': '1.1.1.1' },
+  }),
+  new TilingPattern(['3a.3a.3b.3a.3a.3b', '3b.3a.3b.4.4']),
+  new TilingPattern(['3a.3b.3a.3c.3c.3c', '3b.3a.3b.4.4']),
 ]
 
 const uniform3Tilings = [
-  new TilingPattern(['3a.4b.4a.6', '4a.6.12', '3a.6.3b.6']), // broken, shuffled order, needs face hint
-  new TilingPattern(['3a.3b.3a.3b.3a.3b', '3a.3b.4.12', '4.6.12']),
-  new TilingPattern(['3a.3b.4.12', '3b.4.6.4', '3a.12.12']),
-  new TilingPattern(['3a.4.3b.12', '3b.4.6.4', '3a.12.12']), // broken
-  new TilingPattern(['3a.3b.3a.4b.4b', '3b.3a.4a.12', '3a.4a.6.4b']), // broken
-  new TilingPattern(['3a.3b.3c.3d.3c.3b', '3b.3c.3b.4.4', '3a.3b.4.12']), // broken
-  new TilingPattern(['3.3.3.3.3.3', '3.3.4.3.4', '3.3.4.12']),
+  new TilingPattern(['3a.4b.4a.6', '3a.6.3b.6', '4a.6.12'], {
+    faces: {
+      '3a': '0.0.1',
+      '3b': '1.1.1',
+      '4a': '0.0.2.2',
+      '4b': '0.0.0.0',
+      6: '0.1.1.0.2.2',
+      12: '2.2.2.2.2.2.2.2.2.2.2.2',
+    },
+  }),
+  new TilingPattern(['3a.3b.3a.3b.3a.3b', '3a.3b.4.12', '4.6.12'], {
+    faces: {
+      '3a': '0.1.1',
+      '3b': '0.1.1',
+      4: '1.1.2.2',
+      6: '2.2.2.2.2.2',
+      12: '1.1.2.2.1.1.2.2.1.1.2.2',
+    },
+    // firstVertex: 2,
+  }),
+  new TilingPattern(['3a.3b.4.12', '3b.4.6.4', '3a.12.12'], {
+    faces: {
+      '3a': '0.0.2',
+      '3b': '0.0.1',
+      4: '0.0.1.1',
+      6: '1.1.1.1.1.1',
+      12: '0.0.2.2.0.0.2.2.0.0.2.2',
+    },
+  }),
+  new TilingPattern(['3a.4.3b.12', '3b.4.6.4', '3a.12.12'], {
+    faces: {
+      '3a': '0.0.2',
+      '3b': '0.0.1',
+      4: '0.0.1.1',
+      6: '1.1.1.1.1.1',
+      12: '0.0.2.2.0.0.2.2.0.0.2.2',
+    },
+  }),
+  new TilingPattern(['3a.3b.3a.4b.4b', '3b.3a.4a.12', '3a.4a.6.4b'], { firstVertex: 1 }),
+  new TilingPattern(['3a.3b.3c.3d.3c.3b', '3b.3c.3b.4.4', '3a.3b.4.12']),
+  new TilingPattern(['3a.3b.3b.3a.3b.3b', '3b.3b.4.3c.4', '3a.3b.4.12'], { firstVertex: 2 }),
 ]
 
 class NGon {
@@ -519,7 +581,6 @@ class VertexGrid {
 
   populateFaceFromHints() {
     for (let face of Object.values(this.faces)) {
-      // console.log('face', face)
       if (face.isComplete()) {
         continue
       }
@@ -529,20 +590,14 @@ class VertexGrid {
 
       // first, filter out any patterns that don't apply to the current vertex setup
 
-      // console.log(`face ${face.id} (${face.face.tile}) hints:`, face.potentialGenera)
       let isUpdate = false
       if (face.potentialGenera.length > 1) {
         let newPatterns = []
-        for (let pat of face.potentialGenera) {
+        for (let [i, pat] of enumerate(face.potentialGenera)) {
           let validPattern = true
           for (let [vertex, gen] of zip(face.vertices, pat)) {
             let potentialGenera = vertex.getPossibleGenera()
-            // console.log('potential genera', potentialGenera)
-            // console.log(`v ${vertex.id} potentials ${potentialGenera}, versus pattern ${gen}`)
             if (!potentialGenera.includes(gen)) {
-              // console.log(
-              //   `potential genera ${potentialGenera} (${potentialGenera.map((v) => typeof v)}) doesn't include ${gen} (${typeof gen}), removing pattern`,
-              // )
               validPattern = false
               isUpdate = true
               break
@@ -555,14 +610,6 @@ class VertexGrid {
         if (newPatterns.length == 0) {
           throw `Face ${face.id} got unexpected zero new patterns`
         }
-        // if (isUpdate) {
-        //   // console.log(
-        //   //   `reducing the number of patterns from ${face.potentialGenera.length} to ${newPatterns.length}`,
-        //   //   face.potentialGenera,
-        //   //   newPatterns,
-        //   // )
-        //   // console.log(newPatterns[0])
-        // }
         face.potentialGenera = newPatterns
       }
       for (let [vid, vertex] of enumerate(face.vertices)) {
@@ -571,32 +618,16 @@ class VertexGrid {
           break
         }
         let potentials = face.potentialGenera.map((g) => g[vid])
-        // console.log('potentials', potentials)
         let newList = []
         for (let pat of vertex.patternPotentials) {
           let isValid = false
           let genus = pat.genus
           isValid = potentials.includes(genus)
-          // for (let potential of face.potentialGenera) {
-          //   if (potential.genus = genus) {
-          //     isValid = true
-          //   }
-          // }
           if (isValid) {
             newList.push(pat)
-            // } else {
-            //   console.log(
-            //     `pattern`,
-            //     pat,
-            //     `is not valid, it has wrong genus ${pat.genus}, ${typeof pat.genus}, expected ${potentials}, ${potentials.map((a) => typeof a)}`,
-            //   )
           }
         }
         if (newList.length != vertex.patternPotentials.length) {
-          // console.log(
-          //   `reduced vertex potentials from ${vertex.patternPotentials.length} to ${newList.length}`,
-          //   newList,
-          // )
           if (newList.length == 0) {
             throw `populateFaceFromHints produced 0 patterns for vertex ${vertex.id}`
           }
@@ -790,7 +821,7 @@ const gridTiling = {
           :d="face.face.d"
           :style="{fill: face.face.color, stroke: 'black', 'fill-opacity':0.8}"
         />
-        <text v-if="debugFaceNumber" text-anchor="middle" v-bind="face.face.center.xyProps()">
+        <text v-if="debugFaceNumber" text-anchor="middle" v-bind="face.face.center.xyProps()" class="debug">
           {{face.id}}
         </text>
       </g>
@@ -812,8 +843,9 @@ const gridTiling = {
         <text
           v-if="debugVertexNumber"
           text-anchor="middle"
-          v-bind="vertex.point.d(-15,5).xyProps()"
+          v-bind="vertex.point.d(-10,8).xyProps()"
           :style="{stroke: 'hsl(0,0%,40%)'}"
+          class="debug"
         >
           {{vertex.id}}
         </text>

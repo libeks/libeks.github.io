@@ -365,9 +365,7 @@
       createApp({
         data() {
           return {
-            // tiling: new TilingPattern(['3a.3a.4.3b.4', '3a.3a.3a.3a.3a.3a']),
-            tiling: uniform2Tilings[8],
-            // tiling: new TilingPattern(['3.3.3.3.3.3', '3.3.6.6']),
+            tiling: uniform2Tilings[5],
             debugVertices: false,
             debugFaces: false,
             debugVertexGenus: true,
@@ -380,7 +378,8 @@
             showBBox: false,
             start: new Point(500, 250),
             bbox: new BBox(-200, -100, 1200, 600),
-            // bbox: new BBox(200, 100, 800, 400),
+            // bbox: new BBox(100, 100, 900, 400),
+            // bbox: new BBox(100, 100, 1900, 900),
             showVertices: true,
             showFaces: true,
           }

@@ -1,29 +1,8 @@
 import { Point, Line } from '/js/geometry.js'
+import { reversed, shift, zip } from '/js/utils.js'
 
 // This is similar to triangular-tiles.js and square-tiles.js, but tries to generalize to any n-gon.
 // It also operates on an arbitrarily placed and rotated n-gon, based off of its vertices
-
-// shift leftward one position, with wraparound
-// so shift([0,1,2,3]) => [3,0,1,2]
-function shift(list) {
-  return [list[list.length - 1], ...list.slice(0, list.length - 1)]
-}
-
-function reversed(list) {
-  return [...list].reverse()
-}
-
-// zip together two arrays, the size of the return is the shortes of the two arrays
-function zip(l1, l2) {
-  // console.log('zip', l1, l2)
-  let minLen = Math.min(l1.length, l2.length)
-  let retList = []
-  for (let i = 0; i < minLen; i++) {
-    retList.push([l1[i], l2[i]])
-  }
-  // console.log('zip result', retList)
-  return retList
-}
 
 class GenericTriangleTruchet {
   constructor(vertices, hasCenterNotch, notches, nCatalan) {

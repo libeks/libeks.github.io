@@ -9,6 +9,7 @@ import { Point, Vector, Point2DOrigin, LineSegment } from '/js/geometry.js'
 import { Polygon } from '/js/lines.js'
 import { BBox } from '/js/bbox.js'
 import { circularPairs, zip, shift, enumerate, reversed } from '/js/utils.js'
+import { KDTree } from '/js/spatial.js'
 
 const THRESHOLD = 0.01
 const MAX_DISTANCE = 0
@@ -237,8 +238,17 @@ class NGon {
     this.side = side
     this.angle = 0
 
-    this.alphaDeg = 360 / this.n
+    this.alphaDeg = 360 / this.n // angle between successive vertices, from the perspective of the center
     this.alphaRad = degToRad(this.alphaDeg)
+
+    // each vertex angle
+    // n  | alpha | beta
+    // ---+-------+-----
+    // 3  |  120  | 60
+    // 4  |  90   | 90
+    // 6  |  60   | 120
+    // 8  |  45   | 135
+    // 12 |  30   | 150
 
     if (angleFraction) {
       this.angle = this.alphaRad * angleFraction
@@ -273,7 +283,7 @@ class NGon {
   get vertices() {
     let vertices = []
     for (let i = 0; i < this.n; i++) {
-      vertices.push(this.center.addVect(this.v.rotateRad(this.alphaRad * i))) // add 0.5 to make sure the poly's look horizontal
+      vertices.push(this.center.addVect(this.v.rotateRad(this.alphaRad * i)))
     }
     return vertices
   }
@@ -384,6 +394,12 @@ class Vertex {
   }
 
   addFace(face, startAngle, endAngle) {
+    // console.log(
+    //   `vertex.addFace ${face.face.n} with angles`,
+    //   // face,
+    //   Math.round(radToDeg(startAngle)),
+    //   Math.round(radToDeg(endAngle)),
+    // )
     this.faces.push([face, startAngle, endAngle])
     this.refinePatterns()
   }
@@ -487,6 +503,8 @@ class VertexGrid {
     this.size = size
     this.pattern = pattern
     this.vertices = {}
+    this.verticesByCoord = {}
+    this.kdtree = new KDTree()
     this.incompleteVertices = [] // vertices that are not yet complete
     this.edges = {}
     this.faces = {}
@@ -499,15 +517,35 @@ class VertexGrid {
       console.trace()
       throw `VertexGrid.vertexAt received unexpected argument ${pt.type}`
     }
+    if (pt.string() in this.verticesByCoord) {
+      // console.log('from verticesByCoord')
+      return this.verticesByCoord[pt.string()]
+    }
+    let vertex = this.kdtree.find(pt)
+    if (vertex) {
+      // console.log('from kdtree', pt.string(), vertex.point.string(), vertex.point.distance(pt))
+      return vertex
+    }
     for (let vertex of Object.values(this.vertices)) {
       if (vertex.point.distance(pt) < THRESHOLD) {
+        // console.log('from for loop', pt.string(), vertex.point.string(), vertex.point.distance(pt))
         return vertex
       }
     }
     return null
   }
 
+  addVertex(point, pattern) {
+    let vertex = new Vertex(Object.values(this.vertices).length, point, this.pattern)
+    this.vertices[vertex.id] = vertex
+    this.verticesByCoord[point.string()] = vertex
+    this.kdtree.add(point, vertex)
+    this.incompleteVertices.push(vertex)
+    return vertex
+  }
+
   addFace(polygon) {
+    // console.log('addFace with polygon', polygon)
     let face = new RotatedFace(/** id: **/ Object.values(this.faces).length, polygon)
     this.faces[face.id] = face
 
@@ -516,9 +554,11 @@ class VertexGrid {
       let point = secondLine.p
       let vertex = this.vertexAt(point)
       if (vertex == null) {
-        vertex = new Vertex(Object.values(this.vertices).length, point, this.pattern)
-        this.vertices[vertex.id] = vertex
-        this.incompleteVertices.push(vertex)
+        vertex = this.addVertex(point, this.pattern)
+        // vertex = new Vertex(Object.values(this.vertices).length, point, this.pattern)
+        // this.vertices[vertex.id] = vertex
+        // this.verticesByCoord[point.string()] = vertex
+        // this.incompleteVertices.push(vertex)
       }
       face.vertices.push(vertex)
       if (vertex.faces.length >= vertex.pattern.length) {
@@ -533,7 +573,8 @@ class VertexGrid {
       for (let point of [firstLine.p, secondLine.p.addVect(secondLine.v)]) {
         let neighbor = this.vertexAt(point)
         if (neighbor == null) {
-          neighbor = new Vertex(Object.values(this.vertices).length, point, this.pattern)
+          // neighbor = new Vertex(Object.values(this.vertices).length, point, this.pattern)
+          neighbor = this.addVertex(point, this.pattern)
         }
         vertex.neighbors[neighbor.id] = neighbor
       }
@@ -558,7 +599,7 @@ class VertexGrid {
         }
         for (let [tile, angle] of updates) {
           let face = new NGon({ tile, side: this.size, angle, firstVertex: vertex })
-          this.addFace(face, angle, 0)
+          this.addFace(face)
         }
         return 1 // one vertex was updated, don't continue
       }
@@ -632,7 +673,7 @@ class VertexGrid {
             }
             for (let [tile, angle] of updates) {
               let face = new NGon({ tile, side: this.size, angle, firstVertex: vertex })
-              this.addFace(face, angle, 0)
+              this.addFace(face)
             }
             return 1 // success
           } else {
@@ -702,7 +743,7 @@ class VertexGrid {
     }
     for (let [tile, angle] of updates) {
       let face = new NGon({ tile, side: this.size, angle, firstVertex: vertex })
-      this.addFace(face, angle, 0)
+      this.addFace(face)
     }
     return 1 // success
   }
@@ -710,14 +751,15 @@ class VertexGrid {
   generate() {
     // console.log(this.pattern)
     // this.pattern.firstVertex
-    this.vertices[0] = new Vertex(0, this.start, this.pattern)
-    this.incompleteVertices.push(this.vertices[0])
+    let initialVertex = this.addVertex(this.start, this.pattern)
+    // this.vertices[0] = new Vertex(0, this.start, this.pattern)
+    // this.incompleteVertices.push(this.vertices[0])
     let angle = this.angle
     for (let tile of this.pattern.patterns[this.pattern.firstVertex].pattern) {
-      let face = new NGon({ tile, side: this.size, angle, firstVertex: this.vertices[0] })
+      let face = new NGon({ tile, side: this.size, angle, firstVertex: initialVertex })
       let oldAngle = face.vertexAngle
       angle += face.vertexAngle
-      this.addFace(face, oldAngle, angle)
+      this.addFace(face)
     }
     let isUpdated = true
     let nAdded = 0

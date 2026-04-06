@@ -38,11 +38,17 @@ function normalizeRadians(radians) {
 function normalizeRadianString(radians) {
   radians = normalizeRadians(radians)
   let degrees = radToDeg(radians)
-  let str = degrees.toFixed(3)
-  if (str == '360.000') {
-    return '0.000'
+  let rounded = Math.round(degrees)
+  if (rounded == 360) {
+    return 0
   }
-  return str
+  return rounded
+  // return Math.round(degrees)
+  // let str = degrees.toFixed(3)
+  // if (str == '360.000') {
+  //   return '0.000'
+  // }
+  // return str
 }
 
 export {

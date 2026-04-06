@@ -32,6 +32,10 @@ class Point {
     return this.subPt(p).len()
   }
 
+  manhattanDistance(p) {
+    return Math.abs(this.x - p.x) + Math.abs(this.y - p.y)
+  }
+
   string() {
     return `${this.x} ${this.y}`
   }

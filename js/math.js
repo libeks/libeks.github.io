@@ -43,7 +43,6 @@ function normalizeRadianString(radians) {
     return 0
   }
   return rounded
-  // return Math.round(degrees)
   // let str = degrees.toFixed(3)
   // if (str == '360.000') {
   //   return '0.000'

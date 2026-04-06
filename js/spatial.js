@@ -52,10 +52,12 @@ class Split {
       }
       let newNode
       let splitValue = midpoint(pointNextCoord, nodeNextCoord)
-      if (pointNextCoord < nodeNextCoord) {
+      if (pointNextCoord < splitValue) {
         newNode = new Split(nextCoord, splitValue, new Node(point, data), child)
-      } else {
+      } else if (pointNextCoord > splitValue) {
         newNode = new Split(nextCoord, splitValue, child, new Node(point, data))
+      } else {
+        throw `Split doesn't work on ${pointNextCoord}, ${nodeNextCoord}`
       }
       if (val < this.value) {
         this.less = newNode
@@ -67,12 +69,34 @@ class Split {
     }
   }
 
-  find(point) {
+  find(point, debug) {
     let val = getPointCoord(point, this.coordinate)
-    if (val < this.value) {
-      return this.less.find(point)
+    if (debug) {
+      console.log(`Split.find() has coord ${this.coordinate} with threshold ${this.value}`)
     }
-    return this.more.find(point)
+    if (val + THRESHOLD < this.value) {
+      if (debug) {
+        console.log(`Split.find() going down less path`)
+      }
+      return this.less.find(point, debug)
+    } else if (val - THRESHOLD > this.value) {
+      if (debug) {
+        console.log(`Split.find() going down more path`)
+      }
+      return this.more.find(point, debug)
+    }
+    // the point is too close to the threshold, attempt to fetch on both sides
+    if (debug) {
+      console.log(`Split.find() executing on both less and more`)
+    }
+    let less = this.less.find(point, debug)
+    if (less) {
+      return less
+    }
+    let more = this.more.find(point, debug)
+    if (more) {
+      return more
+    }
   }
 }
 
@@ -86,11 +110,14 @@ class Node {
     this._type = 'Node'
   }
 
-  find(point) {
+  find(point, debug) {
     if (point.type != 'Point') {
       throw `Unexpected argument to Node.find: ${point.type}`
     }
-    if (this.point.distance(point) < THRESHOLD) {
+    if (debug) {
+      console.log(`Node.find() has distance ${this.point.manhattanDistance(point)}`)
+    }
+    if (this.point.manhattanDistance(point) < THRESHOLD) {
       return this.data
     }
     return null
@@ -126,17 +153,26 @@ class KDTree {
     }
   }
 
-  find(point) {
+  find(point, debug) {
     if (!this.root) {
+      if (debug) {
+        console.log(`KDTree.find() in array`)
+      }
       for (let [pt, val] of this.all) {
-        if (point.distance(pt) < THRESHOLD) {
+        if (point.manhattanDistance(pt) < THRESHOLD) {
           // console.log('from for loop', pt.string(), vertex.point.string(), vertex.point.distance(pt))
           return val
         }
       }
+      if (debug) {
+        console.log(`KDTree.find() in array, couldn't find`)
+      }
       return null
     }
-    return this.root.find(point)
+    if (debug) {
+      console.log(`KDTree.find() in tree`)
+    }
+    return this.root.find(point, debug)
   }
 }
 

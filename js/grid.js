@@ -527,8 +527,14 @@ class VertexGrid {
       return vertex
     }
     for (let vertex of Object.values(this.vertices)) {
-      if (vertex.point.distance(pt) < THRESHOLD) {
-        // console.log('from for loop', pt.string(), vertex.point.string(), vertex.point.distance(pt))
+      if (vertex.point.manhattanDistance(pt) < THRESHOLD) {
+        console.log(
+          `from for loop ${this.pattern.vertices}`,
+          pt.string(),
+          vertex.point.string(),
+          vertex.point.distance(pt),
+        )
+        this.kdtree.find(pt, true)
         return vertex
       }
     }
@@ -847,7 +853,10 @@ class VertexGrid {
 
 const gridTiling = {
   template: `
-    <g class="grid squares">
+    <g v-if="loading">
+      <text x=20 y=20>LOADING...</text>
+    </g>
+    <g v-if="grid" class="grid squares">
       <g v-if="showFaces" v-for="face in grid.getFaces()" class="face">
         <path
           class="polygon"
@@ -891,6 +900,11 @@ const gridTiling = {
       <path v-if="debugShowBbox" class="stroke" :d="bbox.d()" />
     </g>
     `,
+  data() {
+    return {
+      loading: true,
+    }
+  },
   props: {
     pattern: Object,
     bbox: Object,
@@ -923,7 +937,9 @@ const gridTiling = {
   },
   computed: {
     grid(previous) {
-      return new VertexGrid({
+      // this.loading = true
+      // console.log('loading is ', this.loading)
+      let result = new VertexGrid({
         bbox: this.bbox,
         start: this.start,
         size: this.size,
@@ -931,6 +947,9 @@ const gridTiling = {
         pattern: this.pattern,
         iterations: this.iterations,
       }).generate()
+      // this.loading = false
+      // console.log('loading is ', this.loading)
+      return result
     },
     showDebugPanel() {
       return this.grid.error || this.debugShowBbox || this.showForcedChoices

@@ -902,7 +902,7 @@ const gridTiling = {
     `,
   data() {
     return {
-      loading: true,
+      loading: false,
     }
   },
   props: {

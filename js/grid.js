@@ -247,7 +247,27 @@ const uniform3Tilings = [
   new TilingPattern(['3a.3b.3a.4b.4b', '3b.3a.4a.12', '3a.4a.6.4b'], { firstVertex: 1 }),
   new TilingPattern(['3a.3b.3c.3d.3c.3b', '3b.3c.3b.4.4', '3a.3b.4.12']),
   new TilingPattern(['3a.3b.3b.3a.3b.3b', '3b.3b.4.3c.4', '3a.3b.4.12'], { firstVertex: 2 }),
+  new TilingPattern(['3a.3b.3b.3a.6', '3b.3a.3b.4.4', '3b.3b.4.3c.4']),
+  new TilingPattern(['3a.3a.3a.3a.3a.3a', '3a.3a.4a.3b.4a', '3b.4a.4b.6'], { firstVertex: 2 }),
+  // some skipped
+  new TilingPattern(['3b.3b.4.12', '3a.4.3b.12', '3a.12.12'], {
+    faces: { '3a': '1.1.2', '3b': '0.0.1', 4: '0.0.1.1', 12: '0.0.1.2.2.1.0.0.1.2.2.1' },
+  }),
 ]
+
+const uniform4Tilings = [
+  new TilingPattern(['3b.3b.4a.3a.4a', '3b.3b.6a.6a', '3b.4a.4b.6a', '6a.6a.6b'], {
+    faces: {
+      '3a': '0.0.0',
+      '3b': '0.1.2',
+      '4a': '0.0.2.2',
+      '4b': '2.2.2.2',
+      '6a': '1.3.3.1.2.2',
+      '6b': '3.3.3.3.3.3',
+    },
+    firstVertex: 3,
+  }),
+] // something is broken here...
 
 class NGon {
   constructor({ tile, side, angleFraction, angle, center, firstVertex }) {
@@ -1065,5 +1085,6 @@ export {
   semiregularTilings,
   uniform2Tilings,
   uniform3Tilings,
+  uniform4Tilings,
   gridTiling,
 }

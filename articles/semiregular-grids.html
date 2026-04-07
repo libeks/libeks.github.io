@@ -139,6 +139,8 @@
               <option v-for="tile in uniform2Tilings" :value="tile">{{tile.string()}}</option>
               <option disabled value="">3-uniform</option>
               <option v-for="tile in uniform3Tilings" :value="tile">{{tile.string()}}</option>
+              <option disabled value="">4-uniform</option>
+              <option v-for="tile in uniform4Tilings" :value="tile">{{tile.string()}}</option>
             </select>
 
             <div class="button-block">
@@ -381,6 +383,7 @@
         semiregularTilings,
         uniform2Tilings,
         uniform3Tilings,
+        uniform4Tilings,
         gridTiling,
         // displayKTiling,
       } from '/js/grid.js'
@@ -407,7 +410,7 @@
       createApp({
         data() {
           return {
-            tiling: uniform2Tilings[12],
+            tiling: uniform4Tilings[0],
             debugVertices: false,
             debugFaces: false,
             debugVertexGenus: true,
@@ -415,6 +418,7 @@
             semiregularTilings,
             uniform2Tilings,
             uniform3Tilings,
+            uniform4Tilings,
             showVertexNumbers: false,
             showFaceNumbers: false,
             showBBox: false,
@@ -493,6 +497,7 @@
               ...semiregularTilings,
               ...uniform2Tilings,
               ...uniform3Tilings,
+              ...uniform4Tilings,
             ],
             start: new Point(150, 150),
             bbox: new BBox(-100, -100, 400, 400),

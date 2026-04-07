@@ -8,7 +8,7 @@ import {
 import { Point, Vector, Point2DOrigin, LineSegment } from '/js/geometry.js'
 import { Polygon } from '/js/lines.js'
 import { BBox } from '/js/bbox.js'
-import { circularPairs, zip, shift, enumerate, reversed } from '/js/utils.js'
+import { pairs, circularPairs, zip, shift, enumerate, reversed } from '/js/utils.js'
 import { KDTree } from '/js/spatial.js'
 
 const THRESHOLD = 0.01
@@ -33,6 +33,9 @@ class TilingPattern {
       }
       if (hints.noReverse) {
         this.allowReverse = false
+      }
+      if (hints.edges) {
+        this.edgeHints = this.precomputeEdgeHints(hints.edges)
       }
     }
     this.potentials = this.getPatternPotentials(...this.patterns)
@@ -70,7 +73,6 @@ class TilingPattern {
     for (let [key, pattern] of Object.entries(hints)) {
       pattern = pattern.split('.').map((val) => Number(val))
       let potentials = {}
-      // console.log('pattern', pattern)
       let reversePattern = reversed(pattern)
       for (let i = 0; i < pattern.length; i++) {
         pattern = shift(pattern)
@@ -80,6 +82,24 @@ class TilingPattern {
       }
       hintObj[key] = Object.values(potentials)
     }
+    return hintObj
+  }
+
+  precomputeEdgeHints(hints) {
+    let hintObj = {}
+    for (let [key, pattern] of Object.entries(hints)) {
+      pattern = pattern.split('.')
+      let potentials = {}
+      let reversePattern = reversed(pattern)
+      for (let i = 0; i < pattern.length; i++) {
+        pattern = shift(pattern)
+        reversePattern = shift(reversePattern)
+        potentials[pattern.join('.')] = pattern
+        potentials[reversePattern.join('.')] = reversePattern
+      }
+      hintObj[key] = Object.values(potentials)
+    }
+    // console.log('edge hints', hintObj)
     return hintObj
   }
 
@@ -166,6 +186,7 @@ const uniform2Tilings = [
   }),
   new TilingPattern(['3.4.4.6', '3.6.3.6'], {
     faces: { 3: '0.0.1', 4: '0.0.0.0', 6: '0.0.1.0.0.1' },
+    edges: { 3: '4.6.6', 4: '3.4.6.4', 6: '3.3.4.3.3.4' },
   }), // ambiguous, need to give edge hints
   new TilingPattern(['3.4a.4b.6', '3.6.3.6'], {
     faces: { 3: '0.0.1', '4a': '0.0.0.0', '4b': '0.0.0.0', 6: '0.0.1.0.0.1' },
@@ -240,6 +261,9 @@ class NGon {
 
     this.alphaDeg = 360 / this.n // angle between successive vertices, from the perspective of the center
     this.alphaRad = degToRad(this.alphaDeg)
+
+    this.betaDeg = 180 - this.alphaDeg
+    this.betaRad = degToRad(this.betaDeg)
 
     // each vertex angle
     // n  | alpha | beta
@@ -361,6 +385,8 @@ class Vertex {
     this.pattern = pattern
     this.patternPotentials = pattern.potentials
     this.faces = []
+    this.facesByStartAngle = {}
+    this.facesByEndAngle = {}
     this.neighbors = {}
     this.finalPattern = null
     this.error = null
@@ -373,7 +399,7 @@ class Vertex {
   }
 
   faceAngles() {
-    return this.faces.map((face) => face[2])
+    return this.faces.map((face) => face[1])
   }
 
   get deficit() {
@@ -393,14 +419,26 @@ class Vertex {
     return 'gray'
   }
 
-  addFace(face, startAngle, endAngle) {
+  addFace(face, angle) {
     // console.log(
-    //   `vertex.addFace ${face.face.n} with angles`,
-    //   // face,
-    //   Math.round(radToDeg(startAngle)),
-    //   Math.round(radToDeg(endAngle)),
+    //   `vertex ${this.id}.addFace ${face.id}: ${face.face.n} with angles`,
+    //   Math.round(radToDeg(angle)),
     // )
-    this.faces.push([face, startAngle, endAngle])
+    this.faces.push([face, angle])
+
+    this.facesByStartAngle[normalizeRadianString(angle)] = face
+    this.facesByEndAngle[normalizeRadianString(angle + face.face.betaRad)] = face
+    for (let otherFace of [
+      this.facesByEndAngle[normalizeRadianString(angle)],
+      // this.facesByStartAngle[normalizeRadianString(angle + face.face.betaRad)],
+    ]) {
+      // let otherFace = this.facesByEndAngle[angle]
+      if (otherFace) {
+        face.edges.push(otherFace)
+        otherFace.edges.push(face)
+        // console.log(`faces ${face.id} and ${otherFace.id} are neighbors`)
+      }
+    }
     this.refinePatterns()
   }
 
@@ -431,10 +469,10 @@ class Vertex {
       // }
       return
     }
-    let firstAngle = normalizeRadians(this.faces[0][2])
+    let firstAngle = normalizeRadians(this.faces[0][1])
     let newPatterns = []
     let faceAngles = {}
-    for (let [face, _, angle] of this.faces) {
+    for (let [face, angle] of this.faces) {
       faceAngles[`${face.face.tile}:${normalizeRadianString(angle)}`] = [face, angle]
     }
     let faceAngleSet = new Set(Object.keys(faceAngles))
@@ -474,9 +512,9 @@ class Vertex {
       // console.log(`computeMissing for vertex ${this.id} is has multiple potentials`)
       return []
     }
-    let firstAngle = normalizeRadians(this.faces[0][2])
+    let firstAngle = normalizeRadians(this.faces[0][1])
     let faceAngles = {}
-    for (let [face, _, angle] of this.faces) {
+    for (let [face, angle] of this.faces) {
       faceAngles[`${face.face.tile}:${normalizeRadianString(angle)}`] = [face, angle]
     }
     let faceAngleSet = new Set(Object.keys(faceAngles))
@@ -495,6 +533,61 @@ class Vertex {
   }
 }
 
+// given a list of vertices (exhaustive) and edges/faces (non-exhaustive),
+// return an array so that each face touches the corresponding vertex, in order
+// set to null for missing edges/faces
+function sortEdgesAndFaces(center, vertices, faces) {
+  // console.log(vertices, faces)
+  let verticesWithIndex = Object.entries(vertices) // tuples of id, edge
+  let facesWithAngles = faces.map((face) => [
+    normalizeRadians(center.vectTo(face.face.center).angle()),
+    face,
+  ])
+  // facesWithAngles.sort((a, b) => a[0] - b[0])
+  // console.log(
+  //   'faces',
+  //   facesWithAngles.map(([angle, face]) => `id.${face.id} angle: ${normalizeRadianString(angle)}`),
+  // )
+  // console.log(verticesWithIndex)
+  // console.log(
+  //   'vertices',
+  //   verticesWithIndex.map(
+  //     ([idx, vertex]) => `${idx} ${normalizeRadianString(center.vectTo(vertex.point).angle())}`,
+  //   ),
+  // )
+  let mixedList = []
+  for (let [rad, face] of facesWithAngles) {
+    mixedList.push({
+      type: 'face',
+      rad,
+      face: face,
+    })
+  }
+  for (let [id, vertex] of verticesWithIndex) {
+    mixedList.push({
+      type: 'vertex',
+      rad: normalizeRadians(center.vectTo(vertex.point).angle()),
+      vertex,
+      id,
+    })
+  }
+  mixedList.sort((a, b) => a.rad - b.rad)
+  let faceArray = []
+  for (let i = 0; i < vertices.length; i++) {
+    faceArray[i] = null
+  }
+  // console.log('mixedList', mixedList)
+  // console.log('pairs', pairs([1, 2, 3]))
+  for (let [a, b] of circularPairs(mixedList)) {
+    // console.log(`a ${a.type}, b ${b.type}`)
+    if (a.type == 'vertex' && b.type == 'face') {
+      faceArray[a.id] = b.face
+    }
+  }
+  // console.log('faceArray', faceArray)
+  return faceArray
+}
+
 class VertexGrid {
   constructor({ bbox, start, size, angle, pattern, iterations }) {
     this.start = start
@@ -509,7 +602,7 @@ class VertexGrid {
     this.edges = {}
     this.faces = {}
     this.iterations = iterations
-    this.forcedChoices = 0 // number of times a choice was forced on the grid
+    // this.forcedChoices = 0 // number of times a choice was forced on the grid
   }
 
   vertexAt(pt) {
@@ -518,26 +611,24 @@ class VertexGrid {
       throw `VertexGrid.vertexAt received unexpected argument ${pt.type}`
     }
     if (pt.string() in this.verticesByCoord) {
-      // console.log('from verticesByCoord')
       return this.verticesByCoord[pt.string()]
     }
     let vertex = this.kdtree.find(pt)
     if (vertex) {
-      // console.log('from kdtree', pt.string(), vertex.point.string(), vertex.point.distance(pt))
       return vertex
     }
-    for (let vertex of Object.values(this.vertices)) {
-      if (vertex.point.manhattanDistance(pt) < THRESHOLD) {
-        console.log(
-          `from for loop ${this.pattern.vertices}`,
-          pt.string(),
-          vertex.point.string(),
-          vertex.point.distance(pt),
-        )
-        this.kdtree.find(pt, true)
-        return vertex
-      }
-    }
+    // for (let vertex of Object.values(this.vertices)) {
+    //   if (vertex.point.manhattanDistance(pt) < THRESHOLD) {
+    //     console.log(
+    //       `from for loop ${this.pattern.vertices}`,
+    //       pt.string(),
+    //       vertex.point.string(),
+    //       vertex.point.distance(pt),
+    //     )
+    //     this.kdtree.find(pt, true)
+    //     return vertex
+    //   }
+    // }
     return null
   }
 
@@ -551,35 +642,25 @@ class VertexGrid {
   }
 
   addFace(polygon) {
-    // console.log('addFace with polygon', polygon)
     let face = new RotatedFace(/** id: **/ Object.values(this.faces).length, polygon)
     this.faces[face.id] = face
 
     let polyLines = polygon.lines
     for (let [firstLine, secondLine] of circularPairs(polyLines)) {
-      let point = secondLine.p
+      let point = secondLine.p // the point that connects first line with second line
       let vertex = this.vertexAt(point)
       if (vertex == null) {
         vertex = this.addVertex(point, this.pattern)
-        // vertex = new Vertex(Object.values(this.vertices).length, point, this.pattern)
-        // this.vertices[vertex.id] = vertex
-        // this.verticesByCoord[point.string()] = vertex
-        // this.incompleteVertices.push(vertex)
       }
       face.vertices.push(vertex)
       if (vertex.faces.length >= vertex.pattern.length) {
         throw `Vertex ${vertex.id} already has enough faces, can't add any more`
       }
-      vertex.addFace(
-        face,
-        normalizeRadians(-firstLine.v.angle()),
-        normalizeRadians(secondLine.v.angle()),
-      )
+      vertex.addFace(face, normalizeRadians(secondLine.v.angle()))
       // populate the neighbors of this vertex
       for (let point of [firstLine.p, secondLine.p.addVect(secondLine.v)]) {
         let neighbor = this.vertexAt(point)
         if (neighbor == null) {
-          // neighbor = new Vertex(Object.values(this.vertices).length, point, this.pattern)
           neighbor = this.addVertex(point, this.pattern)
         }
         vertex.neighbors[neighbor.id] = neighbor
@@ -618,6 +699,93 @@ class VertexGrid {
     this.incompleteVertices = this.incompleteVertices.filter((vertex) => !vertex.isComplete())
   }
 
+  populateFaceFromEdgehints() {
+    for (let face of Object.values(this.faces)) {
+      if (face.isComplete()) {
+        continue
+      }
+      if (this.bbox.distance(face.face.center) > MAX_DISTANCE) {
+        continue
+      }
+
+      // face.edges.sort(
+      //   (a, b) =>
+      //     normalizeRadians(face.face.center.vectTo(a.face.center).angle()) -
+      //     normalizeRadians(face.face.center.vectTo(b.face.center).angle()),
+      // )
+      // console.log(
+      //   `face ${face.id} vertices`,
+      //   face.vertices,
+      //   face.vertices.map(
+      //     (vertex) =>
+      //       `${vertex.id}, ${normalizeRadianString(face.face.center.vectTo(vertex.point).angle())}`,
+      //   ),
+      // )
+      // console.log(face.edges)
+
+      let edges = sortEdgesAndFaces(face.face.center, face.vertices, face.edges)
+      // console.log(
+      //   'edges',
+      //   edges.map((edge) => (edge ? edge.face.tile : null)),
+      // )
+      let possibilities = this.pattern.edgeHints[face.face.tile]
+      // console.log('possibilities', possibilities)
+      let validPotentials = []
+      for (let pot of possibilities) {
+        // console.log('pot', pot)
+        let valid = true
+        for (let [edge, expected] of zip(edges, pot)) {
+          // console.log('edge', edge, 'expected', expected)
+          if (edge != null && edge.face.tile != expected) {
+            // console.log(
+            //   `potential ${pot} doesn't work, expected ${expected} but got ${edge.face.tile}`,
+            // )
+            valid = false
+            break
+          }
+        }
+        if (valid) {
+          validPotentials.push(pot)
+        }
+      }
+      // if (possibilities.length > validPotentials.length) {
+      //   console.log(
+      //     `Valid potentials went from ${possibilities.length} to ${validPotentials.length}`,
+      //   )
+      // }
+      if (validPotentials.length > 1) {
+        continue
+      }
+      // console.log('applying potential', validPotentials[0])
+      // console.log('zip result', enumerate(zip(face.vertices, validPotentials[0], edges)))
+      for (let [id, [vertex, tile, f]] of enumerate(
+        zip(face.vertices, validPotentials[0], edges),
+      )) {
+        if (f == null) {
+          let nextVertex = face.vertices[(id + 1) % face.vertices.length]
+          // console.log(
+          //   `face vertices`,
+          //   face.vertices.map((v) => v.id),
+          //   id,
+          //   (id + 1) % face.vertices.length,
+          // )
+          let angle = vertex.point.vectTo(nextVertex.point).angle() + degToRad(180) // why do we need to add 180 degs here???
+          // let angle = 0
+          // console.log(`angle between ${vertex.id} and ${nextVertex.id} is ${angle}`)
+          // console.log(`angle`)
+          // console.log(
+          //   `attempt to add new tile ${tile} to vertex ${nextVertex.id} at angle ${normalizeRadianString(angle)}`,
+          // )
+          let newFace = new NGon({ tile, side: this.size, angle, firstVertex: nextVertex })
+          this.addFace(newFace)
+          return 1
+        }
+        // console.log(`vertex ${vertex.id}, tile ${tile}, face ${f}`)
+      }
+    }
+    return 0
+  }
+
   populateFaceFromHints() {
     for (let face of Object.values(this.faces)) {
       if (face.isComplete()) {
@@ -628,7 +796,6 @@ class VertexGrid {
       }
 
       // first, filter out any patterns that don't apply to the current vertex setup
-
       let isUpdate = false
       if (face.potentialGenera.length > 1) {
         let newPatterns = []
@@ -691,75 +858,8 @@ class VertexGrid {
     return 0
   }
 
-  // force a choice on one vertex, this gets the generator unstuck, though it could cause invalid results
-  forceChoice() {
-    let verticesByDeficit = {}
-    for (let vertex of this.incompleteVertices) {
-      if (vertex.isComplete()) {
-        continue
-      }
-      if (this.bbox.distance(vertex.point) > MAX_DISTANCE) {
-        // point is too far
-        continue
-      }
-      let deficit = vertex.deficit
-      if (!(deficit in verticesByDeficit)) {
-        verticesByDeficit[deficit] = []
-      }
-      verticesByDeficit[deficit].push(vertex)
-    }
-    if (Object.keys(verticesByDeficit).length == 0) {
-      return 0 // nothing to do, we're done
-    }
-    let minDeficit = Math.min(...Object.keys(verticesByDeficit))
-    let vertex = verticesByDeficit[minDeficit][0]
-    // compute neighbor statistics
-    let byGenus = Object.fromEntries(this.pattern.patterns.map((pat) => [pat.genus, 0]))
-    for (let neighbor of Object.values(vertex.neighbors)) {
-      if (neighbor.finalPattern) {
-        if (!(neighbor.finalPattern.genus in byGenus)) {
-          byGenus[neighbor.finalPattern.genus] = 0
-        }
-        byGenus[neighbor.finalPattern.genus] += 1
-      }
-    }
-
-    let potentialsByGenus = {}
-    for (let pot of vertex.patternPotentials) {
-      if (!(pot.genus in potentialsByGenus)) {
-        potentialsByGenus[pot.genus] = []
-      }
-      potentialsByGenus[pot.genus].push(pot)
-    }
-    let potentials = []
-    let genusOrder = Object.entries(byGenus)
-    genusOrder.sort((a, b) => a[1] - b[1])
-    for (let genus of genusOrder.map(([genus, count]) => genus)) {
-      if (genus in potentialsByGenus) {
-        potentials.push(...Object.values(potentialsByGenus[genus]))
-      }
-    }
-    this.forcedChoices += 1
-    vertex.forcedChoice = true
-    vertex.patternPotentials = [potentials[0]]
-    vertex.finalPattern = potentials[0]
-    let updates = vertex.computeMissing()
-    if (updates.length == 0) {
-      throw 'No updates'
-    }
-    for (let [tile, angle] of updates) {
-      let face = new NGon({ tile, side: this.size, angle, firstVertex: vertex })
-      this.addFace(face)
-    }
-    return 1 // success
-  }
-
   generate() {
-    // console.log(this.pattern)
-    // this.pattern.firstVertex
     let initialVertex = this.addVertex(this.start, this.pattern)
-    // this.vertices[0] = new Vertex(0, this.start, this.pattern)
-    // this.incompleteVertices.push(this.vertices[0])
     let angle = this.angle
     for (let tile of this.pattern.patterns[this.pattern.firstVertex].pattern) {
       let face = new NGon({ tile, side: this.size, angle, firstVertex: initialVertex })
@@ -778,7 +878,7 @@ class VertexGrid {
         break
       }
 
-      // start by updating vertices that are force to have only one choice
+      // start by updating vertices that are forced to have only one choice
       var vertexUpdates
       try {
         vertexUpdates = this.updateVertices()
@@ -792,6 +892,7 @@ class VertexGrid {
         nAdded += vertexUpdates
         this.recomputeIncompleteVertices()
       }
+      // next, see if any faces can have their vertices completed
       if (this.pattern.faceHints) {
         let updates
         try {
@@ -806,29 +907,32 @@ class VertexGrid {
           nAdded += updates
         }
       }
-      // // if no deterministic update could be made, force a decision on one vertex
-      // if (!isUpdated) {
-      //   // switch to making decisive choices
-      //   var forcedUpdates
-      //   try {
-      //     forcedUpdates = this.forceChoice()
-      //   } catch (err) {
-      //     console.error(err)
-      //     this.error = true
-      //     return this
-      //   }
-      //   if (forcedUpdates > 0) {
-      //     isUpdated = true
-      //     nAdded += forcedUpdates
-      //     this.recomputeIncompleteVertices()
-      //   }
-      // }
+      if (this.pattern.edgeHints) {
+        let updates
+        try {
+          updates = this.populateFaceFromEdgehints()
+        } catch (err) {
+          console.error(err)
+          this.error = true
+          return this
+        }
+        if (updates > 0) {
+          isUpdated = true
+          nAdded += updates
+        }
+      }
     }
     return this // allow chaining
   }
 
   getFaces() {
     let faces = Object.values(this.faces)
+    // for (let face of faces) {
+    //   console.log(
+    //     `face ${face.id} with n=${face.face.n} has neighbors`,
+    //     face.edges.map((edge) => edge.id),
+    //   )
+    // }
     return faces
   }
 
@@ -937,8 +1041,6 @@ const gridTiling = {
   },
   computed: {
     grid(previous) {
-      // this.loading = true
-      // console.log('loading is ', this.loading)
       let result = new VertexGrid({
         bbox: this.bbox,
         start: this.start,
@@ -947,8 +1049,6 @@ const gridTiling = {
         pattern: this.pattern,
         iterations: this.iterations,
       }).generate()
-      // this.loading = false
-      // console.log('loading is ', this.loading)
       return result
     },
     showDebugPanel() {

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>JS Memory Profiling</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- <script src="/js/vue.js"></script> -->
+    <link href="/style.css" rel="stylesheet" />
+    <link href="triangles.css" rel="stylesheet" />
+    <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Libertinus+Math&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <header>
+      <h1>JS Memory Profiling</h1>
+      <div class="subhead"><a href="/index.html">Home</a></div>
+    </header>
+    <main>
+      <section id="component">
+        <p>The list has {{items}} items with types {{types}}.</p>
+      </section>
+    </main>
+    <footer>
+      <p>No LLMs were consulted in the making of this site.</p>
+      <p>© 2026 Jānis Lībeks</p>
+    </footer>
+
+    <script type="module">
+      const { createApp, ref, defineComponent } = Vue
+
+      class WithTypeField {
+        constructor(n) {
+          this.n = n
+          this.type = 'WithTypeField'
+          this.type2 = 'type2'
+          this.type3 = 'type3'
+        }
+      }
+
+      class WithTypeGetter {
+        constructor(n) {
+          this.n = n
+        }
+
+        get type() {
+          return 'WithTypeGetter'
+        }
+      }
+
+      class WithoutType {
+        constructor(n) {
+          this.n = n
+        }
+      }
+
+      let n = 1000000
+      // for (let i = 0; i < n; i++) {
+      //   // a.push(new WithTypeField(i))
+      //   a.push(new WithTypeGetter(i))
+      //   // a.push(new WithoutType(i))
+      // }
+      createApp({
+        data() {
+          let a = []
+          for (let i = 0; i < n; i++) {
+            // a.push(new WithTypeField(i))
+            // a.push(new WithTypeGetter(i))
+            a.push(new WithoutType(i))
+          }
+          return {
+            a: a,
+          }
+        },
+        computed: {
+          items: function () {
+            return this.a.length
+          },
+          types: function () {
+            let d = {}
+            for (let obj of this.a) {
+              d[obj.type] = obj
+            }
+            return Object.keys(d)
+          },
+        },
+      }).mount('#component')
+    </script>
+  </body>
+</html>

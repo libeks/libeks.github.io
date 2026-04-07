@@ -192,6 +192,10 @@
           <a class="anchor" href="#tiling-gallery"></a>
           <span>Gallery of tilings</span>
         </h2>
+        <p>
+          Below is a list of all available tilings, displayed in one place. Note that this takes a
+          while to render, and takes up significant memory.
+        </p>
         <figure id="gallery" class="full-width">
           <div class="flex-container" style="display: flex; gap: 2em; flex-wrap: wrap">
             <div v-for="tiling in tilings" style="width: 30%">
@@ -403,7 +407,7 @@
       createApp({
         data() {
           return {
-            tiling: uniform3Tilings[2],
+            tiling: uniform2Tilings[12],
             debugVertices: false,
             debugFaces: false,
             debugVertexGenus: true,

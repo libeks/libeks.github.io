@@ -1,3 +1,13 @@
+// given a list, return pairs
+// [1,2,3] => [[1,2], [2,3]]
+function pairs(list) {
+  let retlist = []
+  for (let i = 0; i < list.length - 1; i++) {
+    retlist.push([list[i], list[i + 1]])
+  }
+  return retlist
+}
+
 // given a list, return pairs of adjacent elements, with wrap-around
 // [1,2,3] => [[1,2], [2,3], [3,1]]
 function circularPairs(list) {
@@ -21,19 +31,26 @@ function reversed(list) {
 }
 
 // zip together two arrays, the size of the return is the shortes of the two arrays
-function zip(l1, l2) {
-  // console.log('zip', l1, l2)
-  let minLen = Math.min(l1.length, l2.length)
+function zip() {
+  // console.log('zip', arguments)
+  let args = [...arguments]
+  // console.log(
+  //   'lengths',
+  //   args.map((l) => l.length),
+  // )
+
+  let minLen = Math.min(...args.map((l) => l.length))
+  // console.log('minLen', minLen)
   let retList = []
   for (let i = 0; i < minLen; i++) {
-    retList.push([l1[i], l2[i]])
+    retList.push(args.map((arg) => arg[i]))
   }
   // console.log('zip result', retList)
   return retList
 }
 
 function enumerate(list) {
-  return Object.entries(list)
+  return list.entries()
 }
 
-export { circularPairs, zip, shift, reversed, enumerate }
+export { pairs, circularPairs, zip, shift, reversed, enumerate }

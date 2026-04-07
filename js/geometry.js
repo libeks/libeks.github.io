@@ -10,6 +10,10 @@ class Point {
     this.type = 'Point'
   }
 
+  // get type() {
+  //   return 'Point'
+  // }
+
   addVect(v) {
     return new Point(this.x + v.x, this.y + v.y)
   }

@@ -6,7 +6,7 @@ import {
   normalizeRadianString,
 } from '/js/math.js'
 import { Point, Vector, Point2DOrigin, LineSegment } from '/js/geometry.js'
-import { Polygon } from '/js/lines.js'
+import { Polygon, StraightStroke } from '/js/lines.js'
 import { BBox } from '/js/bbox.js'
 import { pairs, circularPairs, zip, shift, enumerate, reversed } from '/js/utils.js'
 import { KDTree } from '/js/spatial.js'
@@ -873,6 +873,16 @@ class VertexGrid {
     return vertices
   }
 
+  getDual() {
+    let lines = []
+    for (let face of this.getFaces()) {
+      for (let edge of face.edges) {
+        lines.push(new StraightStroke(face.face.center, edge.face.center))
+      }
+    }
+    return lines
+  }
+
   getVertexCountByGenus() {
     let summary = {}
     for (let vertex of vertices) {
@@ -929,6 +939,9 @@ const gridTiling = {
           {{vertex.id}}
         </text>
       </g>
+      <g v-if="showDual" v-for="line in grid.getDual()">
+        <path :d="line.d()" :style="{stroke: 'hsl(0,0%, 40%)'}" />
+      </g>
       <g v-if="grid.error" class="debug">
         <path :style="{fill:'white'}" d="M 0 0 L 200 0 L 200 40 L 0 40 L 0 0" />
         <text v-if="grid.error" x=0 y=20 :style="{'fill':'red'}">Errors!</text>  
@@ -970,6 +983,7 @@ const gridTiling = {
     showFaces: Boolean,
     showFaceColors: Boolean,
     showPattern: Boolean,
+    showDual: Boolean,
   },
   computed: {
     grid(previous) {

@@ -126,6 +126,7 @@
               show-forced-vertices
               :show-faces="showFaces"
               :show-face-colors="showFaceColors"
+              :show-dual="showDual"
             ></grid-tiling>
           </svg>
           <figcaption>
@@ -184,6 +185,13 @@
                 :active="showFaceNumbers"
                 @toggle-choice="showFaceNumbers = !showFaceNumbers"
                 text="Show face numbers"
+              ></toggle-button>
+            </div>
+            <div class="button-block">
+              <toggle-button
+                :active="showDual"
+                @toggle-choice="showDual = !showDual"
+                text="Show dual"
               ></toggle-button>
             </div>
           </figcaption>
@@ -429,6 +437,7 @@
             showVertices: true,
             showFaceColors: true,
             showFaces: true,
+            showDual: false,
           }
         },
         methods: {

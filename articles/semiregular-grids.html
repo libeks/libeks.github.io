@@ -132,16 +132,10 @@
           <figcaption>
             <select v-model="tiling">
               <option disabled value="">Pick a tiling</option>
-              <option disabled value="">Regular</option>
-              <option v-for="tile in regularTilings" :value="tile">{{tile.string()}}</option>
-              <option disabled value="">Semi-Regular</option>
-              <option v-for="tile in semiregularTilings" :value="tile">{{tile.string()}}</option>
-              <option disabled value="">2-uniform</option>
-              <option v-for="tile in uniform2Tilings" :value="tile">{{tile.string()}}</option>
-              <option disabled value="">3-uniform</option>
-              <option v-for="tile in uniform3Tilings" :value="tile">{{tile.string()}}</option>
-              <option disabled value="">4-uniform</option>
-              <option v-for="tile in uniform4Tilings" :value="tile">{{tile.string()}}</option>
+              <template v-for="(list, key) of tilingClasses">
+                <option disabled value="">{{key}}</option>
+                <option v-for="tile in list" :value="tile">{{tile.string()}}</option>
+              </template>
             </select>
 
             <div class="button-block">
@@ -207,24 +201,27 @@
           while to render, and takes up significant memory.
         </p>
         <figure id="gallery" class="full-width">
-          <div class="flex-container" style="display: flex; gap: 2em; flex-wrap: wrap">
-            <div v-for="tiling in tilings" style="width: 30%">
-              <p>{{tiling.string()}}</p>
-              <svg viewBox="0 0 300 300">
-                <grid-tiling
-                  :bbox="bbox"
-                  :start="start"
-                  :size="20"
-                  :pattern="tiling"
-                  :iterations="-1"
-                  debug-vertex-genus
-                  show-vertices
-                  show-forced-choices
-                  show-forced-vertices
-                  show-faces
-                  show-face-colors
-                ></grid-tiling>
-              </svg>
+          <div v-for="(tilings, key) of tilingClasses">
+            <div><h3>{{key}}</h3></div>
+            <div class="flex-container" style="display: flex; gap: 2em; flex-wrap: wrap">
+              <div v-for="tiling in tilings" style="width: 30%">
+                <p>{{tiling.string()}}</p>
+                <svg viewBox="0 0 300 300">
+                  <grid-tiling
+                    :bbox="bbox"
+                    :start="start"
+                    :size="20"
+                    :pattern="tiling"
+                    :iterations="-1"
+                    debug-vertex-genus
+                    show-vertices
+                    show-forced-choices
+                    show-forced-vertices
+                    show-faces
+                    show-face-colors
+                  ></grid-tiling>
+                </svg>
+              </div>
             </div>
           </div>
         </figure>
@@ -438,6 +435,13 @@
             showFaceColors: true,
             showFaces: true,
             showDual: false,
+            tilingClasses: {
+              Regular: regularTilings,
+              Semiregular: semiregularTilings,
+              '2-uniform': uniform2Tilings,
+              '3-uniform': uniform3Tilings,
+              '4-uniform': uniform4Tilings,
+            },
           }
         },
         methods: {
@@ -501,13 +505,13 @@
       createApp({
         data() {
           return {
-            tilings: [
-              ...regularTilings,
-              ...semiregularTilings,
-              ...uniform2Tilings,
-              ...uniform3Tilings,
-              ...uniform4Tilings,
-            ],
+            tilingClasses: {
+              Regular: regularTilings,
+              Semiregular: semiregularTilings,
+              '2-uniform': uniform2Tilings,
+              '3-uniform': uniform3Tilings,
+              '4-uniform': uniform4Tilings,
+            },
             start: new Point(150, 150),
             bbox: new BBox(-100, -100, 400, 400),
           }

@@ -267,7 +267,80 @@ const uniform4Tilings = [
     },
     firstVertex: 3,
   }),
-] // something is broken here...
+  new TilingPattern(['3a.3b.3a.4b.4b', '3a.3b.6b.6a', '3a.4b.4a.6a', '4a.6a.12'], {
+    faces: {
+      '3a': '0.1.2',
+      '3b': '0.1.1',
+      '4a': '2.2.3.3',
+      '4b': '0.0.2.2',
+      '6a': '1.1.2.3.3.2',
+      '6b': '1.1.1.1.1.1',
+      12: '3.3.3.3.3.3.3.3.3.3.3.3',
+    },
+    firstVertex: 3,
+  }),
+  new TilingPattern(['3a.3a.4b.3b.4b', '3a.3a.6.6', '3a.4b.4a.6', '4a.6.12'], {
+    faces: {
+      '3a': '0.1.2',
+      '3b': '0.0.0',
+      '4a': '2.2.3.3',
+      '4b': '0.0.2.2',
+      6: '1.2.3.3.2.1',
+      12: '3.3.3.3.3.3.3.3.3.3.3.3',
+    },
+    firstVertex: 2,
+  }),
+  new TilingPattern(['3c.3c.3c.3c.3c.3c', '3b.3a.3b.4b.4b', '3c.3c.4a.3b.4b', '3a.3b.4a.12'], {
+    firstVertex: 3,
+  }),
+  new TilingPattern(['3c.3c.3c.3c.3c.3c', '3c.3c.4.3b.4', '3a.3b.4.12', '3a.12.12'], {
+    faces: {
+      '3a': '2.2.3',
+      '3b': '1.2.2',
+      '3c': '0.1.1',
+      4: '1.1.2.2',
+      12: '2.2.3.3.2.2.3.3.2.2.3.3',
+    },
+    firstVertex: 2,
+  }),
+  new TilingPattern(['3c.3c.3c.3c.3c.3c', '3c.3c.4.3b.4', '3a.4.3b.12', '3a.12.12'], {
+    faces: {
+      '3a': '2.2.3',
+      '3b': '1.2.2',
+      '3c': '0.1.1',
+      4: '1.1.2.2',
+      12: '2.2.3.3.2.2.3.3.2.2.3.3',
+    },
+    firstVertex: 2,
+  }),
+  new TilingPattern(['3b.3c.3c.3b.3c.3c', '3c.3b.3a.4a.4b', '3c.3c.4b.3d.4b', '3a.4a.6.4a'], {
+    firstVertex: 1,
+  }),
+  //skipping a whole bunch
+  // tilings with duplicated (nonidentical) patterns
+  new TilingPattern(['3a.3b.3b.3a.6', '3a.3b.4c.3c.4b', '3b.3b.4c.3c.4c', '3a.4b.4a.6'], {
+    faces: {
+      '3a': '0.1.3',
+      '3b': '0.1.2',
+      '3c': '1.1.2',
+      '4a': '3.3.3.3',
+      '4b': '1.1.3.3',
+      '4c': '1.2.1.2',
+      6: '0.3.3.0.3.3',
+    },
+    firstVertex: 3,
+  }),
+  new TilingPattern(['3.4a.6.4b', '3.4b.4c.6', '3.4a.4a.6', '4a.4a.4a.4a'], {
+    faces: {
+      3: '0.1.2',
+      '4a': '0.2.3.2',
+      '4b': '0.0.1.1',
+      '4c': '1.1.1.1',
+      6: '0.0.2.1.1.2',
+    },
+    firstVertex: 0,
+  }),
+]
 
 class NGon {
   constructor({ tile, side, angleFraction, angle, center, firstVertex }) {
@@ -729,8 +802,10 @@ class VertexGrid {
       if (face.isComplete()) {
         continue
       }
+      // console.log(`face ${face.id} is not complete, has potentialGenera`, face.potentialGenera)
       if (!face.potentialGenera) {
         face.potentialGenera = this.pattern.getFaceHints(face.face.tile)
+        // console.log(`Setting face ${face.id} potential genera to`, face.potentialGenera)
       }
 
       // first, filter out any patterns that don't apply to the current vertex setup
@@ -742,6 +817,9 @@ class VertexGrid {
           for (let [vertex, gen] of zip(face.vertices, pat)) {
             let potentialGenera = vertex.getPossibleGenera()
             if (!potentialGenera.includes(gen)) {
+              // console.log(
+              //   `face ${face.id} pattern ${pat} is invalid, for vertex ${vertex.id} potential genera ${potentialGenera} doesn't include ${gen}`,
+              // )
               validPattern = false
               isUpdate = true
               break
@@ -749,12 +827,17 @@ class VertexGrid {
           }
           if (validPattern) {
             newPatterns.push(pat)
+          } else {
+            // console.log(`face ${face.id} pattern ${pat} is invalid`)
           }
         }
         if (newPatterns.length == 0) {
           throw `Face ${face.id} got unexpected zero new patterns`
         }
+        // console.log(`face ${face.id} setting potential genera to `, newPatterns)
         face.potentialGenera = newPatterns
+      } else if (face.potentialGenera.length == 0) {
+        throw `Face ${face.id} has no potential genera`
       }
       for (let [vid, vertex] of enumerate(face.vertices)) {
         if (this.bbox.distance(vertex.point) > MAX_DISTANCE) {
@@ -764,11 +847,19 @@ class VertexGrid {
         let potentials = face.potentialGenera.map((g) => g[vid])
         let newList = []
         for (let pat of vertex.patternPotentials) {
-          let isValid = false
           let genus = pat.genus
-          isValid = potentials.includes(genus)
-          if (isValid) {
+          // console.log(
+          //   `face ${face.id} vertex ${vertex.id} has pattern ${pat.pattern} and genus ${genus}, compared to potentials ${potentials}`,
+          // )
+          if (potentials.includes(genus)) {
+            // console.log(
+            //   `face ${face.id} vertex ${vertex.id} pattern ${pat.pattern} and genus ${genus} matches`,
+            // )
             newList.push(pat)
+          } else {
+            // console.log(
+            //   `face ${face.id} vertex ${vertex.id} pattern ${pat.pattern} and genus ${genus} was rejected`,
+            // )
           }
         }
         if (newList.length != vertex.patternPotentials.length) {
@@ -777,6 +868,10 @@ class VertexGrid {
           }
           vertex.patternPotentials = newList
           if (vertex.patternPotentials.length == 1) {
+            // console.log(
+            //   `face ${face.id} vertex ${vertex.id} can only have one pattern`,
+            //   vertex.patternPotentials,
+            // )
             vertex.finalPattern = vertex.patternPotentials[0]
             let updates = vertex.computeMissing()
             if (updates.length == 0) {
@@ -784,8 +879,13 @@ class VertexGrid {
             }
             for (let [tile, angle] of updates) {
               let face = new NGon({ tile, side: this.size, angle, firstVertex: vertex })
+              // console.log(`adding face`, face)
               this.addFace(face)
             }
+            // console.log(
+            //   `face ${face.id} after adding new face has potential genera`,
+            //   face.potentialGenera,
+            // )
             return 1 // success
           } else {
             return 0

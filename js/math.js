@@ -50,6 +50,14 @@ function normalizeRadianString(radians) {
   // return str
 }
 
+// given wrap-around numbers from 0 to n-1, return the distance between a and b
+function distance(n, a, b) {
+  if (a > b) {
+    ;[a, b] = [b, a] // swap
+  }
+  return Math.min((b - a) % n, Math.abs((b - a - n) % n))
+}
+
 export {
   reverseInterpolate,
   degToRad,
@@ -57,4 +65,5 @@ export {
   closeEnough,
   normalizeRadians,
   normalizeRadianString,
+  distance,
 }

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { numericalToHex, hexToNumerical } from '/js/catalan.js'
+import { numericalToHex, hexToNumerical, parenthesesToNumerical } from '/js/catalan.js'
 
 test('numerical to hex conversion', () => {
   for (let i = 0; i < 62; i++) {
@@ -18,4 +18,10 @@ test('check hex sequece matches', () => {
     list.push(numericalToHex(i))
   }
   expect(list.join('')).toBe(hexLetters)
+})
+
+test('parenthesesToNumerical', () => {
+  let input = '()()()'
+  let output = '123456'
+  expect(parenthesesToNumerical(input).join('')).toBe(output)
 })

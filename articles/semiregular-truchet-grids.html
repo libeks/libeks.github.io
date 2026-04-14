@@ -42,13 +42,47 @@
             <a class="anchor" href="#triangles"></a>
             <span>Triangles (3-gons)</span>
           </h3>
-
-          <div class="text-figure">
-            <p>
-              I've previously covered this in the
-              <a href="/articles/triangle-truchet.html">triangular truchet grid article</a>.
-            </p>
-            <figure id="triangle-control-points" class="float-right small">
+          <p>
+            I've previously covered this in the
+            <a href="/articles/triangle-truchet.html">triangular truchet grid article</a>.
+          </p>
+          <div id="triangle-control-points" class="flex-block flex-center">
+            <div v-for="tileN in tiles" class="display-tile gray">
+              <figure class="small">
+                <svg viewBox="0 0 120 120">
+                  <g class="grid triangle">
+                    <g class="ngon">
+                      <path
+                        class="stroke grey"
+                        :d="ngon.d"
+                        :style="{'stroke-width': 1, stroke: 'hsl(0, 0%, 70%)'}"
+                      />
+                      <circle
+                        v-for="pt in truchet.notchPoints"
+                        class="stroke medium red"
+                        v-bind="pt.cxcyProps()"
+                        r="1"
+                      />
+                      <circle
+                        v-for="pt in Object.values(truchet.stars)"
+                        class="stroke medium"
+                        :style="{stroke: 'red'}"
+                        v-bind="pt.cxcyProps()"
+                        r="1"
+                      />
+                      <template v-for="curve in truchet.getCatalanTile(tileN)">
+                        <path class="stroke" :d="curve.d()" />
+                        <path class="stroke thin red" :d="curve.contour().d()" />
+                      </template>
+                    </g>
+                  </g>
+                </svg>
+                <ficaption>{{truchet.getTile(tileN)}}</ficaption>
+              </figure>
+            </div>
+          </div>
+          <!-- <div id="triangle-control-points" class="text-figure"> -->
+          <!-- <figure class="float-right small">
               <svg viewBox="0 0 150 120">
                 <g class="grid triangle">
                   <g class="ngon">
@@ -58,20 +92,20 @@
                       :style="{'stroke-width': 1, stroke: 'hsl(0, 0%, 70%)'}"
                     />
                     <circle
-                      v-for="pt in points.midpoints"
+                      v-for="pt in truchet.midpoints"
                       class="stroke medium"
                       v-bind="pt.cxcyProps()"
                       r="2"
                     />
                     <circle
-                      v-for="pt in points.notches"
+                      v-for="pt in truchet.notchPoints"
                       class="stroke medium"
                       v-bind="pt.cxcyProps()"
                       r="1"
                     />
-                    <text v-for="(pt, i) in points.notches" v-bind="pt.xyProps()">{{i}}</text>
+                    <text v-for="(pt, i) in truchet.notchPoints" v-bind="pt.xyProps()">{{i}}</text>
                     <circle
-                      v-for="pt in Object.values(points.stars)"
+                      v-for="pt in Object.values(truchet.stars)"
                       class="stroke medium"
                       :style="{stroke: 'red'}"
                       v-bind="pt.cxcyProps()"
@@ -101,75 +135,59 @@
                   v-model.number="notch2"
                 />
               </figcaption>
-            </figure>
+            </figure> -->
+          <!-- </div> -->
+        </section>
+        <section>
+          <h3 id="hexagons">
+            <a class="anchor" href="#hexagons"></a>
+            <span>Hexagons (6-gons)</span>
+          </h3>
+
+          <div id="hexagon-control-points" class="flex-block flex-center">
+            <div v-for="tileN in tiles" class="display-tile gray">
+              <figure class="small">
+                <svg viewBox="0 0 300 300">
+                  <g class="grid triangle">
+                    <g class="ngon">
+                      <path
+                        class="stroke grey"
+                        :d="ngon.d"
+                        :style="{'stroke-width': 1, stroke: 'hsl(0, 0%, 70%)'}"
+                      />
+                      <circle
+                        v-for="pt in truchet.notchPoints"
+                        class="stroke medium red"
+                        v-bind="pt.cxcyProps()"
+                        r="1"
+                      />
+                      <circle
+                        v-for="pt in Object.values(truchet.stars)"
+                        class="stroke medium"
+                        :style="{stroke: 'red'}"
+                        v-bind="pt.cxcyProps()"
+                        r="1"
+                      />
+                      <template v-for="curve in truchet.getCatalanTile(tileN)">
+                        <path class="stroke" :d="curve.d()" />
+                        <path class="stroke thin red" :d="curve.contour().d()" />
+                      </template>
+                    </g>
+                  </g>
+                </svg>
+                <ficaption>{{truchet.getTile(tileN)}}</ficaption>
+              </figure>
+            </div>
           </div>
         </section>
         <section>
-          <h3 id="triangles">
-            <a class="anchor" href="#triangles"></a>
+          <h3 id="dodecagons">
+            <a class="anchor" href="#dodecagons"></a>
             <span>Dodecagons (12-gons)</span>
           </h3>
 
-          <div id="dodecagon-control-points" class="text-figure">
-            <p>
-              I've previously covered this in the
-              <a href="/articles/triangle-truchet.html">triangular truchet grid article</a>.
-            </p>
-            <figure class="float-right small">
-              <svg viewBox="0 0 500 500">
-                <g class="grid triangle">
-                  <g class="ngon">
-                    <path
-                      class="stroke grey"
-                      :d="ngon.d"
-                      :style="{'stroke-width': 1, stroke: 'hsl(0, 0%, 70%)'}"
-                    />
-                    <circle
-                      v-for="pt in points.midpoints"
-                      class="stroke medium"
-                      v-bind="pt.cxcyProps()"
-                      r="2"
-                    />
-                    <circle
-                      v-for="pt in points.notches"
-                      class="stroke medium"
-                      v-bind="pt.cxcyProps()"
-                      r="1"
-                    />
-                    <text v-for="(pt, i) in points.notches" v-bind="pt.xyProps()">{{i}}</text>
-                    <circle
-                      v-for="pt in Object.values(points.stars)"
-                      class="stroke medium"
-                      :style="{stroke: 'red'}"
-                      v-bind="pt.cxcyProps()"
-                      r="1"
-                    />
-                  </g>
-                </g>
-              </svg>
-              <figcaption>
-                Dodecagon control points
-                <input
-                  class="slider"
-                  type="range"
-                  name="notch"
-                  min="0.05"
-                  :max="Math.min(notch2 - 0.02, 0.95)"
-                  step="0.01"
-                  v-model.number="notch1"
-                />
-                <input
-                  class="slider"
-                  type="range"
-                  name="notch"
-                  :min="Math.max(notch1 + 0.02, 0.05)"
-                  max="0.95"
-                  step="0.01"
-                  v-model.number="notch2"
-                />
-              </figcaption>
-            </figure>
-            <template v-for="tileN in dodecagonTiles">
+          <div id="dodecagon-control-points" class="flex-block flex-center">
+            <div v-for="tileN in tiles" class="display-tile gray">
               <figure class="small">
                 <svg viewBox="0 0 500 500">
                   <g class="grid triangle">
@@ -180,21 +198,28 @@
                         :style="{'stroke-width': 1, stroke: 'hsl(0, 0%, 70%)'}"
                       />
                       <circle
-                        v-for="pt in points.notches"
-                        class="stroke medium"
+                        v-for="pt in truchet.notchPoints"
+                        class="stroke medium red"
                         v-bind="pt.cxcyProps()"
                         r="1"
                       />
-                      <path
-                        v-for="curve in truchet.getCatalanTile(tileN)"
-                        class="stroke"
-                        :d="curve.d()"
+                      <circle
+                        v-for="pt in Object.values(truchet.stars)"
+                        class="stroke medium"
+                        :style="{stroke: 'red'}"
+                        v-bind="pt.cxcyProps()"
+                        r="1"
                       />
+                      <template v-for="curve in truchet.getCatalanTile(tileN)">
+                        <path class="stroke" :d="curve.d()" />
+                        <path class="stroke thin red" :d="curve.contour().d()" />
+                      </template>
                     </g>
                   </g>
                 </svg>
+                <ficaption>{{truchet.getTile(tileN)}}</ficaption>
               </figure>
-            </template>
+            </div>
           </div>
         </section>
       </section>
@@ -230,44 +255,50 @@
       import { Point2DOrigin, Point } from '/js/geometry.js'
       import { degToRad } from '/js/math.js'
       import { playControls, radioButtons, toggleButton } from '/js/buttons.js'
-      import { GenericTriangleTruchet, GenericDodecagonTruchet } from '/js/regular-truchet.js'
+      import { GenericTriangleTruchet, GenericTruchet } from '/js/regular-truchet.js'
 
       createApp({
         data() {
           return {
-            ngon: new NGon({ tile: '3', side: 100, center: new Point(76, 50) }),
+            ngon: new NGon({ tile: '3', side: 100, center: new Point(50, 60) }),
             notch1: 0.33,
             notch2: 0.66,
-            triangleTiles: [0, 1, 2, 3, 4],
+            tiles: [0, 11, 24, 37, 401],
           }
         },
         computed: {
           truchet() {
-            return new GenericTriangleTruchet(this.ngon.vertices, false, [this.notch1, this.notch2])
-          },
-          points() {
-            return this.truchet.getPoints()
+            return new GenericTruchet(this.ngon.vertices, false, [this.notch1, this.notch2])
           },
         },
       }).mount('#triangle-control-points')
       createApp({
         data() {
           return {
-            ngon: new NGon({ tile: '12', side: 100, center: new Point(250, 250) }),
+            ngon: new NGon({ tile: '6', side: 100, center: new Point(150, 150) }),
             notch1: 0.33,
             notch2: 0.66,
-            dodecagonTiles: [0, 10, 20, 30, 40, 50],
+            tiles: [0, 100, 209, 313, 4030, 500251],
           }
         },
         computed: {
           truchet() {
-            return new GenericDodecagonTruchet(this.ngon.vertices, false, [
-              this.notch1,
-              this.notch2,
-            ])
+            return new GenericTruchet(this.ngon.vertices, false, [this.notch1, this.notch2])
           },
-          points() {
-            return this.truchet.getPoints()
+        },
+      }).mount('#hexagon-control-points')
+      createApp({
+        data() {
+          return {
+            ngon: new NGon({ tile: '12', side: 100, center: new Point(250, 250) }),
+            notch1: 0.33,
+            notch2: 0.66,
+            tiles: [0, 100, 209, 313, 4030, 500251],
+          }
+        },
+        computed: {
+          truchet() {
+            return new GenericTruchet(this.ngon.vertices, false, [this.notch1, this.notch2])
           },
         },
       }).mount('#dodecagon-control-points')

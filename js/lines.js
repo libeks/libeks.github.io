@@ -37,6 +37,10 @@ class StraightStroke {
     return new StraightStroke(this.from.addVect(v), this.to.addVect(v))
   }
 
+  contour() {
+    return this
+  }
+
   transform2D(matrix) {
     if (matrix.type != 'Matrix2DHomo') {
       throw `StraightStroke.transform2D got unexpected argument ${matrix.type}`
@@ -78,6 +82,13 @@ class QuadraticBezier {
     return new QuadraticBezier(this.from.addVect(v), this.c1.addVect(v), this.to.addVect(v))
   }
 
+  contour() {
+    return new CompositeCurve(
+      new StraightStroke(this.from, this.c1),
+      new StraightStroke(this.c1, this.to),
+    )
+  }
+
   transform2D(matrix) {
     if (matrix.type != 'Matrix2DHomo') {
       throw `QuadraticBezier.transform2D got unexpected argument ${matrix.type}`
@@ -92,6 +103,9 @@ class QuadraticBezier {
 
 class CubicBezier {
   constructor(from, c1, c2, to) {
+    if (from.type != 'Point' || c1.type != 'Point' || c2.type != 'Point' || to.type != 'Point') {
+      throw `CubicBezier with unexpected types ${from.type}, ${c1.type}, ${c2.type}, ${to.type}`
+    }
     this.from = from
     this.c1 = c1
     this.c2 = c2
@@ -126,6 +140,14 @@ class CubicBezier {
       this.c1.addVect(v),
       this.c2.addVect(v),
       this.to.addVect(v),
+    )
+  }
+
+  contour() {
+    return new CompositeCurve(
+      new StraightStroke(this.from, this.c1),
+      new StraightStroke(this.c1, this.c2),
+      new StraightStroke(this.c2, this.to),
     )
   }
 

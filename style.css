@@ -87,6 +87,19 @@ div.flex-block {
   &.flex-center {
     justify-content: center;
   }
+
+  div.display-tile {
+    padding: 10px 20px;
+    /*white-space: nowrap;*/
+
+    figure {
+      min-width: 150px;
+    }
+
+    &.gray {
+      background-color: hsl(0, 0%, 90%);
+    }
+  }
 }
 
 div.center {

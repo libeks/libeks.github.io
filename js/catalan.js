@@ -88,6 +88,7 @@ function hexToNumerical(a) {
     // lowercase letters
     return charCode - 97 + 36
   }
+  throw `hexToNumerical: Unsupported hex ${hex}`
 }
 
 function numericalToHex(char) {
@@ -102,6 +103,7 @@ function numericalToHex(char) {
   if (char < 62) {
     return String.fromCharCode(97 + (char - 36))
   }
+  throw `numericalToHex: Unsupported value ${char}`
 }
 
 function arrayOfArrayToArrayOfNumStrings(a) {

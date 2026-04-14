@@ -486,4 +486,5 @@ export {
   catalan6,
   catalan3,
   threePairs,
+  getPairs,
 }

@@ -26,6 +26,12 @@ function shift(list) {
   return [list[list.length - 1], ...list.slice(0, list.length - 1)]
 }
 
+// shift rightward one position, with wraparound
+// so rightShift([0,1,2,3]) => [1,2,3,0]
+function rightShift(list) {
+  return [...list.slice(1, list.lenght), list[0]]
+}
+
 function reversed(list) {
   return [...list].reverse()
 }
@@ -53,4 +59,4 @@ function enumerate(list) {
   return list.entries()
 }
 
-export { pairs, circularPairs, zip, shift, reversed, enumerate }
+export { pairs, circularPairs, zip, shift, rightShift, reversed, enumerate }

@@ -217,4 +217,7 @@ export {
   // character conversion
   numericalToHex,
   hexToNumerical,
+
+  // test
+  testHexNumericals,
 }

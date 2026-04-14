@@ -80,11 +80,12 @@ function hexToNumerical(a) {
     return Number(a) // ensure the result is always a number
   }
   let charCode = a.charCodeAt()
-  // console.log(`charCode ${a} = ${charCode}`)
   if (charCode >= 65 && charCode <= 90) {
+    // uppercase letters
     return charCode - 65 + 10
   }
   if (charCode >= 97 && charCode <= 122) {
+    // lowercase letters
     return charCode - 97 + 36
   }
 }
@@ -93,9 +94,11 @@ function numericalToHex(char) {
   if (char < 10) {
     return char
   }
+  // uppercase letters
   if (char < 36) {
     return String.fromCharCode(65 + (char - 10))
   }
+  // lowercase letters
   if (char < 62) {
     return String.fromCharCode(97 + (char - 36))
   }

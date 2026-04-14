@@ -2,7 +2,7 @@ import { expect, test } from 'vitest'
 import { numericalToHex, hexToNumerical } from '/js/catalan.js'
 
 test('numerical to hex conversion', () => {
-  for (let i = 0; i < 48; i++) {
+  for (let i = 0; i < 62; i++) {
     let hex = numericalToHex(i)
     let num = hexToNumerical(hex)
     // console.log('debug', i, hex, num)

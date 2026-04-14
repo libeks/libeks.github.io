@@ -79,14 +79,26 @@ function hexToNumerical(a) {
   if (!isNaN(a)) {
     return Number(a) // ensure the result is always a number
   }
-  return a.charCodeAt() - 65 + 10
+  let charCode = a.charCodeAt()
+  // console.log(`charCode ${a} = ${charCode}`)
+  if (charCode >= 65 && charCode <= 90) {
+    return charCode - 65 + 10
+  }
+  if (charCode >= 97 && charCode <= 122) {
+    return charCode - 97 + 36
+  }
 }
 
 function numericalToHex(char) {
   if (char < 10) {
     return char
   }
-  return String.fromCharCode(65 + (char - 10))
+  if (char < 36) {
+    return String.fromCharCode(65 + (char - 10))
+  }
+  if (char < 62) {
+    return String.fromCharCode(97 + (char - 36))
+  }
 }
 
 function arrayOfArrayToArrayOfNumStrings(a) {

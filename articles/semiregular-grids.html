@@ -29,11 +29,12 @@
         </h2>
         <div class="text-figure">
           <p>
-            To start, let's make a class that can render any regular n-gon. This will come in handy
-            later.
+            To start, let's make a class that can render any regular n-gon. Luckily, the plane can
+            only be tiled with triangles, squares, hexagons, octagons (8 sides), and dodecagons (12
+            sides).
           </p>
           <figure id="ngons" class="float-right small">
-            <svg viewBox="0 0 300 300">
+            <svg viewBox="0 0 300 230">
               <g class="grid">
                 <g
                   v-for="(poly,i) in polygons"
@@ -62,8 +63,9 @@
           vertex. So '3.4.6.4' means that that genus of vertex has a triangle, a square, a hexagon,
           and a square, in that order. Further on in the list, there are cases where the same n-gon
           can appear in multiple circumstances, in which case I use letter suffixes to differentiate
-          between them. So '3a.3a.3b.3a.6' means that there are two types of triangles, '3a' and
-          '3b', and they must appear in this order.
+          between them. Each 'genus' is defined uniquely by its vertex genus sequence. So
+          '3a.3a.3b.3a.6' means that there are two types of triangles, '3a' and '3b', and they must
+          appear in this order.
         </p>
         <ul>
           <li>Pick a point, this will be the initial vertex.</li>
@@ -277,7 +279,7 @@
       createApp({
         data() {
           return {
-            polygons: ['3', '4', '5', '6', '7', '8', '10', '12', '15'].map(
+            polygons: ['3', '4', '6', '8', '12'].map(
               (tile) => new NGon({ tile, side: 20, angleFraction: 0.5 }),
             ),
           }

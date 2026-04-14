@@ -23,150 +23,159 @@
     </header>
     <main>
       <section>
-        <h2 id="truchet-on-k-uniform-tilings">
-          <a class="anchor" href="#truchet-on-k-uniform-tilings"></a>
-          <span>Truchet Tiles on k-uniform Tilings</span>
+        This is a follow-up to <a href="/articles/semiregular-grids.html">semiregular grids</a>.
+        Next, I want to apply Truchet-like tiles to this regular tiling. Just as before, I am
+        specifically interested in non-intersecting curves, so the article on
+        <a href="/articles/catalan.html">Catalan structures</a> is very relevant here.
+      </section>
+      <section>
+        <h2 id="truchet-tiles">
+          <a class="anchor" href="#truchet-tiles"></a>
+          <span>Truchet Tiles on n-gons</span>
         </h2>
-        <div class="text-figure">
-          <p>
-            The idea now is as follows. Since I'm working with n-gons, and since I've already worked
-            on <a href="/articles/triangle-truchet.html">Triangular</a> and
-            <a href="/articles/square-truchet.html">Square Truchet Tiles</a>, it should be possible
-            to expand Truchet Tiling to any n-gons, and apply it to any k-uniform tiling from above.
-          </p>
-          <figure id="triangle-control-points" class="float-right small">
-            <svg viewBox="0 0 150 120">
-              <g class="grid triangle">
-                <g class="ngon">
-                  <path
-                    class="stroke grey"
-                    :d="triangle.d"
-                    :style="{'stroke-width': 1, stroke: 'hsl(0, 0%, 70%)'}"
-                  />
-                  <circle
-                    v-for="pt in tile.midpoints"
-                    class="stroke medium"
-                    v-bind="pt.cxcyProps()"
-                    r="2"
-                  />
-                  <circle
-                    v-for="pt in tile.notches"
-                    class="stroke medium"
-                    v-bind="pt.cxcyProps()"
-                    r="1"
-                  />
-                  <circle
-                    v-for="pt in Object.values(tile.stars)"
-                    class="stroke medium"
-                    :style="{stroke: 'red'}"
-                    v-bind="pt.cxcyProps()"
-                    r="1"
-                  />
+        <p>
+          First, I need to come up with generic ways to generate Truchet tiles for 3-, 4-, 6-, 8-,
+          and 12-gons, since these are all the regular ngons used in planar tilings.
+        </p>
+        <section>
+          <h3 id="triangles">
+            <a class="anchor" href="#triangles"></a>
+            <span>Triangles (3-gons)</span>
+          </h3>
+
+          <div class="text-figure">
+            <p>
+              I've previously covered this in the
+              <a href="/articles/triangle-truchet.html">triangular truchet grid article</a>.
+            </p>
+            <figure id="triangle-control-points" class="float-right small">
+              <svg viewBox="0 0 150 120">
+                <g class="grid triangle">
+                  <g class="ngon">
+                    <path
+                      class="stroke grey"
+                      :d="triangle.d"
+                      :style="{'stroke-width': 1, stroke: 'hsl(0, 0%, 70%)'}"
+                    />
+                    <circle
+                      v-for="pt in tile.midpoints"
+                      class="stroke medium"
+                      v-bind="pt.cxcyProps()"
+                      r="2"
+                    />
+                    <circle
+                      v-for="pt in tile.notches"
+                      class="stroke medium"
+                      v-bind="pt.cxcyProps()"
+                      r="1"
+                    />
+                    <circle
+                      v-for="pt in Object.values(tile.stars)"
+                      class="stroke medium"
+                      :style="{stroke: 'red'}"
+                      v-bind="pt.cxcyProps()"
+                      r="1"
+                    />
+                  </g>
                 </g>
-              </g>
-            </svg>
-            <figcaption>
-              Triangle control points
-              <input
-                class="slider"
-                type="range"
-                name="notch"
-                min="0.05"
-                max="0.95"
-                step="0.01"
-                v-model.number="notch1"
-              />
-              <input
-                class="slider"
-                type="range"
-                name="notch"
-                min="0.05"
-                max="0.95"
-                step="0.01"
-                v-model.number="notch2"
-              />
-            </figcaption>
-          </figure>
-        </div>
+              </svg>
+              <figcaption>
+                Triangle control points
+                <input
+                  class="slider"
+                  type="range"
+                  name="notch"
+                  min="0.05"
+                  max="0.95"
+                  step="0.01"
+                  v-model.number="notch1"
+                />
+                <input
+                  class="slider"
+                  type="range"
+                  name="notch"
+                  min="0.05"
+                  max="0.95"
+                  step="0.01"
+                  v-model.number="notch2"
+                />
+              </figcaption>
+            </figure>
+          </div>
+        </section>
+        <section>
+          <h3 id="triangles">
+            <a class="anchor" href="#triangles"></a>
+            <span>Dodecagons (12-gons)</span>
+          </h3>
 
-        <figure id="grid-truchet" class="full-width">
-          <svg viewBox="0 0 1000 500">
-            <grid-tiling
-              :bbox="bbox"
-              :start="start"
-              :size="30"
-              :pattern="tiling"
-              :iterations="-1"
-              :debug-face-number="showFaceNumbers"
-              debug-vertex-genus
-              :debug-vertex-number="showVertexNumbers"
-              :debug-show-bbox="showBBox"
-              :show-vertices="showVertices"
-              show-forced-choices
-              show-forced-vertices
-              :show-faces="showFaces"
-            ></grid-tiling>
-          </svg>
-          <figcaption>
-            <select v-model="tiling">
-              <option disabled value="">Pick a tiling</option>
-              <option disabled value="">Regular</option>
-              <option v-for="tile in regularTilings" :value="tile">{{tile.string()}}</option>
-              <option disabled value="">Semi-Regular</option>
-              <option v-for="tile in semiregularTilings" :value="tile">{{tile.string()}}</option>
-              <option disabled value="">2-uniform</option>
-              <option v-for="tile in uniform2Tilings" :value="tile">{{tile.string()}}</option>
-              <option disabled value="">3-uniform</option>
-              <option v-for="tile in uniform3Tilings" :value="tile">{{tile.string()}}</option>
-            </select>
-
-            <div class="button-block">
-              <toggle-button
-                :active="showBBox"
-                @toggle-choice="showBBox = !showBBox"
-                text="Show bbox"
-              ></toggle-button>
-            </div>
-            <div class="button-block">
-              <toggle-button
-                :active="showVertices"
-                @toggle-choice="showVertices = !showVertices"
-                text="Show vertices"
-              ></toggle-button>
-            </div>
-            <div class="button-block">
-              <toggle-button
-                :active="showVertexNumbers"
-                @toggle-choice="showVertexNumbers = !showVertexNumbers"
-                text="Show vertex numbers"
-              ></toggle-button>
-            </div>
-
-            <div class="button-block">
-              <toggle-button
-                :active="showFaces"
-                @toggle-choice="showFaces = !showFaces"
-                text="Show faces"
-              ></toggle-button>
-            </div>
-            <div class="button-block">
-              <toggle-button
-                :active="showFaceNumbers"
-                @toggle-choice="showFaceNumbers = !showFaceNumbers"
-                text="Show face numbers"
-              ></toggle-button>
-            </div>
-          </figcaption>
-        </figure>
+          <div class="text-figure">
+            <p>
+              I've previously covered this in the
+              <a href="/articles/triangle-truchet.html">triangular truchet grid article</a>.
+            </p>
+            <figure id="triangle-control-points" class="float-right small">
+              <svg viewBox="0 0 150 120">
+                <g class="grid triangle">
+                  <g class="ngon">
+                    <path
+                      class="stroke grey"
+                      :d="triangle.d"
+                      :style="{'stroke-width': 1, stroke: 'hsl(0, 0%, 70%)'}"
+                    />
+                    <circle
+                      v-for="pt in tile.midpoints"
+                      class="stroke medium"
+                      v-bind="pt.cxcyProps()"
+                      r="2"
+                    />
+                    <circle
+                      v-for="pt in tile.notches"
+                      class="stroke medium"
+                      v-bind="pt.cxcyProps()"
+                      r="1"
+                    />
+                    <circle
+                      v-for="pt in Object.values(tile.stars)"
+                      class="stroke medium"
+                      :style="{stroke: 'red'}"
+                      v-bind="pt.cxcyProps()"
+                      r="1"
+                    />
+                  </g>
+                </g>
+              </svg>
+              <figcaption>
+                Triangle control points
+                <input
+                  class="slider"
+                  type="range"
+                  name="notch"
+                  min="0.05"
+                  max="0.95"
+                  step="0.01"
+                  v-model.number="notch1"
+                />
+                <input
+                  class="slider"
+                  type="range"
+                  name="notch"
+                  min="0.05"
+                  max="0.95"
+                  step="0.01"
+                  v-model.number="notch2"
+                />
+              </figcaption>
+            </figure>
+          </div>
+        </section>
       </section>
       <section>
         <h2 id="further-ideas">
           <a class="anchor" href="#further-ideas"></a>
           <span>Further ideas to explore</span>
         </h2>
-        <ul>
-          <li>Display the aperiodic Penrole Tiling</li>
-        </ul>
+        <ul></ul>
       </section>
     </main>
     <footer>
@@ -195,60 +204,6 @@
       import { playControls, radioButtons, toggleButton } from '/js/buttons.js'
       import { GenericTriangleTruchet } from '/js/regular-truchet.js'
 
-      // createApp({
-      //   data() {
-      //     return {
-      //       polygons: ['3', '4', '5', '6', '7', '8', '10', '12', '15'].map(
-      //         (tile) => new NGon({ tile, side: 20, angleFraction: 0.5 }),
-      //       ),
-      //     }
-      //   },
-      //   methods: {
-      //     toTransform,
-      //   },
-      // }).mount('#ngons')
-
-      // createApp({
-      //   data() {
-      //     return {
-      //       tiling: uniform4Tilings[1],
-      //       debugVertices: false,
-      //       debugFaces: false,
-      //       debugVertexGenus: true,
-      //       regularTilings,
-      //       semiregularTilings,
-      //       uniform2Tilings,
-      //       uniform3Tilings,
-      //       uniform4Tilings,
-      //       showVertexNumbers: false,
-      //       showFaceNumbers: false,
-      //       showBBox: false,
-      //       start: new Point(500, 250),
-      //       bbox: new BBox(-200, -100, 1200, 600),
-      //       // bbox: new BBox(100, 100, 900, 400),
-      //       // bbox: new BBox(100, 100, 1900, 900),
-      //       showVertices: true,
-      //       showFaceColors: true,
-      //       showFaces: true,
-      //       showDual: false,
-      //       tilingClasses: {
-      //         Regular: regularTilings,
-      //         Semiregular: semiregularTilings,
-      //         '2-uniform': uniform2Tilings,
-      //         '3-uniform': uniform3Tilings,
-      //         '4-uniform': uniform4Tilings,
-      //       },
-      //     }
-      //   },
-      //   methods: {
-      //     toTransform,
-      //     BBox,
-      //     Point,
-      //     // displayKTiling,
-      //   },
-      //   components: { gridTiling, toggleButton },
-      // }).mount('#grid1')
-
       createApp({
         data() {
           return {
@@ -265,61 +220,7 @@
             ]).getPoints()
           },
         },
-        // components: { gridTiling, toggleButton },
       }).mount('#triangle-control-points')
-
-      // createApp({
-      //   data() {
-      //     return {
-      //       tiling: new TilingPattern(['3.3.3.3.3.3']),
-      //       debugVertices: false,
-      //       debugFaces: false,
-      //       debugVertexGenus: true,
-      //       regularTilings,
-      //       semiregularTilings,
-      //       uniform2Tilings,
-      //       uniform3Tilings,
-      //       showVertexNumbers: false,
-      //       showFaceNumbers: false,
-      //       showBBox: false,
-      //       start: new Point(500, 250),
-      //       bbox: new BBox(-200, -100, 1200, 600),
-      //       // bbox: new BBox(200, 100, 800, 400),
-      //       showVertices: true,
-      //       showFaces: true,
-      //     }
-      //   },
-      //   methods: {
-      //     toTransform,
-      //     BBox,
-      //     Point,
-      //     // displayKTiling,
-      //   },
-      //   components: { gridTiling, toggleButton },
-      // }).mount('#grid-truchet')
-
-      // createApp({
-      //   data() {
-      //     return {
-      //       tilingClasses: {
-      //         Regular: regularTilings,
-      //         Semiregular: semiregularTilings,
-      //         '2-uniform': uniform2Tilings,
-      //         '3-uniform': uniform3Tilings,
-      //         '4-uniform': uniform4Tilings,
-      //       },
-      //       start: new Point(150, 150),
-      //       bbox: new BBox(-100, -100, 400, 400),
-      //     }
-      //   },
-      //   methods: {
-      //     toTransform,
-      //     BBox,
-      //     Point,
-      //     // displayKTiling,
-      //   },
-      //   components: { gridTiling, toggleButton },
-      // }).mount('#gallery')
     </script>
   </body>
 </html>

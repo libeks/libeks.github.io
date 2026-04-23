@@ -58,6 +58,10 @@ function distance(n, a, b) {
   return Math.min((b - a) % n, Math.abs((b - a - n) % n))
 }
 
+function randomInt(n) {
+  return Math.floor(Math.random() * n)
+}
+
 export {
   reverseInterpolate,
   degToRad,
@@ -66,4 +70,5 @@ export {
   normalizeRadians,
   normalizeRadianString,
   distance,
+  randomInt,
 }

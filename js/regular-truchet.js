@@ -251,6 +251,7 @@ class GenericTruchet {
     if (cn1 > cn2) {
       throw `getCurve got unordered curve ${curve}`
     }
+    console.log('notch points', this.notchPoints)
     let p1 = this.notchPoints[cn1]
     let p2 = this.notchPoints[cn2]
     let c1star = this.stars[cn1]
@@ -282,8 +283,12 @@ class GenericTruchet {
     return generateIterativeCatalanNumerical(this.n, n)
   }
 
-  getCatalanTile(n) {
-    let tile = this.getTile(n)
+  getCatalanTile({ n, tile }) {
+    console.log(`getCatalanTile with n=${n} and tile=${tile}`)
+    if (n != undefined && !tile) {
+      tile = this.getTile(n)
+    }
+    console.log(`Tile ${tile}`)
     let curves = getPairs(tile)
     console.log(`tile ${n}`, tile, 'curves', curves)
     let lines = curves.map((curve) => this.getCurve(curve))

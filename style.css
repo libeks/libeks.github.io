@@ -83,6 +83,7 @@ div.flex-block {
   display: flex;
   gap: 2em;
   flex-direction: row;
+  flex-wrap: wrap;
 
   &.flex-center {
     justify-content: center;
@@ -94,6 +95,14 @@ div.flex-block {
 
     figure {
       min-width: 150px;
+
+      &.hex {
+        min-width: 300px;
+      }
+
+      &.dodeca {
+        min-width: 500px;
+      }
     }
 
     &.gray {
@@ -162,6 +171,7 @@ figure,
 
   figcaption {
     text-align: center;
+    /*display: block;*/
   }
 }
 

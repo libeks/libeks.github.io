@@ -185,6 +185,91 @@
           <!-- </div> -->
         </section>
         <section>
+          <h3 id="squares">
+            <a class="anchor" href="#squares"></a>
+            <span>Squares (4-gons)</span>
+          </h3>
+
+          <p>Two notches per side:</p>
+          <div id="square-one-notch-control-points" class="flex-block flex-center">
+            <div v-for="tile in tiles" class="display-tile gray">
+              <figure class="small square" style="mid-width: 300px">
+                <svg viewBox="0 0 300 300">
+                  <g class="grid triangle">
+                    <g class="ngon">
+                      <path
+                        class="stroke grey"
+                        :d="ngon.d"
+                        :style="{'stroke-width': 1, stroke: 'hsl(0, 0%, 70%)'}"
+                      />
+                      <text v-for="(pt, i) in truchet.notchPoints" v-bind="pt.xyProps()">
+                        {{numericalToHex(i+1)}}
+                      </text>
+                      <circle
+                        v-for="pt in truchet.notchPoints"
+                        class="stroke medium red"
+                        v-bind="pt.cxcyProps()"
+                        r="1"
+                      />
+                      <circle
+                        v-for="pt in Object.values(truchet.stars)"
+                        class="stroke medium"
+                        :style="{stroke: 'red'}"
+                        v-bind="pt.cxcyProps()"
+                        r="1"
+                      />
+                      <template v-for="curve in truchet.getCatalanTile({tile: tile})">
+                        <path class="stroke" :d="curve.d()" />
+                        <path class="stroke thin red" :d="curve.contour().d()" />
+                      </template>
+                    </g>
+                  </g>
+                </svg>
+                <figcaption>{{tile}}</figcaption>
+              </figure>
+            </div>
+          </div>
+          <p>Four notches per side:</p>
+          <div id="square-two-notches-control-points" class="flex-block flex-center">
+            <div v-for="tile in tiles" class="display-tile gray">
+              <figure class="small square" style="mid-width: 300px">
+                <svg viewBox="0 0 300 300">
+                  <g class="grid triangle">
+                    <g class="ngon">
+                      <path
+                        class="stroke grey"
+                        :d="ngon.d"
+                        :style="{'stroke-width': 1, stroke: 'hsl(0, 0%, 70%)'}"
+                      />
+                      <text v-for="(pt, i) in truchet.notchPoints" v-bind="pt.xyProps()">
+                        {{numericalToHex(i+1)}}
+                      </text>
+                      <circle
+                        v-for="pt in truchet.notchPoints"
+                        class="stroke medium red"
+                        v-bind="pt.cxcyProps()"
+                        r="1"
+                      />
+                      <circle
+                        v-for="pt in Object.values(truchet.stars)"
+                        class="stroke medium"
+                        :style="{stroke: 'red'}"
+                        v-bind="pt.cxcyProps()"
+                        r="1"
+                      />
+                      <template v-for="curve in truchet.getCatalanTile({tile: tile})">
+                        <path class="stroke" :d="curve.d()" />
+                        <path class="stroke thin red" :d="curve.contour().d()" />
+                      </template>
+                    </g>
+                  </g>
+                </svg>
+                <figcaption>{{tile}}</figcaption>
+              </figure>
+            </div>
+          </div>
+        </section>
+        <section>
           <h3 id="hexagons">
             <a class="anchor" href="#hexagons"></a>
             <span>Hexagons (6-gons)</span>
@@ -233,6 +318,91 @@
           <div id="hexagon-two-notches-control-points" class="flex-block flex-center">
             <div v-for="tile in tiles" class="display-tile gray">
               <figure class="small hex" style="mid-width: 300px">
+                <svg viewBox="0 0 300 300">
+                  <g class="grid triangle">
+                    <g class="ngon">
+                      <path
+                        class="stroke grey"
+                        :d="ngon.d"
+                        :style="{'stroke-width': 1, stroke: 'hsl(0, 0%, 70%)'}"
+                      />
+                      <text v-for="(pt, i) in truchet.notchPoints" v-bind="pt.xyProps()">
+                        {{numericalToHex(i+1)}}
+                      </text>
+                      <circle
+                        v-for="pt in truchet.notchPoints"
+                        class="stroke medium red"
+                        v-bind="pt.cxcyProps()"
+                        r="1"
+                      />
+                      <circle
+                        v-for="pt in Object.values(truchet.stars)"
+                        class="stroke medium"
+                        :style="{stroke: 'red'}"
+                        v-bind="pt.cxcyProps()"
+                        r="1"
+                      />
+                      <template v-for="curve in truchet.getCatalanTile({tile: tile})">
+                        <path class="stroke" :d="curve.d()" />
+                        <path class="stroke thin red" :d="curve.contour().d()" />
+                      </template>
+                    </g>
+                  </g>
+                </svg>
+                <figcaption>{{tile}}</figcaption>
+              </figure>
+            </div>
+          </div>
+        </section>
+        <section>
+          <h3 id="octagons">
+            <a class="anchor" href="#octagons"></a>
+            <span>Octagons (8-gons)</span>
+          </h3>
+
+          <p>Two notches per side:</p>
+          <div id="octagon-one-notch-control-points" class="flex-block flex-center">
+            <div v-for="tile in tiles" class="display-tile gray">
+              <figure class="small octa" style="mid-width: 300px">
+                <svg viewBox="0 0 300 300">
+                  <g class="grid triangle">
+                    <g class="ngon">
+                      <path
+                        class="stroke grey"
+                        :d="ngon.d"
+                        :style="{'stroke-width': 1, stroke: 'hsl(0, 0%, 70%)'}"
+                      />
+                      <text v-for="(pt, i) in truchet.notchPoints" v-bind="pt.xyProps()">
+                        {{numericalToHex(i+1)}}
+                      </text>
+                      <circle
+                        v-for="pt in truchet.notchPoints"
+                        class="stroke medium red"
+                        v-bind="pt.cxcyProps()"
+                        r="1"
+                      />
+                      <circle
+                        v-for="pt in Object.values(truchet.stars)"
+                        class="stroke medium"
+                        :style="{stroke: 'red'}"
+                        v-bind="pt.cxcyProps()"
+                        r="1"
+                      />
+                      <template v-for="curve in truchet.getCatalanTile({tile: tile})">
+                        <path class="stroke" :d="curve.d()" />
+                        <path class="stroke thin red" :d="curve.contour().d()" />
+                      </template>
+                    </g>
+                  </g>
+                </svg>
+                <figcaption>{{tile}}</figcaption>
+              </figure>
+            </div>
+          </div>
+          <p>Four notches per side:</p>
+          <div id="octagon-two-notches-control-points" class="flex-block flex-center">
+            <div v-for="tile in tiles" class="display-tile gray">
+              <figure class="small octa" style="mid-width: 300px">
                 <svg viewBox="0 0 300 300">
                   <g class="grid triangle">
                     <g class="ngon">
@@ -439,7 +609,7 @@
         },
         computed: {
           truchet() {
-            return new GenericTruchetTile(this.ngon.vertices, false, [this.notch1])
+            return new GenericTruchetTile(this.ngon.vertices, false, [this.notch1], this.ngon.side)
           },
           // tiles() {
           //   return [0, 11, 24, 37, 401].map((n) => this.truchet.getTile(n))
@@ -460,7 +630,12 @@
         },
         computed: {
           truchet() {
-            return new GenericTruchetTile(this.ngon.vertices, false, [this.notch1, this.notch2])
+            return new GenericTruchetTile(
+              this.ngon.vertices,
+              false,
+              [this.notch1, this.notch2],
+              this.ngon.side,
+            )
           },
           // tiles() {
           //   return [0, 11, 24, 37, 401].map((n) => this.truchet.getTile(n))
@@ -470,6 +645,54 @@
           numericalToHex,
         },
       }).mount('#triangle-two-notches-control-points')
+
+      createApp({
+        data() {
+          return {
+            ngon: new NGon({ tile: '4', side: 100, center: new Point(150, 150) }),
+            notch1: 0.33,
+            tiles: ['12384756', '14235867'],
+          }
+        },
+        computed: {
+          truchet() {
+            return new GenericTruchetTile(this.ngon.vertices, false, [this.notch1], this.ngon.side)
+          },
+          // tiles() {
+          //   return [0, 100, 209, 313, 4030, 500251].map((n) => this.truchet.getTile(n))
+          // },
+        },
+        methods: {
+          numericalToHex,
+        },
+      }).mount('#square-one-notch-control-points')
+      createApp({
+        data() {
+          return {
+            ngon: new NGon({ tile: '4', side: 100, center: new Point(150, 150) }),
+            notch1: 0.33,
+            notch2: 0.66,
+            tiles: ['123G4F5E6D7C8B9A', '14235G6F7E8D9CAB', '1G2F3E4D5C6B7A89'],
+          }
+        },
+        computed: {
+          truchet() {
+            return new GenericTruchetTile(
+              this.ngon.vertices,
+              false,
+              [this.notch1, this.notch2],
+              this.ngon.side,
+            )
+          },
+          // tiles() {
+          //   return [0, 100, 209, 313, 4030, 500251].map((n) => this.truchet.getTile(n))
+          // },
+        },
+        methods: {
+          numericalToHex,
+        },
+      }).mount('#square-two-notches-control-points')
+
       createApp({
         data() {
           return {
@@ -480,7 +703,7 @@
         },
         computed: {
           truchet() {
-            return new GenericTruchetTile(this.ngon.vertices, false, [this.notch1])
+            return new GenericTruchetTile(this.ngon.vertices, false, [this.notch1], this.ngon.side)
           },
           // tiles() {
           //   return [0, 100, 209, 313, 4030, 500251].map((n) => this.truchet.getTile(n))
@@ -505,7 +728,12 @@
         },
         computed: {
           truchet() {
-            return new GenericTruchetTile(this.ngon.vertices, false, [this.notch1, this.notch2])
+            return new GenericTruchetTile(
+              this.ngon.vertices,
+              false,
+              [this.notch1, this.notch2],
+              this.ngon.side,
+            )
           },
           // tiles() {
           //   return [0, 100, 209, 313, 4030, 500251].map((n) => this.truchet.getTile(n))
@@ -515,6 +743,58 @@
           numericalToHex,
         },
       }).mount('#hexagon-two-notches-control-points')
+
+      createApp({
+        data() {
+          return {
+            ngon: new NGon({ tile: '8', side: 100, center: new Point(150, 150) }),
+            notch1: 0.33,
+            tiles: ['123G4F5E6D7C8B9A', '14235G6F7E8D9CAB'],
+          }
+        },
+        computed: {
+          truchet() {
+            return new GenericTruchetTile(this.ngon.vertices, false, [this.notch1], this.ngon.side)
+          },
+          // tiles() {
+          //   return [0, 100, 209, 313, 4030, 500251].map((n) => this.truchet.getTile(n))
+          // },
+        },
+        methods: {
+          numericalToHex,
+        },
+      }).mount('#octagon-one-notch-control-points')
+      createApp({
+        data() {
+          return {
+            ngon: new NGon({ tile: '8', side: 100, center: new Point(150, 150) }),
+            notch1: 0.33,
+            notch2: 0.66,
+            tiles: [
+              '123W4V5U6T7S8R9QAPBOCNDMELFKGJHI',
+              '14235W6V7U8T9SARBQCPDOENFMGLHKIJ',
+              '1G2F3E4D5C6B7A89HWIVJUKTLSMRNQOP',
+            ],
+          }
+        },
+        computed: {
+          truchet() {
+            return new GenericTruchetTile(
+              this.ngon.vertices,
+              false,
+              [this.notch1, this.notch2],
+              this.ngon.side,
+            )
+          },
+          // tiles() {
+          //   return [0, 100, 209, 313, 4030, 500251].map((n) => this.truchet.getTile(n))
+          // },
+        },
+        methods: {
+          numericalToHex,
+        },
+      }).mount('#octagon-two-notches-control-points')
+
       createApp({
         data() {
           return {
@@ -525,7 +805,7 @@
         },
         computed: {
           truchet() {
-            return new GenericTruchetTile(this.ngon.vertices, false, [this.notch1])
+            return new GenericTruchetTile(this.ngon.vertices, false, [this.notch1], this.ngon.side)
           },
           // tiles() {
           //   return [0, 1000, 2090, 3130, 40300, 5002510].map((n) => this.truchet.getTile(n))
@@ -550,7 +830,12 @@
         },
         computed: {
           truchet() {
-            return new GenericTruchetTile(this.ngon.vertices, false, [this.notch1, this.notch2])
+            return new GenericTruchetTile(
+              this.ngon.vertices,
+              false,
+              [this.notch1, this.notch2],
+              this.ngon.side,
+            )
           },
           // tiles() {
           //   return [0, 1000, 2090, 3130, 40300, 5002510].map((n) => this.truchet.getTile(n))
@@ -560,30 +845,30 @@
           numericalToHex,
         },
       }).mount('#dodecagon-two-notches-control-points')
-      createApp({
-        data() {
-          return {
-            tiling: uniform4Tilings[7],
-            showEdges: true,
-            start: new Point(500, 250),
-            bbox: new BBox(-200, -100, 1200, 600),
-            notches: [0.33],
-            tilingClasses: {
-              Regular: regularTilings,
-              Semiregular: semiregularTilings,
-              '2-uniform': uniform2Tilings,
-              '3-uniform': uniform3Tilings,
-              '4-uniform': uniform4Tilings,
-            },
-          }
-        },
-        methods: {
-          toTransform,
-          BBox,
-          Point,
-        },
-        components: { genericTruchetGrid, toggleButton },
-      }).mount('#grid-2-notch')
+      // createApp({
+      //   data() {
+      //     return {
+      //       tiling: uniform4Tilings[7],
+      //       showEdges: true,
+      //       start: new Point(500, 250),
+      //       bbox: new BBox(-200, -100, 1200, 600),
+      //       notches: [0.33],
+      //       tilingClasses: {
+      //         Regular: regularTilings,
+      //         Semiregular: semiregularTilings,
+      //         '2-uniform': uniform2Tilings,
+      //         '3-uniform': uniform3Tilings,
+      //         '4-uniform': uniform4Tilings,
+      //       },
+      //     }
+      //   },
+      //   methods: {
+      //     toTransform,
+      //     BBox,
+      //     Point,
+      //   },
+      //   components: { genericTruchetGrid, toggleButton },
+      // }).mount('#grid-2-notch')
     </script>
   </body>
 </html>

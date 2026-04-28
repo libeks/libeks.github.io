@@ -240,6 +240,14 @@ class Line {
     return this.at(t)
   }
 
+  move(v) {
+    if (v.type != 'Vector') {
+      console.trace()
+      throw `Line.move got unexpected argument ${v.type}`
+    }
+    return new Line(this.p.addVect(v), this.v)
+  }
+
   pointOnSide(p) {
     if (p.type != 'Point') {
       console.trace()

@@ -96,7 +96,9 @@ div.flex-block {
     figure {
       min-width: 150px;
 
-      &.hex {
+      &.square,
+      &.hex,
+      &.octa {
         min-width: 300px;
       }
 

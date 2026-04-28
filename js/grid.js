@@ -358,6 +358,15 @@ class NGon {
     this.betaDeg = 180 - this.alphaDeg
     this.betaRad = degToRad(this.betaDeg)
 
+    //    +-----+
+    //   / b     \
+    //  /         \
+    // /     a     \
+    // \           /
+    //  \         /
+    //   \       /
+    //    +-----+
+
     // each vertex angle
     // n  | alpha | beta
     // ---+-------+-----

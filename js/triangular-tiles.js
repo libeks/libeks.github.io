@@ -373,7 +373,7 @@ const fourCurveFactory = {
 
 // Given a string, return an array of strings of two characters each, which add up to the input string
 function getPairs(s) {
-  console.log(`getPairs on ${s}`)
+  // console.log(`getPairs on ${s}`)
   const len = 2
   var chunks = []
 

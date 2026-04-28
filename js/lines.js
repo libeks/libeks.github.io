@@ -296,6 +296,43 @@ class CompositeCurve {
     return components.join(' ')
   }
 
+  // render all but the first point
+  dContinued() {
+    if (this.curves.lenght == 0) {
+      return ''
+    }
+    let components = []
+    let end
+    // let end = this.curves[0].endpoint()
+    for (let i = 0; i < this.curves.length; i++) {
+      if (i > 0) {
+        if (this.curves[i - 1].endpoint().same(this.curves[i].startpoint())) {
+          components.push(this.curves[i].dContinued())
+        } else {
+          console.warn(
+            'curves are not continuous',
+            this.curves[i - 1].endpoint(),
+            this.curves[i].startpoint(),
+          )
+          components.push(this.curves[i].d())
+        }
+        end = this.curves[i].endpoint()
+      } else {
+        components.push(this.curves[i].dContinued())
+        end = this.curves[i].endpoint()
+      }
+    }
+    return components.join(' ')
+  }
+
+  contour() {
+    let contours = []
+    for (let component of this.curves) {
+      contours.push(component.contour())
+    }
+    return new CompositeCurve(...contours)
+  }
+
   transform2D(matrix) {
     if (matrix.type != 'Matrix2DHomo') {
       throw `CompositeCurve.transform2D got unexpected argument ${matrix.type}`

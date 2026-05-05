@@ -257,6 +257,17 @@ class Line {
     let d = this.v.perp().dot(this.p.vectTo(p))
     return d
   }
+
+  projectPoint(p) {
+    // project the point orthogonally down onto the line, return the point that is its projection
+    // if the point p is on the line, it will return itself
+    if (p.type != 'Point') {
+      throw `Line.projectPoint got unexpected argument ${p.type}`
+    }
+    let vA = this.p.vectTo(p)
+    let vB = this.v
+    return this.p.addVect(vB.mult(vA.dot(vB) / vB.dot(vB)))
+  }
 }
 
 class Ray {

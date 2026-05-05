@@ -203,7 +203,7 @@ class GenericTruchetTile {
     console.log('stepFromCenter', this.vertices.length, step, gap, stepFromCenter)
     let track = new Line(
       // this.center.addVect(incrementVect.mult((2 * stepFromCenter - 1) * incrementDistance)),
-      this.center.addVect(incrementVect.mult((1 * stepFromCenter + 0.4) * incrementDistance)),
+      this.center.addVect(incrementVect.mult((1 * stepFromCenter + 0.5) * incrementDistance)),
       incrementVect.perp(),
     )
     console.log(

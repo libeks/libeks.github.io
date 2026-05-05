@@ -1,10 +1,16 @@
-import { Point, Line } from '/js/geometry.js'
+import { Point, Line, Ray } from '/js/geometry.js'
 import { reversed, shift, rightShift, zip } from '/js/utils.js'
 import { degToRad, distance, randomInt } from '/js/math.js'
 import { generateIterativeCatalanNumerical } from '/js/catalan.js'
 import { getPairs } from '/js/triangular-tiles.js'
 import { hexToNumerical } from '/js/catalan.js'
-import { StraightStroke, QuadraticBezier, CubicBezier, CompositeCurve } from '/js/lines.js'
+import {
+  StraightStroke,
+  QuadraticBezier,
+  CubicBezier,
+  CompositeCurve,
+  rayLineRayCurve,
+} from '/js/lines.js'
 import { VertexGrid } from '/js/grid.js'
 
 // This is similar to triangular-tiles.js and square-tiles.js, but tries to generalize to any n-gon.
@@ -177,7 +183,7 @@ class GenericTruchetTile {
       throw `midpoint is center ${this.vertices.length} ${curve}`
     }
 
-    let symmetryLine = new Line(p1, p1.vectTo(this.center))
+    let symmetryLine = new Line(midpoint, midpoint.vectTo(this.center))
 
     let alphaAngle = degToRad(360 / this.vertices.length) // angle from center between consecutive vertices
     let edgeDistance = this.side * Math.cos(alphaAngle / 2) // distance from the center to the closest edge, it's height
@@ -196,7 +202,8 @@ class GenericTruchetTile {
     let stepFromCenter = this.notchPoints.length / 4 - gap
     console.log('stepFromCenter', this.vertices.length, step, gap, stepFromCenter)
     let track = new Line(
-      this.center.addVect(incrementVect.mult((2 * stepFromCenter - 1) * incrementDistance)),
+      // this.center.addVect(incrementVect.mult((2 * stepFromCenter - 1) * incrementDistance)),
+      this.center.addVect(incrementVect.mult((1 * stepFromCenter + 0.4) * incrementDistance)),
       incrementVect.perp(),
     )
     console.log(
@@ -206,9 +213,14 @@ class GenericTruchetTile {
       incrementDistance,
       (2 * stepFromCenter - 1) * incrementDistance,
     )
-    return new CompositeCurve(
-      new QuadraticBezier(p1, c1star, track.p),
-      new QuadraticBezier(track.p, c2star, p2),
+    // return new CompositeCurve(
+    //   new QuadraticBezier(p1, c1star, track.p),
+    //   new QuadraticBezier(track.p, c2star, p2),
+    // )
+    return new rayLineRayCurve(
+      new Ray(p1, p1.vectTo(c1star)),
+      track,
+      new Ray(p2, p2.vectTo(c2star)),
     )
     // return new QuadraticBezier(p1, track.p, p2)
     // return new StraightStroke(p1, p2)

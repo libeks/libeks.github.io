@@ -259,6 +259,68 @@ class Line {
   }
 }
 
+class Ray {
+  constructor(p, v) {
+    if (p.type != 'Point' || v.type != 'Vector') {
+      throw `Ray got unexpected arguments ${p.type} and ${v.type}`
+    }
+    this.p = p
+    this.v = v
+    this.type = 'Ray'
+  }
+
+  at(t) {
+    if (t < 0) {
+      return null
+    }
+    return this.p.addVect(this.v.mult(t))
+  }
+
+  line() {
+    return new Line(this.p, this.v)
+  }
+
+  intersectLineT(l) {
+    if (l.type != 'Line') {
+      throw `Ray.intersectLineT got unexpectec argument ${l.type}`
+    }
+    let t = this.line().intersectT(l)
+    if (t < 0) {
+      return null
+    }
+    return t
+  }
+
+  intersectLine(l) {
+    let t = this.intersectLineT(l)
+    if (t == null) {
+      return t
+    }
+    return this.at(t)
+  }
+
+  intersectRayT(r) {
+    if (r.type != 'Ray') {
+      throw `Ray.intersectRayT got unexpected argument ${r.type}`
+    }
+    let l1 = this.line()
+    let l2 = r.line()
+    let intersect = l1.intersectTU(l2)
+    if (intersect == null || intersect.t < 0 || intersect.u < 0) {
+      return null
+    }
+    return intersect.t
+  }
+
+  intersectRay(r) {
+    let t = this.intersectRayT(r)
+    if (t == null) {
+      return null
+    }
+    return this.at(t)
+  }
+}
+
 class Matrix2DHomo {
   construction(matrix) {
     if (matrix.type != 'Matrix3D') {
@@ -378,4 +440,4 @@ class LineSegment {
   }
 }
 
-export { Point, Vector, Line, LineSegment, Point2DOrigin }
+export { Point, Vector, Line, Ray, LineSegment, Point2DOrigin }

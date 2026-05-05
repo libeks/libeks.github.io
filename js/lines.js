@@ -1,3 +1,5 @@
+import { pairs } from '/js/utils.js'
+
 class StraightStroke {
   constructor(from, to) {
     if (from.type != 'Point') {
@@ -341,6 +343,173 @@ class CompositeCurve {
   }
 }
 
+// class RayLineRayCurve {
+//   // a curve defined by two rays, with a line in between
+//   constructor(r1, line, r2) {
+//     if (r1.type != 'Ray' || line.type != 'Line' || r2.type != 'Ray') {
+//       throw `RayLineRayCurve got unexpected arguments ${r1.type}, ${line.type}, ${r2.type}`
+//     }
+//     this.r1 = r1
+//     this.line = line
+//     this.r2 = r2
+//   }
+
+//   d() {
+//     let r1LineT = this.r1.intersectLineT(this.line)
+//     let r2LineT = this.r2.intersectLineT(this.line)
+//     let r1r2T = this.r1.intersectRayT(this.r2)
+//     if (r1r2T == null) {
+//       // the two rays are parallel, or point in non-intersecting directions
+//     }
+//     if (r1LineT == null) {
+//       // the first ray doesn't intersect the line, they could be parallel, or the ray could be pointing in the wrong direction
+//     }
+//     if (r1LineT > r1r2T) {
+//       // the intersection of the rays is closer, so do a simple quadratic curve between them
+//       return new CompositeQuadraticBezier(
+//         { point: this.r1.p, onCurve: true },
+//         { point: this.r1.at(r1r2T), onCurve: false },
+//         { point: this.r2.p, onCurve: true },
+//       ).d()
+//     }
+//     return new CompositeQuadraticBezier(
+//       { point: this.r1.p, onCurve: true },
+//       { point: this.r1.at(r1LineT), onCurve: false },
+//       { point: this.r2.at(r2LineT), onCurve: false },
+//       { point: this.r2.p, onCurve: true },
+//     )
+//   }
+// }
+
+function rayLineRayCurve(r1, line, r2) {
+  if (r1.type != 'Ray' || line.type != 'Line' || r2.type != 'Ray') {
+    throw `RayLineRayCurve got unexpected arguments ${r1.type}, ${line.type}, ${r2.type}`
+  }
+  let r1LineT = r1.intersectLineT(line)
+  let r2LineT = r2.intersectLineT(line)
+  let r1r2T = r1.intersectRayT(r2)
+  if (r1r2T == null) {
+    // the two rays are parallel, or point in non-intersecting directions
+  }
+  if (r1LineT == null) {
+    // the first ray doesn't intersect the line, they could be parallel, or the ray could be pointing in the wrong direction
+  }
+  if (r1LineT > r1r2T) {
+    // the intersection of the rays is closer, so do a simple quadratic curve between them
+    return compositeQuadraticBezier(
+      { point: r1.p, onCurve: true },
+      { point: r1.at(r1r2T), onCurve: false },
+      { point: r2.p, onCurve: true },
+    )
+  }
+  return compositeQuadraticBezier(
+    { point: r1.p, onCurve: true },
+    { point: r1.at(r1LineT), onCurve: false },
+    { point: r2.at(r2LineT), onCurve: false },
+    { point: r2.p, onCurve: true },
+  )
+}
+
+// class CompositeQuadraticBezier {
+//   // a composite curve of lines and quadratic beziers in between a set of points, each of which is either on or off the curve
+//   // this is very similar to the TrueType curve specification
+//   constructor(...pointsWithTags) {
+//     // each point with tags is an object of {point:Point, onCurve:bool}
+//     if (pointsWithTags.length == 0) {
+//       this.pointsWithTags = []
+//       return
+//     }
+//     if (!pointsWithTags[0].onCurve || !pointsWithTags[pointsWithTags.length - 1].onCurve) {
+//       throw `CompositeQuadraticBezier with first or last point not on curve ${pointsWithTags[0].onCurve}, ${pointsWithTags[pointsWithTags.length - 1].onCurve}`
+//     }
+//     this.pointsWithTags = CompositeQuadraticBezier.insertMidpoints(pointsWithTags)
+//   }
+
+//   static insertMidpoints(points) {
+//     // process the list of points so that there would be at most one not-on-curve point in sequence
+//     // this is accomplished by adding midpoints between any two not-on-curve points
+//     let newList = []
+//     for (let [a, b] of pairs(points)) {
+//       if (!a.onCurve && !b.onCurve) {
+//         newList.push(a)
+//         newList.push({ point: a.point.midpoint(b.point) })
+//       } else {
+//         newList.push(a)
+//       }
+//     }
+//     newList.push(points[points.length - 1])
+//     return newList
+//   }
+
+//   d() {
+//     // assume that insertMidpoints has been run, i.e. that no two subsequent points are not-on-curve
+//     let components = new CompositeCurve()
+//     let start = this.pointsWithTags[0].point
+//     let idx = 1
+//     while (idx < this.pointsWithTags.length) {
+//       if (this.pointsWithTags[idx].onCurve) {
+//         components.add(new StraightStroke(start, this.pointsWithTags[idx].point))
+//         start = this.pointsWithTags[idx].point
+//         idx += 1
+//       } else {
+//         // point at idx is not on line, but then point at idx+1 is guaranteed to be on line
+//         components.add(
+//           new QuadraticBezier(
+//             start,
+//             this.pointsWithTags[idx].point,
+//             this.pointsWithTags[idx + 1].point,
+//           ),
+//         )
+//         start = this.pointsWithTags[idx + 1].point
+//         idx += 2
+//       }
+//     }
+//     return components.d()
+//   }
+// }
+
+function compositeQuadraticBezier(...pointsWithTags) {
+  if (pointsWithTags.length == 0) {
+    // pointsWithTags = []
+    return
+  }
+  if (!pointsWithTags[0].onCurve || !pointsWithTags[pointsWithTags.length - 1].onCurve) {
+    throw `CompositeQuadraticBezier with first or last point not on curve ${pointsWithTags[0].onCurve}, ${pointsWithTags[pointsWithTags.length - 1].onCurve}`
+  }
+  // process the list of points so that there would be at most one not-on-curve point in sequence
+  // this is accomplished by adding midpoints between any two not-on-curve points
+  let newList = []
+  for (let [a, b] of pairs(pointsWithTags)) {
+    if (!a.onCurve && !b.onCurve) {
+      newList.push(a)
+      newList.push({ point: a.point.midpoint(b.point) })
+    } else {
+      newList.push(a)
+    }
+  }
+  newList.push(pointsWithTags[pointsWithTags.length - 1])
+  // return newList
+  pointsWithTags = newList
+  let components = new CompositeCurve()
+  let start = pointsWithTags[0].point
+  let idx = 1
+  while (idx < pointsWithTags.length) {
+    if (pointsWithTags[idx].onCurve) {
+      components.add(new StraightStroke(start, pointsWithTags[idx].point))
+      start = pointsWithTags[idx].point
+      idx += 1
+    } else {
+      // point at idx is not on line, but then point at idx+1 is guaranteed to be on line
+      components.add(
+        new QuadraticBezier(start, pointsWithTags[idx].point, pointsWithTags[idx + 1].point),
+      )
+      start = pointsWithTags[idx + 1].point
+      idx += 2
+    }
+  }
+  return components
+}
+
 // Polygon is a wrapper around CompositeCurve for when we have a polygon around a set of points
 class Polygon {
   constructor(points) {
@@ -390,4 +559,6 @@ export {
   CompositeCurve,
   CurveSet,
   Polygon,
+  rayLineRayCurve,
+  compositeQuadraticBezier,
 }

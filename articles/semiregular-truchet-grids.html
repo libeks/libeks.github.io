@@ -845,30 +845,30 @@
           numericalToHex,
         },
       }).mount('#dodecagon-two-notches-control-points')
-      // createApp({
-      //   data() {
-      //     return {
-      //       tiling: uniform4Tilings[7],
-      //       showEdges: true,
-      //       start: new Point(500, 250),
-      //       bbox: new BBox(-200, -100, 1200, 600),
-      //       notches: [0.33],
-      //       tilingClasses: {
-      //         Regular: regularTilings,
-      //         Semiregular: semiregularTilings,
-      //         '2-uniform': uniform2Tilings,
-      //         '3-uniform': uniform3Tilings,
-      //         '4-uniform': uniform4Tilings,
-      //       },
-      //     }
-      //   },
-      //   methods: {
-      //     toTransform,
-      //     BBox,
-      //     Point,
-      //   },
-      //   components: { genericTruchetGrid, toggleButton },
-      // }).mount('#grid-2-notch')
+      createApp({
+        data() {
+          return {
+            tiling: uniform4Tilings[7],
+            showEdges: true,
+            start: new Point(500, 250),
+            bbox: new BBox(-200, -100, 1200, 600),
+            notches: [0.33],
+            tilingClasses: {
+              Regular: regularTilings,
+              Semiregular: semiregularTilings,
+              '2-uniform': uniform2Tilings,
+              '3-uniform': uniform3Tilings,
+              '4-uniform': uniform4Tilings,
+            },
+          }
+        },
+        methods: {
+          toTransform,
+          BBox,
+          Point,
+        },
+        components: { genericTruchetGrid, toggleButton },
+      }).mount('#grid-2-notch')
     </script>
   </body>
 </html>

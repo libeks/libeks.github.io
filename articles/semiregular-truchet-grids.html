@@ -556,6 +556,12 @@
                 @toggle-choice="showEdges = !showEdges"
                 text="Show edges"
               ></toggle-button>
+              <radio-buttons
+                :choices="[{value:'1', display: '1'},{value:'2', display:'2'}]"
+                :value="nNotches"
+                @set-choice="(v) => nNotches = v"
+              >
+              </radio-buttons>
             </div>
           </figcaption>
         </figure>
@@ -854,7 +860,8 @@
             showEdges: true,
             start: new Point(500, 250),
             bbox: new BBox(-200, -100, 1200, 600),
-            notches: [0.33],
+            nNotches: '1',
+            notchPositions: [0.33, 0.66], // modified by nothces() computed property
             tilingClasses: {
               Regular: regularTilings,
               Semiregular: semiregularTilings,
@@ -869,7 +876,16 @@
           BBox,
           Point,
         },
-        components: { genericTruchetGrid, toggleButton },
+        computed: {
+          notches() {
+            let nNotches = Number(this.nNotches)
+            if (nNotches == 1) {
+              return [this.notchPositions[0]]
+            }
+            return this.notchPositions
+          },
+        },
+        components: { genericTruchetGrid, toggleButton, radioButtons },
       }).mount('#grid-2-notch')
     </script>
   </body>

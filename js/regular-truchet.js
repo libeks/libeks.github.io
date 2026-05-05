@@ -174,7 +174,7 @@ class GenericTruchetTile {
 
     let step = distance(this.n * 2, cn1, cn2)
     // console.log('p1 p2', step, curve, p1, p2, cn1, cn2)
-    console.log('getCurve', curve, step, this.vertices.length)
+    // console.log('getCurve', curve, step, this.vertices.length)
 
     // compute symmetry axis
     let midpoint = p1.midpoint(p2)
@@ -182,49 +182,49 @@ class GenericTruchetTile {
     if (midpoint.same(this.center)) {
       throw `midpoint is center ${this.vertices.length} ${curve}`
     }
-    console.log('midpoint', p1, p2, midpoint)
+    // console.log('midpoint', p1, p2, midpoint)
 
     // let symmetryLine = new Line(midpoint, midpoint.vectTo(this.center))
     // let symmetryLine = new Line(this.center, this.center.vectTo(midpoint))
     let symmetryLine = new Line(this.center, p1.vectTo(p2).perp())
-    console.log('symmetry line', symmetryLine)
-    console.log('center', this.center)
+    // console.log('symmetry line', symmetryLine)
+    // console.log('center', this.center)
 
     let alphaAngle = degToRad(360 / this.vertices.length) // angle from center between consecutive vertices
-    let edgeDistance = (this.side * Math.tan(alphaAngle / 2)) / 2 // distance from the center to the closest edge, it's height
-    console.log('edgeDistance', this.vertices.length, edgeDistance, radToDeg(alphaAngle), this.side)
+    let edgeDistance = this.side / 2 / Math.tan(alphaAngle / 2) // distance from the center to the closest edge, it's height
+    // console.log('edgeDistance', this.vertices.length, edgeDistance, radToDeg(alphaAngle), this.side)
 
     let nTracks = this.notchPoints.length / 4
-    console.log('nTracks', this.vertices.length, this.notchPoints.length, nTracks)
+    // console.log('nTracks', this.vertices.length, this.notchPoints.length, nTracks)
     let incrementDistance = edgeDistance / (nTracks + 0.5) // ensure that the first track starts 0.5 from the center
-    console.log('incrementDistance', this.vertices.length, incrementDistance)
+    // console.log('incrementDistance', this.vertices.length, incrementDistance)
 
     let incrementVect = symmetryLine.v.unit()
     if (incrementVect.dot(this.center.vectTo(midpoint)) < 0) {
-      console.warn(`IncrementVector is in wrong direction`)
+      // console.warn(`IncrementVector is in wrong direction`)
       incrementVect = incrementVect.mult(-1)
     }
     let gap = (step + 1) / 2
     let stepFromCenter = this.notchPoints.length / 4 - gap
-    console.log('stepFromCenter', this.vertices.length, step, gap, stepFromCenter)
+    // console.log('stepFromCenter', this.vertices.length, step, gap, stepFromCenter)
     let track = new Line(
       // this.center.addVect(incrementVect.mult((2 * stepFromCenter - 1) * incrementDistance)),
       this.center.addVect(incrementVect.mult((1 * stepFromCenter + 0.5) * incrementDistance)),
       incrementVect.perp(),
     )
-    console.log(
-      `getTrackCurve ${curve} ${gap}`,
-      track,
-      incrementVect,
-      incrementDistance,
-      (2 * stepFromCenter - 1) * incrementDistance,
-    )
-    console.log(
-      'rayLineRayCurve',
-      new Ray(p1, p1.vectTo(c1star)),
-      new Ray(p2, p2.vectTo(c2star)),
-      track,
-    )
+    // console.log(
+    //   `getTrackCurve ${curve} ${gap}`,
+    //   track,
+    //   incrementVect,
+    //   incrementDistance,
+    //   (2 * stepFromCenter - 1) * incrementDistance,
+    // )
+    // console.log(
+    //   'rayLineRayCurve',
+    //   new Ray(p1, p1.vectTo(c1star)),
+    //   new Ray(p2, p2.vectTo(c2star)),
+    //   track,
+    // )
     return new rayLineRayCurve(
       new Ray(
         p1,
@@ -363,7 +363,7 @@ const genericTruchetGrid = {
             this.notches,
             this.size,
           ),
-          n: randomInt(1000000),
+          n: randomInt(1000000000),
         })
       }
       return retList

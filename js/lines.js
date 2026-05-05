@@ -350,22 +350,27 @@ function rayLineRayCurve(r1, line, r2) {
   let r1LineT = r1.intersectLineT(line)
   let r2LineT = r2.intersectLineT(line)
   let r1r2T = r1.intersectRayT(r2)
+  console.log('T values', r1LineT, r2LineT, r1r2T)
   if (r1r2T == null) {
     // the two rays are parallel, or point in non-intersecting directions
+    console.log('case 0, noop')
   }
-  if (r1LineT == null) {
+  if (r1LineT == null || r2LineT == null) {
     // the first ray doesn't intersect the line, they could be parallel, or the ray could be pointing in the wrong direction
     // return compositeQuadraticBezier({ point: r1.p, onCurve: true }, { point: r2.p, onCurve: true })
+
+    console.log('case 1')
     return compositeQuadraticBezier(
       { point: r1.p, onCurve: true },
       { point: r1.at(1), onCurve: false },
-      { point: line.projectPoint(r1.at(1)), onCurve: false },
-      { point: line.projectPoint(r2.at(1)), onCurve: false },
+      { point: line.projectPoint(r1.at(1.4)), onCurve: false },
+      { point: line.projectPoint(r2.at(1.4)), onCurve: false },
       { point: r2.at(1), onCurve: false },
       { point: r2.p, onCurve: true },
     )
   }
-  if (r1LineT > r1r2T) {
+  if (r1r2T != null && r1LineT != null && r1LineT > r1r2T) {
+    console.log('case 2')
     // the intersection of the rays is closer, so do a simple quadratic curve between them
     return compositeQuadraticBezier(
       { point: r1.p, onCurve: true },
@@ -373,6 +378,7 @@ function rayLineRayCurve(r1, line, r2) {
       { point: r2.p, onCurve: true },
     )
   }
+  console.log('case 3')
   return compositeQuadraticBezier(
     { point: r1.p, onCurve: true },
     { point: r1.at(r1LineT), onCurve: false },

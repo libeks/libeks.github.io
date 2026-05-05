@@ -1,6 +1,6 @@
 import { Point, Line, Ray } from '/js/geometry.js'
 import { reversed, shift, rightShift, zip } from '/js/utils.js'
-import { degToRad, distance, randomInt } from '/js/math.js'
+import { degToRad, radToDeg, distance, randomInt } from '/js/math.js'
 import { generateIterativeCatalanNumerical } from '/js/catalan.js'
 import { getPairs } from '/js/triangular-tiles.js'
 import { hexToNumerical } from '/js/catalan.js'
@@ -182,12 +182,17 @@ class GenericTruchetTile {
     if (midpoint.same(this.center)) {
       throw `midpoint is center ${this.vertices.length} ${curve}`
     }
+    console.log('midpoint', p1, p2, midpoint)
 
-    let symmetryLine = new Line(midpoint, midpoint.vectTo(this.center))
+    // let symmetryLine = new Line(midpoint, midpoint.vectTo(this.center))
+    // let symmetryLine = new Line(this.center, this.center.vectTo(midpoint))
+    let symmetryLine = new Line(this.center, p1.vectTo(p2).perp())
+    console.log('symmetry line', symmetryLine)
+    console.log('center', this.center)
 
     let alphaAngle = degToRad(360 / this.vertices.length) // angle from center between consecutive vertices
-    let edgeDistance = this.side * Math.cos(alphaAngle / 2) // distance from the center to the closest edge, it's height
-    console.log('edgeDistance', this.vertices.length, edgeDistance, alphaAngle, this.side)
+    let edgeDistance = (this.side * Math.tan(alphaAngle / 2)) / 2 // distance from the center to the closest edge, it's height
+    console.log('edgeDistance', this.vertices.length, edgeDistance, radToDeg(alphaAngle), this.side)
 
     let nTracks = this.notchPoints.length / 4
     console.log('nTracks', this.vertices.length, this.notchPoints.length, nTracks)
@@ -196,6 +201,7 @@ class GenericTruchetTile {
 
     let incrementVect = symmetryLine.v.unit()
     if (incrementVect.dot(this.center.vectTo(midpoint)) < 0) {
+      console.warn(`IncrementVector is in wrong direction`)
       incrementVect = incrementVect.mult(-1)
     }
     let gap = (step + 1) / 2
@@ -213,14 +219,28 @@ class GenericTruchetTile {
       incrementDistance,
       (2 * stepFromCenter - 1) * incrementDistance,
     )
-    // return new CompositeCurve(
-    //   new QuadraticBezier(p1, c1star, track.p),
-    //   new QuadraticBezier(track.p, c2star, p2),
-    // )
-    return new rayLineRayCurve(
+    console.log(
+      'rayLineRayCurve',
       new Ray(p1, p1.vectTo(c1star)),
-      track,
       new Ray(p2, p2.vectTo(c2star)),
+      track,
+    )
+    return new rayLineRayCurve(
+      new Ray(
+        p1,
+        p1
+          .vectTo(c1star)
+          .unit()
+          .mult(this.side * 0.2),
+      ),
+      track,
+      new Ray(
+        p2,
+        p2
+          .vectTo(c2star)
+          .unit()
+          .mult(this.side * 0.2),
+      ),
     )
     // return new QuadraticBezier(p1, track.p, p2)
     // return new StraightStroke(p1, p2)

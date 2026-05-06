@@ -13,6 +13,53 @@ function catNum(n) {
 
 const catalanNumber = memoize(catNum)
 
+// this is on average 13x slower than generateIterativeCatalanParenthesisExpensive
+const genIterCatalanNumericalExpensive = function (n, i) {
+  console.log('n,i', n, i)
+  if (n == 0) {
+    return []
+  }
+  if (n == 1) {
+    return [1, 2]
+  }
+  let cn = catalanNumber(n)
+  if (i >= cn) {
+    i = i % cn
+  }
+  let iter = 0
+  for (let a1 = 0; a1 <= n - 1; a1++) {
+    let ca1 = catalanNumber(a1)
+    let a2 = n - a1 - 1
+    let ca2 = catalanNumber(a2)
+    for (let j = 0; j < ca1; j++) {
+      if (i < ca2) {
+        let left = generateIterativeCatalanNumeric(a1, j)
+        let right = generateIterativeCatalanNumeric(a2, i)
+        console.log('left,right', a1, a2)
+        let result = [1, left.length + 2]
+        for (let obj of left) {
+          result.push(obj + 1)
+        }
+        for (let obj of right) {
+          result.push(obj + left.length + 2)
+        }
+        return result
+      }
+      i -= ca2
+    }
+  }
+  return 'unknown'
+}
+
+const generateIterativeCatalanNumeric = memoize(genIterCatalanNumericalExpensive)
+
+function genIterNumber(n, i) {
+  let res = generateIterativeCatalanNumeric(n, i)
+  let result = res.map((char) => numericalToHex(char)).join('')
+  console.log('genIterNumber', n, i, result)
+  return result
+}
+
 // Return a balanced-parenthesis representation of the Catalan Structure Cn with index i
 const generateIterativeCatalanParenthesisExpensive = function (n, i) {
   if (n == 0) {
@@ -64,6 +111,7 @@ function generateCatalanParenthesisSet(n) {
 }
 
 function generateIterativeCatalanNumerical(n, i) {
+  console.log('generateIterativeCatalanNumberica', n, i)
   const paren = generateIterativeCatalanParentheses(n, i)
   const num = parenthesesToNumerical(paren)
   const arrst = arrayToNumStrings(num)
@@ -224,6 +272,8 @@ export {
   // iterative
   generateIterativeCatalanParentheses,
   generateIterativeCatalanNumerical,
+  genIterCatalanNumericalExpensive,
+  genIterNumber,
 
   // representation conversions
   parenthesesToNumerical,

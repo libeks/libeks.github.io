@@ -16,6 +16,8 @@
   "main": "index.js",
   "scripts": {
     "test": "vitest",
+    "bench": "vitest bench",
+    "coverage": "vitest run --coverage",
     "dev": "npx http-server ./ -p 5173",
     "format": "prettier --write --experimental-cli ."
   },
@@ -24,6 +26,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.2.3",
+    "@vitest/coverage-v8": "^4.1.4",
     "typescript": "^5.9.3",
     "vitest": "^4.1.4"
   }

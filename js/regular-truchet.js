@@ -186,11 +186,18 @@ class GenericTruchetTile {
 
     let alphaAngle = degToRad(360 / this.vertices.length) // angle from center between consecutive vertices
     let edgeDistance = this.side / 2 / Math.tan(alphaAngle / 2) // distance from the center to the closest edge, it's height
+    // if (this.vertices.length == 4) {
+    //   edgeDistance = (this.side / 2 / Math.tan(alphaAngle / 2)) * 0.3
+    // }
     // console.log('edgeDistance', this.vertices.length, edgeDistance, radToDeg(alphaAngle), this.side)
 
     let nTracks = this.notchPoints.length / 4
+    let centerOffset = 0.5
+    // if (this.vertices.length == 4) {
+    //   centerOffset = -1
+    // }
     // console.log('nTracks', this.vertices.length, this.notchPoints.length, nTracks)
-    let incrementDistance = edgeDistance / (nTracks + 0.2) // ensure that the first track starts 0.5 from the center
+    let incrementDistance = edgeDistance / (nTracks + centerOffset) // ensure that the first track starts some way from the center
     // console.log('incrementDistance', this.vertices.length, incrementDistance)
 
     let incrementVect = symmetryLine.v.unit()
@@ -229,7 +236,7 @@ class GenericTruchetTile {
 
   nextChar(c) {
     let numeric = hexToNumerical(c) - 1
-    console.log('next of', c, 'is', numericalToHex(numeric + 2))
+    // console.log('next of', c, 'is', numericalToHex(numeric + 2))
     return numericalToHex(numeric + 2)
   }
 
@@ -262,7 +269,7 @@ class GenericTruchetTile {
       return new QuadraticBezier(p1, c1star, p2)
     }
     if (step == 1) {
-      console.log('step 1', this.notches.length, curve)
+      // console.log('step 1', this.notches.length, curve)
       if (this.notches.length == 2) {
         if (['23', '67', 'AB'].includes(curve)) {
           return new CubicBezier(
@@ -400,7 +407,7 @@ const genericTruchetGrid = {
             this.notches,
             this.size,
           ),
-          n: randomInt(1000000000),
+          n: randomInt(10000000000), // should be 1289904147324 for 24
         })
       }
       return retList

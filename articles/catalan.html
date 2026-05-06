@@ -146,10 +146,11 @@
         <div class="text-figure">
           <div>
             <p>
-              Suppose we have a circle with <math><mn>2</mn><mi>n</mi></math> points, spaced equally
-              around that circle. We want to connect these points in pairs with chords, without them
-              intersecting. How do we enumerate all of the possibilities? Yet again, the Catalan
-              Numbers are relevant, and this becomes our second Catalan Structure.
+              Suppose we have a circle with <math><mn>2</mn><mi>n</mi></math> points (or notches),
+              spaced equally around that circle. We want to connect these points in pairs with
+              chords, without them intersecting. How do we enumerate all of the possibilities? Yet
+              again, the Catalan Numbers are relevant, and this becomes our second Catalan
+              Structure.
             </p>
             <p>
               We can trivially translate from the parenthesis representation to another, equivalent
@@ -267,6 +268,27 @@
             </figure>
           </div>
         </div>
+        <section>
+          <h3 id="chord-rotations">
+            <a class="anchor" href="#chord-rotations"></a>
+            <span>Chord Rotations</span>
+          </h3>
+          <p>
+            A curious side effect of the Circle Chord representation is that these circles can be
+            rotated, producing a mapping between items. Formally, the rotation operator ↷ is defined
+            by remapping the notches incrementally by one, with wraparound. So a chord between
+            notches 1 and 2 would now map between notches 2 and 3, after the application of the ↷
+            operator.
+          </p>
+          <p>
+            Since rotations eventually end up where they began, after completing a full 360°, and
+            often even sooner, we can partition the set of all Circle Chord representations of a
+            certain Catalan number, and use one element from each partition as a canonical
+            representative. The cardinality of this subset is of importance, as it has to divide
+            <math><mi>n</mi></math
+            >.
+          </p>
+        </section>
       </section>
       <section>
         <h2 id="lattice-paths">
@@ -422,6 +444,23 @@
             {{generateIterativeCatalanParentheses(10,i)}}<br />{{numericalToPartition(generateIterativeCatalanNumerical(10,i))}}
           </figcaption>
         </figure>
+      </section>
+      <section>
+        <h2 id="further-reading">
+          <a class="anchor" href="#further-reading"></a>
+          <span>Further Reading</span>
+        </h2>
+        <ul>
+          <li>
+            <a href="https://en.wikipedia.org/wiki/Richard_P._Stanley">Richard P. Stanley's</a> book
+            "Catalan Numbers" (MIT Press, 2015) contains a list of 214 Catalan number
+            interpretations
+          </li>
+          <li>
+            A further analysis of Catalan numbers appears in the OEIS
+            <a href="https://oeis.org/A000108">A000108</a>.
+          </li>
+        </ul>
       </section>
     </main>
     <footer>

@@ -1,5 +1,13 @@
 import { expect, test } from 'vitest'
-import { numericalToHex, hexToNumerical, parenthesesToNumerical } from '/js/catalan.js'
+import {
+  numericalToHex,
+  hexToNumerical,
+  parenthesesToNumerical,
+  generateIterativeCatalanNumerical,
+  genIterCatalanNumericalExpensive,
+  genIterNumber,
+} from '/js/catalan.js'
+import { randomInt } from '/js/math.js'
 
 test('numerical to hex conversion', () => {
   for (let i = 0; i < 62; i++) {
@@ -24,4 +32,15 @@ test('parenthesesToNumerical', () => {
   let input = '()()()'
   let output = '123456'
   expect(parenthesesToNumerical(input).join('')).toBe(output)
+})
+
+test('large parentheses vs numerical calculation', () => {
+  for (let i = 0; i < 10; i++) {
+    let val = randomInt(10000000000)
+    let left = generateIterativeCatalanNumerical(24, val)
+    let right = genIterNumber(24, val)
+    console.log('left ', left)
+    console.log('right', right)
+    expect(left).toBe(right)
+  }
 })

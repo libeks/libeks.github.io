@@ -366,7 +366,7 @@ const fourCurveFactory = {
         )
       }
       // case X, fallback to direct line
-      return new StraightLine(p1, p2)
+      return new StraightStroke(p1, p2)
     },
   },
 }

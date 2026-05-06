@@ -3,7 +3,7 @@ import { reversed, shift, rightShift, zip } from '/js/utils.js'
 import { degToRad, radToDeg, distance, randomInt } from '/js/math.js'
 import { generateIterativeCatalanNumerical } from '/js/catalan.js'
 import { getPairs } from '/js/triangular-tiles.js'
-import { hexToNumerical } from '/js/catalan.js'
+import { hexToNumerical, numericalToHex } from '/js/catalan.js'
 import {
   StraightStroke,
   QuadraticBezier,
@@ -138,12 +138,6 @@ class GenericTruchetTile {
     this.midpoints = midpoints
     this.notchPoints = notches
     this.stars = stars
-
-    // return {
-    //   midpoints,
-    //   notches,
-    //   stars,
-    // }
   }
 
   get n() {
@@ -196,7 +190,7 @@ class GenericTruchetTile {
 
     let nTracks = this.notchPoints.length / 4
     // console.log('nTracks', this.vertices.length, this.notchPoints.length, nTracks)
-    let incrementDistance = edgeDistance / (nTracks + 0.5) // ensure that the first track starts 0.5 from the center
+    let incrementDistance = edgeDistance / (nTracks + 0.2) // ensure that the first track starts 0.5 from the center
     // console.log('incrementDistance', this.vertices.length, incrementDistance)
 
     let incrementVect = symmetryLine.v.unit()
@@ -212,19 +206,6 @@ class GenericTruchetTile {
       this.center.addVect(incrementVect.mult((1 * stepFromCenter + 0.5) * incrementDistance)),
       incrementVect.perp(),
     )
-    // console.log(
-    //   `getTrackCurve ${curve} ${gap}`,
-    //   track,
-    //   incrementVect,
-    //   incrementDistance,
-    //   (2 * stepFromCenter - 1) * incrementDistance,
-    // )
-    // console.log(
-    //   'rayLineRayCurve',
-    //   new Ray(p1, p1.vectTo(c1star)),
-    //   new Ray(p2, p2.vectTo(c2star)),
-    //   track,
-    // )
     return new rayLineRayCurve(
       new Ray(
         p1,
@@ -246,6 +227,12 @@ class GenericTruchetTile {
     // return new StraightStroke(p1, p2)
   }
 
+  nextChar(c) {
+    let numeric = hexToNumerical(c) - 1
+    console.log('next of', c, 'is', numericalToHex(numeric + 2))
+    return numericalToHex(numeric + 2)
+  }
+
   // Should only be used for triangles, doesn't look good for other ngons
   getStarCurve(curve) {
     let c1 = curve[0]
@@ -262,17 +249,67 @@ class GenericTruchetTile {
     let c2star = this.stars[cn2]
 
     let step = distance(this.n * 2, cn1, cn2)
+    if (this.notches.length == 1) {
+      if (c1star.distance(c2star) < THRESHOLD) {
+        return new QuadraticBezier(p1, c1star, p2)
+      }
+      return new CubicBezier(p1, c1star, c2star, p2)
+    }
+
+    // the following is for two notches
+
     if (c1star.distance(c2star) < THRESHOLD) {
       return new QuadraticBezier(p1, c1star, p2)
     }
     if (step == 1) {
+      console.log('step 1', this.notches.length, curve)
+      if (this.notches.length == 2) {
+        if (['23', '67', 'AB'].includes(curve)) {
+          return new CubicBezier(
+            p1,
+            p1.addVect(p1.vectTo(c1star).mult(0.5)),
+            p2.addVect(p2.vectTo(c2star).mult(0.5)),
+            p2,
+          )
+        }
+      }
       let dist = Math.min(p1.distance(p2), p1.distance(c1star), p2.distance(c2star))
       let perp1 = p1.addVect(p1.vectTo(c1star).unit().mult(dist))
       let perp2 = p2.addVect(p2.vectTo(c2star).unit().mult(dist))
       return new CubicBezier(p1, perp1, perp2, p2)
     }
-    return new CubicBezier(p1, c1star, c2star, p2)
-    // return new StraightStroke(p1, p2)
+    if (step == 3 && ['14', '58', '9C'].includes(curve)) {
+      const p1plus = this.notchPoints[cn1 + 1]
+      const p1plusplus = this.notchPoints[cn1 + 2]
+      const p2plusstar = p1plus.addVect(p1plus.vectTo(this.stars[cn1 + 1]).mult(0.5))
+      const p3plusstar = p1plusplus.addVect(p1plusplus.vectTo(this.stars[cn1 + 2]).mult(0.5))
+      const mid = p2plusstar.midpoint(p3plusstar)
+      return new CompositeCurve(
+        new CubicBezier(p1, c1star, p2plusstar, mid),
+        new CubicBezier(mid, p3plusstar, c2star, p2),
+      )
+    }
+    if (['16', '1A', '47', '4B', '52', '5A', '28', '8B', '39', '69', '3C', '7C'].includes(curve)) {
+      return new CubicBezier(p1, c1star, c2star, p2)
+    }
+    if (['18', '49', '5C'].includes(curve)) {
+      const p1plus = this.stars[cn1 + 1]
+      const p2plus = this.stars[cn2 - 1]
+      const mid = p1plus.midpoint(p2plus)
+      return new CompositeCurve(
+        new CubicBezier(p1, c1star, p1plus, mid),
+        new CubicBezier(mid, p2plus, c2star, p2),
+      )
+    }
+    if (['27', '3A', '6B'].includes(curve)) {
+      // return new CompositeCurve(
+      //     new QuadraticBezier(p1, p1prime, midprime),
+      //     new QuadraticBezier(midprime, p2prime, p2),
+      //   )
+      return new CubicBezier(p1, c1star, c2star, p2)
+    }
+
+    return new StraightStroke(p1, p2)
   }
 
   getCurve(curve) {

@@ -359,12 +359,13 @@ function rayLineRayCurve(r1, line, r2) {
     // the first ray doesn't intersect the line, they could be parallel, or the ray could be pointing in the wrong direction
     // return compositeQuadraticBezier({ point: r1.p, onCurve: true }, { point: r2.p, onCurve: true })
 
+    const secondPointDistance = 1.6
     // console.log('case 1')
     return compositeQuadraticBezier(
       { point: r1.p, onCurve: true },
       { point: r1.at(1), onCurve: false },
-      { point: line.projectPoint(r1.at(1.4)), onCurve: false },
-      { point: line.projectPoint(r2.at(1.4)), onCurve: false },
+      { point: line.projectPoint(r1.at(secondPointDistance)), onCurve: false },
+      { point: line.projectPoint(r2.at(secondPointDistance)), onCurve: false },
       { point: r2.at(1), onCurve: false },
       { point: r2.p, onCurve: true },
     )

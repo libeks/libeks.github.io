@@ -298,9 +298,14 @@ div.collapsible {
     text-align: center;
     margin: 1em 0;
 
-    &:after {
+    &.collapsed:after {
       content: '▼';
-      text-align: right;
+      font-size: 0.6em;
+    }
+
+    &:after {
+      content: '▶';
+      font-size: 0.6em;
     }
   }
 

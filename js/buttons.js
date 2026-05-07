@@ -38,7 +38,7 @@ const toggleButton = {
 const collapsibleButton = {
   template: `
     <div class="collapsible">
-      <div class="collapsible-button" @click="click()"><slot name="label"></slot></div>
+      <div :class="{'collapsible-button':true, collapsed:isCollapsed}" @click="click()"><slot name="label"></slot></div>
       <div ref="collapsible" :class="{'collapsible-content': true, visible:!isCollapsed}"><slot></slot></div>
     </div
     `,

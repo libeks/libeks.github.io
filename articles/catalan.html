@@ -74,19 +74,18 @@
         </h2>
         <p>
           In general, each string of nested parentheses above can be expressed uniquely with the
-          formula "(a<sub>1</sub>)a<sub>2</sub>", where both a<sub>1</sub> and a<sub>2</sub> are
-          valid nested parentheses themselves, possibly of length 0. Knowing that the zero-length
-          string of balanced parentheses is trivially "", we now have a method to generate all of
-          the possible strings. We recognize that the formula already uses one pair of parentheses,
-          so we need to loop over the possible lengths of a<sub>1</sub>, and then substitute in all
-          of the valid strings for a<sub>2</sub>. Thus, if we have
-          <math><mn>n</mn></math> parentheses, then a<sub>1</sub>
-          can contain
+          formula "(x)y", where both x and y are valid nested parentheses themselves, possibly of
+          length 0. Knowing that the zero-length string of balanced parentheses is trivially the
+          empty string "", we now have a method to generate all of the possible strings. We
+          recognize that the formula already uses one pair of parentheses, so we need to loop over
+          the possible lengths of x, and then substitute in all of the valid strings for y. Thus, if
+          we have
+          <math><mn>n</mn></math> parentheses, then x can contain
           <math class="nowrap">
             <mi>i</mi><mo>=</mo><mn>0</mn> <mo>&hellip;</mo> <mo>(</mo><mi>n</mi><mo>-</mo><mn>1</mn
             ><mo>)</mo>
           </math>
-          pairs of parentheses; and then a<sub>2</sub> will use
+          pairs of parentheses; and then y will use
           <math><mi>j</mi><mo>=</mo><mi>n</mi><mo>-</mo><mi>i</mi></math> parentheses.
         </p>
         <p>
@@ -275,10 +274,10 @@
           </h3>
           <p>
             A curious side effect of the Circle Chord representation is that these circles can be
-            rotated, producing a mapping between items. Formally, the rotation operator ↷ is defined
-            by remapping the notches incrementally by one, with wraparound. So a chord between
-            notches 1 and 2 would now map between notches 2 and 3, after the application of the ↷
-            operator, while the last notch would be mapped onto notch 1, etc.
+            rotated, producing a mapping between elements. Formally, the rotation operator ↷ is
+            defined by remapping the notches incrementally by one, with wraparound. So a chord
+            between notches 1 and 2 would now map between notches 2 and 3, after the application of
+            the ↷ operator, while the last notch would be mapped onto notch 1, etc.
           </p>
           <p>
             Since rotations eventually end up where they began, after completing a full 360°, and
@@ -286,9 +285,15 @@
             certain Catalan number
             <math
               ><msub><mi>C</mi> <mi>n</mi></msub></math
-            >, and use one element from each partition as a canonical representative. The
-            cardinality of this subset is of importance, as it has to divide <math><mi>n</mi></math
+            >
+            into equivalence classes under repeated application of the rotation operator, and we can
+            use one element from each partition as a canonical representative. The cardinality of
+            this subset is of importance, as it has to divide <math><mi>n</mi></math
             >.
+          </p>
+          <p>
+            To make the computation easier, notice that the rotation operator when applied to the
+            parenthesis notation of a Catalan structure follows the rule <code>x(y) ↷ (x)y</code>.
           </p>
           <div id="chord-partitions">
             <div v-for="n in [3,4,5,6,7,8]">

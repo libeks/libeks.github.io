@@ -70,7 +70,7 @@ a {
 }
 
 section {
-  padding-bottom: 3em;
+  margin-bottom: 3em;
 }
 
 div.text-figure {
@@ -287,5 +287,31 @@ div.button-block {
   div.button:last-of-type {
     border-top-right-radius: 0.2em;
     border-bottom-right-radius: 0.2em;
+  }
+}
+
+div.collapsible {
+  div.collapsible-button {
+    background-color: #eee;
+    cursor: pointer;
+    padding: 18px;
+    text-align: center;
+    margin: 1em 0;
+
+    &:after {
+      content: '▼';
+      text-align: right;
+    }
+  }
+
+  div.collapsible-content {
+    /*display: none;*/
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.07s ease-out;
+
+    &.visible {
+      display: block;
+    }
   }
 }

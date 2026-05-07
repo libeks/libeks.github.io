@@ -15,7 +15,7 @@ const catalanNumber = memoize(catNum)
 
 // this is on average 13x slower than generateIterativeCatalanParenthesisExpensive
 const genIterCatalanNumericalExpensive = function (n, i) {
-  console.log('n,i', n, i)
+  // console.log('n,i', n, i)
   if (n == 0) {
     return []
   }
@@ -35,7 +35,7 @@ const genIterCatalanNumericalExpensive = function (n, i) {
       if (i < ca2) {
         let left = generateIterativeCatalanNumeric(a1, j)
         let right = generateIterativeCatalanNumeric(a2, i)
-        console.log('left,right', a1, a2)
+        // console.log('left,right', a1, a2)
         let result = [1, left.length + 2]
         for (let obj of left) {
           result.push(obj + 1)
@@ -56,7 +56,7 @@ const generateIterativeCatalanNumeric = memoize(genIterCatalanNumericalExpensive
 function genIterNumber(n, i) {
   let res = generateIterativeCatalanNumeric(n, i)
   let result = res.map((char) => numericalToHex(char)).join('')
-  console.log('genIterNumber', n, i, result)
+  // console.log('genIterNumber', n, i, result)
   return result
 }
 
@@ -111,7 +111,7 @@ function generateCatalanParenthesisSet(n) {
 }
 
 function generateIterativeCatalanNumerical(n, i) {
-  console.log('generateIterativeCatalanNumberica', n, i)
+  // console.log('generateIterativeCatalanNumberica', n, i)
   const paren = generateIterativeCatalanParentheses(n, i)
   const num = parenthesesToNumerical(paren)
   const arrst = arrayToNumStrings(num)
@@ -136,7 +136,7 @@ function hexToNumerical(a) {
     // lowercase letters
     return charCode - 97 + 36
   }
-  throw `hexToNumerical: Unsupported hex ${hex}`
+  throw `hexToNumerical: Unsupported hex ${a}`
 }
 
 function numericalToHex(char) {
@@ -180,6 +180,11 @@ function parenthesesToNumerical(st) {
   return ret.reverse().flat(Infinity) // flatten nested list
 }
 
+function parenthesesToHex(st) {
+  let numerical = parenthesesToNumerical(st)
+  return numerical.map((a) => numericalToHex(a)).join('')
+}
+
 function numericalToParentheses(st) {
   let dict = {}
   for (let i = 0; i < st.length; i++) {
@@ -209,6 +214,8 @@ function numericalToPartition(st) {
 
 // (())(()()()()()()())
 
+// return the partition set representation of a catalan object
+// ()((()))() => [[1,2,5],[3,4]]
 function parenthesesToPartitions(st) {
   // compute in reverse to ensure correct order of first element of each partition
   let ret = []
@@ -261,6 +268,74 @@ function generateCatalanNumberSet(n) {
   return retList
 }
 
+// rotate the parenthesis notation forward by one, using the rule x(y) => (x)y
+function rotateParenthesis(element) {
+  // find the matching parenthesis for the last closing parenthesis
+  let numerical = parenthesesToNumerical(element)
+  // console.log('parenthesisToPartitions', element, numerical)
+  let breakpoint = 0
+  for (let i = 0; i < numerical.length; i += 2) {
+    // console.log('i', i, numerical[i + 1], hexToNumerical(numerical[i + 1]), element.length)
+    if (hexToNumerical(numerical[i + 1]) == element.length) {
+      breakpoint = hexToNumerical(numerical[i]) - 1
+      break
+    }
+  }
+  let x = element.substring(0, breakpoint)
+  let y = ''
+  if (breakpoint + 1 < element.length - 2) {
+    y = element.substring(breakpoint + 1, element.length - 1)
+  }
+  // console.log('breakpoint', element, breakpoint, x, y)
+  let response = `(${x})${y}`
+  if (response.length != element.length) {
+    throw `Invalid length ${response} ${response.length}, ${element} ${element.length}`
+  }
+  return response
+}
+
+function generateRotations(element) {
+  let el = element
+  let set = [element]
+  // for (let i = 0; i < 3; i++) {
+  while (true || set.length > 200) {
+    let before = el
+    el = rotateParenthesis(el)
+    // console.log('rotate', before, el)
+    if (el == element) {
+      return set
+    }
+    set.push(el)
+  }
+}
+
+function partitionCatalanParenthesisSet(set) {
+  let partitions = {}
+  let allElements = {}
+  for (let element of set) {
+    if (!(element in allElements)) {
+      let rotations = generateRotations(element)
+      partitions[element] = rotations
+      for (let el of rotations) {
+        allElements[el] = element
+      }
+    }
+  }
+  return partitions
+}
+
+function getParenthesisPartitions(n) {
+  let set = generateCatalanParenthesisSet(n).map((el) => el.join(''))
+  // console.log('set', set)
+  let partitions = partitionCatalanParenthesisSet(set)
+  let newMap = {}
+  for (let [k, v] of Object.entries(partitions)) {
+    newMap[parenthesesToHex(k)] = v.map((a) => parenthesesToHex(a))
+  }
+  // console.log('getParenthesisPartitions', set.length, partitions, newMap)
+  return newMap
+}
+
 export {
   // catalan number
   catalanNumber,
@@ -284,4 +359,7 @@ export {
   // character conversion
   numericalToHex,
   hexToNumerical,
+
+  // partitions
+  getParenthesisPartitions,
 }

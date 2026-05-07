@@ -278,16 +278,52 @@
             rotated, producing a mapping between items. Formally, the rotation operator ↷ is defined
             by remapping the notches incrementally by one, with wraparound. So a chord between
             notches 1 and 2 would now map between notches 2 and 3, after the application of the ↷
-            operator.
+            operator, while the last notch would be mapped onto notch 1, etc.
           </p>
           <p>
             Since rotations eventually end up where they began, after completing a full 360°, and
             often even sooner, we can partition the set of all Circle Chord representations of a
-            certain Catalan number, and use one element from each partition as a canonical
-            representative. The cardinality of this subset is of importance, as it has to divide
-            <math><mi>n</mi></math
+            certain Catalan number
+            <math
+              ><msub><mi>C</mi> <mi>n</mi></msub></math
+            >, and use one element from each partition as a canonical representative. The
+            cardinality of this subset is of importance, as it has to divide <math><mi>n</mi></math
             >.
           </p>
+          <div id="chord-partitions">
+            <div v-for="n in [3,4,5,6,7,8]">
+              <collapsible-button>
+                <template #label>
+                  Rotational partitions of
+                  <math>
+                    <msub><mi>C</mi> <mi>{{n}}</mi></msub>
+                  </math>
+                </template>
+                <template #default>
+                  <div class="flex-block flex-center">
+                    <div v-for="(s,v) in getParenthesisPartitions(n)" class="catalan-hex">
+                      <figure>
+                        <svg viewBox="0 0 300 300">
+                          <circle-chords
+                            :tile="v"
+                            :n="n"
+                            :radius="100"
+                            :centerx="150"
+                            :centery="160"
+                            show-arcs
+                            show-chords
+                            show-circle
+                            show-notches
+                          />
+                        </svg>
+                        <figcaption>cardinality {{s.length}}</figcaption>
+                      </figure>
+                    </div>
+                  </div>
+                </template>
+              </collapsible-button>
+            </div>
+          </div>
         </section>
       </section>
       <section>
@@ -476,7 +512,9 @@
         generateCatalanNumberSet,
         generateIterativeCatalanNumerical,
         numericalToPartition,
+        getParenthesisPartitions,
       } from '/js/catalan.js'
+      import { collapsibleButton } from '/js/buttons.js'
       import { circleChords, latticePaths } from '/js/catalan-structures.js'
 
       createApp({
@@ -620,6 +658,16 @@
           circleChords,
         },
       }).mount('#c4-partition-exhaustive')
+
+      createApp({
+        methods: {
+          getParenthesisPartitions,
+        },
+        components: {
+          circleChords,
+          collapsibleButton,
+        },
+      }).mount('#chord-partitions')
 
       createApp({
         data() {

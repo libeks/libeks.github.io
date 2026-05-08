@@ -11,6 +11,14 @@ class BBox {
     this.y2 = y2
   }
 
+  width() {
+    return this.x2 - this.x1
+  }
+
+  height() {
+    return this.y2 - this.y1
+  }
+
   inside(point) {
     if (point.type != 'Point') {
       throw `BBox.inside unexpected argument ${point.type}`

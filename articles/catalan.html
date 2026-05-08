@@ -476,12 +476,45 @@
             >
             possible 2D walks of length 9:
           </p>
-          <div id="twod-walk-10-counter" class="flex-block flex-center">
+          <div id="two-d-walk-10-counter" class="flex-block flex-center">
             <div class="catalan-parentheses">
               {{get2DWalkFromParentheses(generateIterativeCatalanParentheses(10, i))}}
             </div>
           </div>
         </section>
+      </section>
+      <section>
+        <h2 id="rooted-trees">
+          <a class="anchor" href="#rooted-trees"></a>
+          <span>Rooted Trees</span>
+        </h2>
+        <div class="text-figure">
+          <p>
+            A
+            <a href="https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree">Rooted Tree</a>
+            (a.k.a. a Plane Tree) is a tree with a certain node denoted as the root, and with the
+            children being ordered (i.e. the order in which children are processed matters).
+            Unsurprisingly,
+            <math>
+              <msub><mi>C</mi><mn>n</mn></msub>
+            </math>
+            denotes the number of such plane trees with
+            <math><mi>n</mi><mo>+</mo><mn>1</mn></math> nodes. We start yet again with the
+            parentheses notation, and a root node. Every time we encounter an opening parenthesis
+            "(", we append a new child to the current node, and set that child as the current node.
+            Every time we encounter a closing parenthesis ")", we set the current node to its
+            parent.
+          </p>
+          <figure id="rooted-tree-10-example" class="float-right small">
+            <svg viewBox="0 0 300 300">
+              <rooted-tree tile="((()((()))()()))(())" :bbox="bbox"></rooted-tree>
+            </svg>
+            <figcaption>
+              The Rooted Tree with 11 nodes corresponding to the parenthesis notation
+              ((()((()))()()))(())
+            </figcaption>
+          </figure>
+        </div>
       </section>
       <section>
         <h2 id="partitions">
@@ -631,7 +664,8 @@
         get2DWalkFromParentheses,
       } from '/js/catalan.js'
       import { collapsibleButton } from '/js/buttons.js'
-      import { circleChords, latticePaths } from '/js/catalan-structures.js'
+      import { BBox } from '/js/bbox.js'
+      import { circleChords, latticePaths, rootedTree } from '/js/catalan-structures.js'
 
       createApp({
         methods: {
@@ -760,7 +794,28 @@
         components: {
           circleChords,
         },
-      }).mount('#twod-walk-10-counter')
+      }).mount('#two-d-walk-10-counter')
+
+      createApp({
+        data() {
+          return {
+            i: Math.floor(Math.random() * 16796),
+            bbox: new BBox(0, 0, 300, 300),
+          }
+        },
+        // methods: {
+        //   generateIterativeCatalanParentheses,
+        //   get2DWalkFromParentheses,
+        // },
+        // mounted() {
+        //   setInterval(() => {
+        //     this.i++
+        //   }, 500)
+        // },
+        components: {
+          rootedTree,
+        },
+      }).mount('#rooted-tree-10-example')
 
       createApp({
         data() {

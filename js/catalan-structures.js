@@ -236,4 +236,115 @@ const latticePaths = {
   },
 }
 
-export { circleChords, latticePaths }
+const rootedTree = {
+  template: `
+    <g>
+      <g v-for="node in nodes">
+      <text v-if="showLabels" v-bind="node.pt.d(10,10).xyProps()">{{node.id}}</text>
+      <circle v-bind="node.pt.cxcyProps()" r=5 class="fillBlack" :data-id="node.id" />
+      </g> 
+      <g v-for="edge in edges">
+        <path :d="edge.line.d()" />
+      </g>
+    </g>
+    `,
+  props: {
+    tile: String, // parenthesis notation
+    bbox: Object,
+    height: Number,
+    minWidth: {
+      type: Number,
+      default: 50,
+    },
+    showLabels: Boolean,
+  },
+  computed: {
+    tree() {
+      let maxDepth = 0
+      let depth = 0
+      let nNodes = 0
+      let nodes = {}
+      let root = { id: 0, children: [], parent: null, depth: 0 }
+      nodes[root.id] = root
+      let current = root
+      for (let char of this.tile) {
+        if (char == '(') {
+          nNodes++
+          current = { id: nNodes, children: [], parent: current, depth: depth + 1 }
+          current.parent.children.push(current)
+          nodes[current.id] = current
+          depth++
+          if (depth > maxDepth) {
+            maxDepth = depth
+          }
+          // maxDepth++
+        } else {
+          current = current.parent
+          depth--
+        }
+      }
+      return { root, maxDepth, nNodes, nodes }
+    },
+    positionedTree() {
+      let rows = {}
+      let minWidth = this.minWidth // capture value to be usable inside traverse()
+      function traverse(node) {
+        let width = 0
+        for (let child of node.children) {
+          traverse(child)
+          width += child.width
+        }
+        node.width = width > 0 ? width : minWidth
+        if (rows[node.depth]) {
+          rows[node.depth].push(node)
+        } else {
+          rows[node.depth] = [node]
+        }
+      }
+      traverse(this.tree.root)
+      this.tree.rows = rows
+      this.tree.offsetX = (this.bbox.width() - this.tree.root.width) / 2
+      this.tree.offsetY = 50
+      this.tree.verticalStep = (this.bbox.height() - 100) / this.tree.maxDepth
+      const tree = this.tree // capture to be used in setPosition
+      function setPosition(node) {
+        node.y = node.depth * tree.verticalStep + tree.offsetY
+        let offset = node.x - node.width / 2
+        node.pt = new Point(node.x, node.y)
+        for (let child of node.children) {
+          child.x = offset + child.width / 2
+          offset += child.width
+          setPosition(child)
+        }
+      }
+      tree.root.x = this.tree.offsetX + tree.root.width / 2
+      setPosition(tree.root)
+      return tree
+    },
+    nodes() {
+      console.log('tree', this.positionedTree)
+      return Object.values(this.positionedTree.nodes)
+    },
+    edges() {
+      let edges = []
+      function getEdges(node) {
+        for (let child of node.children) {
+          console.log('line', node, child)
+          edges.push({
+            from: node.id,
+            to: child.id,
+            ptA: node.pt,
+            ptB: child.pd,
+            line: new StraightStroke(node.pt, child.pt),
+          })
+          getEdges(child)
+        }
+      }
+      getEdges(this.tree.root)
+      console.log('edges', edges)
+      return edges
+    },
+  },
+}
+
+export { circleChords, latticePaths, rootedTree }

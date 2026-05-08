@@ -43,8 +43,8 @@
         </p>
         <p>
           As it turns out, this is our first Catalan structure. For one pair, we have the trivial
-          string "()". For two, we can do either "()()" or "(())". For three, it starts to get more
-          interesting. Here they are:
+          string <code>()</code>. For two, we can do either <code>()()</code> or <code>(())</code>.
+          For three, it starts to get more interesting. Here they are:
         </p>
         <div class="flex-block flex-center">
           <div class="catalan-parentheses">()()()</div>
@@ -408,11 +408,14 @@
               The walk has to be of length <math><mi>n</mi><mo>-</mo><mn>1</mn></math>
             </li>
             <li>
-              The walk has to end on the X-axis (the end position has to have
+              The walk has to end on the X-axis (the end position must be
               <math><mi>y</mi><mo>=</mo><mn>0</mn></math
               >)
             </li>
-            <li>The walk can never dip below the X-axis</li>
+            <li>
+              The walk can never dip below the X-axis (<math><mi>y</mi><mo>≥</mo><mn>0</mn></math
+              >)
+            </li>
           </ul>
           <p>
             For example, the five such walks of
@@ -501,13 +504,15 @@
             denotes the number of such plane trees with
             <math><mi>n</mi><mo>+</mo><mn>1</mn></math> nodes. We start yet again with the
             parentheses notation, and a root node. Every time we encounter an opening parenthesis
-            "(", we append a new child to the current node, and set that child as the current node.
-            Every time we encounter a closing parenthesis ")", we set the current node to its
-            parent.
+            <code>(</code>, we append a new child to the current node, and set that child as the
+            current node. Every time we encounter a closing parenthesis <code>)</code>, we set the
+            current node to its parent. Since the parenthesis representation is balanced, we will
+            end up at the root at the end, and we'll never need to look at the root's parent (which
+            by definition doesn't exist).
           </p>
           <figure id="rooted-tree-10-example" class="float-right small">
             <svg viewBox="0 0 300 300">
-              <rooted-tree tile="((()((()))()()))(())" :bbox="bbox"></rooted-tree>
+              <rooted-tree tile="((()((()))()()))(())" :bbox="bbox" show-labels></rooted-tree>
             </svg>
             <figcaption>
               The Rooted Tree with 11 nodes corresponding to the parenthesis notation

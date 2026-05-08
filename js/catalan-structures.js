@@ -1,4 +1,4 @@
-import { Point, Vector } from '/js/geometry.js'
+import { Point, Vector, Ray } from '/js/geometry.js'
 import { StraightStroke, CircleArc, CompositeCurve, Polygon } from '/js/lines.js'
 import { numericalToHex, hexToNumerical, numericalToPartition } from '/js/catalan.js'
 import { radToDeg } from '/js/math.js'
@@ -240,7 +240,7 @@ const rootedTree = {
   template: `
     <g>
       <g v-for="node in nodes">
-      <text v-if="showLabels" v-bind="node.pt.d(10,10).xyProps()">{{node.id}}</text>
+      <text v-if="showLabels" v-bind="node.pt.d(10,4).xyProps()" font-size="12px">{{node.id}}</text>
       <circle v-bind="node.pt.cxcyProps()" r=5 class="fillBlack" :data-id="node.id" />
       </g> 
       <g v-for="edge in edges">
@@ -327,15 +327,25 @@ const rootedTree = {
     },
     edges() {
       let edges = []
+      const truncatedLine = true // whether the line connecting nodes should "go quiet" close to the node
       function getEdges(node) {
         for (let child of node.children) {
           console.log('line', node, child)
+          let ptA = node.pt
+          let ptB = child.pt
+          let line
+          if (truncatedLine) {
+            let vect = ptA.vectTo(ptB).unit()
+            line = new StraightStroke(ptA.addVect(vect.mult(10)), ptB.addVect(vect.mult(-10)))
+          } else {
+            line = new StraightStroke(ptA, ptB)
+          }
           edges.push({
             from: node.id,
             to: child.id,
-            ptA: node.pt,
-            ptB: child.pd,
-            line: new StraightStroke(node.pt, child.pt),
+            ptA,
+            ptB,
+            line,
           })
           getEdges(child)
         }

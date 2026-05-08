@@ -336,42 +336,152 @@
           <a class="anchor" href="#lattice-paths"></a>
           <span>Lattice Paths</span>
         </h2>
-        <div class="text-figure">
+        <section>
+          <h3 id="random-walk-1d">
+            <a class="anchor" href="#random-walk-1d"></a>
+            <span>Random Walk in 1D</span>
+          </h3>
           <p>
-            Suppose we consider the set of lattice paths on an n x n grid, from one corner to the
-            other, which do not cross the diagonal. We can stick to showing only the
-            upper-triangular section of this grid, placing the diagonal horizontally at the bottom.
-            Taking inspiration from the balanced parenthesis notation, whenever we have an opening
-            parenthesis "(", we move upwards, otherwise we move downwards. Naturally, we would only
-            cross the diagonal if an only if our string contains an unbalanced closing parenthesis.
+            Suppose we want to take a random walk on the whole number line with steps of length one,
+            starting and ending at 0, but never dipping below 0. The number of such walks of length
+            <math><mn>2</mn><mi>n</mi></math> follows directly from the parenthesis example above.
+            Each open parenthesis "(" is a step in the positive direction, and each closing
+            parenthesis ")" is a move in the negative direction. To dip below 0, we'd have to hit an
+            unbalanced closing parenthesis, which is forbidden!
           </p>
-          <figure id="lattice-10-example" class="float-right small">
-            <svg viewBox="0 0 300 200">
-              <lattice-paths tile="()(())(())" :n="5" :size="50" :padding="25" />
+          <p>
+            An alternative formulation is that of a Ballot Sequence. There is an election between
+            two candidates A and B, which receives <math><mn>2</mn><mi>n</mi></math> votes (no
+            abstentions) that ends up in the tie. What is the number of voting sequences, such that
+            candidate A would never trail behild candidate B during any moment of reading the
+            sequence? Again, an open parenthesis stands in for a vote for candidate A, a closed
+            parenthesis stands in for candidate B.
+          </p>
+          <div class="text-figure">
+            <p>
+              Now let's take the random walk idea, but visualize it in two dimensions, with the
+              whole number line placed vertically, and the time increment displayed horizontally. A
+              step in the positive direction corresponds with movement in the direction (1,1), a
+              step in the negative direction corresponds with movement in the direciton (1, -1). We
+              end up with a lattice path on an n x n grid, flipped on its diagonal, spanning from
+              one corner to the opposite one, such that no path dips below this diagonal.
+            </p>
+            <figure id="lattice-10-example" class="float-right small">
+              <svg viewBox="0 0 300 200">
+                <lattice-paths tile="()(())(())" :n="5" :size="50" :padding="25" />
+              </svg>
+              <figcaption>
+                Lattice paths on an 5 x 5 square, not crossing the diagonal, corresponding to the
+                parenthesis representation '()(())(())'
+              </figcaption>
+            </figure>
+          </div>
+          <p>
+            Yet again, we'll cycle through the structures for
+            <math>
+              <msub><mi>C</mi><mn>10</mn></msub> </math
+            >:
+          </p>
+          <figure id="c10-lattice-paths-timer">
+            <svg viewBox="0 0 600 300">
+              <lattice-paths
+                :tile="generateIterativeCatalanParentheses(10, i)"
+                :n="10"
+                :size="50"
+                :padding="25"
+              />
             </svg>
-            <figcaption>
-              Lattice paths on an 10 x 10 square, not crossing the diagonal, corresponding to the
-              parenthesis representation '()(())(())'
-            </figcaption>
+            <figcaption>{{generateIterativeCatalanParentheses(10,i)}}</figcaption>
           </figure>
-        </div>
-        <p>
-          Yet again, we'll cycle through the structures for
-          <math>
-            <msub><mi>C</mi><mn>10</mn></msub> </math
-          >:
-        </p>
-        <figure id="c10-lattice-paths-timer">
-          <svg viewBox="0 0 600 300">
-            <lattice-paths
-              :tile="generateIterativeCatalanParentheses(10, i)"
-              :n="10"
-              :size="50"
-              :padding="25"
-            />
-          </svg>
-          <figcaption>{{generateIterativeCatalanParentheses(10,i)}}</figcaption>
-        </figure>
+        </section>
+        <section>
+          <h3 id="random-walk-2d">
+            <a class="anchor" href="#random-walk-2d"></a>
+            <span>Random Walks in 2D</span>
+          </h3>
+          <p>
+            This idea can cleverly be extended to random walks on the 2D lattice. Let's say we can
+            move one step in any of the four cardinal directions, with these constraints:
+          </p>
+          <ul>
+            <li>
+              The walk has to be of length <math><mi>n</mi><mo>-</mo><mn>1</mn></math>
+            </li>
+            <li>
+              The walk has to end on the X-axis (the end position has to have
+              <math><mi>y</mi><mo>=</mo><mn>0</mn></math
+              >)
+            </li>
+            <li>The walk can never dip below the X-axis</li>
+          </ul>
+          <p>
+            For example, the five such walks of
+            <math
+              ><msub><mi>C</mi><mn>3</mn></msub></math
+            >
+            are as follows:
+          </p>
+          <div class="flex-block flex-center">
+            <div class="catalan-parentheses">←←</div>
+            <div class="catalan-parentheses">←→</div>
+            <div class="catalan-parentheses">→←</div>
+            <div class="catalan-parentheses">→→</div>
+            <div class="catalan-parentheses">↑↓</div>
+          </div>
+          <p>
+            This is somewhat surprising, at first! How do we translate from the 1D random walk to
+            2D? And why does the length of the walk go from <math><mn>2</mn><mi>n</mi></math> to
+            <math><mi>n</mi><mo>-</mo><mn>1</mn></math
+            >?
+          </p>
+          <p>The conversion from the parenthesis notation is as follows:</p>
+          <ul>
+            <li>
+              Remove the first and last parentheses. The sequence is guaranteed to start with an
+              opening parenthesis, and end with a closing parenthesis, so we're not "losing" any
+              information.
+            </li>
+            <li>Group the remaining characters in pairs</li>
+            <li>
+              Convert from the character tuples to cardinal directions:
+              <ul>
+                <li>
+                  <div class="catalan-parentheses inline">((</div>
+                  :
+                  <div class="catalan-parentheses inline">↑</div>
+                </li>
+                <li>
+                  <div class="catalan-parentheses inline">))</div>
+                  :
+                  <div class="catalan-parentheses inline">↓</div>
+                </li>
+                <li>
+                  <div class="catalan-parentheses inline">()</div>
+                  :
+                  <div class="catalan-parentheses inline">←</div>
+                </li>
+                <li>
+                  <div class="catalan-parentheses inline">)(</div>
+                  :
+                  <div class="catalan-parentheses inline">→</div>
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <p>
+            Here is a loop of the
+            <math
+              ><msub><mi>C</mi><mn>10</mn></msub
+              ><mo>=</mo><mn>16796</mn></math
+            >
+            possible 2D walks of length 9:
+          </p>
+          <div id="twod-walk-10-counter" class="flex-block flex-center">
+            <div class="catalan-parentheses">
+              {{get2DWalkFromParentheses(generateIterativeCatalanParentheses(10, i))}}
+            </div>
+          </div>
+        </section>
       </section>
       <section>
         <h2 id="partitions">
@@ -518,6 +628,7 @@
         generateIterativeCatalanNumerical,
         numericalToPartition,
         getParenthesisPartitions,
+        get2DWalkFromParentheses,
       } from '/js/catalan.js'
       import { collapsibleButton } from '/js/buttons.js'
       import { circleChords, latticePaths } from '/js/catalan-structures.js'
@@ -630,6 +741,26 @@
           latticePaths,
         },
       }).mount('#c10-lattice-paths-timer')
+
+      createApp({
+        data() {
+          return {
+            i: Math.floor(Math.random() * 16796),
+          }
+        },
+        methods: {
+          generateIterativeCatalanParentheses,
+          get2DWalkFromParentheses,
+        },
+        mounted() {
+          setInterval(() => {
+            this.i++
+          }, 500)
+        },
+        components: {
+          circleChords,
+        },
+      }).mount('#twod-walk-10-counter')
 
       createApp({
         data() {

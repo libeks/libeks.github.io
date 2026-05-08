@@ -1,6 +1,7 @@
 import { Point, Vector } from '/js/geometry.js'
 import { StraightStroke, CircleArc, CompositeCurve, Polygon } from '/js/lines.js'
 import { numericalToHex, hexToNumerical, numericalToPartition } from '/js/catalan.js'
+import { radToDeg } from '/js/math.js'
 
 // Given a string, return an array of strings of two characters each, which add up to the input string
 function getPairs(s) {
@@ -112,15 +113,21 @@ const circleChords = {
           distance = 2 * this.n - distance // use the shorter distance the other way around the circle
         }
         const angle = (angleStep * distance) / 2
-        ch.push(
-          new CircleArc(
-            this.notchPts[a - 1],
-            this.notchPts[b - 1],
-            this.radius * Math.tan(angle),
-            0,
-            0,
-          ),
-        )
+        if (radToDeg(angle) < 89) {
+          // and render cirlce arc segment
+          ch.push(
+            new CircleArc(
+              this.notchPts[a - 1],
+              this.notchPts[b - 1],
+              this.radius * Math.tan(angle),
+              0,
+              0,
+            ),
+          )
+        } else {
+          // this is a straight line, some browsers might fail to render the arc segment, so we go with a line segment instead
+          ch.push(new StraightStroke(this.notchPts[a - 1], this.notchPts[b - 1]))
+        }
       }
       return ch
     },

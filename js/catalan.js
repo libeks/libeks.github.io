@@ -336,6 +336,26 @@ function getParenthesisPartitions(n) {
   return newMap
 }
 
+function get2DWalkFromParentheses(parentheses) {
+  // let p = parentheses.substring(1, parentheses.lenght - 1)
+  let result = []
+  for (let i = 1; i < parentheses.length - 1; i += 2) {
+    let st = parentheses.substring(i, i + 2)
+    if (st == '((') {
+      result.push('↑')
+    } else if (st == '))') {
+      result.push('↓')
+    } else if (st == '()') {
+      result.push('←')
+    } else if (st == ')(') {
+      result.push('→')
+    } else {
+      throw `Unrecognized parenthesis pair subsequence ${st}`
+    }
+  }
+  return result.join('')
+}
+
 export {
   // catalan number
   catalanNumber,
@@ -362,4 +382,7 @@ export {
 
   // partitions
   getParenthesisPartitions,
+
+  //2D walk
+  get2DWalkFromParentheses,
 }

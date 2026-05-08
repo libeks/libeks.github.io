@@ -2,6 +2,12 @@ div.catalan-parentheses,
 div.catalan-hex {
   padding: 10px 20px;
   white-space: nowrap;
+
+  &.inline {
+    display: inline-block;
+    font-size: 1em;
+    padding: 5px;
+  }
 }
 
 div.catalan-parentheses {

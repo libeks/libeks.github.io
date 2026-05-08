@@ -489,13 +489,13 @@
       <section>
         <h2 id="rooted-trees">
           <a class="anchor" href="#rooted-trees"></a>
-          <span>Rooted Trees</span>
+          <span>Plane Trees</span>
         </h2>
         <div class="text-figure">
           <p>
             A
-            <a href="https://en.wikipedia.org/wiki/Tree_(graph_theory)#Rooted_tree">Rooted Tree</a>
-            (a.k.a. a Plane Tree) is a tree with a certain node denoted as the root, and with the
+            <a href="https://en.wikipedia.org/wiki/Tree_(graph_theory)#Ordered_tree">Plane Tree</a>
+            (a.k.a. a Ordered Tree) is a tree with a certain node denoted as the root, and with the
             children being ordered (i.e. the order in which children are processed matters).
             Unsurprisingly,
             <math>
@@ -507,7 +507,7 @@
             <code>(</code>, we append a new child to the current node, and set that child as the
             current node. Every time we encounter a closing parenthesis <code>)</code>, we set the
             current node to its parent. Since the parenthesis representation is balanced, we will
-            end up at the root at the end, and we'll never need to look at the root's parent (which
+            eventually end up at the root, and we'll never need to look at the root's parent (which
             by definition doesn't exist).
           </p>
           <figure id="rooted-tree-10-example" class="float-right small">
@@ -515,7 +515,7 @@
               <rooted-tree tile="((()((()))()()))(())" :bbox="bbox" show-labels></rooted-tree>
             </svg>
             <figcaption>
-              The Rooted Tree with 11 nodes corresponding to the parenthesis notation
+              The Plane Tree with 11 nodes corresponding to the parenthesis notation
               ((()((()))()()))(())
             </figcaption>
           </figure>

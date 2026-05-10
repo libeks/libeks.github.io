@@ -511,14 +511,50 @@
             by definition doesn't exist).
           </p>
           <figure id="rooted-tree-10-example" class="float-right small">
-            <svg viewBox="0 0 300 300">
+            <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
               <rooted-tree tile="((()((()))()()))(())" :bbox="bbox" show-labels></rooted-tree>
-            </svg>
+            </svg-box>
             <figcaption>
               The Plane Tree with 11 nodes corresponding to the parenthesis notation
               ((()((()))()()))(())
             </figcaption>
           </figure>
+        </div>
+        <p>
+          As is tradition, let's list all of the cases for
+          <math>
+            <msub><mi>C</mi><mn>3</mn></msub> </math
+          >.
+        </p>
+        <div id="c3-plane-trees" class="flex-block flex-center">
+          <div v-for="s in generateCatalanParenthesisSet(3)" class="catalan-tile catalan-tree">
+            <figure>
+              <svg-box v-for="bbox of [new BBox(0,0,250,250)]" :bbox="bbox">
+                <rooted-tree :tile="s.join('')" :bbox="bbox" show-labels></rooted-tree>
+              </svg-box>
+              <figcaption>{{s.join('')}}</figcaption>
+            </figure>
+          </div>
+        </div>
+        <p>
+          And we can cycle through the plane trees of
+          <math>
+            <msub><mi>C</mi><mn>10</mn></msub> </math
+          >, each with 11 nodes:
+        </p>
+        <div class="flex-block flex-center">
+          <div class="catalan-tile catalan-tree catalan-large">
+            <figure id="c10-plane-tree-timer" style="min-width: 500px">
+              <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
+                <rooted-tree
+                  :tile="generateIterativeCatalanParentheses(10, i)"
+                  :bbox="bbox"
+                  show-labels
+                ></rooted-tree>
+              </svg-box>
+              <figcaption>{{generateIterativeCatalanParentheses(10,i)}}</figcaption>
+            </figure>
+          </div>
         </div>
       </section>
       <section>
@@ -669,8 +705,8 @@
         get2DWalkFromParentheses,
       } from '/js/catalan.js'
       import { collapsibleButton } from '/js/buttons.js'
-      import { BBox } from '/js/bbox.js'
-      import { circleChords, latticePaths, rootedTree } from '/js/catalan-structures.js'
+      import { BBox, svgBox } from '/js/bbox.js'
+      import { circleChords, latticePaths, rootedTree, binaryTree } from '/js/catalan-structures.js'
 
       createApp({
         methods: {
@@ -802,25 +838,57 @@
       }).mount('#two-d-walk-10-counter')
 
       createApp({
+        // data() {
+        //   return {
+        //     bbox: new BBox(0, 0, 300, 300),
+        //   }
+        // },
+        methods: {
+          BBox,
+        },
+        components: {
+          rootedTree,
+          svgBox,
+        },
+      }).mount('#rooted-tree-10-example')
+
+      createApp({
+        data() {
+          return {
+            // bbox: new BBox(0, 0, 300, 300),
+          }
+        },
+        methods: {
+          generateCatalanParenthesisSet,
+          BBox,
+        },
+        components: {
+          rootedTree,
+          svgBox,
+        },
+      }).mount('#c3-plane-trees')
+
+      createApp({
         data() {
           return {
             i: Math.floor(Math.random() * 16796),
-            bbox: new BBox(0, 0, 300, 300),
           }
         },
-        // methods: {
-        //   generateIterativeCatalanParentheses,
-        //   get2DWalkFromParentheses,
-        // },
-        // mounted() {
-        //   setInterval(() => {
-        //     this.i++
-        //   }, 500)
-        // },
+        methods: {
+          generateIterativeCatalanNumerical,
+          generateIterativeCatalanParentheses,
+          BBox,
+        },
+        mounted() {
+          setInterval(() => {
+            this.i++
+          }, 500)
+        },
         components: {
           rootedTree,
+          svgBox,
         },
-      }).mount('#rooted-tree-10-example')
+      }).mount('#c10-plane-tree-timer')
 
       createApp({
         data() {

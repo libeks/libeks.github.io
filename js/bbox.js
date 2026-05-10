@@ -42,22 +42,18 @@ class BBox {
     }
     if (point.x < this.x1 && point.y >= this.y1 && point.y <= this.y2) {
       let ret = Math.abs(point.x - this.x1)
-      // console.log(`distnce between`, point, 'and box', this, 'is', ret)
       return ret
     }
     if (point.x > this.x2 && point.y >= this.y1 && point.y <= this.y2) {
       let ret = Math.abs(point.x - this.x2)
-      // console.log(`distnce between`, point, 'and box', this, 'is', ret)
       return ret
     }
     if (point.y < this.y1 && point.x >= this.x1 && point.x <= this.x2) {
       let ret = Math.abs(point.y - this.y1)
-      // console.log(`distnce between`, point, 'and box', this, 'is', ret)
       return ret
     }
     if (point.y > this.y2 && point.x >= this.x1 && point.x <= this.x2) {
       let ret = Math.abs(point.y - this.y2)
-      // console.log(`distnce between`, point, 'and box', this, 'is', ret)
       return ret
     }
     let ret = Math.min(
@@ -66,7 +62,6 @@ class BBox {
       point.distance(new Point(this.x1, this.y2)),
       point.distance(new Point(this.x2, this.y2)),
     )
-    // console.log(`distnce between`, point, 'and box', this, 'is', ret)
     return ret
   }
 
@@ -75,4 +70,15 @@ class BBox {
   }
 }
 
-export { BBox }
+const svgBox = {
+  template: `
+    <svg :viewBox="[bbox.x1, bbox.y1, bbox.x2, bbox.y2]">
+      <slot></slot>
+    </svg>
+  `,
+  props: {
+    bbox: Object,
+  },
+}
+
+export { BBox, svgBox }

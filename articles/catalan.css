@@ -15,6 +15,28 @@ div.catalan-parentheses {
   font-size: 2em;
 }
 
+div.catalan-tile {
+  background-color: hsl(0, 0%, 90%);
+
+  &.catalan-large {
+    figure {
+      min-width: 500px;
+    }
+  }
+
+  figure {
+    min-width: 150px;
+
+    .notchText {
+      text-anchor: middle;
+    }
+  }
+
+  figurecaption {
+    font-size: 1.2em;
+  }
+}
+
 div.catalan-hex {
   background-color: hsl(0, 0%, 90%);
 
@@ -37,6 +59,12 @@ div.catalan-hex {
 div.catalan-hex svg .large {
   text {
     font-size: 1.2em;
+  }
+}
+
+div.catalan-tree {
+  svg text {
+    font-size: 12px;
   }
 }
 

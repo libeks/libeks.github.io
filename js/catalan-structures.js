@@ -240,7 +240,7 @@ const rootedTree = {
   template: `
     <g>
       <g v-for="node in nodes">
-      <text v-if="showLabels" v-bind="node.pt.d(10,4).xyProps()" font-size="12px">{{node.id}}</text>
+      <text v-if="showLabels" v-bind="node.pt.d(10,4).xyProps()" style="font-size:12;">{{node.id}}</text>
       <circle v-bind="node.pt.cxcyProps()" r=5 class="fillBlack" :data-id="node.id" />
       </g> 
       <g v-for="edge in edges">
@@ -277,7 +277,6 @@ const rootedTree = {
           if (depth > maxDepth) {
             maxDepth = depth
           }
-          // maxDepth++
         } else {
           current = current.parent
           depth--
@@ -289,12 +288,12 @@ const rootedTree = {
       let rows = {}
       let minWidth = this.minWidth // capture value to be usable inside traverse()
       function traverse(node) {
-        let width = 0
+        let widthI = 0
         for (let child of node.children) {
           traverse(child)
-          width += child.width
+          widthI += child.widthI
         }
-        node.width = width > 0 ? width : minWidth
+        node.widthI = widthI > 0 ? widthI : 1
         if (rows[node.depth]) {
           rows[node.depth].push(node)
         } else {
@@ -303,12 +302,23 @@ const rootedTree = {
       }
       traverse(this.tree.root)
       this.tree.rows = rows
+      let rowWidths = Object.values(rows).map((row) => row.reduce((a, c) => a + c.widthI, 0))
+      let maxWidthI = Math.max(...rowWidths)
+      let widthIncrement = this.bbox.width() / maxWidthI // add 2 as padding on both sides
+      // let margin = Math.min(this.bbox.width()/ maxWidthI, )
+      function setWidth(node) {
+        node.width = node.widthI * widthIncrement
+        for (let child of node.children) {
+          setWidth(child)
+        }
+      }
+      setWidth(this.tree.root)
       this.tree.offsetX = (this.bbox.width() - this.tree.root.width) / 2
       this.tree.offsetY = 50
-      this.tree.verticalStep = (this.bbox.height() - 100) / this.tree.maxDepth
+      this.tree.verticalStep = this.bbox.height() / (this.tree.maxDepth + 1)
       const tree = this.tree // capture to be used in setPosition
       function setPosition(node) {
-        node.y = node.depth * tree.verticalStep + tree.offsetY
+        node.y = (node.depth + 0.5) * tree.verticalStep
         let offset = node.x - node.width / 2
         node.pt = new Point(node.x, node.y)
         for (let child of node.children) {
@@ -322,7 +332,6 @@ const rootedTree = {
       return tree
     },
     nodes() {
-      console.log('tree', this.positionedTree)
       return Object.values(this.positionedTree.nodes)
     },
     edges() {
@@ -330,7 +339,6 @@ const rootedTree = {
       const truncatedLine = true // whether the line connecting nodes should "go quiet" close to the node
       function getEdges(node) {
         for (let child of node.children) {
-          console.log('line', node, child)
           let ptA = node.pt
           let ptB = child.pt
           let line
@@ -351,10 +359,164 @@ const rootedTree = {
         }
       }
       getEdges(this.tree.root)
-      console.log('edges', edges)
       return edges
     },
   },
 }
 
-export { circleChords, latticePaths, rootedTree }
+const binaryTree = {
+  template: `
+    <g>
+      <g v-for="node in nodes">
+      <text v-if="showLabels" v-bind="node.pt.d(10,4).xyProps()" style="font-size:12;">{{node.id}}</text>
+      <circle v-bind="node.pt.cxcyProps()" r=5 class="fillBlack" :data-id="node.id" />
+      </g> 
+      <g v-for="edge in edges">
+        <path :d="edge.line.d()" />
+      </g>
+    </g>
+    `,
+  props: {
+    tile: String, // parenthesis notation
+    bbox: Object,
+    height: Number,
+    minWidth: {
+      type: Number,
+      default: 50,
+    },
+    showLabels: Boolean,
+  },
+  computed: {
+    tree() {
+      let maxDepth = 0
+      let depth = -1
+      let nNodes = 0
+      let nodes = {}
+      // let root = { id: 0, left: null, right: null, parent: null, depth: 0 }
+      // nodes[root.id] = root
+      // let current = root
+      let current
+      let root
+      for (let char of this.tile) {
+        if (char == '(') {
+          nNodes++
+          current = {
+            id: nNodes,
+            left: null,
+            right: null,
+            parent: current,
+            depth: depth + 1,
+            progress: 0,
+          }
+          if (root == null) {
+            root = current
+          } else {
+            if (parent.progress == 0) {
+              parent.left = current
+              parent.progress = 1
+            } else {
+              parent.right = current
+              parent.progress = 2
+            }
+          }
+          // current.parent.children.push(current)
+          nodes[current.id] = current
+          depth++
+          if (depth > maxDepth) {
+            maxDepth = depth
+          }
+        } else {
+          while (current != null) {
+            if (current.progress < 2) {
+              current.progress += 1
+              depth--
+              break
+            } else {
+              current = current.parent
+            }
+          }
+        }
+      }
+      return { root, maxDepth, nNodes, nodes }
+    },
+    positionedTree() {
+      let rows = {}
+      let minWidth = this.minWidth // capture value to be usable inside traverse()
+      function traverse(node) {
+        let widthI = 0
+        for (let child of node.children) {
+          traverse(child)
+          widthI += child.widthI
+        }
+        node.widthI = widthI > 0 ? widthI : 1
+        if (rows[node.depth]) {
+          rows[node.depth].push(node)
+        } else {
+          rows[node.depth] = [node]
+        }
+      }
+      traverse(this.tree.root)
+      this.tree.rows = rows
+      let rowWidths = Object.values(rows).map((row) => row.reduce((a, c) => a + c.widthI, 0))
+      let maxWidthI = Math.max(...rowWidths)
+      let widthIncrement = this.bbox.width() / maxWidthI // add 2 as padding on both sides
+      // let margin = Math.min(this.bbox.width()/ maxWidthI, )
+      function setWidth(node) {
+        node.width = node.widthI * widthIncrement
+        for (let child of node.children) {
+          setWidth(child)
+        }
+      }
+      setWidth(this.tree.root)
+      this.tree.offsetX = (this.bbox.width() - this.tree.root.width) / 2
+      this.tree.offsetY = 50
+      this.tree.verticalStep = this.bbox.height() / (this.tree.maxDepth + 1)
+      const tree = this.tree // capture to be used in setPosition
+      function setPosition(node) {
+        node.y = (node.depth + 0.5) * tree.verticalStep
+        let offset = node.x - node.width / 2
+        node.pt = new Point(node.x, node.y)
+        for (let child of node.children) {
+          child.x = offset + child.width / 2
+          offset += child.width
+          setPosition(child)
+        }
+      }
+      tree.root.x = this.tree.offsetX + tree.root.width / 2
+      setPosition(tree.root)
+      return tree
+    },
+    nodes() {
+      return Object.values(this.positionedTree.nodes)
+    },
+    edges() {
+      let edges = []
+      const truncatedLine = true // whether the line connecting nodes should "go quiet" close to the node
+      function getEdges(node) {
+        for (let child of node.children) {
+          let ptA = node.pt
+          let ptB = child.pt
+          let line
+          if (truncatedLine) {
+            let vect = ptA.vectTo(ptB).unit()
+            line = new StraightStroke(ptA.addVect(vect.mult(10)), ptB.addVect(vect.mult(-10)))
+          } else {
+            line = new StraightStroke(ptA, ptB)
+          }
+          edges.push({
+            from: node.id,
+            to: child.id,
+            ptA,
+            ptB,
+            line,
+          })
+          getEdges(child)
+        }
+      }
+      getEdges(this.tree.root)
+      return edges
+    },
+  },
+}
+
+export { circleChords, latticePaths, rootedTree, binaryTree }

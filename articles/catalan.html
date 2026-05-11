@@ -752,7 +752,45 @@
           </figcaption>
         </figure>
       </section>
-
+      <section>
+        <h2 id="gallery">
+          <a class="anchor" href="#gallery"></a>
+          <span>Gallery</span>
+        </h2>
+        <p>
+          Let's put all of these representations of the same structure in one place. The timer
+          advances the Catalan structure every second, and all tiles show one of the interpretations
+          of the same bijective Catalan structure.
+        </p>
+        <div id="catalan-gallery-timer" class="flex-block flex-center">
+          <div class="catalan-tile catalan-parentheses">{{parentheses}}</div>
+          <div class="catalan-tile">
+            <figure>
+              <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
+                <binary-tree :tile="parentheses" :bbox="bbox" show-labels></binary-tree>
+              </svg-box>
+              <figcaption>Binary tree with {{n}} nodes</figcaption>
+            </figure>
+          </div>
+          <div class="catalan-hex">
+            <figure>
+              <svg viewBox="0 0 300 300">
+                <circle-chords
+                  :tile="parenthesesToHex(parentheses)"
+                  :n="n"
+                  :radius="100"
+                  :centerx="150"
+                  :centery="150"
+                  show-arcs
+                  show-chords
+                  show-circle
+                />
+              </svg>
+              <figcaption>Circle with {{n}} non-intersecting chords</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
       <section>
         <h2 id="further-reading">
           <a class="anchor" href="#further-reading"></a>
@@ -786,6 +824,7 @@
         numericalToPartition,
         getParenthesisPartitions,
         get2DWalkFromParentheses,
+        parenthesesToHex,
       } from '/js/catalan.js'
       import { collapsibleButton } from '/js/buttons.js'
       import { BBox, svgBox } from '/js/bbox.js'
@@ -1078,6 +1117,37 @@
           circleChords,
         },
       }).mount('#c10-partitions-timer')
+
+      createApp({
+        data() {
+          return {
+            i: Math.floor(Math.random() * 16796),
+            n: 10,
+          }
+        },
+        methods: {
+          generateIterativeCatalanNumerical,
+          generateIterativeCatalanParentheses,
+          numericalToPartition,
+          parenthesesToHex,
+          BBox,
+        },
+        mounted() {
+          setInterval(() => {
+            this.i++
+          }, 500)
+        },
+        computed: {
+          parentheses() {
+            return generateIterativeCatalanParentheses(this.n, this.i)
+          },
+        },
+        components: {
+          circleChords,
+          binaryTree,
+          svgBox,
+        },
+      }).mount('#catalan-gallery-timer')
     </script>
   </body>
 </html>

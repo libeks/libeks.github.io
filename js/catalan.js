@@ -373,6 +373,7 @@ export {
   // representation conversions
   parenthesesToNumerical,
   parenthesesToPartitions,
+  parenthesesToHex,
   numericalToPartition,
   numericalToParentheses,
 

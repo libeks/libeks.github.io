@@ -390,7 +390,7 @@ const binaryTree = {
     tree() {
       let maxDepth = 0
       let depth = -1
-      let nNodes = 0
+      let nNodes = 1
       let nodes = {}
       // let root = { id: 0, left: null, right: null, parent: null, depth: 0 }
       // nodes[root.id] = root
@@ -398,8 +398,8 @@ const binaryTree = {
       let current
       let root
       for (let char of this.tile) {
+        // console.log('processing character', char)
         if (char == '(') {
-          nNodes++
           current = {
             id: nNodes,
             left: null,
@@ -408,31 +408,49 @@ const binaryTree = {
             depth: depth + 1,
             progress: 0,
           }
+          // console.log(`saw (, adding new node ${current.id}`, current)
+          nNodes++
+
           if (root == null) {
             root = current
           } else {
-            if (parent.progress == 0) {
-              parent.left = current
-              parent.progress = 1
+            // console.log(
+            //   `current.parent ${current.parent.id} progress is ${current.parent.progress}`,
+            // )
+            if (current.parent.progress == 0) {
+              current.parent.left = current
+              // console.log(
+              //   `setting ${current.id} as left child of parent ${current.parent.id}`,
+              //   current.parent,
+              // )
             } else {
-              parent.right = current
-              parent.progress = 2
+              current.parent.right = current
+              // console.log(
+              //   `setting ${current.id} as right child of parent ${current.parent.id}`,
+              //   current.parent,
+              // )
             }
           }
-          // current.parent.children.push(current)
           nodes[current.id] = current
           depth++
           if (depth > maxDepth) {
             maxDepth = depth
           }
         } else {
+          // console.log('saw ), doing math...')
           while (current != null) {
-            if (current.progress < 2) {
-              current.progress += 1
-              depth--
+            if (current.progress == 0) {
+              current.progress = 1
+              // console.log(
+              //   `... advanced current ${current.id} progress to ${current.progress}`,
+              //   current,
+              // )
               break
-            } else {
+            } else if (current.progress == 1) {
+              current.progress = 2
               current = current.parent
+              // console.log(`... set current to its parent ${current.id}`, current)
+              depth--
             }
           }
         }
@@ -440,15 +458,27 @@ const binaryTree = {
       return { root, maxDepth, nNodes, nodes }
     },
     positionedTree() {
+      // console.log('binary tree', this.tree)
       let rows = {}
+      let maxDepth = this.tree.maxDepth
       let minWidth = this.minWidth // capture value to be usable inside traverse()
       function traverse(node) {
         let widthI = 0
-        for (let child of node.children) {
-          traverse(child)
-          widthI += child.widthI
+        for (let child of [node.left, node.right]) {
+          if (child == null) {
+            widthI += 1.4 ** (maxDepth - node.depth - 1) // ghost space for missing child, add one since we're taking the parent's depth
+          } else {
+            traverse(child)
+            widthI += child.widthI
+          }
         }
-        node.widthI = widthI > 0 ? widthI : 1
+        let isLeaf = node.left == null && node.right == null
+        if (isLeaf) {
+          node.widthI = 1.4 ** (maxDepth - node.depth)
+        } else {
+          node.widthI = widthI > 0 ? widthI : 2
+        }
+
         if (rows[node.depth]) {
           rows[node.depth].push(node)
         } else {
@@ -459,11 +489,12 @@ const binaryTree = {
       this.tree.rows = rows
       let rowWidths = Object.values(rows).map((row) => row.reduce((a, c) => a + c.widthI, 0))
       let maxWidthI = Math.max(...rowWidths)
-      let widthIncrement = this.bbox.width() / maxWidthI // add 2 as padding on both sides
+      // leave a 5% margin on each side
+      let widthIncrement = (this.bbox.width() * 0.9) / maxWidthI // add 2 as padding on both sides
       // let margin = Math.min(this.bbox.width()/ maxWidthI, )
       function setWidth(node) {
         node.width = node.widthI * widthIncrement
-        for (let child of node.children) {
+        for (let child of [node.left, node.right].filter((n) => n != null)) {
           setWidth(child)
         }
       }
@@ -476,10 +507,14 @@ const binaryTree = {
         node.y = (node.depth + 0.5) * tree.verticalStep
         let offset = node.x - node.width / 2
         node.pt = new Point(node.x, node.y)
-        for (let child of node.children) {
-          child.x = offset + child.width / 2
-          offset += child.width
-          setPosition(child)
+        for (let child of [node.left, node.right]) {
+          if (child != null) {
+            child.x = offset + child.width / 2
+            offset += child.width
+            setPosition(child)
+          } else {
+            offset += widthIncrement * 1.4 ** (maxDepth - node.depth - 1)
+          }
         }
       }
       tree.root.x = this.tree.offsetX + tree.root.width / 2
@@ -493,7 +528,7 @@ const binaryTree = {
       let edges = []
       const truncatedLine = true // whether the line connecting nodes should "go quiet" close to the node
       function getEdges(node) {
-        for (let child of node.children) {
+        for (let child of [node.left, node.right].filter((n) => n != null)) {
           let ptA = node.pt
           let ptB = child.pt
           let line

@@ -558,6 +558,88 @@
         </div>
       </section>
       <section>
+        <h2 id="binary-trees">
+          <a class="anchor" href="#binary-trees"></a>
+          <span>Binary Trees</span>
+        </h2>
+        <div class="text-figure">
+          <p>
+            A
+            <a href="https://en.wikipedia.org/wiki/Binary_tree">Binary Tree</a>
+            is just like a Plane Tree, except that each node can have only a left and a right child.
+            In fact, a node can have only a right child, without a left. This structure is of course
+            very familiar to most Computer Scientists. At this point you shouldn't be surprised that
+            <math>
+              <msub><mi>C</mi><mn>n</mn></msub>
+            </math>
+            counts the number of binary trees with
+            <math><mi>n</mi></math> nodes. Just like before, we start with parenthesis notation,
+            attaching a new node when a left parenthesis <code>(</code> is seen, attaching it to the
+            current child of the current node (or setting it as the root node if there is none), and
+            setting the current node to point to this node. We also advance the node counter of the
+            parent node. The logic is a bit more complicated for the closing parenthesis
+            <code>)</code>. Upon seeing this, we "advance" the node counter of the current node,
+            moving up the tree if the current node's counter reaches 2, and propagating until the
+            current node is not exhausted. This explanation is somewhat convoluted, I admit. Another
+            way to think about this is in terms of the Plane Graph; we do a 1:1 conversion from the
+            Plane Tree to the Binary Tree, by taking each node (we ignore the root node of the Plane
+            Tree), we set the first child of the Plane node as the left child of the Binary Node,
+            and the next younger sibling of the current Plane node as the right child of the Binary
+            Node. Critically, this is the direct sibling, not the cousin, or something odd like
+            that. In a way, the leftmost line of descendants in the Plane Tree remains the leftmost
+            path in the Binary Tree, whereas the root's children in the Plane Tree becomes the
+            rightmost path in the Binary Tree.
+          </p>
+          <figure id="binary-tree-10-example" class="float-right small">
+            <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
+              <!-- <binary-tree tile="((()((()))()()))()()" :bbox="bbox" show-labels></binary-tree> -->
+              <binary-tree tile="((()((()))()()))(())" :bbox="bbox" show-labels></binary-tree>
+            </svg-box>
+            <figcaption>
+              The Binary Tree with 10 nodes corresponding to the parenthesis notation
+              ((()((()))()()))(())
+            </figcaption>
+          </figure>
+        </div>
+        <p>
+          Let's see what corresponds to
+          <math>
+            <msub><mi>C</mi><mn>3</mn></msub> </math
+          >.
+        </p>
+        <div id="c3-binary-trees" class="flex-block flex-center">
+          <div v-for="s in generateCatalanParenthesisSet(3)" class="catalan-tile catalan-tree">
+            <figure>
+              <svg-box v-for="bbox of [new BBox(0,0,250,250)]" :bbox="bbox">
+                <binary-tree :tile="s.join('')" :bbox="bbox" show-labels></binary-tree>
+              </svg-box>
+              <figcaption>{{s.join('')}}</figcaption>
+            </figure>
+          </div>
+        </div>
+        <p>
+          And now,
+          <math>
+            <msub><mi>C</mi><mn>10</mn></msub>
+          </math>
+          on a timer:
+        </p>
+        <div class="flex-block flex-center">
+          <div class="catalan-tile catalan-tree catalan-large">
+            <figure id="c10-binary-tree-timer" style="min-width: 500px">
+              <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
+                <binary-tree
+                  :tile="generateIterativeCatalanParentheses(10, i)"
+                  :bbox="bbox"
+                  show-labels
+                ></binary-tree>
+              </svg-box>
+              <figcaption>{{generateIterativeCatalanParentheses(10,i)}}</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+      <section>
         <h2 id="partitions">
           <a class="anchor" href="#partitions"></a>
           <span>Non-intersecting partitions</span>
@@ -670,6 +752,7 @@
           </figcaption>
         </figure>
       </section>
+
       <section>
         <h2 id="further-reading">
           <a class="anchor" href="#further-reading"></a>
@@ -838,11 +921,6 @@
       }).mount('#two-d-walk-10-counter')
 
       createApp({
-        // data() {
-        //   return {
-        //     bbox: new BBox(0, 0, 300, 300),
-        //   }
-        // },
         methods: {
           BBox,
         },
@@ -889,6 +967,53 @@
           svgBox,
         },
       }).mount('#c10-plane-tree-timer')
+
+      createApp({
+        data() {
+          return {
+            // bbox: new BBox(0, 0, 300, 300),
+          }
+        },
+        methods: {
+          generateCatalanParenthesisSet,
+          BBox,
+        },
+        components: {
+          binaryTree,
+          svgBox,
+        },
+      }).mount('#c3-binary-trees')
+
+      createApp({
+        data() {
+          return {
+            i: Math.floor(Math.random() * 16796),
+          }
+        },
+        methods: {
+          generateIterativeCatalanNumerical,
+          generateIterativeCatalanParentheses,
+          BBox,
+        },
+        mounted() {
+          setInterval(() => {
+            this.i++
+          }, 500)
+        },
+        components: {
+          binaryTree,
+          svgBox,
+        },
+      }).mount('#c10-binary-tree-timer')
+      createApp({
+        methods: {
+          BBox,
+        },
+        components: {
+          binaryTree,
+          svgBox,
+        },
+      }).mount('#binary-tree-10-example')
 
       createApp({
         data() {

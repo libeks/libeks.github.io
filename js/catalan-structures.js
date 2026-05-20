@@ -1,4 +1,4 @@
-import { Point, Vector, Ray } from '/js/geometry.js'
+import { Point, Vector, Ray, NGon } from '/js/geometry.js'
 import { StraightStroke, CircleArc, CompositeCurve, Polygon } from '/js/lines.js'
 import { numericalToHex, hexToNumerical, numericalToPartition } from '/js/catalan.js'
 import { radToDeg } from '/js/math.js'
@@ -286,7 +286,7 @@ const rootedTree = {
     },
     positionedTree() {
       let rows = {}
-      let minWidth = this.minWidth // capture value to be usable inside traverse()
+      // let minWidth = this.minWidth // capture value to be usable inside traverse()
       function traverse(node) {
         let widthI = 0
         for (let child of node.children) {
@@ -364,12 +364,83 @@ const rootedTree = {
   },
 }
 
+function computeBinaryTree(tileParentheses) {
+  let maxDepth = 0
+  let depth = -1
+  let nNodes = 1
+  let nodes = {}
+  // let root = { id: 0, left: null, right: null, parent: null, depth: 0 }
+  // nodes[root.id] = root
+  // let current = root
+  let current
+  let root
+  for (let char of tileParentheses) {
+    // console.log('processing character', char)
+    if (char == '(') {
+      current = {
+        id: nNodes,
+        left: null,
+        right: null,
+        parent: current,
+        depth: depth + 1,
+        progress: 0,
+      }
+      // console.log(`saw (, adding new node ${current.id}`, current)
+      nNodes++
+
+      if (root == null) {
+        root = current
+      } else {
+        // console.log(
+        //   `current.parent ${current.parent.id} progress is ${current.parent.progress}`,
+        // )
+        if (current.parent.progress == 0) {
+          current.parent.left = current
+          // console.log(
+          //   `setting ${current.id} as left child of parent ${current.parent.id}`,
+          //   current.parent,
+          // )
+        } else {
+          current.parent.right = current
+          // console.log(
+          //   `setting ${current.id} as right child of parent ${current.parent.id}`,
+          //   current.parent,
+          // )
+        }
+      }
+      nodes[current.id] = current
+      depth++
+      if (depth > maxDepth) {
+        maxDepth = depth
+      }
+    } else {
+      // console.log('saw ), doing math...')
+      while (current != null) {
+        if (current.progress == 0) {
+          current.progress = 1
+          // console.log(
+          //   `... advanced current ${current.id} progress to ${current.progress}`,
+          //   current,
+          // )
+          break
+        } else if (current.progress == 1) {
+          current.progress = 2
+          current = current.parent
+          // console.log(`... set current to its parent ${current.id}`, current)
+          depth--
+        }
+      }
+    }
+  }
+  return { root, maxDepth, nNodes, nodes }
+}
+
 const binaryTree = {
   template: `
     <g>
       <g v-for="node in nodes">
-      <text v-if="showLabels" v-bind="node.pt.d(10,4).xyProps()" style="font-size:12;">{{node.id}}</text>
-      <circle v-bind="node.pt.cxcyProps()" r=5 class="fillBlack" :data-id="node.id" />
+        <text v-if="showLabels" v-bind="node.pt.d(10,4).xyProps()" style="font-size:12;">{{node.id}}</text>
+        <circle v-bind="node.pt.cxcyProps()" r=5 class="fillBlack" :data-id="node.id" />
       </g> 
       <g v-for="edge in edges">
         <path :d="edge.line.d()" />
@@ -379,89 +450,17 @@ const binaryTree = {
   props: {
     tile: String, // parenthesis notation
     bbox: Object,
-    height: Number,
-    minWidth: {
-      type: Number,
-      default: 50,
-    },
     showLabels: Boolean,
   },
   computed: {
     tree() {
-      let maxDepth = 0
-      let depth = -1
-      let nNodes = 1
-      let nodes = {}
-      // let root = { id: 0, left: null, right: null, parent: null, depth: 0 }
-      // nodes[root.id] = root
-      // let current = root
-      let current
-      let root
-      for (let char of this.tile) {
-        // console.log('processing character', char)
-        if (char == '(') {
-          current = {
-            id: nNodes,
-            left: null,
-            right: null,
-            parent: current,
-            depth: depth + 1,
-            progress: 0,
-          }
-          // console.log(`saw (, adding new node ${current.id}`, current)
-          nNodes++
-
-          if (root == null) {
-            root = current
-          } else {
-            // console.log(
-            //   `current.parent ${current.parent.id} progress is ${current.parent.progress}`,
-            // )
-            if (current.parent.progress == 0) {
-              current.parent.left = current
-              // console.log(
-              //   `setting ${current.id} as left child of parent ${current.parent.id}`,
-              //   current.parent,
-              // )
-            } else {
-              current.parent.right = current
-              // console.log(
-              //   `setting ${current.id} as right child of parent ${current.parent.id}`,
-              //   current.parent,
-              // )
-            }
-          }
-          nodes[current.id] = current
-          depth++
-          if (depth > maxDepth) {
-            maxDepth = depth
-          }
-        } else {
-          // console.log('saw ), doing math...')
-          while (current != null) {
-            if (current.progress == 0) {
-              current.progress = 1
-              // console.log(
-              //   `... advanced current ${current.id} progress to ${current.progress}`,
-              //   current,
-              // )
-              break
-            } else if (current.progress == 1) {
-              current.progress = 2
-              current = current.parent
-              // console.log(`... set current to its parent ${current.id}`, current)
-              depth--
-            }
-          }
-        }
-      }
-      return { root, maxDepth, nNodes, nodes }
+      return computeBinaryTree(this.tile)
     },
     positionedTree() {
       // console.log('binary tree', this.tree)
       let rows = {}
       let maxDepth = this.tree.maxDepth
-      let minWidth = this.minWidth // capture value to be usable inside traverse()
+      // let minWidth = this.minWidth // capture value to be usable inside traverse()
       function traverse(node) {
         let widthI = 0
         for (let child of [node.left, node.right]) {
@@ -521,7 +520,40 @@ const binaryTree = {
       setPosition(tree.root)
       return tree
     },
+    // infix() {
+    //   let nodes = []
+    //   function walk(node) {
+    //     if (node.left != null) {
+    //       walk(node.left)
+    //     }
+    //     nodes.push(node.id)
+    //     if (node.right != null) {
+    //       walk(node.right)
+    //     }
+    //   }
+    //   walk(this.tree.root)
+    //   return nodes
+    // },
+    // danglingInfix() {
+    //   let nodes = []
+    //   function walk(node) {
+    //     if (node.left != null) {
+    //       walk(node.left)
+    //     } else {
+    //       nodes.push(`${node.id}L`)
+    //     }
+    //     nodes.push(node.id)
+    //     if (node.right != null) {
+    //       walk(node.right)
+    //     } else {
+    //       nodes.push(`${node.id}R`)
+    //     }
+    //   }
+    //   walk(this.tree.root)
+    //   return nodes
+    // },
     nodes() {
+      // console.log('infix', this.tile, this.infix, this.danglingInfix)
       return Object.values(this.positionedTree.nodes)
     },
     edges() {
@@ -554,4 +586,122 @@ const binaryTree = {
   },
 }
 
-export { circleChords, latticePaths, rootedTree, binaryTree }
+const polygonTriangulation = {
+  template: `
+    <g>
+      <g v-for="edge in edges">
+        <path :d="edge.line.d()" :style="{stroke: (edge.internal ? 'red' : 'black')}" />
+      </g>
+      <g v-if="showNodes", v-for="(node,id) in nodes">
+        <text v-if="showLabels" v-bind="node.d(10,4).xyProps()" style="font-size:12;">{{id}}</text>
+        <circle v-bind="node.cxcyProps()" r=5 class="fillBlack" :data-id="id" />
+      </g> 
+    </g>
+    `,
+  props: {
+    tile: String, // parenthesis notation
+    bbox: Object,
+    showLabels: Boolean,
+    showNodes: Boolean,
+    truncatedLine: Boolean,
+  },
+  computed: {
+    tree() {
+      let tree = computeBinaryTree(this.tile)
+      let n = this.n + 2
+      let i = n
+      // console.log(`n starts as`, n)
+      function markDangling(node) {
+        if (node.left != null) {
+          markDangling(node.left)
+          node.leftData = node.left.data
+        } else {
+          node.leftData = { left: i % n, right: (i - 1) % n }
+          i--
+        }
+        if (node.right != null) {
+          markDangling(node.right)
+          node.rightData = node.right.data
+        } else {
+          node.rightData = { left: i % n, right: (i - 1) % n }
+          i--
+        }
+
+        if (node.leftData != null && node.rightData != null) {
+          node.data = { left: node.leftData.left, right: node.rightData.right }
+        } else {
+          // console.log(node)
+          throw `Unexpected left or right data missing for node ${node.id}`
+        }
+        // console.log(`Node ${node.id} has data`, node.leftData, node.rightData, node.data)
+      }
+      markDangling(tree.root)
+      // console.log('tile', this.tile)
+      return tree
+    },
+    n() {
+      if (this.tile.length % 2 != 0) {
+        throw `unexpected odd-length parenthesis tile ${this.tile}`
+      }
+      return this.tile.length / 2
+    },
+    nodes() {
+      // console.log('bbox center', this.bbox.center())
+      let ngon = new NGon({
+        center: this.bbox.center(),
+        side: 60 /* TODO, compute side based on bbox */,
+        tile: (this.n + 2).toString(),
+        clockwise: true,
+      })
+      return ngon.vertices
+    },
+    edgeIDs() {
+      let edgePairs = []
+      function gatherEdges(node) {
+        if (node.left != null) {
+          gatherEdges(node.left)
+        } else {
+          edgePairs.push(node.leftData)
+        }
+        edgePairs.push(node.data)
+        if (node.right != null) {
+          gatherEdges(node.right)
+        } else {
+          edgePairs.push(node.rightData)
+        }
+      }
+      gatherEdges(this.tree.root)
+      return edgePairs
+    },
+    edges() {
+      let edges = []
+      // let truncatedLine = true
+      // console.log('tree', this.tree)
+      // console.log('edgeIDs', this.edgeIDs)
+      for (let { left, right } of this.edgeIDs) {
+        // console.log('left right', left, right)
+        let ptA = this.nodes[left]
+        let ptB = this.nodes[right]
+        let line
+        if (this.truncatedLine) {
+          let vect = ptA.vectTo(ptB).unit()
+          line = new StraightStroke(ptA.addVect(vect.mult(10)), ptB.addVect(vect.mult(-10)))
+        } else {
+          line = new StraightStroke(ptA, ptB)
+        }
+        // console.log('internal', left, right, Math.abs(left - right), Math.abs(left - right) == 1)
+        edges.push({
+          from: left,
+          to: right,
+          ptA,
+          ptB,
+          line,
+          internal: Math.abs(left - right) != 1 && Math.abs(left - right) != this.n + 1,
+        })
+      }
+      return edges
+    },
+  },
+}
+
+export { circleChords, latticePaths, rootedTree, binaryTree, polygonTriangulation }

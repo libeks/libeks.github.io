@@ -592,7 +592,7 @@
           </p>
           <figure id="binary-tree-10-example" class="float-right small">
             <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
-              <!-- <binary-tree tile="((()((()))()()))()()" :bbox="bbox" show-labels></binary-tree> -->
+              <!-- <binary-tree tile="(()())()" :bbox="bbox" show-labels></binary-tree> -->
               <binary-tree tile="((()((()))()()))(())" :bbox="bbox" show-labels></binary-tree>
             </svg-box>
             <figcaption>
@@ -633,6 +633,62 @@
                   :bbox="bbox"
                   show-labels
                 ></binary-tree>
+              </svg-box>
+              <figcaption>{{generateIterativeCatalanParentheses(10,i)}}</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h2 id="polygon-triangulation">
+          <a class="anchor" href="#polygon-triangulation"></a>
+          <span>Polygon Triangulation</span>
+        </h2>
+        <div class="text-figure">
+          <p>
+            We start with a regular polygon with
+            <math><mi>n</mi><mo>+</mo><mn>2</mn></math> vertices. We can partition it into triangles
+            whose vertices are the vertices of the polygon. The number of ways to do this is, of
+            course,
+            <math>
+              <msub><mi>C</mi><mi>n</mi></msub> </math
+            >.
+          </p>
+          <figure id="polygon-triangulation-10-example" class="float-right small">
+            <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
+              <!-- <polygon-triangulation
+                tile="()()(())"
+                :bbox="bbox"
+                show-labels
+              ></polygon-triangulation> -->
+              <polygon-triangulation
+                tile="((()((()))()()))(())"
+                :bbox="bbox"
+                show-labels
+                show-nodes
+              ></polygon-triangulation>
+            </svg-box>
+            <figcaption>
+              A dodecagon (12-gon) triangulation corresponding to the parenthesis notation
+              ((()((()))()()))(())
+            </figcaption>
+          </figure>
+        </div>
+        <p>
+          Traditionally,
+          <math>
+            <msub><mi>C</mi><mn>10</mn></msub>
+          </math>
+          on a timer:
+        </p>
+        <div class="flex-block flex-center">
+          <div class="catalan-tile catalan-tree catalan-large">
+            <figure id="c10-polygon-triangulation-timer" style="min-width: 500px">
+              <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
+                <polygon-triangulation
+                  :tile="generateIterativeCatalanParentheses(10, i)"
+                  :bbox="bbox"
+                ></polygon-triangulation>
               </svg-box>
               <figcaption>{{generateIterativeCatalanParentheses(10,i)}}</figcaption>
             </figure>
@@ -763,11 +819,50 @@
           of the same bijective Catalan structure.
         </p>
         <div id="catalan-gallery-timer" class="flex-block flex-center">
-          <div class="catalan-tile catalan-parentheses">{{parentheses}}</div>
+          <figure>
+            <div class="catalan-tile catalan-parentheses">{{parentheses}}</div>
+            <figcaption>Balanced {{n}} pairs of parentheses</figcaption>
+          </figure>
+          <figure>
+            <div class="catalan-tile catalan-parentheses">←←</div>
+            <figcaption>
+              Random walk on nonnegative integers of length {{2*n}}, ending at 0
+            </figcaption>
+          </figure>
+          <figure>
+            <div class="catalan-parentheses">{{get2DWalkFromParentheses(parentheses)}}</div>
+            <figcaption>
+              Random walk in 2D of length {{n-1}}, ending on the X axis, never dipping below the X
+              axis
+            </figcaption>
+          </figure>
+          <figure>
+            <svg viewBox="0 0 300 200">
+              <lattice-paths :tile="parentheses" :n="n" :size="25" :padding="25" />
+            </svg>
+            <figcaption>
+              Lattice paths on an {{n}} x {{n}} square, not crossing the diagonal
+            </figcaption>
+          </figure>
+          <figure>
+            <div class="catalan-tile catalan-parentheses">AB</div>
+            <figcaption>
+              Voting sequence for two candidates {A,B} where the A never trails, each getting {{n}}
+              votes
+            </figcaption>
+          </figure>
+          <div class="catalan-tile catalan-tree">
+            <figure>
+              <svg-box v-for="bbox of [new BBox(0,0,250,250)]" :bbox="bbox">
+                <rooted-tree :tile="parentheses" :bbox="bbox"></rooted-tree>
+              </svg-box>
+              <figcaption>Plane Tree with {{n+1}} nodes</figcaption>
+            </figure>
+          </div>
           <div class="catalan-tile">
             <figure>
               <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
-                <binary-tree :tile="parentheses" :bbox="bbox" show-labels></binary-tree>
+                <binary-tree :tile="parentheses" :bbox="bbox"></binary-tree>
               </svg-box>
               <figcaption>Binary tree with {{n}} nodes</figcaption>
             </figure>
@@ -787,6 +882,24 @@
                 />
               </svg>
               <figcaption>Circle with {{n}} non-intersecting chords</figcaption>
+            </figure>
+          </div>
+          <div class="catalan-tile">
+            <figure>
+              <svg viewBox="0 0 600 300">
+                <circle-chords
+                  :tile="parenthesesToHex(parentheses)"
+                  :n="n"
+                  :radius="100"
+                  :centerx="300"
+                  :centery="150"
+                  show-midpoints
+                  show-partitions
+                  show-midpoint-labels
+                  :rotate-degrees="10"
+                />
+              </svg>
+              <figcaption>Non interesecting partitions of {{n}} elements</figcaption>
             </figure>
           </div>
         </div>
@@ -828,7 +941,13 @@
       } from '/js/catalan.js'
       import { collapsibleButton } from '/js/buttons.js'
       import { BBox, svgBox } from '/js/bbox.js'
-      import { circleChords, latticePaths, rootedTree, binaryTree } from '/js/catalan-structures.js'
+      import {
+        circleChords,
+        latticePaths,
+        rootedTree,
+        binaryTree,
+        polygonTriangulation,
+      } from '/js/catalan-structures.js'
 
       createApp({
         methods: {
@@ -1024,6 +1143,16 @@
       }).mount('#c3-binary-trees')
 
       createApp({
+        methods: {
+          BBox,
+        },
+        components: {
+          binaryTree,
+          svgBox,
+        },
+      }).mount('#binary-tree-10-example')
+
+      createApp({
         data() {
           return {
             i: Math.floor(Math.random() * 16796),
@@ -1044,15 +1173,38 @@
           svgBox,
         },
       }).mount('#c10-binary-tree-timer')
+
       createApp({
         methods: {
           BBox,
         },
         components: {
-          binaryTree,
+          polygonTriangulation,
           svgBox,
         },
-      }).mount('#binary-tree-10-example')
+      }).mount('#polygon-triangulation-10-example')
+
+      createApp({
+        data() {
+          return {
+            i: Math.floor(Math.random() * 16796),
+          }
+        },
+        methods: {
+          generateIterativeCatalanNumerical,
+          generateIterativeCatalanParentheses,
+          BBox,
+        },
+        mounted() {
+          setInterval(() => {
+            this.i++
+          }, 500)
+        },
+        components: {
+          polygonTriangulation,
+          svgBox,
+        },
+      }).mount('#c10-polygon-triangulation-timer')
 
       createApp({
         data() {
@@ -1130,6 +1282,7 @@
           generateIterativeCatalanParentheses,
           numericalToPartition,
           parenthesesToHex,
+          get2DWalkFromParentheses,
           BBox,
         },
         mounted() {
@@ -1144,7 +1297,10 @@
         },
         components: {
           circleChords,
+          rootedTree,
           binaryTree,
+          circleChords,
+          latticePaths,
           svgBox,
         },
       }).mount('#catalan-gallery-timer')

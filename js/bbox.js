@@ -1,4 +1,4 @@
-import { Point } from '/js/geometry.js'
+import { Point, Vector } from '/js/geometry.js'
 
 class BBox {
   constructor(x1, y1, x2, y2) {
@@ -63,6 +63,10 @@ class BBox {
       point.distance(new Point(this.x2, this.y2)),
     )
     return ret
+  }
+
+  center() {
+    return new Point(this.x1, this.y1).addVect(new Vector(this.width(), this.height()).mult(0.5))
   }
 
   d() {

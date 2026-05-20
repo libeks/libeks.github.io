@@ -5,7 +5,7 @@ import {
   normalizeRadians,
   normalizeRadianString,
 } from '/js/math.js'
-import { Point, Vector, Point2DOrigin, LineSegment } from '/js/geometry.js'
+import { Point, Vector, Point2DOrigin, LineSegment, NGon } from '/js/geometry.js'
 import { Polygon, StraightStroke } from '/js/lines.js'
 import { BBox } from '/js/bbox.js'
 import { pairs, circularPairs, zip, shift, enumerate, reversed } from '/js/utils.js'
@@ -341,120 +341,6 @@ const uniform4Tilings = [
     firstVertex: 0,
   }),
 ]
-
-class NGon {
-  constructor({ tile, side, angleFraction, angle, center, firstVertex }) {
-    // center is assumed to be the origin
-    this.tile = tile
-    let { n, genus } = NGon.getNGenus(tile)
-    this.n = n
-    this.genus = genus
-    this.side = side
-    this.angle = 0
-
-    this.alphaDeg = 360 / this.n // angle between successive vertices, from the perspective of the center
-    this.alphaRad = degToRad(this.alphaDeg)
-
-    this.betaDeg = 180 - this.alphaDeg
-    this.betaRad = degToRad(this.betaDeg)
-
-    //    +-----+
-    //   / b     \
-    //  /         \
-    // /     a     \
-    // \           /
-    //  \         /
-    //   \       /
-    //    +-----+
-
-    // each vertex angle
-    // n  | alpha | beta
-    // ---+-------+-----
-    // 3  |  120  | 60
-    // 4  |  90   | 90
-    // 6  |  60   | 120
-    // 8  |  45   | 135
-    // 12 |  30   | 150
-
-    if (angleFraction) {
-      this.angle = this.alphaRad * angleFraction
-    }
-    if (angle) {
-      this.angle = angle
-    }
-
-    this.center = Point2DOrigin
-    if (center) {
-      this.center = center
-    }
-    let h = this.side / (2 * Math.sin(this.alphaRad / 2))
-    this.v = new Vector(h, 0) // vector in the positive 0x axis direction
-    if (firstVertex) {
-      this.center = firstVertex.point.addVect(this.v.rotateRad(angle + this.vertexAngle / 2))
-      this.v = this.center.vectTo(firstVertex.point)
-    } else {
-      this.v = this.v.rotateRad(this.angle) // v points in the direction of the first vertex
-    }
-  }
-
-  static getNGenus(input) {
-    const regex = /^(\d+)(\D?)$/ // match things like '12', '3', '6a', '6b'
-    let [_, n, genus] = input.match(regex)
-    if (genus == '') {
-      genus = 'a'
-    }
-    return { n: Number(n), genus }
-  }
-
-  get vertices() {
-    let vertices = []
-    for (let i = 0; i < this.n; i++) {
-      vertices.push(this.center.addVect(this.v.rotateRad(this.alphaRad * i)))
-    }
-    return vertices
-  }
-
-  get lines() {
-    let lines = []
-    for (let i = 0; i < this.vertices.length; i++) {
-      let firstVertex = this.vertices[i]
-      let secondVertex = this.vertices[(i + 1) % this.vertices.length]
-      lines.push(new LineSegment(firstVertex, firstVertex.vectTo(secondVertex)))
-    }
-    return lines
-  }
-
-  get color() {
-    const colorHue = {
-      3: 60, // yellow
-      4: 0, // red
-      6: 120, // lime
-      8: 39, // orange
-      12: 240, // blue
-    }
-    const colorLuma = {
-      a: 50,
-      b: 20,
-      c: 80,
-      d: 5,
-      e: 95,
-    }
-    if (this.n in colorHue) {
-      let hue = colorHue[this.n]
-      return `hsl(${hue} 100% ${colorLuma[this.genus]}%)`
-    }
-    return 'blue'
-  }
-
-  get vertexAngle() {
-    // return the angle, in radians, between two consecutive edges
-    return degToRad(180 - 360 / this.n)
-  }
-
-  get d() {
-    return new Polygon(this.vertices).d()
-  }
-}
 
 class RotatedFace {
   constructor(id, face) {

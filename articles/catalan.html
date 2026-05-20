@@ -167,19 +167,17 @@
             </p>
           </div>
           <figure id="circle-10-connection-example" class="float-right small">
-            <svg viewBox="0 0 300 300">
+            <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
               <circle-chords
                 tile="123458679A"
                 :n="5"
-                :radius="100"
-                :centerx="150"
-                :centery="150"
+                :bbox="bbox"
                 show-arcs
                 show-chords
                 show-circle
                 show-notches
               />
-            </svg>
+            </svg-box>
             <figcaption>
               Circle with 10 pairs of non-intersecting chords, corresponding to the integer
               representation '12-34-58-67-9A'
@@ -195,19 +193,17 @@
         <div id="c3-chords-exhaustive" class="flex-block flex-center">
           <div v-for="s in generateCatalanNumberSet(3)" class="catalan-hex">
             <figure>
-              <svg viewBox="0 0 300 300">
+              <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
                 <circle-chords
                   :tile="s.join('')"
                   :n="3"
-                  :radius="100"
-                  :centerx="150"
-                  :centery="150"
+                  :bbox="bbox"
                   show-arcs
                   show-chords
                   show-circle
                   show-notches
                 />
-              </svg>
+              </svg-box>
               <figcaption>{{s.join('')}}</figcaption>
             </figure>
           </div>
@@ -221,19 +217,17 @@
         <div id="c4-chords-exhaustive" class="flex-block flex-center">
           <div v-for="s in generateCatalanNumberSet(4)" class="catalan-hex">
             <figure>
-              <svg viewBox="0 0 300 300">
+              <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
                 <circle-chords
                   :tile="s.join('')"
                   :n="4"
-                  :radius="100"
-                  :centerx="150"
-                  :centery="160"
+                  :bbox="bbox"
                   show-arcs
                   show-chords
                   show-circle
                   show-notches
                 />
-              </svg>
+              </svg-box>
               <figcaption>{{s.join('')}}</figcaption>
             </figure>
           </div>
@@ -247,20 +241,18 @@
         <div id="c10-chords-timer" class="flex-block flex-center">
           <div class="catalan-hex">
             <figure style="min-width: 500px">
-              <svg viewBox="0 0 300 300">
+              <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
                 <circle-chords
                   class="large"
                   :tile="generateIterativeCatalanNumerical(10,i)"
                   :n="10"
-                  :radius="100"
-                  :centerx="150"
-                  :centery="160"
+                  :bbox="bbox"
                   show-arcs
                   show-chords
                   show-circle
                   show-notches
                 />
-              </svg>
+              </svg-box>
               <figcaption>
                 {{generateIterativeCatalanNumerical(10,i)}}<br />{{generateIterativeCatalanParentheses(10,i)}}
               </figcaption>
@@ -308,19 +300,17 @@
                   <div class="flex-block flex-center">
                     <div v-for="(s,v) in getParenthesisPartitions(n)" class="catalan-hex">
                       <figure>
-                        <svg viewBox="0 0 300 300">
+                        <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
                           <circle-chords
                             :tile="v"
                             :n="n"
-                            :radius="100"
-                            :centerx="150"
-                            :centery="160"
+                            :bbox="bbox"
                             show-arcs
                             show-chords
                             show-circle
                             show-notches
                           />
-                        </svg>
+                        </svg-box>
                         <figcaption>cardinality {{s.length}}</figcaption>
                       </figure>
                     </div>
@@ -714,13 +704,11 @@
             them. It makes more sense to use straight-line chords.
           </p>
           <figure id="circle-10-connection-partition-example" class="float-right small">
-            <svg viewBox="0 0 300 300">
+            <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
               <circle-chords
                 tile="1A23495867"
                 :n="5"
-                :radius="100"
-                :centerx="150"
-                :centery="150"
+                :bbox="bbox"
                 show-midpoints
                 show-partitions
                 show-chords
@@ -728,7 +716,7 @@
                 show-notches
                 show-midpoint-labels
               />
-            </svg>
+            </svg-box>
             <figcaption>
               One non-intersecting partition of 5 points on a circle (highlighted in red),
               corresponding to the numerical notation '1A23495867'
@@ -745,17 +733,15 @@
         <div id="c3-partition-exhaustive" class="flex-block flex-center">
           <div v-for="s in generateCatalanNumberSet(3)" class="catalan-hex">
             <figure>
-              <svg viewBox="0 0 300 300">
+              <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
                 <circle-chords
                   :tile="s.join('')"
                   :n="3"
-                  :radius="100"
-                  :centerx="150"
-                  :centery="150"
+                  :bbox="bbox"
                   show-midpoints
                   show-partitions
                 />
-              </svg>
+              </svg-box>
               <figcaption>{{s.join('')}}</figcaption>
             </figure>
           </div>
@@ -769,18 +755,16 @@
         <div id="c4-partition-exhaustive" class="flex-block flex-center">
           <div v-for="s in generateCatalanNumberSet(4)" class="catalan-hex">
             <figure>
-              <svg viewBox="0 0 300 300">
+              <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
                 <circle-chords
                   :tile="s.join('')"
                   :n="4"
-                  :radius="100"
-                  :centerx="150"
-                  :centery="160"
+                  :bbox="bbox"
                   show-midpoints
                   show-partitions
                   :rotate-degrees="23"
                 />
-              </svg>
+              </svg-box>
               <figcaption>{{s.join('')}}</figcaption>
             </figure>
           </div>
@@ -792,19 +776,17 @@
           >:
         </p>
         <figure id="c10-partitions-timer">
-          <svg viewBox="0 0 600 300">
+          <svg-box v-for="bbox of [new BBox(0,0,600,300)]" :bbox="bbox">
             <circle-chords
               :tile="generateIterativeCatalanNumerical(10, i)"
               :n="10"
-              :radius="100"
-              :centerx="300"
-              :centery="150"
+              :bbox="bbox"
               show-midpoints
               show-partitions
               show-midpoint-labels
               :rotate-degrees="10"
             />
-          </svg>
+          </svg-box>
           <figcaption>
             {{generateIterativeCatalanParentheses(10,i)}}<br />{{numericalToPartition(generateIterativeCatalanNumerical(10,i))}}
           </figcaption>
@@ -822,17 +804,17 @@
         </p>
         <div id="catalan-gallery-timer" class="flex-block flex-center">
           <figure>
-            <div class="catalan-tile catalan-parentheses">{{parentheses}}</div>
+            <div class="catalan-tile catalan-parentheses">{{catalan.parenthesis}}</div>
             <figcaption>Balanced {{n}} pairs of parentheses</figcaption>
           </figure>
           <figure>
-            <div class="catalan-tile catalan-parentheses">←←</div>
+            <div class="catalan-tile catalan-parentheses">{{catalan.oneDWalk}}</div>
             <figcaption>
               Random walk on nonnegative integers of length {{2*n}}, ending at 0
             </figcaption>
           </figure>
           <figure>
-            <div class="catalan-parentheses">{{get2DWalkFromParentheses(parentheses)}}</div>
+            <div class="catalan-parentheses">{{catalan.twoDWalk}}</div>
             <figcaption>
               Random walk in 2D of length {{n-1}}, ending on the X axis, never dipping below the X
               axis
@@ -840,14 +822,14 @@
           </figure>
           <figure>
             <svg viewBox="0 0 300 200">
-              <lattice-paths :tile="parentheses" :n="n" :size="25" :padding="25" />
+              <lattice-paths :tile="catalan.parenthesis" :n="n" :size="25" :padding="25" />
             </svg>
             <figcaption>
               Lattice paths on an {{n}} x {{n}} square, not crossing the diagonal
             </figcaption>
           </figure>
           <figure>
-            <div class="catalan-tile catalan-parentheses">AB</div>
+            <div class="catalan-tile catalan-parentheses">{{catalan.votingSequence}}</div>
             <figcaption>
               Voting sequence for two candidates {A,B} where the A never trails, each getting {{n}}
               votes
@@ -856,7 +838,7 @@
           <div class="catalan-tile catalan-tree">
             <figure>
               <svg-box v-for="bbox of [new BBox(0,0,250,250)]" :bbox="bbox">
-                <rooted-tree :tile="parentheses" :bbox="bbox"></rooted-tree>
+                <rooted-tree :tile="catalan.parenthesis" :bbox="bbox"></rooted-tree>
               </svg-box>
               <figcaption>Plane Tree with {{n+1}} nodes</figcaption>
             </figure>
@@ -871,37 +853,41 @@
           </div>
           <div class="catalan-hex">
             <figure>
-              <svg viewBox="0 0 300 300">
+              <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
                 <circle-chords
-                  :tile="parenthesesToHex(parentheses)"
+                  :tile="catalan.hex"
                   :n="n"
-                  :radius="100"
-                  :centerx="150"
-                  :centery="150"
+                  :bbox="bbox"
                   show-arcs
                   show-chords
                   show-circle
                 />
-              </svg>
+              </svg-box>
               <figcaption>Circle with {{n}} non-intersecting chords</figcaption>
             </figure>
           </div>
           <div class="catalan-tile">
             <figure>
-              <svg viewBox="0 0 600 300">
+              <svg-box v-for="bbox of [new BBox(0,0,600,300)]" :bbox="bbox">
                 <circle-chords
-                  :tile="parenthesesToHex(parentheses)"
+                  :tile="catalan.hex"
                   :n="n"
-                  :radius="100"
-                  :centerx="300"
-                  :centery="150"
+                  :bbox="bbox"
                   show-midpoints
                   show-partitions
                   show-midpoint-labels
                   :rotate-degrees="10"
                 />
-              </svg>
+              </svg-box>
               <figcaption>Non interesecting partitions of {{n}} elements</figcaption>
+            </figure>
+          </div>
+          <div class="catalan-tile">
+            <figure>
+              <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
+                <polygon-triangulation :tile="catalan.parenthesis" :bbox="bbox" />
+              </svg-box>
+              <figcaption>Triangulation of {{n+2}}-gon</figcaption>
             </figure>
           </div>
         </div>
@@ -940,6 +926,8 @@
         getParenthesisPartitions,
         get2DWalkFromParentheses,
         parenthesesToHex,
+        CatalanGenus,
+        CatalanStructure,
       } from '/js/catalan.js'
       import { collapsibleButton } from '/js/buttons.js'
       import { BBox, svgBox } from '/js/bbox.js'
@@ -990,27 +978,33 @@
         },
         methods: {
           generateIterativeCatalanParentheses,
+          BBox,
         },
         components: {
           circleChords,
+          svgBox,
         },
       }).mount('#circle-10-connection-example')
 
       createApp({
         methods: {
           generateCatalanNumberSet,
+          BBox,
         },
         components: {
           circleChords,
+          svgBox,
         },
       }).mount('#c3-chords-exhaustive')
 
       createApp({
         methods: {
           generateCatalanNumberSet,
+          BBox,
         },
         components: {
           circleChords,
+          svgBox,
         },
       }).mount('#c4-chords-exhaustive')
 
@@ -1023,6 +1017,7 @@
         methods: {
           generateIterativeCatalanNumerical,
           generateIterativeCatalanParentheses,
+          BBox,
         },
         mounted() {
           setInterval(() => {
@@ -1031,6 +1026,7 @@
         },
         components: {
           circleChords,
+          svgBox,
         },
       }).mount('#c10-chords-timer')
 
@@ -1217,37 +1213,45 @@
         methods: {
           generateIterativeCatalanParentheses,
           numericalToPartition,
+          BBox,
         },
         components: {
           circleChords,
+          svgBox,
         },
       }).mount('#circle-10-connection-partition-example')
 
       createApp({
         methods: {
           generateCatalanNumberSet,
+          BBox,
         },
         components: {
           circleChords,
+          svgBox,
         },
       }).mount('#c3-partition-exhaustive')
 
       createApp({
         methods: {
           generateCatalanNumberSet,
+          BBox,
         },
         components: {
           circleChords,
+          svgBox,
         },
       }).mount('#c4-partition-exhaustive')
 
       createApp({
         methods: {
           getParenthesisPartitions,
+          BBox,
         },
         components: {
           circleChords,
           collapsibleButton,
+          svgBox,
         },
       }).mount('#chord-partitions')
 
@@ -1261,6 +1265,7 @@
           generateIterativeCatalanNumerical,
           generateIterativeCatalanParentheses,
           numericalToPartition,
+          BBox,
         },
         mounted() {
           setInterval(() => {
@@ -1269,6 +1274,7 @@
         },
         components: {
           circleChords,
+          svgBox,
         },
       }).mount('#c10-partitions-timer')
 
@@ -1280,11 +1286,6 @@
           }
         },
         methods: {
-          generateIterativeCatalanNumerical,
-          generateIterativeCatalanParentheses,
-          numericalToPartition,
-          parenthesesToHex,
-          get2DWalkFromParentheses,
           BBox,
         },
         mounted() {
@@ -1293,8 +1294,14 @@
           }, 500)
         },
         computed: {
+          genus() {
+            return new CatalanGenus(this.n, this.i)
+          },
+          catalan() {
+            return this.genus.getI(this.i)
+          },
           parentheses() {
-            return generateIterativeCatalanParentheses(this.n, this.i)
+            return this.catalan.parenthesis
           },
         },
         components: {
@@ -1303,6 +1310,7 @@
           binaryTree,
           circleChords,
           latticePaths,
+          polygonTriangulation,
           svgBox,
         },
       }).mount('#catalan-gallery-timer')

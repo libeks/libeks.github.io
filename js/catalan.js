@@ -1,4 +1,5 @@
 import { memoize } from '/js/memoize.js'
+import { randomInt } from '/js/math.js'
 
 function catNum(n) {
   if (n == 0 || n == 1) {
@@ -15,7 +16,6 @@ const catalanNumber = memoize(catNum)
 
 // this is on average 13x slower than generateIterativeCatalanParenthesisExpensive
 const genIterCatalanNumericalExpensive = function (n, i) {
-  // console.log('n,i', n, i)
   if (n == 0) {
     return []
   }
@@ -35,7 +35,6 @@ const genIterCatalanNumericalExpensive = function (n, i) {
       if (i < ca2) {
         let left = generateIterativeCatalanNumeric(a1, j)
         let right = generateIterativeCatalanNumeric(a2, i)
-        // console.log('left,right', a1, a2)
         let result = [1, left.length + 2]
         for (let obj of left) {
           result.push(obj + 1)
@@ -111,7 +110,6 @@ function generateCatalanParenthesisSet(n) {
 }
 
 function generateIterativeCatalanNumerical(n, i) {
-  // console.log('generateIterativeCatalanNumberica', n, i)
   const paren = generateIterativeCatalanParentheses(n, i)
   const num = parenthesesToNumerical(paren)
   const arrst = arrayToNumStrings(num)
@@ -356,6 +354,71 @@ function get2DWalkFromParentheses(parentheses) {
   return result.join('')
 }
 
+class CatalanStructure {
+  constructor(n, i) {
+    this.n = n
+    this.i = i
+  }
+
+  next() {
+    return new CatalanStructure(this.n, this.i + 1)
+  }
+
+  get parenthesis() {
+    return generateIterativeCatalanParentheses(this.n, this.i)
+  }
+
+  get numerical() {
+    return parenthesesToNumerical(this.parenthesis)
+  }
+
+  get hex() {
+    return parenthesesToHex(this.parenthesis)
+  }
+
+  get twoDWalk() {
+    return get2DWalkFromParentheses(this.parenthesis)
+  }
+
+  get oneDWalk() {
+    return this.parenthesis
+      .split('')
+      .map((ch) => (ch == '(' ? '→' : '←'))
+      .join('')
+  }
+
+  get votingSequence() {
+    return this.parenthesis
+      .split('')
+      .map((ch) => (ch == '(' ? 'A' : 'B'))
+      .join('')
+  }
+}
+
+class CatalanGenus {
+  constructor(n) {
+    this.n = n
+  }
+
+  count() {
+    return catalanNumber(this.n)
+  }
+
+  getI(i) {
+    return new CatalanStructure(this.n, i)
+  }
+
+  random() {
+    return new CatalanStructure(this.n, randomInt(this.count()))
+  }
+
+  *all() {
+    for (let i = 0; i < this.count(); i++) {
+      yield this.getI(i)
+    }
+  }
+}
+
 export {
   // catalan number
   catalanNumber,
@@ -386,4 +449,8 @@ export {
 
   //2D walk
   get2DWalkFromParentheses,
+
+  // classes
+  CatalanGenus,
+  CatalanStructure,
 }

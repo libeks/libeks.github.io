@@ -52,14 +52,11 @@ const collapsibleButton = {
   methods: {
     click() {
       this.isCollapsed = !this.isCollapsed
-      // console.log('height', this.$refs.collapsible.scrollHeight)
-      // console.log('collapsible', this.$refs.collapsible)
       if (this.isCollapsed) {
         this.$refs.collapsible.style['max-height'] = null
       } else {
         this.$refs.collapsible.style['max-height'] = this.$refs.collapsible.scrollHeight + 'px'
       }
-      // console.log('collapsible height', this.$refs.collapsible.maxHeight)
     },
   },
   data() {

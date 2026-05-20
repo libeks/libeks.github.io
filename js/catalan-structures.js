@@ -17,7 +17,7 @@ function getPairs(s) {
 const circleChords = {
   template: `
   <g>
-    <circle v-if="showCircle" :cx="centerx" :cy="centery" :r="radius" />
+    <circle v-if="showCircle" v-bind="center.cxcyProps()" :r="radius" />
     <g v-if="showNotches" v-for="(nv, index) in notchVects"> <!-- notches -->
       <path class="notch" :d="new StraightStroke(center.addVect(nv.mult(0.95)), center.addVect(nv.mult(1.05))).d()" />
       <text :x="notchLabelPos[index].x" :y="notchLabelPos[index].y" class="notchText">{{numericalToHex(index+1)}}</text>
@@ -39,9 +39,10 @@ const circleChords = {
   props: {
     tile: String, // numerical representation
     n: Number,
-    radius: Number,
-    centerx: Number,
-    centery: Number,
+    bbox: Object,
+    // radius: Number,
+    // centerx: Number,
+    // centery: Number,
     rotateDegrees: {
       type: Number,
       default: 0.0,
@@ -61,7 +62,14 @@ const circleChords = {
   },
   computed: {
     center() {
-      return new Point(this.centerx, this.centery)
+      if (this.bbox != null) {
+        return this.bbox.center()
+      }
+      throw `circle-chords called without bbox`
+      // return new Point(this.centerx, this.centery)
+    },
+    radius() {
+      return Math.min(this.bbox.width(), this.bbox.height()) / 3
     },
     colors() {
       return [

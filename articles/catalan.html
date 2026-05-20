@@ -665,7 +665,8 @@
                 tile="((()((()))()()))(())"
                 :bbox="bbox"
                 show-labels
-                show-nodes
+                show-vertices
+                show-dual-graph
               ></polygon-triangulation>
             </svg-box>
             <figcaption>
@@ -688,6 +689,7 @@
                 <polygon-triangulation
                   :tile="generateIterativeCatalanParentheses(10, i)"
                   :bbox="bbox"
+                  show-dual-graph
                 ></polygon-triangulation>
               </svg-box>
               <figcaption>{{generateIterativeCatalanParentheses(10,i)}}</figcaption>

@@ -520,40 +520,7 @@ const binaryTree = {
       setPosition(tree.root)
       return tree
     },
-    // infix() {
-    //   let nodes = []
-    //   function walk(node) {
-    //     if (node.left != null) {
-    //       walk(node.left)
-    //     }
-    //     nodes.push(node.id)
-    //     if (node.right != null) {
-    //       walk(node.right)
-    //     }
-    //   }
-    //   walk(this.tree.root)
-    //   return nodes
-    // },
-    // danglingInfix() {
-    //   let nodes = []
-    //   function walk(node) {
-    //     if (node.left != null) {
-    //       walk(node.left)
-    //     } else {
-    //       nodes.push(`${node.id}L`)
-    //     }
-    //     nodes.push(node.id)
-    //     if (node.right != null) {
-    //       walk(node.right)
-    //     } else {
-    //       nodes.push(`${node.id}R`)
-    //     }
-    //   }
-    //   walk(this.tree.root)
-    //   return nodes
-    // },
     nodes() {
-      // console.log('infix', this.tile, this.infix, this.danglingInfix)
       return Object.values(this.positionedTree.nodes)
     },
     edges() {
@@ -566,7 +533,7 @@ const binaryTree = {
           let line
           if (truncatedLine) {
             let vect = ptA.vectTo(ptB).unit()
-            line = new StraightStroke(ptA.addVect(vect.mult(10)), ptB.addVect(vect.mult(-10)))
+            line = new StraightStroke(ptA, ptB).stripPx(10)
           } else {
             line = new StraightStroke(ptA, ptB)
           }
@@ -592,17 +559,26 @@ const polygonTriangulation = {
       <g v-for="edge in edges">
         <path :d="edge.line.d()" :style="{stroke: (edge.internal ? 'red' : 'black')}" />
       </g>
-      <g v-if="showNodes", v-for="(node,id) in nodes">
-        <text v-if="showLabels" v-bind="node.d(10,4).xyProps()" style="font-size:12;">{{id}}</text>
-        <circle v-bind="node.cxcyProps()" r=5 class="fillBlack" :data-id="id" />
+      <g v-if="showVertices", v-for="(vertex,id) in vertices">
+        <text v-if="showLabels" v-bind="vertex.d(10,4).xyProps()" style="font-size:12;">{{id}}</text>
+        <circle v-bind="vertex.cxcyProps()" r=5 class="fillBlack" :data-vertex="id" />
       </g> 
+      <g v-if="showDualGraph">
+        <g v-for="(node,id) in triangles" :data-triangle="id">
+          <path v-for="line in node.childEdges" :d="line.line.stripPx(5).d()" :style="{'stroke-dasharray': (line.type=='direct' ? null : '4'), stroke:  'blue'}" />
+          <circle v-bind="node.midpoint.cxcyProps()" r=3 class="fillBlack" />
+          <circle v-for="edge in node.sideLines" v-bind="edge.midpoint().cxcyProps()" r=2 />
+        </g>
+        <path :d="tree.root.rootLine.d()" style="stroke:black; stroke-dasharray: 4;" />
+      </g>
     </g>
     `,
   props: {
     tile: String, // parenthesis notation
     bbox: Object,
+    showDualGraph: Boolean,
     showLabels: Boolean,
-    showNodes: Boolean,
+    showVertices: Boolean,
     truncatedLine: Boolean,
   },
   computed: {
@@ -645,7 +621,7 @@ const polygonTriangulation = {
       }
       return this.tile.length / 2
     },
-    nodes() {
+    vertices() {
       // console.log('bbox center', this.bbox.center())
       let ngon = new NGon({
         center: this.bbox.center(),
@@ -657,6 +633,7 @@ const polygonTriangulation = {
     },
     edgeIDs() {
       let edgePairs = []
+      let vertices = this.vertices // capture in scope for function
       function gatherEdges(node) {
         if (node.left != null) {
           gatherEdges(node.left)
@@ -669,27 +646,60 @@ const polygonTriangulation = {
         } else {
           edgePairs.push(node.rightData)
         }
+        node.verticeIDs = [node.leftData.left, node.leftData.right, node.rightData.right]
+        node.vertices = node.verticeIDs.map((id) => vertices[id])
+        node.triangle = new Polygon(node.vertices)
+        node.midpoint = node.triangle.midpoint()
+        let childEdges = []
+        let sideLines = []
+        if (node.left != null) {
+          childEdges.push({
+            line: new StraightStroke(node.midpoint, node.left.midpoint),
+            type: 'direct', // line from node to node
+          })
+        } else {
+          let side = new StraightStroke(vertices[node.leftData.left], vertices[node.leftData.right])
+          sideLines.push(side)
+          childEdges.push({
+            line: new StraightStroke(node.midpoint, side.midpoint()),
+            type: 'ghost', // line from node to edge
+          })
+        }
+        if (node.right != null) {
+          childEdges.push({
+            line: new StraightStroke(node.midpoint, node.right.midpoint),
+            type: 'direct', // line from node to node
+          })
+        } else {
+          let side = new StraightStroke(
+            vertices[node.rightData.left],
+            vertices[node.rightData.right],
+          )
+          sideLines.push(side)
+          childEdges.push({
+            line: new StraightStroke(node.midpoint, side.midpoint()),
+            type: 'ghost', // line from node to edge
+          })
+        }
+        node.childEdges = childEdges
+        node.sideLines = sideLines
       }
       gatherEdges(this.tree.root)
+      let edge01 = new StraightStroke(this.vertices[0], this.vertices[1])
+      this.tree.root.rootLine = new StraightStroke(this.tree.root.midpoint, edge01.midpoint())
       return edgePairs
     },
     edges() {
       let edges = []
-      // let truncatedLine = true
-      // console.log('tree', this.tree)
-      // console.log('edgeIDs', this.edgeIDs)
       for (let { left, right } of this.edgeIDs) {
-        // console.log('left right', left, right)
-        let ptA = this.nodes[left]
-        let ptB = this.nodes[right]
+        let ptA = this.vertices[left]
+        let ptB = this.vertices[right]
         let line
         if (this.truncatedLine) {
-          let vect = ptA.vectTo(ptB).unit()
-          line = new StraightStroke(ptA.addVect(vect.mult(10)), ptB.addVect(vect.mult(-10)))
+          line = new StraightStroke(ptA, ptB).stripPx(10)
         } else {
           line = new StraightStroke(ptA, ptB)
         }
-        // console.log('internal', left, right, Math.abs(left - right), Math.abs(left - right) == 1)
         edges.push({
           from: left,
           to: right,
@@ -700,6 +710,10 @@ const polygonTriangulation = {
         })
       }
       return edges
+    },
+    triangles() {
+      let a = this.edgeIDs // necessary to ensure that the tree is fully computed
+      return this.tree.nodes
     },
   },
 }

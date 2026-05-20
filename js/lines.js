@@ -1,4 +1,5 @@
 import { pairs } from '/js/utils.js'
+import { Point } from '/js/geometry.js'
 
 class StraightStroke {
   constructor(from, to) {
@@ -10,6 +11,10 @@ class StraightStroke {
     }
     this.from = from
     this.to = to
+  }
+
+  vect() {
+    return this.from.vectTo(this.to)
   }
 
   startpoint() {
@@ -34,6 +39,10 @@ class StraightStroke {
     return `M ${this.from.string()} ${this.dContinued()}`
   }
 
+  midpoint() {
+    return this.from.midpoint(this.to)
+  }
+
   move(v) {
     // move the stroke by a vector v
     return new StraightStroke(this.from.addVect(v), this.to.addVect(v))
@@ -41,6 +50,12 @@ class StraightStroke {
 
   contour() {
     return this
+  }
+
+  // strip off px off of each end of the Line
+  stripPx(px) {
+    let vect = this.vect().unit()
+    return new StraightStroke(this.from.addVect(vect.mult(px)), this.to.addVect(vect.mult(-px)))
   }
 
   transform2D(matrix) {
@@ -438,6 +453,11 @@ function compositeQuadraticBezier(...pointsWithTags) {
 // Polygon is a wrapper around CompositeCurve for when we have a polygon around a set of points
 class Polygon {
   constructor(points) {
+    for (let pt of points) {
+      if (pt.type != 'Point') {
+        throw `Polygon received unexpected argument ${pt.type}`
+      }
+    }
     this.points = points
   }
 
@@ -447,6 +467,18 @@ class Polygon {
       components.add(new StraightStroke(this.points[i], this.points[(i + 1) % this.points.length]))
     }
     return components.d()
+  }
+
+  midpoint() {
+    // console.log('this.points', this.points)
+    let x = 0
+    let y = 0
+    let n = this.points.length
+    for (let pt of this.points) {
+      x += pt.x
+      y += pt.y
+    }
+    return new Point(x / n, y / n)
   }
 
   transform2D(matrix) {

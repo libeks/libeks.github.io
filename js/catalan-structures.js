@@ -387,7 +387,6 @@ function computeBinaryTree(tileParentheses) {
   let current
   let root
   for (let char of tileParentheses) {
-    // console.log('processing character', char)
     if (char == '(') {
       current = {
         id: nNodes,
@@ -397,27 +396,15 @@ function computeBinaryTree(tileParentheses) {
         depth: depth + 1,
         progress: 0,
       }
-      // console.log(`saw (, adding new node ${current.id}`, current)
       nNodes++
 
       if (root == null) {
         root = current
       } else {
-        // console.log(
-        //   `current.parent ${current.parent.id} progress is ${current.parent.progress}`,
-        // )
         if (current.parent.progress == 0) {
           current.parent.left = current
-          // console.log(
-          //   `setting ${current.id} as left child of parent ${current.parent.id}`,
-          //   current.parent,
-          // )
         } else {
           current.parent.right = current
-          // console.log(
-          //   `setting ${current.id} as right child of parent ${current.parent.id}`,
-          //   current.parent,
-          // )
         }
       }
       nodes[current.id] = current
@@ -426,19 +413,13 @@ function computeBinaryTree(tileParentheses) {
         maxDepth = depth
       }
     } else {
-      // console.log('saw ), doing math...')
       while (current != null) {
         if (current.progress == 0) {
           current.progress = 1
-          // console.log(
-          //   `... advanced current ${current.id} progress to ${current.progress}`,
-          //   current,
-          // )
           break
         } else if (current.progress == 1) {
           current.progress = 2
           current = current.parent
-          // console.log(`... set current to its parent ${current.id}`, current)
           depth--
         }
       }
@@ -469,10 +450,8 @@ const binaryTree = {
       return computeBinaryTree(this.tile)
     },
     positionedTree() {
-      // console.log('binary tree', this.tree)
       let rows = {}
       let maxDepth = this.tree.maxDepth
-      // let minWidth = this.minWidth // capture value to be usable inside traverse()
       function traverse(node) {
         let widthI = 0
         for (let child of [node.left, node.right]) {
@@ -634,7 +613,6 @@ const polygonTriangulation = {
       let alphaDeg = 360 / (2 * (this.n + 2))
       let alphaRad = degToRad(alphaDeg)
       let side = dimension * Math.sin(alphaRad)
-      console.log('side', side, this.bbox.width(), alphaDeg, Math.sin(alphaRad))
       return side
     },
     vertices() {

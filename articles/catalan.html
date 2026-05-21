@@ -24,8 +24,8 @@
     <main>
       <section>
         <p>
-          I learned about the Catalan Numbers in college, and they seem to come up again and again.
-          So let's jump into them.
+          I learned about the Catalan Numbers in college, and they seem to come up again and again
+          in my hobby coding projects. So let's explore!
         </p>
       </section>
       <section>
@@ -180,7 +180,8 @@
             </svg-box>
             <figcaption>
               Circle with 10 pairs of non-intersecting chords, corresponding to the integer
-              representation '12-34-58-67-9A'
+              representation '12-34-58-67-9A' and the matching parenthesis representation
+              '()()(())()'
             </figcaption>
           </figure>
         </div>
@@ -801,8 +802,12 @@
 
         <p>
           Let's put all of these representations of the same structure in one place. The timer
-          advances the Catalan structure every second, and all tiles show one of the interpretations
-          of the same bijective Catalan structure.
+          advances the Catalan structure every
+          <math>
+            <mfrac><mn>1</mn> <mn>2</mn></mfrac>
+          </math>
+          second, and all tiles show one of the interpretations of the same bijective Catalan
+          structure.
         </p>
 
         <div id="catalan-gallery-timer">
@@ -819,6 +824,14 @@
             </div>
             <div>
               <math> <mi>i</mi><mo>=</mo><mn>{{i % catalanNumber(n)}}</mn></math>
+            </div>
+            <div class="button-block">
+              <toggle-button
+                text="Shuffle mode"
+                :active="shuffle"
+                @toggle-choice="shuffle=!shuffle"
+              >
+              </toggle-button>
             </div>
             <play-controls
               :active="active"
@@ -981,7 +994,7 @@
         CatalanGenus,
         CatalanStructure,
       } from '/js/catalan.js'
-      import { collapsibleButton, integerButtons, playControls } from '/js/buttons.js'
+      import { collapsibleButton, integerButtons, playControls, toggleButton } from '/js/buttons.js'
       import { BBox, svgBox } from '/js/bbox.js'
       import {
         circleChords,
@@ -990,6 +1003,7 @@
         binaryTree,
         polygonTriangulation,
       } from '/js/catalan-structures.js'
+      import { randomInt } from '/js/math.js'
 
       createApp({
         methods: {
@@ -1339,9 +1353,10 @@
       createApp({
         data() {
           return {
-            i: Math.floor(Math.random() * catalanNumber(10)),
+            i: randomInt(catalanNumber(10)),
             n: 10,
             active: true,
+            shuffle: false,
           }
         },
         methods: {
@@ -1351,7 +1366,11 @@
         mounted() {
           setInterval(() => {
             if (this.active) {
-              this.i++
+              if (this.shuffle) {
+                this.i = randomInt(catalanNumber(this.n))
+              } else {
+                this.i++
+              }
             }
           }, 500)
         },
@@ -1375,6 +1394,7 @@
           polygonTriangulation,
           integerButtons,
           playControls,
+          toggleButton,
           svgBox,
         },
       }).mount('#catalan-gallery-timer')

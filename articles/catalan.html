@@ -652,11 +652,6 @@
           </p>
           <figure id="polygon-triangulation-10-example" class="float-right small">
             <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
-              <!-- <polygon-triangulation
-                tile="()()(())"
-                :bbox="bbox"
-                show-labels
-              ></polygon-triangulation> -->
               <polygon-triangulation
                 tile="((()((()))()()))(())"
                 :bbox="bbox"
@@ -872,11 +867,11 @@
               </figure>
             </div>
             <div class="catalan-tile catalan-tree">
-              <figure style="max-width: 300px">
+              <figure style="max-width: 300px; min-width: 300px">
                 <svg-box
                   v-for="bbox of [new BBox(0,0,300,300)]"
                   :bbox="bbox"
-                  style="max-width: 300px"
+                  style="max-width: 300px; min-width: 300px"
                 >
                   <rooted-tree :tile="catalan.parenthesis" :bbox="bbox"></rooted-tree>
                 </svg-box>
@@ -884,11 +879,11 @@
               </figure>
             </div>
             <div class="catalan-tile">
-              <figure style="max-width: 300px">
+              <figure style="max-width: 300px; min-width: 300px">
                 <svg-box
                   v-for="bbox of [new BBox(0,0,300,300)]"
                   :bbox="bbox"
-                  style="max-width: 300px"
+                  style="max-width: 300px; min-width: 300px"
                 >
                   <binary-tree :tile="parentheses" :bbox="bbox"></binary-tree>
                 </svg-box>
@@ -896,11 +891,11 @@
               </figure>
             </div>
             <div class="catalan-tile">
-              <figure style="max-width: 300px">
+              <figure style="max-width: 300px; min-width: 300px">
                 <svg-box
                   v-for="bbox of [new BBox(0,0,300,300)]"
                   :bbox="bbox"
-                  style="max-width: 300px"
+                  style="max-width: 300px; min-width: 300px"
                 >
                   <circle-chords
                     :tile="catalan.hex"
@@ -915,11 +910,11 @@
               </figure>
             </div>
             <div class="catalan-tile">
-              <figure style="max-width: 300px">
+              <figure style="max-width: 300px; min-width: 300px">
                 <svg-box
                   v-for="bbox of [new BBox(0,0,300,300)]"
                   :bbox="bbox"
-                  style="max-width: 300px"
+                  style="max-width: 300px; min-width: 300px"
                 >
                   <circle-chords
                     :tile="catalan.hex"
@@ -935,11 +930,11 @@
               </figure>
             </div>
             <div class="catalan-tile">
-              <figure style="max-width: 300px">
+              <figure style="max-width: 300px; min-width: 300px">
                 <svg-box
                   v-for="bbox of [new BBox(0,0,300,300)]"
                   :bbox="bbox"
-                  style="max-width: 300px"
+                  style="max-width: 300px; min-width: 300px"
                 >
                   <polygon-triangulation :tile="catalan.parenthesis" :bbox="bbox" />
                 </svg-box>

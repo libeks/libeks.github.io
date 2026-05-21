@@ -332,12 +332,13 @@
             <span>Random Walk in 1D</span>
           </h3>
           <p>
-            Suppose we want to take a random walk on the whole number line with steps of length one,
-            starting and ending at 0, but never dipping below 0. The number of such walks of length
-            <math><mn>2</mn><mi>n</mi></math> follows directly from the parenthesis example above.
-            Each open parenthesis "(" is a step in the positive direction, and each closing
-            parenthesis ")" is a move in the negative direction. To dip below 0, we'd have to hit an
-            unbalanced closing parenthesis, which is forbidden!
+            Suppose we want to take a
+            <a href="https://en.wikipedia.org/wiki/Random_walk">random walk</a> on the whole number
+            line with steps of length one, starting and ending at 0, but never dipping below 0. The
+            number of such walks of length <math><mn>2</mn><mi>n</mi></math> follows directly from
+            the parenthesis example above. Each open parenthesis "(" is a step in the positive
+            direction, and each closing parenthesis ")" is a move in the negative direction. To dip
+            below 0, we'd have to hit an unbalanced closing parenthesis, which is forbidden!
           </p>
           <p>
             An alternative formulation is that of a Ballot Sequence. There is an election between
@@ -805,19 +806,32 @@
 
         <div id="catalan-gallery-timer">
           <div class="flex-block flex-center">
-            <integer-buttons :n="n" @increase="n++" @decrease="n--"></integer-buttons>
+            <integer-buttons
+              :n="n"
+              @increase="n++; i=Math.floor(Math.random() * catalanNumber(n))"
+              @decrease="n--; i=Math.floor(Math.random() * catalanNumber(n))"
+            ></integer-buttons>
             <div>
               <math>
                 <msub> <mi>C</mi><mn>{{n}}</mn> </msub><mo>=</mo><mn>{{catalanNumber(n)}}</mn>
               </math>
             </div>
+            <div>
+              <math> <mi>i</mi><mo>=</mo><mn>{{i % catalanNumber(n)}}</mn></math>
+            </div>
+            <play-controls
+              :active="active"
+              @toggle-play="active = !active"
+              @next-frame="i += 1"
+              @previous-frame="i -= 1"
+            ></play-controls>
           </div>
           <figure>
             <div class="catalan-tile catalan-parentheses">{{catalan.parenthesis}}</div>
             <figcaption>Balanced {{n}} pairs of parentheses</figcaption>
           </figure>
           <figure>
-            <div class="catalan-tile catalan-parentheses">{{catalan.oneDWalk}}</div>
+            <div class="catalan-tile catalan-parentheses">{{catalan.oneDWalkPlusMinus}}</div>
             <figcaption>
               Random walk on nonnegative integers of length {{2*n}}, ending at 0
             </figcaption>
@@ -942,7 +956,7 @@
         CatalanGenus,
         CatalanStructure,
       } from '/js/catalan.js'
-      import { collapsibleButton, integerButtons } from '/js/buttons.js'
+      import { collapsibleButton, integerButtons, playControls } from '/js/buttons.js'
       import { BBox, svgBox } from '/js/bbox.js'
       import {
         circleChords,
@@ -1300,8 +1314,9 @@
       createApp({
         data() {
           return {
-            i: Math.floor(Math.random() * 16796),
+            i: Math.floor(Math.random() * catalanNumber(10)),
             n: 10,
+            active: true,
           }
         },
         methods: {
@@ -1310,7 +1325,9 @@
         },
         mounted() {
           setInterval(() => {
-            this.i++
+            if (this.active) {
+              this.i++
+            }
           }, 500)
         },
         computed: {
@@ -1332,6 +1349,7 @@
           latticePaths,
           polygonTriangulation,
           integerButtons,
+          playControls,
           svgBox,
         },
       }).mount('#catalan-gallery-timer')

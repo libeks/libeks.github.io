@@ -453,7 +453,16 @@ class LineSegment {
 }
 
 class NGon {
-  constructor({ tile, side, angleFraction, angle, center, firstVertex, clockwise }) {
+  constructor({
+    tile,
+    side,
+    angleFraction,
+    angle,
+    center,
+    firstVertex,
+    clockwise,
+    firstEdgeAtTop,
+  }) {
     // center is assumed to be the origin
     this.tile = tile
     let { n, genus } = NGon.getNGenus(tile)
@@ -495,8 +504,9 @@ class NGon {
 
     if (angleFraction) {
       this.angle = this.alphaRad * angleFraction
-    }
-    if (angle) {
+    } else if (firstEdgeAtTop) {
+      this.angle = -degToRad(90 + this.alphaDeg / 2)
+    } else if (angle) {
       this.angle = angle
     }
 

@@ -387,6 +387,13 @@ class CatalanStructure {
       .join('')
   }
 
+  get oneDWalkPlusMinus() {
+    return this.parenthesis
+      .split('')
+      .map((ch) => (ch == '(' ? '+' : '-'))
+      .join('')
+  }
+
   get votingSequence() {
     return this.parenthesis
       .split('')

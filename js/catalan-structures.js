@@ -1,7 +1,7 @@
 import { Point, Vector, Ray, NGon } from '/js/geometry.js'
 import { StraightStroke, CircleArc, CompositeCurve, Polygon } from '/js/lines.js'
 import { numericalToHex, hexToNumerical, numericalToPartition } from '/js/catalan.js'
-import { radToDeg } from '/js/math.js'
+import { radToDeg, degToRad } from '/js/math.js'
 
 // Given a string, return an array of strings of two characters each, which add up to the input string
 function getPairs(s) {
@@ -40,9 +40,6 @@ const circleChords = {
     tile: String, // numerical representation
     n: Number,
     bbox: Object,
-    // radius: Number,
-    // centerx: Number,
-    // centery: Number,
     rotateDegrees: {
       type: Number,
       default: 0.0,
@@ -66,7 +63,6 @@ const circleChords = {
         return this.bbox.center()
       }
       throw `circle-chords called without bbox`
-      // return new Point(this.centerx, this.centery)
     },
     radius() {
       return Math.min(this.bbox.width(), this.bbox.height()) / 3
@@ -218,10 +214,7 @@ const latticePaths = {
       )
     },
     padding() {
-      console.log('bbox', this.bbox, this.n)
-      console.log('padding', this.size)
       return Math.max(this.size, (this.bbox.width() - this.size * this.n) / 2)
-      // return
     },
     upRight() {
       return new Vector(this.size / 2, -this.size / 2)
@@ -247,11 +240,9 @@ const latticePaths = {
         } else {
           throw 'Unknown character'
         }
-        // console.log('stroke', startPoint, endPoint)
         curves.add(new StraightStroke(startPoint, endPoint))
         startPoint = endPoint
       }
-      // console.log('curves')
       return curves
     },
   },
@@ -638,12 +629,21 @@ const polygonTriangulation = {
       }
       return this.tile.length / 2
     },
+    side() {
+      let dimension = Math.max(this.bbox.width(), this.bbox.height()) * 0.8
+      let alphaDeg = 360 / (2 * (this.n + 2))
+      let alphaRad = degToRad(alphaDeg)
+      let side = dimension * Math.sin(alphaRad)
+      console.log('side', side, this.bbox.width(), alphaDeg, Math.sin(alphaRad))
+      return side
+    },
     vertices() {
       let ngon = new NGon({
         center: this.bbox.center(),
-        side: 60 /* TODO, compute side based on bbox */,
+        side: this.side,
         tile: (this.n + 2).toString(),
         clockwise: true,
+        firstEdgeAtTop: true,
       })
       return ngon.vertices
     },

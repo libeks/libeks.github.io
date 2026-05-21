@@ -13,6 +13,7 @@ div.catalan-hex {
 div.catalan-parentheses {
   background-color: hsl(0, 0%, 80%);
   font-size: 2em;
+  text-align: center;
 }
 
 div.catalan-tile {

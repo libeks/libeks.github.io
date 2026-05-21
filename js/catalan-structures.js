@@ -202,8 +202,7 @@ const latticePaths = {
   props: {
     tile: String, // parenthesis representation
     n: Number,
-    size: Number,
-    padding: Number,
+    bbox: Object,
   },
   methods: {
     range: (n) => Array(n).keys(),
@@ -212,6 +211,18 @@ const latticePaths = {
     Vector,
   },
   computed: {
+    size() {
+      return Math.min(
+        this.bbox.width() / (this.n + 2), // add 2 for padding on each side
+        this.bbox.height() / (this.n / 2 + 2),
+      )
+    },
+    padding() {
+      console.log('bbox', this.bbox, this.n)
+      console.log('padding', this.size)
+      return Math.max(this.size, (this.bbox.width() - this.size * this.n) / 2)
+      // return
+    },
     upRight() {
       return new Vector(this.size / 2, -this.size / 2)
     },
@@ -219,10 +230,10 @@ const latticePaths = {
       return new Vector(-this.size / 2, -this.size / 2)
     },
     leftCorner() {
-      return new Point(this.padding, (this.n / 2) * this.size + this.padding)
+      return new Point(this.padding, (this.n / 2) * this.size + this.size)
     },
     rightCorner() {
-      return new Point(this.n * this.size + this.padding, (this.n / 2) * this.size + this.padding)
+      return new Point(this.n * this.size + this.padding, (this.n / 2) * this.size + this.size)
     },
     path() {
       let curves = new CompositeCurve()
@@ -236,9 +247,11 @@ const latticePaths = {
         } else {
           throw 'Unknown character'
         }
+        // console.log('stroke', startPoint, endPoint)
         curves.add(new StraightStroke(startPoint, endPoint))
         startPoint = endPoint
       }
+      // console.log('curves')
       return curves
     },
   },
@@ -594,7 +607,6 @@ const polygonTriangulation = {
       let tree = computeBinaryTree(this.tile)
       let n = this.n + 2
       let i = n
-      // console.log(`n starts as`, n)
       function markDangling(node) {
         if (node.left != null) {
           markDangling(node.left)
@@ -614,13 +626,10 @@ const polygonTriangulation = {
         if (node.leftData != null && node.rightData != null) {
           node.data = { left: node.leftData.left, right: node.rightData.right }
         } else {
-          // console.log(node)
           throw `Unexpected left or right data missing for node ${node.id}`
         }
-        // console.log(`Node ${node.id} has data`, node.leftData, node.rightData, node.data)
       }
       markDangling(tree.root)
-      // console.log('tile', this.tile)
       return tree
     },
     n() {
@@ -630,7 +639,6 @@ const polygonTriangulation = {
       return this.tile.length / 2
     },
     vertices() {
-      // console.log('bbox center', this.bbox.center())
       let ngon = new NGon({
         center: this.bbox.center(),
         side: 60 /* TODO, compute side based on bbox */,

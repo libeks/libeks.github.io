@@ -66,4 +66,19 @@ const collapsibleButton = {
   },
 }
 
-export { playControls, radioButtons, toggleButton, collapsibleButton }
+const integerButtons = {
+  template: `
+    <div class="controls button-block">
+      <div class="button" @click="$emit('decrease')">-</div>
+      <div class="button">{{n}}</div>
+      <div class="button" @click="$emit('increase')">+</div>
+    </div>
+  `,
+
+  props: {
+    n: Number,
+  },
+  emits: ['increase', 'decrease'],
+}
+
+export { playControls, radioButtons, toggleButton, collapsibleButton, integerButtons }

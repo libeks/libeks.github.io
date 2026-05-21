@@ -341,9 +341,15 @@
             below 0, we'd have to hit an unbalanced closing parenthesis, which is forbidden!
           </p>
           <p>
-            An alternative formulation is that of a Ballot Sequence. There is an election between
-            two candidates A and B, which receives <math><mn>2</mn><mi>n</mi></math> votes (no
-            abstentions) that ends up in the tie. What is the number of voting sequences, such that
+            In fact, another name for the parenthesis notation is that of a
+            <a href="https://en.wikipedia.org/wiki/Dyck_language">Dyck word</a>, or more
+            specifically, Dyck-1. By replacing parentheses with other characters, we can get other
+            interpretations of the same structure. One is that of a
+            <a href="https://en.wikipedia.org/wiki/Bertrand%27s_ballot_theorem#Random_walks"
+              >Ballot Sequence</a
+            >. There is an election between two candidates A and B, with a total of
+            <math><mn>2</mn><mi>n</mi></math> votes (no abstentions) that finishes in a tie. What is
+            the number of voting sequences (sequences in which each vote is announced), such that
             candidate A would never trail behild candidate B during any moment of reading the
             sequence? Again, an open parenthesis stands in for a vote for candidate A, a closed
             parenthesis stands in for candidate B.
@@ -852,8 +858,12 @@
           </figure>
           <div class="flex-block flex-center">
             <div class="catalan-tile catalan-tree">
-              <figure>
-                <svg-box v-for="bbox of [new BBox(0,0,600,300)]" :bbox="bbox">
+              <figure style="max-width: 450px">
+                <svg-box
+                  v-for="bbox of [new BBox(0,0,600,300)]"
+                  :bbox="bbox"
+                  style="max-width: 450px"
+                >
                   <lattice-paths :tile="catalan.parenthesis" :n="n" :bbox="bbox" />
                 </svg-box>
                 <figcaption>
@@ -862,24 +872,36 @@
               </figure>
             </div>
             <div class="catalan-tile catalan-tree">
-              <figure>
-                <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
+              <figure style="max-width: 300px">
+                <svg-box
+                  v-for="bbox of [new BBox(0,0,300,300)]"
+                  :bbox="bbox"
+                  style="max-width: 300px"
+                >
                   <rooted-tree :tile="catalan.parenthesis" :bbox="bbox"></rooted-tree>
                 </svg-box>
                 <figcaption>Plane Tree with {{n+1}} nodes</figcaption>
               </figure>
             </div>
             <div class="catalan-tile">
-              <figure>
-                <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
+              <figure style="max-width: 300px">
+                <svg-box
+                  v-for="bbox of [new BBox(0,0,300,300)]"
+                  :bbox="bbox"
+                  style="max-width: 300px"
+                >
                   <binary-tree :tile="parentheses" :bbox="bbox"></binary-tree>
                 </svg-box>
                 <figcaption>Binary tree with {{n}} nodes</figcaption>
               </figure>
             </div>
             <div class="catalan-tile">
-              <figure>
-                <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
+              <figure style="max-width: 300px">
+                <svg-box
+                  v-for="bbox of [new BBox(0,0,300,300)]"
+                  :bbox="bbox"
+                  style="max-width: 300px"
+                >
                   <circle-chords
                     :tile="catalan.hex"
                     :n="n"
@@ -893,8 +915,12 @@
               </figure>
             </div>
             <div class="catalan-tile">
-              <figure>
-                <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
+              <figure style="max-width: 300px">
+                <svg-box
+                  v-for="bbox of [new BBox(0,0,300,300)]"
+                  :bbox="bbox"
+                  style="max-width: 300px"
+                >
                   <circle-chords
                     :tile="catalan.hex"
                     :n="n"
@@ -909,8 +935,12 @@
               </figure>
             </div>
             <div class="catalan-tile">
-              <figure>
-                <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
+              <figure style="max-width: 300px">
+                <svg-box
+                  v-for="bbox of [new BBox(0,0,300,300)]"
+                  :bbox="bbox"
+                  style="max-width: 300px"
+                >
                   <polygon-triangulation :tile="catalan.parenthesis" :bbox="bbox" />
                 </svg-box>
                 <figcaption>Triangulation of {{n+2}}-gon</figcaption>

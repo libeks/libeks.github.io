@@ -547,14 +547,17 @@ const binaryTree = {
 const polygonTriangulation = {
   template: `
     <g>
-      <g v-for="edge in edges">
+      <g v-for="edge in edges" class="edges">
         <path :d="edge.line.d()" :style="{stroke: (edge.internal ? 'red' : 'black')}" />
       </g>
-      <g v-if="showVertices" v-for="(vertex,id) in vertices">
+      <g v-if="showVertices" v-for="(vertex,id) in vertices" class="vertices">
         <text v-if="showLabels" v-bind="vertex.d(10,4).xyProps()" style="font-size:12;">{{id}}</text>
         <circle v-bind="vertex.cxcyProps()" r=5 class="fillBlack" :data-vertex="id" />
-      </g> 
-      <g v-if="showDualGraph">
+      </g>
+      <g v-if="showTriangles" v-for="tri in triangles" class="triangles">
+        <path :d="tri.triangle.d()" :style="{fill:tri.depth%2==1 ? 'white' : 'black'}" />
+      </g>
+      <g v-if="showDualGraph" class="dualGraph">
         <g v-for="(node,id) in triangles" :data-triangle="id">
           <path v-for="line in node.childEdges" :d="line.line.stripPx(5).d()" :style="{'stroke-dasharray': (line.type=='direct' ? null : '4'), 'stroke': 'blue'}" />
           <circle v-bind="node.midpoint.cxcyProps()" r=3 class="fillBlack" />
@@ -570,6 +573,7 @@ const polygonTriangulation = {
     showDualGraph: Boolean,
     showLabels: Boolean,
     showVertices: Boolean,
+    showTriangles: Boolean,
     truncatedLine: Boolean,
   },
   computed: {

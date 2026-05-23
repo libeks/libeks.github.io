@@ -61,28 +61,56 @@ function genIterNumber(n, i) {
 
 // Return a balanced-parenthesis representation of the Catalan Structure Cn with index i
 const generateIterativeCatalanParenthesisExpensive = function (n, i) {
+  // console.log(`catalan n=${n}, i=${i}`)
+  let ii = i
   if (n == 0) {
     return ''
   }
   if (n == 1) {
     return '()'
   }
+  if (i == 0) {
+    return '()'.repeat(n)
+  }
+
   let cn = catalanNumber(n)
   if (i >= cn) {
     i = i % cn
   }
+  if (i == cn - 1) {
+    return '('.repeat(n) + ')'.repeat(n)
+  }
+  // console.log(`Catalan n=${n}, i=${i}, Cn=${cn}`)
+
   let iter = 0
   for (let a1 = 0; a1 <= n - 1; a1++) {
     let ca1 = catalanNumber(a1)
     let a2 = n - a1 - 1
     let ca2 = catalanNumber(a2)
-    for (let j = 0; j < ca1; j++) {
-      if (i < ca2) {
-        const result = `(${generateIterativeCatalanParentheses(a1, j)})${generateIterativeCatalanParentheses(a2, i)}`
-        return result
-      }
-      i -= ca2
+    // console.log(
+    //   `iter n=${n}, i=${ii}, i=${i}, a1=${a1}, C(${a1})=${ca1}, a2=${a2}, C(${a2})=${ca2}`,
+    // )
+
+    if (i < ca1 * ca2) {
+      let j = Math.floor(i / ca2)
+      i = i - ca2 * j
+      // console.log(`getting C(${a1}, ${j}) and C(${a2}, ${i})`)
+      const result = `(${generateIterativeCatalanParentheses(a1, j)})${generateIterativeCatalanParentheses(a2, i)}`
+      // console.log(`returning n=${n}, i=${ii} $C(${a1}, ${j}) and $C(${a2}, ${i})`, result)
+      return result
+    } else {
+      i = i - ca1 * ca2
     }
+
+    // for (let j = 0; j < ca1; j++) {
+    //   if (i < ca2) {
+    //     console.log(`getting C(${a1}, ${j}) and C(${a2}, ${i})`)
+    //     const result = `(${generateIterativeCatalanParentheses(a1, j)})${generateIterativeCatalanParentheses(a2, i)}`
+    //     console.log(`returning n=${n}, i=${ii}`, a1, `j=${j}`, a2, result)
+    //     return result
+    //   }
+    //   i -= ca2
+    // }
   }
   return 'unknown'
 }

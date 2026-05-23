@@ -476,7 +476,7 @@
             >
             possible 2D walks of length 9:
           </p>
-          <div id="two-d-walk-10-counter" class="flex-block flex-center">
+          <div id="two-d-walk-10-timer" class="flex-block flex-center">
             <div class="catalan-parentheses">
               {{get2DWalkFromParentheses(generateIterativeCatalanParentheses(10, i))}}
             </div>
@@ -1017,24 +1017,24 @@
         },
       }).mount('#c4-parenthesis-exhaustive')
 
-      createApp({
-        data() {
-          return {
-            i: Math.floor(Math.random() * 16796),
-          }
-        },
-        methods: {
-          generateIterativeCatalanParentheses,
-        },
-        mounted() {
-          setInterval(() => {
-            this.i++
-          }, 500)
-        },
-        components: {
-          circleChords,
-        },
-      }).mount('#parentheses-10-counter')
+      // createApp({
+      //   data() {
+      //     return {
+      //       i: Math.floor(Math.random() * 16796),
+      //     }
+      //   },
+      //   methods: {
+      //     generateIterativeCatalanParentheses,
+      //   },
+      //   mounted() {
+      //     setInterval(() => {
+      //       this.i++
+      //     }, 500)
+      //   },
+      //   components: {
+      //     circleChords,
+      //   },
+      // }).mount('#parentheses-10-timer')
 
       createApp({
         data() {
@@ -1074,27 +1074,27 @@
         },
       }).mount('#c4-chords-exhaustive')
 
-      createApp({
-        data() {
-          return {
-            i: Math.floor(Math.random() * 16796),
-          }
-        },
-        methods: {
-          generateIterativeCatalanNumerical,
-          generateIterativeCatalanParentheses,
-          BBox,
-        },
-        mounted() {
-          setInterval(() => {
-            this.i++
-          }, 500)
-        },
-        components: {
-          circleChords,
-          svgBox,
-        },
-      }).mount('#c10-chords-timer')
+      // createApp({
+      //   data() {
+      //     return {
+      //       i: Math.floor(Math.random() * 16796),
+      //     }
+      //   },
+      //   methods: {
+      //     generateIterativeCatalanNumerical,
+      //     generateIterativeCatalanParentheses,
+      //     BBox,
+      //   },
+      //   mounted() {
+      //     setInterval(() => {
+      //       this.i++
+      //     }, 500)
+      //   },
+      //   components: {
+      //     circleChords,
+      //     svgBox,
+      //   },
+      // }).mount('#c10-chords-timer')
 
       createApp({
         methods: {
@@ -1106,27 +1106,27 @@
         },
       }).mount('#lattice-10-example')
 
-      createApp({
-        data() {
-          return {
-            i: Math.floor(Math.random() * 16796),
-          }
-        },
-        methods: {
-          generateIterativeCatalanNumerical,
-          generateIterativeCatalanParentheses,
-          BBox,
-        },
-        mounted() {
-          setInterval(() => {
-            this.i++
-          }, 500)
-        },
-        components: {
-          latticePaths,
-          svgBox,
-        },
-      }).mount('#c10-lattice-paths-timer')
+      // createApp({
+      //   data() {
+      //     return {
+      //       i: Math.floor(Math.random() * 16796),
+      //     }
+      //   },
+      //   methods: {
+      //     generateIterativeCatalanNumerical,
+      //     generateIterativeCatalanParentheses,
+      //     BBox,
+      //   },
+      //   mounted() {
+      //     setInterval(() => {
+      //       this.i++
+      //     }, 500)
+      //   },
+      //   components: {
+      //     latticePaths,
+      //     svgBox,
+      //   },
+      // }).mount('#c10-lattice-paths-timer')
 
       createApp({
         data() {
@@ -1174,27 +1174,27 @@
         },
       }).mount('#c3-plane-trees')
 
-      createApp({
-        data() {
-          return {
-            i: Math.floor(Math.random() * 16796),
-          }
-        },
-        methods: {
-          generateIterativeCatalanNumerical,
-          generateIterativeCatalanParentheses,
-          BBox,
-        },
-        mounted() {
-          setInterval(() => {
-            this.i++
-          }, 500)
-        },
-        components: {
-          rootedTree,
-          svgBox,
-        },
-      }).mount('#c10-plane-tree-timer')
+      // createApp({
+      //   data() {
+      //     return {
+      //       i: Math.floor(Math.random() * 16796),
+      //     }
+      //   },
+      //   methods: {
+      //     generateIterativeCatalanNumerical,
+      //     generateIterativeCatalanParentheses,
+      //     BBox,
+      //   },
+      //   mounted() {
+      //     setInterval(() => {
+      //       this.i++
+      //     }, 500)
+      //   },
+      //   components: {
+      //     rootedTree,
+      //     svgBox,
+      //   },
+      // }).mount('#c10-plane-tree-timer')
 
       createApp({
         data() {
@@ -1222,27 +1222,27 @@
         },
       }).mount('#binary-tree-10-example')
 
-      createApp({
-        data() {
-          return {
-            i: Math.floor(Math.random() * 16796),
-          }
-        },
-        methods: {
-          generateIterativeCatalanNumerical,
-          generateIterativeCatalanParentheses,
-          BBox,
-        },
-        mounted() {
-          setInterval(() => {
-            this.i++
-          }, 500)
-        },
-        components: {
-          binaryTree,
-          svgBox,
-        },
-      }).mount('#c10-binary-tree-timer')
+      // createApp({
+      //   data() {
+      //     return {
+      //       i: Math.floor(Math.random() * 16796),
+      //     }
+      //   },
+      //   methods: {
+      //     generateIterativeCatalanNumerical,
+      //     generateIterativeCatalanParentheses,
+      //     BBox,
+      //   },
+      //   mounted() {
+      //     setInterval(() => {
+      //       this.i++
+      //     }, 500)
+      //   },
+      //   components: {
+      //     binaryTree,
+      //     svgBox,
+      //   },
+      // }).mount('#c10-binary-tree-timer')
 
       createApp({
         methods: {
@@ -1254,27 +1254,27 @@
         },
       }).mount('#polygon-triangulation-10-example')
 
-      createApp({
-        data() {
-          return {
-            i: Math.floor(Math.random() * 16796),
-          }
-        },
-        methods: {
-          generateIterativeCatalanNumerical,
-          generateIterativeCatalanParentheses,
-          BBox,
-        },
-        mounted() {
-          setInterval(() => {
-            this.i++
-          }, 500)
-        },
-        components: {
-          polygonTriangulation,
-          svgBox,
-        },
-      }).mount('#c10-polygon-triangulation-timer')
+      // createApp({
+      //   data() {
+      //     return {
+      //       i: Math.floor(Math.random() * 16796),
+      //     }
+      //   },
+      //   methods: {
+      //     generateIterativeCatalanNumerical,
+      //     generateIterativeCatalanParentheses,
+      //     BBox,
+      //   },
+      //   mounted() {
+      //     setInterval(() => {
+      //       this.i++
+      //     }, 500)
+      //   },
+      //   components: {
+      //     polygonTriangulation,
+      //     svgBox,
+      //   },
+      // }).mount('#c10-polygon-triangulation-timer')
 
       createApp({
         data() {
@@ -1327,28 +1327,28 @@
         },
       }).mount('#chord-partitions')
 
-      createApp({
-        data() {
-          return {
-            i: Math.floor(Math.random() * 16796),
-          }
-        },
-        methods: {
-          generateIterativeCatalanNumerical,
-          generateIterativeCatalanParentheses,
-          numericalToPartition,
-          BBox,
-        },
-        mounted() {
-          setInterval(() => {
-            this.i++
-          }, 500)
-        },
-        components: {
-          circleChords,
-          svgBox,
-        },
-      }).mount('#c10-partitions-timer')
+      // createApp({
+      //   data() {
+      //     return {
+      //       i: Math.floor(Math.random() * 16796),
+      //     }
+      //   },
+      //   methods: {
+      //     generateIterativeCatalanNumerical,
+      //     generateIterativeCatalanParentheses,
+      //     numericalToPartition,
+      //     BBox,
+      //   },
+      //   mounted() {
+      //     setInterval(() => {
+      //       this.i++
+      //     }, 500)
+      //   },
+      //   components: {
+      //     circleChords,
+      //     svgBox,
+      //   },
+      // }).mount('#c10-partitions-timer')
 
       createApp({
         data() {

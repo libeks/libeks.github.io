@@ -81,7 +81,7 @@ class GenericTriangleTruchetTile {
 
 class GenericTruchetTile {
   constructor(vertices, hasCenterNotch, notches, side) {
-    console.log('side', side)
+    // console.log('side', side)
     for (let vertex of vertices) {
       if (vertex.type != 'Point') {
         throw `GenericTruchetTile got vertex with unexpected type ${vertex.type}`
@@ -316,6 +316,7 @@ class GenericTruchetTile {
       return new CubicBezier(p1, c1star, c2star, p2)
     }
 
+    console.log('straight line', curve)
     return new StraightStroke(p1, p2)
   }
 
@@ -396,7 +397,7 @@ const genericTruchetGrid = {
         iterations: this.iterations,
       }).generate()
       let retList = []
-      console.log(`grid`, grid.getFaces())
+      // console.log(`grid`, grid.getFaces())
       for (let ngon of Object.values(grid.getFaces())) {
         // console.log('ngon', ngon)
         retList.push({

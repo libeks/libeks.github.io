@@ -1,4 +1,5 @@
 import { Point, Vector, Ray, NGon } from '/js/geometry.js'
+import { enumerate } from '/js/utils.js'
 import { StraightStroke, CircleArc, CompositeCurve, Polygon } from '/js/lines.js'
 import { numericalToHex, hexToNumerical, numericalToPartition } from '/js/catalan.js'
 import { radToDeg, degToRad } from '/js/math.js'
@@ -31,9 +32,9 @@ const circleChords = {
     <g v-if="showPartitions" v-for="(partition,i) in partitions"> <!-- partitions -->
       <path class="polygon" :d="partition.d()" :style="{fill: colors[i], stroke: colors[i]}" opacity="0.5"/>
     </g>
-    <g v-if="showMidpoints" v-for="(nv, index) in oddNotches"> <!-- notches -->
-      <circle :cx="center.addVect(nv).x" :cy="center.addVect(nv).y" r=5 class="fillBlack" />
-      <text v-if="showMidpointLabels" :x="oddNotchLabelPos[index].x" :y="oddNotchLabelPos[index].y" class="notchText red">{{numericalToHex(index+1)}}</text>
+    <g v-if="showMidpoints" v-for="(notch, index) in oddNotches"> <!-- notches -->
+      <circle v-bind="notch.point.cxcyProps()" r=5 :style="{fill: notch.partitionColor}" />
+      <text v-if="showMidpointLabels" v-bind="notch.labelPosition.xyProps()" class="notchText red">{{numericalToHex(index+1)}}</text>
     </g>
   </g>`,
   props: {
@@ -147,22 +148,32 @@ const circleChords = {
     },
     oddNotches() {
       let ret = []
-      const initialAngle = this.rotateDegrees + 180 - 180 / this.n // ensure that notch number 1 is the top left-most notch, right after the leftmost clockwise
-      for (let i = 0; i < this.n; i++) {
-        ret.push(
-          new Vector(1, 0)
-            .rotateDeg(initialAngle - (2 * i + 0.5) * (180 / this.n))
-            .mult(this.radius),
-        )
+      let partitions = numericalToPartition(this.tile)
+      let partitionMap = {}
+      let colorCounter = 0
+      for (let [i, partition] of enumerate(partitions)) {
+        if (partition.length > 1) {
+          for (let p of partition) {
+            partitionMap[p - 1] = {
+              i,
+              color: this.colors[colorCounter],
+              partitionSize: partition.length,
+            }
+          }
+          colorCounter += 1
+        }
       }
-      return ret
-    },
-    oddNotchLabelPos() {
-      let ret = []
       const initialAngle = this.rotateDegrees + 180 - 180 / this.n // ensure that notch number 1 is the top left-most notch, right after the leftmost clockwise
       for (let i = 0; i < this.n; i++) {
         let nv = new Vector(1, 0).rotateDeg(initialAngle - (2 * i + 0.5) * (180 / this.n))
-        ret.push(this.center.addVect(nv.mult(this.radius * 1.35)).addVect(new Vector(0, 10)))
+        ret.push({
+          point: this.center.addVect(nv.mult(this.radius)),
+          labelPosition: this.center
+            .addVect(nv.mult(this.radius * 1.35))
+            .addVect(new Vector(0, 10)),
+          partition: partitionMap[i] ? partitionMap[i].i : null,
+          partitionColor: partitionMap[i] ? partitionMap[i].color : null,
+        })
       }
       return ret
     },
@@ -173,7 +184,7 @@ const circleChords = {
         if (part.length > 1) {
           let points = []
           for (let pt of part) {
-            points.push(this.center.addVect(this.oddNotches[pt - 1]))
+            points.push(this.oddNotches[pt - 1].point)
           }
           ret.push(new Polygon(points))
         }

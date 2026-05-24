@@ -392,14 +392,22 @@ class CatalanStructure {
     return new CatalanStructure(this.n, this.i + 1)
   }
 
+  // return '((()()))'
   get parenthesis() {
     return generateIterativeCatalanParentheses(this.n, this.i)
   }
 
+  // return [1,2,3,4,5,6,7,8,9,10]
   get numerical() {
     return parenthesesToNumerical(this.parenthesis)
   }
 
+  // return '12345678910'
+  get numericalString() {
+    return this.numerical.join('')
+  }
+
+  // return '123456789A'
   get hex() {
     return parenthesesToHex(this.parenthesis)
   }
@@ -408,6 +416,7 @@ class CatalanStructure {
     return get2DWalkFromParentheses(this.parenthesis)
   }
 
+  // return '→→→←→←←←'
   get oneDWalk() {
     return this.parenthesis
       .split('')
@@ -415,6 +424,7 @@ class CatalanStructure {
       .join('')
   }
 
+  // return '+++-+---'
   get oneDWalkPlusMinus() {
     return this.parenthesis
       .split('')
@@ -422,11 +432,23 @@ class CatalanStructure {
       .join('')
   }
 
+  // return 'AAABABBB'
   get votingSequence() {
     return this.parenthesis
       .split('')
       .map((ch) => (ch == '(' ? 'A' : 'B'))
       .join('')
+  }
+
+  // return [[1],[2,5],[3],[4]]
+  get partitions() {
+    return numericalToPartition(this.numerical)
+  }
+
+  // return '[1],[2,5],[3],[4]'
+  get partitionString() {
+    let a = this.partitions.map((part) => `[${part.join(',')}]`).join(',')
+    return a
   }
 }
 

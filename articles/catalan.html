@@ -47,15 +47,15 @@
           For three, it starts to get more interesting. Here they are:
         </p>
         <div class="flex-block flex-center">
-          <div class="catalan-parentheses">()()()</div>
-          <div class="catalan-parentheses">()(())</div>
-          <div class="catalan-parentheses">(())()</div>
-          <div class="catalan-parentheses">((()))</div>
-          <div class="catalan-parentheses">(()())</div>
+          <div class="catalan-parentheses mono">()()()</div>
+          <div class="catalan-parentheses mono">()(())</div>
+          <div class="catalan-parentheses mono">(())()</div>
+          <div class="catalan-parentheses mono">((()))</div>
+          <div class="catalan-parentheses mono">(()())</div>
         </div>
         <p>For four pairs of parentheses, we get the following set of 14:</p>
         <div id="c4-parenthesis-exhaustive" class="flex-block flex-center">
-          <div v-for="s in generateCatalanParenthesisSet(4)" class="catalan-parentheses">
+          <div v-for="s in generateCatalanParenthesisSet(4)" class="catalan-parentheses mono">
             {{s.join('')}}
           </div>
         </div>
@@ -64,7 +64,7 @@
           parentheses of length 20 (so 10 left- and 10 right-parentheses)
         </p>
         <div id="parentheses-10-timer" class="flex-block flex-center">
-          <div class="catalan-parentheses">{{generateIterativeCatalanParentheses(10, i)}}</div>
+          <div class="catalan-parentheses mono">{{generateIterativeCatalanParentheses(10, i)}}</div>
         </div>
       </section>
       <section>
@@ -157,12 +157,13 @@
               notches on the circle from <math><mn>1</mn></math> to <math><mn>2</mn><mi>n</mi></math
               >. Then using our parenthesis representation, indexing the first position with 1,
               second with 2, etc, we pair up the indices of the opening and corresponding closing
-              parenthesis. Then the parenthesis representation "()()(())()" becomes
-              "12-34-58-67-9A". For clarity, I use the hexadecimal representation for values above
-              9. I also display the chords using
-              <a href="https://en.wikipedia.org/wiki/Chord_diagram_(information_visualization)"
-                >chord diagram</a
-              >
+              parenthesis. Then the parenthesis representation
+              <span class="mono">()()(())()</span> becomes <span class="mono">12-34-58-67-9A</span>.
+              For clarity, I use the hexadecimal representation for values above 9. I also display
+              the chords using
+              <a href="https://en.wikipedia.org/wiki/Chord_diagram_(information_visualization)">
+                chord diagram
+              </a>
               arc segments that meet the circle perpendicularly, for aesthetic purposes.
             </p>
           </div>
@@ -180,8 +181,9 @@
             </svg-box>
             <figcaption>
               Circle with 10 pairs of non-intersecting chords, corresponding to the integer
-              representation '12-34-58-67-9A' and the matching parenthesis representation
-              '()()(())()'
+              representation <span class="mono">12-34-58-67-9A'</span> and the matching parenthesis
+              representation
+              <span class="mono">()()(())()</span>
             </figcaption>
           </figure>
         </div>
@@ -205,7 +207,7 @@
                   show-notches
                 />
               </svg-box>
-              <figcaption>{{s.join('')}}</figcaption>
+              <figcaption class="mono">{{s.join('')}}</figcaption>
             </figure>
           </div>
         </div>
@@ -229,7 +231,7 @@
                   show-notches
                 />
               </svg-box>
-              <figcaption>{{s.join('')}}</figcaption>
+              <figcaption class="mono">{{s.join('')}}</figcaption>
             </figure>
           </div>
         </div>
@@ -255,7 +257,8 @@
                 />
               </svg-box>
               <figcaption>
-                {{generateIterativeCatalanNumerical(10,i)}}<br />{{generateIterativeCatalanParentheses(10,i)}}
+                <div class="mono">{{generateIterativeCatalanNumerical(10,i)}}</div>
+                <div class="mono">{{generateIterativeCatalanParentheses(10,i)}}</div>
               </figcaption>
             </figure>
           </div>
@@ -337,9 +340,10 @@
             <a href="https://en.wikipedia.org/wiki/Random_walk">random walk</a> on the whole number
             line with steps of length one, starting and ending at 0, but never dipping below 0. The
             number of such walks of length <math><mn>2</mn><mi>n</mi></math> follows directly from
-            the parenthesis example above. Each open parenthesis "(" is a step in the positive
-            direction, and each closing parenthesis ")" is a move in the negative direction. To dip
-            below 0, we'd have to hit an unbalanced closing parenthesis, which is forbidden!
+            the parenthesis example above. Each open parenthesis <span class="mono">(</span> is a
+            step in the positive direction, and each closing parenthesis
+            <span class="mono">)</span> is a move in the negative direction. To dip below 0, we'd
+            have to hit an unbalanced closing parenthesis, which is forbidden!
           </p>
           <p>
             In fact, another name for the parenthesis notation is that of a
@@ -370,7 +374,7 @@
               </svg-box>
               <figcaption>
                 Lattice paths on an 5 x 5 square, not crossing the diagonal, corresponding to the
-                parenthesis representation '()(())(())'
+                parenthesis representation <span class="mono">()(())(())</span>
               </figcaption>
             </figure>
           </div>
@@ -388,7 +392,7 @@
                 :bbox="bbox"
               />
             </svg-box>
-            <figcaption>{{generateIterativeCatalanParentheses(10,i)}}</figcaption>
+            <figcaption class="mono">{{generateIterativeCatalanParentheses(10,i)}}</figcaption>
           </figure>
         </section>
         <section>
@@ -422,11 +426,11 @@
             are as follows:
           </p>
           <div class="flex-block flex-center">
-            <div class="catalan-parentheses">←←</div>
-            <div class="catalan-parentheses">←→</div>
-            <div class="catalan-parentheses">→←</div>
-            <div class="catalan-parentheses">→→</div>
-            <div class="catalan-parentheses">↑↓</div>
+            <div class="catalan-parentheses mono">←←</div>
+            <div class="catalan-parentheses mono">←→</div>
+            <div class="catalan-parentheses mono">→←</div>
+            <div class="catalan-parentheses mono">→→</div>
+            <div class="catalan-parentheses mono">↑↓</div>
           </div>
           <p>
             This is somewhat surprising, at first! How do we translate from the 1D random walk to
@@ -446,24 +450,24 @@
               Convert from the character tuples to cardinal directions:
               <ul>
                 <li>
-                  <div class="catalan-parentheses inline">((</div>
+                  <div class="catalan-parentheses mono inline">((</div>
                   :
-                  <div class="catalan-parentheses inline">↑</div>
+                  <div class="catalan-parentheses mono inline">↑</div>
                 </li>
                 <li>
-                  <div class="catalan-parentheses inline">))</div>
+                  <div class="catalan-parentheses mono inline">))</div>
                   :
-                  <div class="catalan-parentheses inline">↓</div>
+                  <div class="catalan-parentheses mono inline">↓</div>
                 </li>
                 <li>
-                  <div class="catalan-parentheses inline">()</div>
+                  <div class="catalan-parentheses mono inline">()</div>
                   :
-                  <div class="catalan-parentheses inline">←</div>
+                  <div class="catalan-parentheses mono inline">←</div>
                 </li>
                 <li>
-                  <div class="catalan-parentheses inline">)(</div>
+                  <div class="catalan-parentheses mono inline">)(</div>
                   :
-                  <div class="catalan-parentheses inline">→</div>
+                  <div class="catalan-parentheses mono inline">→</div>
                 </li>
               </ul>
             </li>
@@ -477,7 +481,7 @@
             possible 2D walks of length 9:
           </p>
           <div id="two-d-walk-10-timer" class="flex-block flex-center">
-            <div class="catalan-parentheses">
+            <div class="catalan-parentheses mono">
               {{get2DWalkFromParentheses(generateIterativeCatalanParentheses(10, i))}}
             </div>
           </div>
@@ -513,7 +517,7 @@
             </svg-box>
             <figcaption>
               The Plane Tree with 11 nodes corresponding to the parenthesis notation
-              ((()((()))()()))(())
+              <span class="mono">((()((()))()()))(())</span>
             </figcaption>
           </figure>
         </div>
@@ -529,7 +533,7 @@
               <svg-box v-for="bbox of [new BBox(0,0,250,250)]" :bbox="bbox">
                 <rooted-tree :tile="s.join('')" :bbox="bbox" show-labels></rooted-tree>
               </svg-box>
-              <figcaption>{{s.join('')}}</figcaption>
+              <figcaption class="mono">{{s.join('')}}</figcaption>
             </figure>
           </div>
         </div>
@@ -549,7 +553,7 @@
                   show-labels
                 ></rooted-tree>
               </svg-box>
-              <figcaption>{{generateIterativeCatalanParentheses(10,i)}}</figcaption>
+              <figcaption class="mono">{{generateIterativeCatalanParentheses(10,i)}}</figcaption>
             </figure>
           </div>
         </div>
@@ -594,7 +598,7 @@
             </svg-box>
             <figcaption>
               The Binary Tree with 10 nodes corresponding to the parenthesis notation
-              ((()((()))()()))(())
+              <span class="mono">((()((()))()()))(())</span>
             </figcaption>
           </figure>
         </div>
@@ -610,7 +614,7 @@
               <svg-box v-for="bbox of [new BBox(0,0,250,250)]" :bbox="bbox">
                 <binary-tree :tile="s.join('')" :bbox="bbox" show-labels></binary-tree>
               </svg-box>
-              <figcaption>{{s.join('')}}</figcaption>
+              <figcaption class="mono">{{s.join('')}}</figcaption>
             </figure>
           </div>
         </div>
@@ -631,7 +635,7 @@
                   show-labels
                 ></binary-tree>
               </svg-box>
-              <figcaption>{{generateIterativeCatalanParentheses(10,i)}}</figcaption>
+              <figcaption class="mono">{{generateIterativeCatalanParentheses(10,i)}}</figcaption>
             </figure>
           </div>
         </div>
@@ -663,7 +667,8 @@
             </svg-box>
             <figcaption>
               A dodecagon (12-gon) triangulation corresponding to the parenthesis notation
-              ((()((()))()()))(()), including the corresponding embedded binary tree
+              <span class="mono">((()((()))()()))(())</span>, including the corresponding embedded
+              binary tree
             </figcaption>
           </figure>
         </div>
@@ -684,7 +689,7 @@
                   show-dual-graph
                 ></polygon-triangulation>
               </svg-box>
-              <figcaption>{{generateIterativeCatalanParentheses(10,i)}}</figcaption>
+              <figcaption class="mono">{{generateIterativeCatalanParentheses(10,i)}}</figcaption>
             </figure>
           </div>
         </div>
@@ -721,8 +726,8 @@
             </svg-box>
             <figcaption>
               One non-intersecting partition of 5 points on a circle (highlighted in red),
-              corresponding to the numerical notation '1A23495867'
-              {{numericalToPartition("1A23495867")}}
+              corresponding to the numerical notation <span class="mono">1A23495867</span>
+              <span class="mono">{{numericalToPartition("1A23495867")}}</span>
             </figcaption>
           </figure>
         </div>
@@ -730,21 +735,24 @@
           Just as above, let's list all of the cases for
           <math
             ><msub><mi>C</mi><mn>3</mn></msub></math
-          >. For convenience, I don't color the subsets of size one, I let them just be.
+          >. For convenience, I don't color subsets of size one, I let them just be.
         </p>
         <div id="c3-partition-exhaustive" class="flex-block flex-center">
-          <div v-for="s in generateCatalanNumberSet(3)" class="catalan-hex">
+          <div v-for="s in new CatalanGenus(3).all()" class="catalan-hex">
             <figure>
               <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
                 <circle-chords
-                  :tile="s.join('')"
+                  :tile="s.numerical"
                   :n="3"
                   :bbox="bbox"
                   show-midpoints
                   show-partitions
                 />
               </svg-box>
-              <figcaption>{{s.join('')}}</figcaption>
+              <figcaption>
+                <div class="mono">{{s.numericalString}}</div>
+                <div class="mono">{{s.partitionString}}</div>
+              </figcaption>
             </figure>
           </div>
         </div>
@@ -755,11 +763,11 @@
           >:
         </p>
         <div id="c4-partition-exhaustive" class="flex-block flex-center">
-          <div v-for="s in generateCatalanNumberSet(4)" class="catalan-hex">
+          <div v-for="s in new CatalanGenus(4).all()" class="catalan-hex">
             <figure>
               <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
                 <circle-chords
-                  :tile="s.join('')"
+                  :tile="s.numerical"
                   :n="4"
                   :bbox="bbox"
                   show-midpoints
@@ -767,7 +775,10 @@
                   :rotate-degrees="23"
                 />
               </svg-box>
-              <figcaption>{{s.join('')}}</figcaption>
+              <figcaption>
+                <div class="mono">{{s.numericalString}}</div>
+                <div class="mono">{{s.partitionString}}</div>
+              </figcaption>
             </figure>
           </div>
         </div>
@@ -777,10 +788,11 @@
             <msub><mi>C</mi><mn>10</mn></msub> </math
           >:
         </p>
+        <!-- <div class="catalan-hex"> -->
         <figure id="c10-partitions-timer">
           <svg-box v-for="bbox of [new BBox(0,0,600,300)]" :bbox="bbox">
             <circle-chords
-              :tile="generateIterativeCatalanNumerical(10, i)"
+              :tile="catalan.numerical"
               :n="10"
               :bbox="bbox"
               show-midpoints
@@ -790,9 +802,11 @@
             />
           </svg-box>
           <figcaption>
-            {{generateIterativeCatalanParentheses(10,i)}}<br />{{numericalToPartition(generateIterativeCatalanNumerical(10,i))}}
+            <div class="mono">{{catalan.hex}}</div>
+            <div class="mono">{{catalan.partitionString}}</div>
           </figcaption>
         </figure>
+        <!-- </div> -->
       </section>
       <section>
         <h2 id="gallery">
@@ -817,14 +831,6 @@
               @increase="n++; i=Math.floor(Math.random() * catalanNumber(n))"
               @decrease="n--; i=Math.floor(Math.random() * catalanNumber(n))"
             ></integer-buttons>
-            <div>
-              <math>
-                <msub> <mi>C</mi><mn>{{n}}</mn> </msub><mo>=</mo><mn>{{catalanNumber(n)}}</mn>
-              </math>
-            </div>
-            <div>
-              <math> <mi>i</mi><mo>=</mo><mn>{{i % catalanNumber(n)}}</mn></math>
-            </div>
             <div class="button-block">
               <toggle-button
                 text="Shuffle mode"
@@ -840,25 +846,35 @@
               @previous-frame="i -= 1"
             ></play-controls>
           </div>
+          <div class="flex-block flex-center">
+            <div>
+              <math>
+                <msub> <mi>C</mi><mn>{{n}}</mn> </msub><mo>=</mo><mn>{{catalanNumber(n)}}</mn>
+              </math>
+            </div>
+            <div>
+              <math> <mi>i</mi><mo>=</mo><mn>{{i % catalanNumber(n)}}</mn></math>
+            </div>
+          </div>
           <figure>
-            <div class="catalan-tile catalan-parentheses">{{catalan.parenthesis}}</div>
+            <div class="catalan-tile catalan-parentheses mono">{{catalan.parenthesis}}</div>
             <figcaption>Balanced {{n}} pairs of parentheses</figcaption>
           </figure>
           <figure>
-            <div class="catalan-tile catalan-parentheses">{{catalan.oneDWalkPlusMinus}}</div>
+            <div class="catalan-tile catalan-parentheses mono">{{catalan.oneDWalkPlusMinus}}</div>
             <figcaption>
               Random walk on nonnegative integers of length {{2*n}}, ending at 0
             </figcaption>
           </figure>
           <figure>
-            <div class="catalan-tile catalan-parentheses">{{catalan.votingSequence}}</div>
+            <div class="catalan-tile catalan-parentheses mono">{{catalan.votingSequence}}</div>
             <figcaption>
               Voting sequence for two candidates {A,B} where A never trails, each getting {{n}}
               votes
             </figcaption>
           </figure>
           <figure>
-            <div class="catalan-tile catalan-parentheses">{{catalan.twoDWalk}}</div>
+            <div class="catalan-tile catalan-parentheses mono">{{catalan.twoDWalk}}</div>
             <figcaption>
               Random walk in 2D of length {{n-1}}, ending on the X axis, never dipping below the X
               axis
@@ -1290,8 +1306,8 @@
 
       createApp({
         methods: {
-          generateCatalanNumberSet,
           BBox,
+          CatalanGenus,
         },
         components: {
           circleChords,
@@ -1301,8 +1317,8 @@
 
       createApp({
         methods: {
-          generateCatalanNumberSet,
           BBox,
+          CatalanGenus,
         },
         components: {
           circleChords,
@@ -1329,15 +1345,20 @@
           }
         },
         methods: {
-          generateIterativeCatalanNumerical,
-          generateIterativeCatalanParentheses,
-          numericalToPartition,
           BBox,
         },
         mounted() {
           setInterval(() => {
             this.i++
           }, 500)
+        },
+        computed: {
+          catalan() {
+            return this.catalanGenus.getI(this.i)
+          },
+          catalanGenus() {
+            return new CatalanGenus(10)
+          },
         },
         components: {
           circleChords,

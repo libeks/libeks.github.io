@@ -1,8 +1,12 @@
-div.catalan-parentheses,
-div.catalan-hex {
+.mono {
   font-family: 'Google Sans Code', monospace;
   font-weight: 400;
   font-style: normal;
+  font-size: 0.95rem;
+}
+
+div.catalan-parentheses,
+div.catalan-hex {
   padding: 10px 20px;
   white-space: nowrap;
 
@@ -15,7 +19,7 @@ div.catalan-hex {
 
 div.catalan-parentheses {
   background-color: hsl(0, 0%, 80%);
-  font-size: 2em;
+  font-size: 1.5em;
   text-align: center;
 }
 

@@ -66,7 +66,7 @@ const circleChords = {
       throw `circle-chords called without bbox`
     },
     radius() {
-      return Math.min(this.bbox.width(), this.bbox.height()) / 3
+      return Math.min(this.bbox.width(), this.bbox.height()) / 3.2
     },
     colors() {
       return [

@@ -672,6 +672,38 @@
             </figcaption>
           </figure>
         </div>
+        <div class="text-figure">
+          <p>
+            We start by amending the Binary Tree representation by adding "dangling" nodes such that
+            each original node has a parent and two children. This dangling representation ensures
+            that each original node is surrounded by three other nodes. These original nodes will be
+            the triangles of our triangulation, the "dangling" nodes will represent the edges of our
+            triangulation.
+          </p>
+          <figure id="dangling-tree-10-example" class="float-right small">
+            <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
+              <dangling-binary-tree
+                tile="((()((()))()()))(())"
+                :bbox="bbox"
+                show-labels
+                show-vertices
+                show-dual-graph
+              ></dangling-binary-tree>
+            </svg-box>
+            <figcaption>
+              A "dangling" binary tree, obtained by adding "dangling" (white) nodes to a binary tree
+              such that each original node (black) has three neighbors.
+              <span class="mono">((()((()))()()))(())</span>
+            </figcaption>
+          </figure>
+        </div>
+        <p>
+          We then enumerate the "dangling" nodes clockwise around the tree, in infix order, to map
+          onto the edges of the polygon. The root "dangling" node receives the edge '0-1', the
+          rightmost "dangling" node receives the edge '1-2', etc. until the leftmost "dangling" node
+          receives the edge '(n-1)-0'. Then, working recursively bottom-up, each proper node infers
+          its three edges from its children nodes.
+        </p>
         <p>
           Traditionally,
           <math>
@@ -727,7 +759,7 @@
             <figcaption>
               One non-intersecting partition of 5 points on a circle (highlighted in red),
               corresponding to the numerical notation <span class="mono">1A23495867</span>
-              <span class="mono">{{numericalToPartition("1A23495867")}}</span>
+              <span class="mono">{{hexToPartition("1A23495867")}}</span>
             </figcaption>
           </figure>
         </div>
@@ -741,16 +773,10 @@
           <div v-for="s in new CatalanGenus(3).all()" class="catalan-hex">
             <figure>
               <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
-                <circle-chords
-                  :tile="s.numerical"
-                  :n="3"
-                  :bbox="bbox"
-                  show-midpoints
-                  show-partitions
-                />
+                <circle-chords :tile="s.hex" :n="3" :bbox="bbox" show-midpoints show-partitions />
               </svg-box>
               <figcaption>
-                <div class="mono">{{s.numericalString}}</div>
+                <div class="mono">{{s.hex}}</div>
                 <div class="mono">{{s.partitionString}}</div>
               </figcaption>
             </figure>
@@ -767,7 +793,7 @@
             <figure>
               <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
                 <circle-chords
-                  :tile="s.numerical"
+                  :tile="s.hex"
                   :n="4"
                   :bbox="bbox"
                   show-midpoints
@@ -776,7 +802,7 @@
                 />
               </svg-box>
               <figcaption>
-                <div class="mono">{{s.numericalString}}</div>
+                <div class="mono">{{s.hex}}</div>
                 <div class="mono">{{s.partitionString}}</div>
               </figcaption>
             </figure>
@@ -792,7 +818,7 @@
         <figure id="c10-partitions-timer">
           <svg-box v-for="bbox of [new BBox(0,0,600,300)]" :bbox="bbox">
             <circle-chords
-              :tile="catalan.numerical"
+              :tile="catalan.hex"
               :n="10"
               :bbox="bbox"
               show-midpoints
@@ -802,6 +828,7 @@
             />
           </svg-box>
           <figcaption>
+            <div class="mono">{{catalan.parenthesis}}</div>
             <div class="mono">{{catalan.hex}}</div>
             <div class="mono">{{catalan.partitionString}}</div>
           </figcaption>
@@ -1003,7 +1030,7 @@
         generateCatalanParenthesisSet,
         generateCatalanNumberSet,
         generateIterativeCatalanNumerical,
-        numericalToPartition,
+        hexToPartition,
         getParenthesisPartitions,
         get2DWalkFromParentheses,
         parenthesesToHex,
@@ -1018,6 +1045,7 @@
         rootedTree,
         binaryTree,
         polygonTriangulation,
+        danglingBinaryTree,
       } from '/js/catalan-structures.js'
       import { randomInt } from '/js/math.js'
 
@@ -1266,6 +1294,16 @@
       }).mount('#polygon-triangulation-10-example')
 
       createApp({
+        methods: {
+          BBox,
+        },
+        components: {
+          danglingBinaryTree,
+          svgBox,
+        },
+      }).mount('#dangling-tree-10-example')
+
+      createApp({
         data() {
           return {
             i: Math.floor(Math.random() * 16796),
@@ -1295,7 +1333,7 @@
         },
         methods: {
           generateIterativeCatalanParentheses,
-          numericalToPartition,
+          hexToPartition,
           BBox,
         },
         components: {

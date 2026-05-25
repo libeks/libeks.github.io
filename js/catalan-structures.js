@@ -1,7 +1,14 @@
 import { Point, Vector, Ray, NGon } from '/js/geometry.js'
 import { enumerate } from '/js/utils.js'
 import { StraightStroke, CircleArc, CompositeCurve, Polygon } from '/js/lines.js'
-import { numericalToHex, hexToNumerical, numericalToPartition } from '/js/catalan.js'
+import {
+  numericalToHex,
+  hexToNumerical,
+  hexToPartition,
+  getBinaryTree,
+  getPlaneTree,
+  getDanglingBinaryTree,
+} from '/js/catalan.js'
 import { radToDeg, degToRad } from '/js/math.js'
 
 // Given a string, return an array of strings of two characters each, which add up to the input string
@@ -38,7 +45,7 @@ const circleChords = {
     </g>
   </g>`,
   props: {
-    tile: String, // numerical representation
+    tile: String, // hex string representation
     n: Number,
     bbox: Object,
     rotateDegrees: {
@@ -80,6 +87,10 @@ const circleChords = {
         'purple',
         'brown',
         'orange',
+        'fuchsia',
+        'olive',
+        'teal',
+        'aqua',
       ]
     },
     notchVects() {
@@ -148,7 +159,7 @@ const circleChords = {
     },
     oddNotches() {
       let ret = []
-      let partitions = numericalToPartition(this.tile)
+      let partitions = hexToPartition(this.tile)
       let partitionMap = {}
       let colorCounter = 0
       for (let [i, partition] of enumerate(partitions)) {
@@ -179,7 +190,7 @@ const circleChords = {
     },
     partitions() {
       let ret = []
-      let partitions = numericalToPartition(this.tile)
+      let partitions = hexToPartition(this.tile)
       for (let part of partitions) {
         if (part.length > 1) {
           let points = []
@@ -283,29 +294,7 @@ const rootedTree = {
   },
   computed: {
     tree() {
-      let maxDepth = 0
-      let depth = 0
-      let nNodes = 0
-      let nodes = {}
-      let root = { id: 0, children: [], parent: null, depth: 0 }
-      nodes[root.id] = root
-      let current = root
-      for (let char of this.tile) {
-        if (char == '(') {
-          nNodes++
-          current = { id: nNodes, children: [], parent: current, depth: depth + 1 }
-          current.parent.children.push(current)
-          nodes[current.id] = current
-          depth++
-          if (depth > maxDepth) {
-            maxDepth = depth
-          }
-        } else {
-          current = current.parent
-          depth--
-        }
-      }
-      return { root, maxDepth, nNodes, nodes }
+      return getPlaneTree(this.tile)
     },
     positionedTree() {
       let rows = {}
@@ -387,58 +376,6 @@ const rootedTree = {
   },
 }
 
-function computeBinaryTree(tileParentheses) {
-  let maxDepth = 0
-  let depth = -1
-  let nNodes = 1
-  let nodes = {}
-  // let root = { id: 0, left: null, right: null, parent: null, depth: 0 }
-  // nodes[root.id] = root
-  // let current = root
-  let current
-  let root
-  for (let char of tileParentheses) {
-    if (char == '(') {
-      current = {
-        id: nNodes,
-        left: null,
-        right: null,
-        parent: current,
-        depth: depth + 1,
-        progress: 0,
-      }
-      nNodes++
-
-      if (root == null) {
-        root = current
-      } else {
-        if (current.parent.progress == 0) {
-          current.parent.left = current
-        } else {
-          current.parent.right = current
-        }
-      }
-      nodes[current.id] = current
-      depth++
-      if (depth > maxDepth) {
-        maxDepth = depth
-      }
-    } else {
-      while (current != null) {
-        if (current.progress == 0) {
-          current.progress = 1
-          break
-        } else if (current.progress == 1) {
-          current.progress = 2
-          current = current.parent
-          depth--
-        }
-      }
-    }
-  }
-  return { root, maxDepth, nNodes, nodes }
-}
-
 const binaryTree = {
   template: `
     <g>
@@ -458,7 +395,7 @@ const binaryTree = {
   },
   computed: {
     tree() {
-      return computeBinaryTree(this.tile)
+      return getBinaryTree(this.tile)
     },
     positionedTree() {
       let rows = {}
@@ -491,8 +428,7 @@ const binaryTree = {
       let rowWidths = Object.values(rows).map((row) => row.reduce((a, c) => a + c.widthI, 0))
       let maxWidthI = Math.max(...rowWidths)
       // leave a 5% margin on each side
-      let widthIncrement = (this.bbox.width() * 0.9) / maxWidthI // add 2 as padding on both sides
-      // let margin = Math.min(this.bbox.width()/ maxWidthI, )
+      let widthIncrement = (this.bbox.width() * 0.9) / maxWidthI // add 5% padding on both sides
       function setWidth(node) {
         node.width = node.widthI * widthIncrement
         for (let child of [node.left, node.right].filter((n) => n != null)) {
@@ -523,6 +459,122 @@ const binaryTree = {
       return tree
     },
     nodes() {
+      return Object.values(this.positionedTree.nodes)
+    },
+    edges() {
+      let edges = []
+      const truncatedLine = true // whether the line connecting nodes should "go quiet" close to the node
+      function getEdges(node) {
+        for (let child of [node.left, node.right].filter((n) => n != null)) {
+          let ptA = node.pt
+          let ptB = child.pt
+          let line
+          if (truncatedLine) {
+            let vect = ptA.vectTo(ptB).unit()
+            line = new StraightStroke(ptA, ptB).stripPx(10)
+          } else {
+            line = new StraightStroke(ptA, ptB)
+          }
+          edges.push({
+            from: node.id,
+            to: child.id,
+            ptA,
+            ptB,
+            line,
+          })
+          getEdges(child)
+        }
+      }
+      getEdges(this.tree.root)
+      return edges
+    },
+  },
+}
+
+const danglingBinaryTree = {
+  template: `
+    <g>
+      <g v-for="node in nodes">
+        <circle v-bind="node.pt.cxcyProps()" r=5 :style="{fill: node.type=='black' ? 'black' : 'white'}" :data-id="node.id" />
+        <text v-if="showLabels && node.type=='black'" v-bind="node.pt.d(10,4).xyProps()" style="font-size:12;">{{node.id}}</text>
+      </g> 
+      <g v-for="edge in edges">
+        <path :d="edge.line.d()" />
+      </g>
+    </g>
+    `,
+  props: {
+    tile: String, // parenthesis notation
+    bbox: Object,
+    showLabels: Boolean,
+  },
+  computed: {
+    tree() {
+      return getDanglingBinaryTree(this.tile)
+    },
+    positionedTree() {
+      let rows = {}
+      let maxDepth = this.tree.maxDepth
+      function traverse(node) {
+        let widthI = 0
+        for (let child of [node.left, node.right]) {
+          if (child == null) {
+            widthI += 1.4 ** (maxDepth - node.depth - 1) // ghost space for missing child, add one since we're taking the parent's depth
+          } else {
+            traverse(child)
+            widthI += child.widthI
+          }
+        }
+        let isLeaf = node.left == null && node.right == null
+        if (isLeaf) {
+          node.widthI = 1.4 ** (maxDepth - node.depth)
+        } else {
+          node.widthI = widthI > 0 ? widthI : 2
+        }
+
+        if (rows[node.depth]) {
+          rows[node.depth].push(node)
+        } else {
+          rows[node.depth] = [node]
+        }
+      }
+      traverse(this.tree.root)
+      this.tree.rows = rows
+      let rowWidths = Object.values(rows).map((row) => row.reduce((a, c) => a + c.widthI, 0))
+      let maxWidthI = Math.max(...rowWidths)
+      // leave a 5% margin on each side
+      let widthIncrement = (this.bbox.width() * 0.9) / maxWidthI // add 5% padding on both sides
+      function setWidth(node) {
+        node.width = node.widthI * widthIncrement
+        for (let child of [node.left, node.right].filter((n) => n != null)) {
+          setWidth(child)
+        }
+      }
+      setWidth(this.tree.root)
+      this.tree.offsetX = (this.bbox.width() - this.tree.root.width) / 2
+      this.tree.offsetY = 50
+      this.tree.verticalStep = this.bbox.height() / (this.tree.maxDepth + 1)
+      const tree = this.tree // capture to be used in setPosition
+      function setPosition(node) {
+        node.y = (node.depth + 0.5) * tree.verticalStep
+        let offset = node.x - node.width / 2
+        node.pt = new Point(node.x, node.y)
+        for (let child of [node.left, node.right]) {
+          if (child != null) {
+            child.x = offset + child.width / 2
+            offset += child.width
+            setPosition(child)
+          } else {
+            offset += widthIncrement * 1.4 ** (maxDepth - node.depth - 1)
+          }
+        }
+      }
+      tree.root.x = this.tree.offsetX + tree.root.width / 2
+      setPosition(tree.root)
+      return tree
+    },
+    nodes() {
+      console.log('nodes', this.positionedTree.nodes)
       return Object.values(this.positionedTree.nodes)
     },
     edges() {
@@ -589,7 +641,7 @@ const polygonTriangulation = {
   },
   computed: {
     tree() {
-      let tree = computeBinaryTree(this.tile)
+      let tree = getBinaryTree(this.tile)
       let n = this.n + 2
       let i = n
       function markDangling(node) {
@@ -727,4 +779,11 @@ const polygonTriangulation = {
   },
 }
 
-export { circleChords, latticePaths, rootedTree, binaryTree, polygonTriangulation }
+export {
+  circleChords,
+  latticePaths,
+  rootedTree,
+  binaryTree,
+  polygonTriangulation,
+  danglingBinaryTree,
+}

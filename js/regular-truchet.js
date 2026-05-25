@@ -296,7 +296,25 @@ class GenericTruchetTile {
         new CubicBezier(mid, p3plusstar, c2star, p2),
       )
     }
-    if (['16', '1A', '47', '4B', '52', '5A', '28', '8B', '39', '69', '3C', '7C'].includes(curve)) {
+    if (
+      [
+        '16',
+        '1A',
+        '47',
+        '4B',
+        '52',
+        '5A',
+        '28',
+        '8B',
+        '39',
+        '69',
+        '3C',
+        '7C',
+        '25',
+        '29',
+        '38',
+      ].includes(curve)
+    ) {
       return new CubicBezier(p1, c1star, c2star, p2)
     }
     if (['18', '49', '5C'].includes(curve)) {
@@ -333,15 +351,11 @@ class GenericTruchetTile {
   }
 
   getCatalanTile({ n, tile }) {
-    // console.log(`getCatalanTile with n=${n} and tile=${tile}`)
     if (n != undefined && !tile) {
       tile = this.getTile(n)
     }
-    // console.log(`Tile ${tile}`)
     let curves = getPairs(tile)
-    // console.log(`tile ${n}`, tile, 'curves', curves)
     let lines = curves.map((curve) => this.getCurve(curve))
-    // console.log('lines', lines)
     return lines
   }
 }
@@ -397,9 +411,7 @@ const genericTruchetGrid = {
         iterations: this.iterations,
       }).generate()
       let retList = []
-      // console.log(`grid`, grid.getFaces())
       for (let ngon of Object.values(grid.getFaces())) {
-        // console.log('ngon', ngon)
         retList.push({
           ngon,
           tile: new GenericTruchetTile(

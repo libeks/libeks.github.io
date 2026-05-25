@@ -211,7 +211,8 @@ function parenthesesToHex(st) {
   return numerical.map((a) => numericalToHex(a)).join('')
 }
 
-function numericalToParentheses(st) {
+// '123456789A' => '()()()()()'
+function hexToParentheses(st) {
   let dict = {}
   for (let i = 0; i < st.length; i++) {
     const val = hexToNumerical(st[i]) - 1
@@ -228,8 +229,8 @@ function numericalToParentheses(st) {
   return ret.join('')
 }
 
-function numericalToPartition(st) {
-  return parenthesesToPartitions(numericalToParentheses(st))
+function hexToPartition(st) {
+  return parenthesesToPartitions(hexToParentheses(st))
 }
 
 //  (*( )*( (*( )*) )*)
@@ -382,6 +383,146 @@ function get2DWalkFromParentheses(parentheses) {
   return result.join('')
 }
 
+function getBinaryTree(tileParentheses) {
+  let maxDepth = 0
+  let depth = -1
+  let nNodes = 1
+  let nodes = {}
+  // let root = { id: 0, left: null, right: null, parent: null, depth: 0 }
+  // nodes[root.id] = root
+  // let current = root
+  let current
+  let root
+  for (let char of tileParentheses) {
+    if (char == '(') {
+      current = {
+        id: nNodes,
+        left: null,
+        right: null,
+        parent: current,
+        depth: depth + 1,
+        progress: 0,
+      }
+      nNodes++
+
+      if (root == null) {
+        root = current
+      } else {
+        if (current.parent.progress == 0) {
+          current.parent.left = current
+        } else {
+          current.parent.right = current
+        }
+      }
+      nodes[current.id] = current
+      depth++
+      if (depth > maxDepth) {
+        maxDepth = depth
+      }
+    } else {
+      while (current != null) {
+        if (current.progress == 0) {
+          current.progress = 1
+          break
+        } else if (current.progress == 1) {
+          current.progress = 2
+          current = current.parent
+          depth--
+        }
+      }
+    }
+  }
+  return { root, maxDepth, nNodes, nodes, tile: tileParentheses }
+}
+
+// a binary tree where every original node has a parent and two children, with dangling nodes added to fulful this requirement
+function getDanglingBinaryTree(tileParentheses) {
+  let { root, maxDepth, nNodes, nodes, tile } = getBinaryTree(tileParentheses)
+  function addDangling(node) {
+    node.type = 'black' // proper nodes
+    if (node.left == null) {
+      node.left = {
+        id: Object.keys(nodes).length + 1,
+        left: null,
+        right: null,
+        parent: node,
+        depth: node.depth + 1,
+        progress: 0, // not needed
+        type: 'dangling',
+      }
+      nodes[node.left.id] = node.left
+    } else {
+      addDangling(node.left)
+    }
+    if (node.right == null) {
+      node.right = {
+        id: Object.keys(nodes).length + 1,
+        left: null,
+        right: null,
+        parent: node,
+        depth: node.depth + 1,
+        progress: 0, // not needed
+        type: 'dangling',
+      }
+      nodes[node.right.id] = node.right
+    } else {
+      addDangling(node.right)
+    }
+  }
+  addDangling(root)
+  root = {
+    id: Object.keys(nodes).length + 1,
+    left: root,
+    right: null,
+    parent: null,
+    depth: -1,
+    progress: 0,
+    type: 'root', // a special kind of dangling node, the root of the new tree
+  }
+  function increaseDepth(node) {
+    node.depth += 1
+    if (node.depth > maxDepth) {
+      maxDepth = node.depth
+    }
+    if (node.left) {
+      increaseDepth(node.left)
+    }
+    if (node.right) {
+      increaseDepth(node.right)
+    }
+  }
+  increaseDepth(root)
+  root.left.parent = root
+  nodes[root.id] = root
+  return { root, maxDepth, nNodes: Object.keys(nodes).length, nodes, tile }
+}
+
+function getPlaneTree(tileParentheses) {
+  let maxDepth = 0
+  let depth = 0
+  let nNodes = 0
+  let nodes = {}
+  let root = { id: 0, children: [], parent: null, depth: 0 }
+  nodes[root.id] = root
+  let current = root
+  for (let char of tileParentheses) {
+    if (char == '(') {
+      nNodes++
+      current = { id: nNodes, children: [], parent: current, depth: depth + 1 }
+      current.parent.children.push(current)
+      nodes[current.id] = current
+      depth++
+      if (depth > maxDepth) {
+        maxDepth = depth
+      }
+    } else {
+      current = current.parent
+      depth--
+    }
+  }
+  return { root, maxDepth, nNodes, nodes, tile: tileParentheses }
+}
+
 class CatalanStructure {
   constructor(n, i) {
     this.n = n
@@ -398,13 +539,8 @@ class CatalanStructure {
   }
 
   // return [1,2,3,4,5,6,7,8,9,10]
-  get numerical() {
+  get numericalList() {
     return parenthesesToNumerical(this.parenthesis)
-  }
-
-  // return '12345678910'
-  get numericalString() {
-    return this.numerical.join('')
   }
 
   // return '123456789A'
@@ -412,6 +548,7 @@ class CatalanStructure {
     return parenthesesToHex(this.parenthesis)
   }
 
+  // return '→→←→↑→↓→→'
   get twoDWalk() {
     return get2DWalkFromParentheses(this.parenthesis)
   }
@@ -442,13 +579,21 @@ class CatalanStructure {
 
   // return [[1],[2,5],[3],[4]]
   get partitions() {
-    return numericalToPartition(this.numerical)
+    return hexToPartition(this.hex)
   }
 
   // return '[1],[2,5],[3],[4]'
   get partitionString() {
     let a = this.partitions.map((part) => `[${part.join(',')}]`).join(',')
     return a
+  }
+
+  get binaryTree() {
+    return getBinaryTree(this.parenthesis)
+  }
+
+  get planeTree() {
+    return getPlaneTree(this.parenthesis)
   }
 }
 
@@ -494,8 +639,8 @@ export {
   parenthesesToNumerical,
   parenthesesToPartitions,
   parenthesesToHex,
-  numericalToPartition,
-  numericalToParentheses,
+  hexToPartition,
+  hexToParentheses,
 
   // character conversion
   numericalToHex,
@@ -504,8 +649,13 @@ export {
   // partitions
   getParenthesisPartitions,
 
-  //2D walk
+  // 2D walk
   get2DWalkFromParentheses,
+
+  // trees
+  getBinaryTree,
+  getPlaneTree,
+  getDanglingBinaryTree,
 
   // classes
   CatalanGenus,

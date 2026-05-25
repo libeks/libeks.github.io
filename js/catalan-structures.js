@@ -316,7 +316,7 @@ const rootedTree = {
       this.tree.rows = rows
       let rowWidths = Object.values(rows).map((row) => row.reduce((a, c) => a + c.widthI, 0))
       let maxWidthI = Math.max(...rowWidths)
-      let widthIncrement = this.bbox.width() / maxWidthI // add 2 as padding on both sides
+      let widthIncrement = this.bbox.width() / (maxWidthI + 2) // add 2 as padding on both sides
       // let margin = Math.min(this.bbox.width()/ maxWidthI, )
       function setWidth(node) {
         node.width = node.widthI * widthIncrement

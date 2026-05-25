@@ -47,15 +47,15 @@
           For three, it starts to get more interesting. Here they are:
         </p>
         <div class="flex-block flex-center">
-          <div class="catalan-parentheses mono">()()()</div>
-          <div class="catalan-parentheses mono">()(())</div>
-          <div class="catalan-parentheses mono">(())()</div>
-          <div class="catalan-parentheses mono">((()))</div>
-          <div class="catalan-parentheses mono">(()())</div>
+          <div class="catalan-hex mono">()()()</div>
+          <div class="catalan-hex mono">()(())</div>
+          <div class="catalan-hex mono">(())()</div>
+          <div class="catalan-hex mono">((()))</div>
+          <div class="catalan-hex mono">(()())</div>
         </div>
         <p>For four pairs of parentheses, we get the following set of 14:</p>
         <div id="c4-parenthesis-exhaustive" class="flex-block flex-center">
-          <div v-for="s in generateCatalanParenthesisSet(4)" class="catalan-parentheses mono">
+          <div v-for="s in generateCatalanParenthesisSet(4)" class="catalan-hex mono">
             {{s.join('')}}
           </div>
         </div>
@@ -64,7 +64,7 @@
           parentheses of length 20 (so 10 left- and 10 right-parentheses)
         </p>
         <div id="parentheses-10-timer" class="flex-block flex-center">
-          <div class="catalan-parentheses mono">{{generateIterativeCatalanParentheses(10, i)}}</div>
+          <div class="catalan-hex mono">{{generateIterativeCatalanParentheses(10, i)}}</div>
         </div>
       </section>
       <section>
@@ -194,7 +194,7 @@
           >:
         </p>
         <div id="c3-chords-exhaustive" class="flex-block flex-center">
-          <div v-for="s in generateCatalanNumberSet(3)" class="catalan-hex">
+          <div v-for="s in generateCatalanNumberSet(3)" class="catalan-tile">
             <figure>
               <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
                 <circle-chords
@@ -218,7 +218,7 @@
           >:
         </p>
         <div id="c4-chords-exhaustive" class="flex-block flex-center">
-          <div v-for="s in generateCatalanNumberSet(4)" class="catalan-hex">
+          <div v-for="s in generateCatalanNumberSet(4)" class="catalan-tile">
             <figure>
               <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
                 <circle-chords
@@ -242,7 +242,7 @@
           >:
         </p>
         <div id="c10-chords-timer" class="flex-block flex-center">
-          <div class="catalan-hex">
+          <div class="catalan-tile">
             <figure style="min-width: 500px">
               <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
                 <circle-chords
@@ -302,7 +302,7 @@
                 </template>
                 <template #default>
                   <div class="flex-block flex-center">
-                    <div v-for="(s,v) in getParenthesisPartitions(n)" class="catalan-hex">
+                    <div v-for="(s,v) in getParenthesisPartitions(n)" class="catalan-tile">
                       <figure>
                         <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
                           <circle-chords
@@ -426,11 +426,11 @@
             are as follows:
           </p>
           <div class="flex-block flex-center">
-            <div class="catalan-parentheses mono">←←</div>
-            <div class="catalan-parentheses mono">←→</div>
-            <div class="catalan-parentheses mono">→←</div>
-            <div class="catalan-parentheses mono">→→</div>
-            <div class="catalan-parentheses mono">↑↓</div>
+            <div class="catalan-hex mono">←←</div>
+            <div class="catalan-hex mono">←→</div>
+            <div class="catalan-hex mono">→←</div>
+            <div class="catalan-hex mono">→→</div>
+            <div class="catalan-hex mono">↑↓</div>
           </div>
           <p>
             This is somewhat surprising, at first! How do we translate from the 1D random walk to
@@ -450,24 +450,24 @@
               Convert from the character tuples to cardinal directions:
               <ul>
                 <li>
-                  <div class="catalan-parentheses mono inline">((</div>
+                  <div class="catalan-hex mono inline">((</div>
                   :
-                  <div class="catalan-parentheses mono inline">↑</div>
+                  <div class="catalan-hex mono inline">↑</div>
                 </li>
                 <li>
-                  <div class="catalan-parentheses mono inline">))</div>
+                  <div class="catalan-hex mono inline">))</div>
                   :
-                  <div class="catalan-parentheses mono inline">↓</div>
+                  <div class="catalan-hex mono inline">↓</div>
                 </li>
                 <li>
-                  <div class="catalan-parentheses mono inline">()</div>
+                  <div class="catalan-hex mono inline">()</div>
                   :
-                  <div class="catalan-parentheses mono inline">←</div>
+                  <div class="catalan-hex mono inline">←</div>
                 </li>
                 <li>
-                  <div class="catalan-parentheses mono inline">)(</div>
+                  <div class="catalan-hex mono inline">)(</div>
                   :
-                  <div class="catalan-parentheses mono inline">→</div>
+                  <div class="catalan-hex mono inline">→</div>
                 </li>
               </ul>
             </li>
@@ -481,7 +481,7 @@
             possible 2D walks of length 9:
           </p>
           <div id="two-d-walk-10-timer" class="flex-block flex-center">
-            <div class="catalan-parentheses mono">
+            <div class="catalan-hex mono">
               {{get2DWalkFromParentheses(generateIterativeCatalanParentheses(10, i))}}
             </div>
           </div>
@@ -678,7 +678,9 @@
             each original node has a parent and two children. This dangling representation ensures
             that each original node is surrounded by three other nodes. These original nodes will be
             the triangles of our triangulation, the "dangling" nodes will represent the edges of our
-            triangulation.
+            triangulation. We will have <math><mi>n</mi></math> original nodes,
+            <math><mi>n</mi><mo>+</mo><mn>2</mn></math> "dangling" nodes, for a total of
+            <math><mn>2</mn><mi>n</mi><mo>+</mo><mn>2</mn></math> nodes.
           </p>
           <figure id="dangling-tree-10-example" class="float-right small">
             <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
@@ -718,10 +720,21 @@
                 <polygon-triangulation
                   :tile="generateIterativeCatalanParentheses(10, i)"
                   :bbox="bbox"
-                  show-dual-graph
+                  :show-dual-graph="radioChoice=='dual'"
+                  :show-triangles="radioChoice!='dual'"
                 ></polygon-triangulation>
               </svg-box>
-              <figcaption class="mono">{{generateIterativeCatalanParentheses(10,i)}}</figcaption>
+              <figcaption>
+                <div class="mono">{{generateIterativeCatalanParentheses(10,i)}}</div>
+                <!-- <div class="button-block"> -->
+                <radio-buttons
+                  class="button-block"
+                  :choices="[{value: 'dual', display:'Dual'}, {value:'triangle', display:'Triangle'}]"
+                  :value="radioChoice"
+                  @set-choice="(v) => {console.log('v',v); radioChoice = v}"
+                ></radio-buttons>
+                <!-- </div> -->
+              </figcaption>
             </figure>
           </div>
         </div>
@@ -770,7 +783,7 @@
           >. For convenience, I don't color subsets of size one, I let them just be.
         </p>
         <div id="c3-partition-exhaustive" class="flex-block flex-center">
-          <div v-for="s in new CatalanGenus(3).all()" class="catalan-hex">
+          <div v-for="s in new CatalanGenus(3).all()" class="catalan-tile">
             <figure>
               <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
                 <circle-chords :tile="s.hex" :n="3" :bbox="bbox" show-midpoints show-partitions />
@@ -789,7 +802,7 @@
           >:
         </p>
         <div id="c4-partition-exhaustive" class="flex-block flex-center">
-          <div v-for="s in new CatalanGenus(4).all()" class="catalan-hex">
+          <div v-for="s in new CatalanGenus(4).all()" class="catalan-tile">
             <figure>
               <svg-box v-for="bbox of [new BBox(0,0,300,300)]" :bbox="bbox">
                 <circle-chords
@@ -884,24 +897,24 @@
             </div>
           </div>
           <figure>
-            <div class="catalan-tile catalan-parentheses mono">{{catalan.parenthesis}}</div>
+            <div class="catalan-tile catalan-hex mono">{{catalan.parenthesis}}</div>
             <figcaption>Balanced {{n}} pairs of parentheses</figcaption>
           </figure>
           <figure>
-            <div class="catalan-tile catalan-parentheses mono">{{catalan.oneDWalkPlusMinus}}</div>
+            <div class="catalan-tile catalan-hex mono">{{catalan.oneDWalkPlusMinus}}</div>
             <figcaption>
               Random walk on nonnegative integers of length {{2*n}}, ending at 0
             </figcaption>
           </figure>
           <figure>
-            <div class="catalan-tile catalan-parentheses mono">{{catalan.votingSequence}}</div>
+            <div class="catalan-tile catalan-hex mono">{{catalan.votingSequence}}</div>
             <figcaption>
               Voting sequence for two candidates {A,B} where A never trails, each getting {{n}}
               votes
             </figcaption>
           </figure>
           <figure>
-            <div class="catalan-tile catalan-parentheses mono">{{catalan.twoDWalk}}</div>
+            <div class="catalan-tile catalan-hex mono">{{catalan.twoDWalk}}</div>
             <figcaption>
               Random walk in 2D of length {{n-1}}, ending on the X axis, never dipping below the X
               axis
@@ -1037,7 +1050,13 @@
         CatalanGenus,
         CatalanStructure,
       } from '/js/catalan.js'
-      import { collapsibleButton, integerButtons, playControls, toggleButton } from '/js/buttons.js'
+      import {
+        collapsibleButton,
+        integerButtons,
+        playControls,
+        toggleButton,
+        radioButtons,
+      } from '/js/buttons.js'
       import { BBox, svgBox } from '/js/bbox.js'
       import {
         circleChords,
@@ -1307,6 +1326,7 @@
         data() {
           return {
             i: Math.floor(Math.random() * 16796),
+            radioChoice: 'dual',
           }
         },
         methods: {
@@ -1321,6 +1341,7 @@
         },
         components: {
           polygonTriangulation,
+          radioButtons,
           svgBox,
         },
       }).mount('#c10-polygon-triangulation-timer')

@@ -574,7 +574,7 @@ const danglingBinaryTree = {
       return tree
     },
     nodes() {
-      console.log('nodes', this.positionedTree.nodes)
+      // console.log('nodes', this.positionedTree.nodes)
       return Object.values(this.positionedTree.nodes)
     },
     edges() {

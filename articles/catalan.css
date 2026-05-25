@@ -5,10 +5,10 @@
   font-size: 0.95rem;
 }
 
-div.catalan-parentheses,
 div.catalan-hex {
   padding: 10px 20px;
   white-space: nowrap;
+  text-align: center;
 
   &.inline {
     display: inline-block;
@@ -17,15 +17,7 @@ div.catalan-hex {
   }
 }
 
-div.catalan-parentheses {
-  background-color: hsl(0, 0%, 80%);
-  font-size: 1.5em;
-  text-align: center;
-}
-
 div.catalan-tile {
-  background-color: hsl(0, 0%, 90%);
-
   &.catalan-large {
     figure {
       min-width: 500px;
@@ -33,20 +25,28 @@ div.catalan-tile {
   }
 
   figure {
+    background-color: hsl(0, 0%, 90%);
     min-width: 150px;
+
+    figcaption {
+      border-style: solid;
+      border-color: hsl(0, 0%, 90%);
+      border-width: 1px;
+
+      background-color: white;
+
+      padding: 0.3em;
+    }
 
     .notchText {
       text-anchor: middle;
     }
   }
-
-  figurecaption {
-    font-size: 1.2em;
-  }
 }
 
 div.catalan-hex {
   background-color: hsl(0, 0%, 90%);
+  font-size: 1.2em;
 
   figure {
     min-width: 150px;
@@ -56,9 +56,9 @@ div.catalan-hex {
     }
   }
 
-  figurecaption {
+  /*figcaption {
     font-size: 1.2em;
-  }
+  }*/
   svg text {
     font-size: 2.5em;
   }

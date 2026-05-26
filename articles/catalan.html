@@ -827,7 +827,6 @@
             <msub><mi>C</mi><mn>10</mn></msub> </math
           >:
         </p>
-        <!-- <div class="catalan-hex"> -->
         <figure id="c10-partitions-timer">
           <svg-box v-for="bbox of [new BBox(0,0,600,300)]" :bbox="bbox">
             <circle-chords
@@ -846,7 +845,44 @@
             <div class="mono">{{catalan.partitionString}}</div>
           </figcaption>
         </figure>
-        <!-- </div> -->
+      </section>
+      <section>
+        <h2 id="partitions">
+          <a class="anchor" href="#murasaki-diagram"></a>
+          <span>Murasaki Diagram</span>
+        </h2>
+        <div class="text-figure">
+          <p>
+            A Murasaki Diagram follows directly from the Non-intersecting partition example above.
+            We take <math><mi>n</mi></math> vertical bars, and connect them at the top if they
+            belong to the same partition. Again, we get
+            <math class="nowrap">
+              <msub><mi>C</mi> <mi>n</mi></msub>
+            </math>
+            such structures.
+          </p>
+          <figure id="murasaki-10-example" class="float-right small">
+            <svg-box v-for="bbox of [new BBox(0,0,200,100)]" :bbox="bbox">
+              <murasaki-diagram tile="((()((()))()()))(())" :bbox="bbox" />
+            </svg-box>
+            <figcaption>
+              Murasaki diagram matching the partition notation
+              <span class="mono"
+                >{{parenthesesToPartitions('((()((()))()()))(())').map((part) =>
+                `[${part.join(',')}]`).join(',')}}</span
+              >
+            </figcaption>
+          </figure>
+        </div>
+        <figure id="c10-murasaki-timer">
+          <svg-box v-for="bbox of [new BBox(0,0,600,300)]" :bbox="bbox">
+            <murasaki-diagram :tile="catalan.parenthesis" :bbox="bbox" />
+          </svg-box>
+          <figcaption>
+            <div class="mono">{{catalan.parenthesis}}</div>
+            <div class="mono">{{catalan.partitionString}}</div>
+          </figcaption>
+        </figure>
       </section>
       <section>
         <h2 id="gallery">
@@ -1028,6 +1064,12 @@
             A further analysis of Catalan numbers appears in the OEIS
             <a href="https://oeis.org/A000108">A000108</a>.
           </li>
+          <li>
+            Ofir Ammar's Master's Thesis
+            <a href="https://kth.diva-portal.org/smash/get/diva2:820906/FULLTEXT01.pdf"
+              >Bijections on Catalan Structures</a
+            >
+          </li>
         </ul>
       </section>
     </main>
@@ -1049,6 +1091,7 @@
         parenthesesToHex,
         CatalanGenus,
         CatalanStructure,
+        parenthesesToPartitions,
       } from '/js/catalan.js'
       import {
         collapsibleButton,
@@ -1065,6 +1108,7 @@
         binaryTree,
         polygonTriangulation,
         danglingBinaryTree,
+        murasakiDiagram,
       } from '/js/catalan-structures.js'
       import { randomInt } from '/js/math.js'
 
@@ -1424,6 +1468,45 @@
           svgBox,
         },
       }).mount('#c10-partitions-timer')
+
+      createApp({
+        methods: {
+          parenthesesToPartitions,
+          BBox,
+        },
+        components: {
+          murasakiDiagram,
+          svgBox,
+        },
+      }).mount('#murasaki-10-example')
+
+      createApp({
+        data() {
+          return {
+            i: Math.floor(Math.random() * 16796),
+          }
+        },
+        methods: {
+          BBox,
+        },
+        mounted() {
+          setInterval(() => {
+            this.i++
+          }, 500)
+        },
+        computed: {
+          catalan() {
+            return this.catalanGenus.getI(this.i)
+          },
+          catalanGenus() {
+            return new CatalanGenus(10)
+          },
+        },
+        components: {
+          murasakiDiagram,
+          svgBox,
+        },
+      }).mount('#c10-murasaki-timer')
 
       createApp({
         data() {

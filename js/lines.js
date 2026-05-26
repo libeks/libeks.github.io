@@ -452,7 +452,9 @@ function compositeQuadraticBezier(...pointsWithTags) {
 
 // Polygon is a wrapper around CompositeCurve for when we have a polygon around a set of points
 class Polygon {
-  constructor(points) {
+  constructor(...points) {
+    console.log('Polygon points', points, points.length)
+    // console.trace()
     for (let pt of points) {
       if (pt.type != 'Point') {
         throw `Polygon received unexpected argument ${pt.type}`

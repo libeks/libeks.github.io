@@ -199,7 +199,7 @@ const circleChords = {
           for (let pt of part) {
             points.push(this.oddNotches[pt - 1].point)
           }
-          ret.push(new Polygon(points))
+          ret.push(new Polygon(...points))
         }
       }
       return ret
@@ -711,7 +711,7 @@ const polygonTriangulation = {
         }
         node.verticeIDs = [node.leftData.left, node.leftData.right, node.rightData.right]
         node.vertices = node.verticeIDs.map((id) => vertices[id])
-        node.triangle = new Polygon(node.vertices)
+        node.triangle = new Polygon(...node.vertices)
         node.midpoint = node.triangle.midpoint()
         let childEdges = []
         let sideLines = []
@@ -784,13 +784,17 @@ const polygonTriangulation = {
 const murasakiDiagram = {
   template: `
     <g>
-      <path v-for="bar in bars" :d="bar.d()" />
-      <path v-for="connector in connectors" :d="connector.d()" />
+      <path v-for="bar in bars" :d="bar.d()" class="fillBlack" />
+      <path v-for="connector in connectors" :d="connector.d()" class="fillBlack" />
     </g>
   `,
   props: {
     tile: String, // parenthesis notation
     bbox: Object,
+    widthRatio: {
+      type: Number,
+      default: 0.5,
+    },
   },
   computed: {
     partition() {
@@ -823,39 +827,52 @@ const murasakiDiagram = {
       return { n, partitions, depths, maxDepth }
     },
     dimensions() {
+      let xIncrement = this.bbox.width() / (this.partition.n + 1) // add 2 for padding
+      let width = xIncrement * this.widthRatio * 0.5
       return {
         top: this.bbox.height() * 0.1,
         bottom: this.bbox.height() * 0.9,
-        yIncrement: (this.bbox.height() * 0.1) / this.partition.maxDepth,
-        xIncrement: this.bbox.width() / (this.partition.n + 2), // add 2 for padding
+        // yIncrement: (this.bbox.height() * 0.1) / this.partition.maxDepth,
+        yIncrement: width * 4,
+        xIncrement,
+        width,
       }
     },
     bars() {
-      // console.log('log', this.dimensions, this.partition)
       let bars = []
       for (let i = 0; i < this.partition.n; i++) {
-        let x = this.dimensions.xIncrement * (i + 1)
+        let { width, xIncrement, yIncrement, top, bottom } = this.dimensions
+        let x = xIncrement * (i + 1)
         let depth = this.partition.depths[i]
-        let top = this.dimensions.top + depth * this.dimensions.yIncrement
-        bars.push(new StraightStroke(new Point(x, top), new Point(x, this.dimensions.bottom)))
+        let topX = top + depth * yIncrement
+        // bars.push(new StraightStroke(new Point(x, top), new Point(x, this.dimensions.bottom)))
+        bars.push(
+          new Polygon(
+            new Point(x - width, topX - width),
+            new Point(x + width, topX - width),
+            new Point(x + width, bottom + width),
+            new Point(x - width, bottom + width),
+          ),
+        )
       }
-      // console.log('bars', bars)
       return bars
     },
     connectors() {
       let connectors = []
-      // console.log('partition', this.partition.partitions)
       for (let part of this.partition.partitions) {
-        // console.log('part2', part)
         if (part.length > 1) {
           let partStart = part[0]
           let partEnd = part[part.length - 1]
-          let top =
-            this.dimensions.top + this.partition.depths[partStart - 1] * this.dimensions.yIncrement
+          let { xIncrement, yIncrement, top, width } = this.dimensions
+          let topX = top + this.partition.depths[partStart - 1] * yIncrement
+          let xStart = partStart * xIncrement
+          let xEnd = partEnd * xIncrement
           connectors.push(
-            new StraightStroke(
-              new Point(partStart * this.dimensions.xIncrement, top),
-              new Point(partEnd * this.dimensions.xIncrement, top),
+            new Polygon(
+              new Point(xStart - width, topX - width),
+              new Point(xStart - width, topX + width),
+              new Point(xEnd + width, topX + width),
+              new Point(xEnd + width, topX - width),
             ),
           )
         }

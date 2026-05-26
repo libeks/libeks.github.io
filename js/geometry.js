@@ -579,7 +579,7 @@ class NGon {
   }
 
   get d() {
-    return new Polygon(this.vertices).d()
+    return new Polygon(...this.vertices).d()
   }
 }
 

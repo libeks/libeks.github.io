@@ -350,6 +350,7 @@ class RotatedFace {
     this.edges = []
     this.potentialGenera = null
     this.finalVertexGenera = null
+    this.type = 'RotatedFace'
   }
 
   isComplete() {

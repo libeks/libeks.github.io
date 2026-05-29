@@ -292,7 +292,7 @@ class CompositeCurve {
   }
 
   d() {
-    if (this.curves.lenght == 0) {
+    if (!this.curves || this.curves.length == 0) {
       return ''
     }
     let components = [this.curves[0].d()]
@@ -365,17 +365,14 @@ function rayLineRayCurve(r1, line, r2) {
   let r1LineT = r1.intersectLineT(line)
   let r2LineT = r2.intersectLineT(line)
   let r1r2T = r1.intersectRayT(r2)
-  // console.log('T values', r1LineT, r2LineT, r1r2T)
   if (r1r2T == null) {
     // the two rays are parallel, or point in non-intersecting directions
-    // console.log('case 0, noop')
   }
   if (r1LineT == null || r2LineT == null) {
     // the first ray doesn't intersect the line, they could be parallel, or the ray could be pointing in the wrong direction
     // return compositeQuadraticBezier({ point: r1.p, onCurve: true }, { point: r2.p, onCurve: true })
 
     const secondPointDistance = 1.6
-    // console.log('case 1')
     return compositeQuadraticBezier(
       { point: r1.p, onCurve: true },
       { point: r1.at(1), onCurve: false },
@@ -386,7 +383,6 @@ function rayLineRayCurve(r1, line, r2) {
     )
   }
   if (r1r2T != null && r1LineT != null && r1LineT > r1r2T) {
-    // console.log('case 2')
     // the intersection of the rays is closer, so do a simple quadratic curve between them
     return compositeQuadraticBezier(
       { point: r1.p, onCurve: true },
@@ -394,7 +390,6 @@ function rayLineRayCurve(r1, line, r2) {
       { point: r2.p, onCurve: true },
     )
   }
-  // console.log('case 3')
   return compositeQuadraticBezier(
     { point: r1.p, onCurve: true },
     { point: r1.at(r1LineT), onCurve: false },
@@ -453,14 +448,13 @@ function compositeQuadraticBezier(...pointsWithTags) {
 // Polygon is a wrapper around CompositeCurve for when we have a polygon around a set of points
 class Polygon {
   constructor(...points) {
-    console.log('Polygon points', points, points.length)
-    // console.trace()
     for (let pt of points) {
       if (pt.type != 'Point') {
         throw `Polygon received unexpected argument ${pt.type}`
       }
     }
     this.points = points
+    this.type = 'Polygon'
   }
 
   d() {
@@ -472,7 +466,6 @@ class Polygon {
   }
 
   midpoint() {
-    // console.log('this.points', this.points)
     let x = 0
     let y = 0
     let n = this.points.length

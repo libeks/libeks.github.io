@@ -12,13 +12,19 @@ class Layer {
   }
 
   withCurves(...curves) {
+    // check that each curve can be rendered, i.e. it has a '.d()' method
+    for (let curve of curves) {
+      if (!('d' in curve)) {
+        throw `Curve in layer cannot be rendered`
+      }
+    }
     this.curves.push(...curves)
     return this // allow chaining
   }
 
   withColor(color) {
     this.color = color
-    return this
+    return this // allow chaining
   }
 }
 

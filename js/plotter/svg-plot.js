@@ -19,23 +19,20 @@ const svgPlot = {
     withGuides: Boolean,
   },
   computed: {
-    guideFrameLayer() {
+    canvas() {
       let yOffset = 0
       if (this.withGuides) {
         yOffset = 800
       }
-
       const framePadding = 500
-      let bbox = new BBox(0, yOffset, 10000, 10000).withPadding(framePadding)
-
-      // return new Layer('frame').withCurves(bbox)
-      let layer = new Layer('frame').withCurves(bbox)
-      console.log('bbox', bbox, layer)
-      return layer
+      return new BBox(0, yOffset, 10000, 10000).withPadding(framePadding)
+    },
+    guideFrameLayer() {
+      return new Layer('frame').withCurves(this.canvas)
     },
     layers() {
       // only the layers relevant to the scene
-      return this.scene.layers
+      return this.scene.place(this.canvas).layers
     },
     allLayers() {
       let layers = []
@@ -46,7 +43,11 @@ const svgPlot = {
         console.log('layer', name, layer)
         layers.push(new Layer(name).withCurves(...layer))
       }
-      console.log('layers', layers)
+      console.log(
+        'layers',
+        layers,
+        Object.values(layers).map((layer) => layer.curves.map((curve) => curve.d())),
+      )
       return layers
     },
   },

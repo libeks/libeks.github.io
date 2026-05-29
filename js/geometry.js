@@ -522,6 +522,7 @@ class NGon {
     } else {
       this.v = this.v.rotateRad(this.angle) // v points in the direction of the first vertex
     }
+    this.type = 'NGon'
   }
 
   static getNGenus(input) {
@@ -578,7 +579,7 @@ class NGon {
     return degToRad(180 - 360 / this.n)
   }
 
-  get d() {
+  d() {
     return new Polygon(...this.vertices).d()
   }
 }

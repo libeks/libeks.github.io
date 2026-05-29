@@ -4,11 +4,15 @@ import '/js/vue.js'
 function applyTemplate(template, parameters) {
   let obj = { __cached__: {} }
   if (template.props) {
-    // console.log('template.props', template.props)
     for (let [prop, typeDefault] of Object.entries(template.props)) {
-      // console.log('prop', prop, typeDefault, typeDefault())
       if (!(prop in parameters)) {
-        obj[prop] = typeDefault()
+        console.warn(`Using default value for prop ${prop}`)
+        console.log('typeDefault', typeDefault)
+        if ('default' in typeDefault) {
+          obj[prop] = typeDefault.default
+        } else {
+          obj[prop] = typeDefault()
+        }
       } else {
         obj[prop] = parameters[prop]
       }
@@ -38,13 +42,21 @@ class Scene {
     this.template = null
   }
 
-  withTemplate(template, parameters) {
-    this.template = applyTemplate(template, parameters)
+  withTemplate(template, parameterFn) {
+    this.rawTemplate = template
+    this.parameterFn = parameterFn
     return this
   }
 
   withLayers(layerFn) {
-    this.layers = layerFn(this.template)
+    this.layerFn = layerFn
+    return this
+  }
+
+  place(bbox) {
+    this.parameters = this.parameterFn(bbox)
+    this.template = applyTemplate(this.rawTemplate, this.parameters)
+    this.layers = this.layerFn(this.template)
     return this
   }
 }

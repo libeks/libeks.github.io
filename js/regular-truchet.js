@@ -368,7 +368,7 @@ const genericTruchetGrid = {
           <path
             class="polygon"
             :data-face="face.id"
-            :d="face.ngon.face.d"
+            :d="face.ngon.face.d()"
             :style="{fill: 'white', stroke: 'black', 'fill-opacity':0.8}"
           />
         </g>
@@ -420,11 +420,15 @@ const genericTruchetGrid = {
             this.notches,
             this.size,
           ),
-          n: randomInt(10000000000), // should be 1289904147324 for 24
+          n: randomInt(1289904147324), // 1289904147324 is C24
         })
       }
       return retList
     },
+  },
+  other: {
+    aaa: 1,
+    bbb: 2,
   },
 }
 

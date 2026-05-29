@@ -39,13 +39,14 @@
       const { createApp, ref, defineComponent } = Vue
       import { svgPlot } from '/js/plotter/svg-plot.js'
       // import { polygonTriangulation } from '/js/catalan-structures.js'
-      import { PlaneTree } from '/js/plotter/scenes.js'
+      import { PlaneTree, Tiling } from '/js/plotter/scenes.js'
 
       const fullTriangleApp = createApp({
         data() {
           return {
             // scene: scenes['lines'],
-            scene: PlaneTree,
+            scene: Tiling,
+            // scene: PlaneTree,
           }
         },
         methods: {},

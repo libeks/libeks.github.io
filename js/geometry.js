@@ -1,5 +1,5 @@
 import { degToRad } from '/js/math.js'
-import { Polygon } from '/js/lines.js'
+import { Polygon, StraightStroke } from '/js/lines.js'
 
 const THRESHOLD = 0.01
 const DIVISOR_THRESHOLD = 1e-10
@@ -548,6 +548,16 @@ class NGon {
       let firstVertex = this.vertices[i]
       let secondVertex = this.vertices[(i + 1) % this.vertices.length]
       lines.push(new LineSegment(firstVertex, firstVertex.vectTo(secondVertex)))
+    }
+    return lines
+  }
+
+  get straightStrokes() {
+    let lines = []
+    for (let i = 0; i < this.vertices.length; i++) {
+      let firstVertex = this.vertices[i]
+      let secondVertex = this.vertices[(i + 1) % this.vertices.length]
+      lines.push(new StraightStroke(firstVertex, secondVertex))
     }
     return lines
   }

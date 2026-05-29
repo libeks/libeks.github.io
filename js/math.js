@@ -58,6 +58,18 @@ function distance(n, a, b) {
   return Math.min((b - a) % n, Math.abs((b - a - n) % n))
 }
 
+function average(...values) {
+  if (values.length == 0) {
+    console.trace()
+    throw `average got 0 parameters`
+  }
+  return (
+    values.reduce((accumulator, current) => {
+      return accumulator + current
+    }, 0) / values.length
+  )
+}
+
 function randomInt(n) {
   return Math.floor(Math.random() * n)
 }
@@ -71,4 +83,5 @@ export {
   normalizeRadianString,
   distance,
   randomInt,
+  average,
 }

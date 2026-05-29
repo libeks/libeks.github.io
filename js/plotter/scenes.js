@@ -29,7 +29,7 @@ const Tiling = new Scene()
     notches: [0.33],
   }))
   .withLayers((template) => ({
-    edges: template.grid.map((face) => face.ngon.face),
+    edges: template.grid.map((face) => face.ngon.face.straightStrokes).flat(),
     curve: template.grid.map((face) => face.tile.getCatalanTile({ n: face.n })).flat(),
   }))
 

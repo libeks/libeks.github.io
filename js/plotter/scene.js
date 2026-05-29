@@ -1,5 +1,7 @@
 // import { compile } from '/js/vue.js'
-import '/js/vue.js'
+// import '/js/vue.js'
+
+const clipToBBox = true
 
 function applyTemplate(template, parameters) {
   let obj = { __cached__: {} }
@@ -56,7 +58,24 @@ class Scene {
   place(bbox) {
     this.parameters = this.parameterFn(bbox)
     this.template = applyTemplate(this.rawTemplate, this.parameters)
-    this.layers = this.layerFn(this.template)
+    let layers = this.layerFn(this.template)
+    if (clipToBBox) {
+      let newLayers = {}
+      for (let [name, layer] of Object.entries(layers)) {
+        let curves = []
+        // console.log('layer', layer)
+        for (let curve of layer) {
+          console.log('curve.type', curve.type, curve)
+          let clipped = curve.clip(bbox)
+          console.log('clipped', clipped)
+          curves.push(...clipped)
+        }
+        console.log('clipped curves for layer', name, curves)
+        newLayers[name] = curves
+      }
+      layers = newLayers
+    }
+    this.layers = layers
     return this
   }
 }

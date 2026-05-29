@@ -15,6 +15,7 @@ class Layer {
     // check that each curve can be rendered, i.e. it has a '.d()' method
     for (let curve of curves) {
       if (!('d' in curve)) {
+        console.error('object without a .d method', curve)
         throw `Curve in layer cannot be rendered`
       }
     }

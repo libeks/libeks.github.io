@@ -1,5 +1,6 @@
 import { pairs } from '/js/utils.js'
-import { Point } from '/js/geometry.js'
+import { Point, Line } from '/js/geometry.js'
+import { average } from '/js/math.js'
 
 class StraightStroke {
   constructor(from, to) {
@@ -11,6 +12,11 @@ class StraightStroke {
     }
     this.from = from
     this.to = to
+    this.type = 'StraightStroke'
+  }
+
+  at(t) {
+    return this.from.addVect(this.vect().mult(t))
   }
 
   vect() {
@@ -64,6 +70,41 @@ class StraightStroke {
     }
     return new StraightStroke(matrix.multPoint(this.from), matrix.multPoint(this.to))
   }
+
+  line() {
+    return new Line(this.from, this.from.vectTo(this.to))
+  }
+
+  // clip line to bbox
+  clip(bbox) {
+    if (bbox.inside(this.from) && bbox.inside(this.to)) {
+      return [this]
+    }
+    let l = this.line()
+    console.log('line', l)
+    let ts = [] // t-values relative to this segment
+    for (let bboxLine of bbox.lines()) {
+      console.log('bbox line', bboxLine)
+      let t = l.intersectT(bboxLine)
+      if (t >= 0 && t <= 1) {
+        ts.push(t)
+      }
+    }
+    if (ts.length == 0) {
+      // appears that the line is completely outside the bbox
+      return []
+    }
+    ts.push(0, 1)
+    ts.sort()
+    console.log('ts', ts)
+    for (let [a, b] of pairs(ts)) {
+      let midpoint = average(a, b)
+      if (bbox.inside(this.at(midpoint))) {
+        return [new StraightStroke(this.at(a), this.at(b))]
+      }
+    }
+    return []
+  }
 }
 
 class QuadraticBezier {
@@ -71,6 +112,7 @@ class QuadraticBezier {
     this.from = from
     this.c1 = c1
     this.to = to
+    this.type = 'QuadraticBezier'
   }
 
   startpoint() {
@@ -88,10 +130,6 @@ class QuadraticBezier {
   dContinued() {
     // when rendering a sequence of strokes, skip the MOVE operation
     return `Q ${this.c1.string()} ${this.to.string()}`
-  }
-
-  d() {
-    return `M ${this.from.string()} ${this.dContinued()}`
   }
 
   move(v) {
@@ -116,6 +154,15 @@ class QuadraticBezier {
       matrix.multPoint(this.to),
     )
   }
+
+  clip(bbox) {
+    // throw `QuadraticBezier.clip not implemented`
+    return [this]
+  }
+
+  d() {
+    return `M ${this.from.string()} ${this.dContinued()}`
+  }
 }
 
 class CubicBezier {
@@ -127,6 +174,7 @@ class CubicBezier {
     this.c1 = c1
     this.c2 = c2
     this.to = to
+    this.type = 'CubicBezier'
   }
 
   startpoint() {
@@ -144,10 +192,6 @@ class CubicBezier {
   dContinued() {
     // when rendering a sequence of strokes, skip the MOVE operation
     return `C ${this.c1.string()} ${this.c2.string()} ${this.to.string()}`
-  }
-
-  d() {
-    return `M ${this.from.string()} ${this.dContinued()}`
   }
 
   move(v) {
@@ -178,6 +222,15 @@ class CubicBezier {
       matrix.multPoint(this.c2),
       matrix.multPoint(this.to),
     )
+  }
+
+  d() {
+    return `M ${this.from.string()} ${this.dContinued()}`
+  }
+
+  clip(bbox) {
+    // throw `CubicBezier.clip not implemented`
+    return [this]
   }
 }
 
@@ -212,10 +265,6 @@ class CircleArc {
     return `A ${this.radius} ${this.radius} 0 ${this.largeArc} ${this.sweep} ${this.to.string()}`
   }
 
-  d() {
-    return `M ${this.from.string()} ${this.dContinued()}`
-  }
-
   transform2D(matrix) {
     if (matrix.type != 'Matrix2DHomo') {
       throw `CircleArc.transform2D got unexpected argument ${matrix.type}`
@@ -228,11 +277,20 @@ class CircleArc {
       this.sweep,
     )
   }
+
+  d() {
+    return `M ${this.from.string()} ${this.dContinued()}`
+  }
+
+  clip(bbox) {
+    throw `CircleArc.clip not implemented`
+  }
 }
 
 class CompositeCurve {
   constructor(...args) {
     this.curves = args
+    this.type = 'CompositeCurve'
   }
 
   withColor(color) {
@@ -355,6 +413,16 @@ class CompositeCurve {
       throw `CompositeCurve.transform2D got unexpected argument ${matrix.type}`
     }
     return new CompositeCurve(...this.curves.map((curve) => transform2D(matrix)))
+  }
+
+  clip(bbox) {
+    let clipped = []
+    for (let component of this.curves) {
+      let result = component.clip(bbox)
+      console.log('result', result)
+      clipped.push(...result)
+    }
+    return clipped
   }
 }
 

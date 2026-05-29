@@ -1,4 +1,4 @@
-import { Point, Vector } from '/js/geometry.js'
+import { Point, Vector, Line } from '/js/geometry.js'
 
 class BBox {
   constructor(x1, y1, x2, y2) {
@@ -17,6 +17,22 @@ class BBox {
 
   height() {
     return this.y2 - this.y1
+  }
+
+  upperLeft() {
+    return new Point(this.x1, this.y1)
+  }
+
+  upperRight() {
+    return new Point(this.x2, this.y1)
+  }
+
+  lowerLeft() {
+    return new Point(this.x1, this.y2)
+  }
+
+  lowerRight() {
+    return new Point(this.x2, this.y2)
   }
 
   // return a new BBox with 'size' taken off on each side
@@ -75,6 +91,26 @@ class BBox {
 
   center() {
     return new Point(this.x1, this.y1).addVect(new Vector(this.width(), this.height()).mult(0.5))
+  }
+
+  top() {
+    return new Line(this.upperLeft(), this.upperLeft().vectTo(this.upperRight()))
+  }
+
+  right() {
+    return new Line(this.upperRight(), this.upperRight().vectTo(this.lowerRight()))
+  }
+
+  bottom() {
+    return new Line(this.lowerRight(), this.lowerRight().vectTo(this.lowerLeft()))
+  }
+
+  left() {
+    return new Line(this.lowerLeft(), this.lowerLeft().vectTo(this.upperLeft()))
+  }
+
+  lines() {
+    return [this.top(), this.right(), this.bottom(), this.left()]
   }
 
   d() {

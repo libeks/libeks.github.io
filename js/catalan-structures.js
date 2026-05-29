@@ -287,11 +287,6 @@ const rootedTree = {
   props: {
     tile: String, // parenthesis notation
     bbox: Object,
-    height: Number,
-    minWidth: {
-      type: Number,
-      default: 50,
-    },
     showLabels: Boolean,
   },
   computed: {
@@ -300,7 +295,6 @@ const rootedTree = {
     },
     positionedTree() {
       let rows = {}
-      // let minWidth = this.minWidth // capture value to be usable inside traverse()
       function traverse(node) {
         let widthI = 0
         for (let child of node.children) {
@@ -313,13 +307,13 @@ const rootedTree = {
         } else {
           rows[node.depth] = [node]
         }
+        // console.log('traverse node', node)
       }
       traverse(this.tree.root)
       this.tree.rows = rows
       let rowWidths = Object.values(rows).map((row) => row.reduce((a, c) => a + c.widthI, 0))
       let maxWidthI = Math.max(...rowWidths)
       let widthIncrement = this.bbox.width() / (maxWidthI + 2) // add 2 as padding on both sides
-      // let margin = Math.min(this.bbox.width()/ maxWidthI, )
       function setWidth(node) {
         node.width = node.widthI * widthIncrement
         for (let child of node.children) {
@@ -331,10 +325,19 @@ const rootedTree = {
       this.tree.offsetY = 50
       this.tree.verticalStep = this.bbox.height() / (this.tree.maxDepth + 1)
       const tree = this.tree // capture to be used in setPosition
+      // console.log(
+      //   'bbox',
+      //   this.bbox,
+      //   this.bbox.height(),
+      //   this.tree.maxDepth + 1,
+      //   this.bbox.height() / (this.tree.maxDepth + 1),
+      // )
+      // console.log('tree', tree)
       function setPosition(node) {
         node.y = (node.depth + 0.5) * tree.verticalStep
         let offset = node.x - node.width / 2
         node.pt = new Point(node.x, node.y)
+        // console.log('node.pt', node.pt)
         for (let child of node.children) {
           child.x = offset + child.width / 2
           offset += child.width
@@ -352,9 +355,12 @@ const rootedTree = {
       let edges = []
       const truncatedLine = true // whether the line connecting nodes should "go quiet" close to the node
       function getEdges(node) {
+        // console.log('node', node)
         for (let child of node.children) {
+          // console.log('child', node, child)
           let ptA = node.pt
           let ptB = child.pt
+          // console.log('pts', ptA, ptB)
           let line
           if (truncatedLine) {
             let vect = ptA.vectTo(ptB).unit()
@@ -372,7 +378,9 @@ const rootedTree = {
           getEdges(child)
         }
       }
-      getEdges(this.tree.root)
+      // console.log('this', this)
+      // console.log('tree root', this.tree.root)
+      getEdges(this.positionedTree.root)
       return edges
     },
   },
@@ -832,7 +840,6 @@ const murasakiDiagram = {
       return {
         top: this.bbox.height() * 0.1,
         bottom: this.bbox.height() * 0.9,
-        // yIncrement: (this.bbox.height() * 0.1) / this.partition.maxDepth,
         yIncrement: width * 4,
         xIncrement,
         width,
@@ -845,7 +852,6 @@ const murasakiDiagram = {
         let x = xIncrement * (i + 1)
         let depth = this.partition.depths[i]
         let topX = top + depth * yIncrement
-        // bars.push(new StraightStroke(new Point(x, top), new Point(x, this.dimensions.bottom)))
         bars.push(
           new Polygon(
             new Point(x - width, topX - width),
@@ -877,7 +883,6 @@ const murasakiDiagram = {
           )
         }
       }
-      // console.log('connectors', connectors)
       return connectors
     },
   },

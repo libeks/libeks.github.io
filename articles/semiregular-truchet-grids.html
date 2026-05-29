@@ -131,7 +131,7 @@
                   <g class="ngon">
                     <path
                       class="stroke grey"
-                      :d="ngon.d"
+                      :d="ngon.d()"
                       :style="{'stroke-width': 1, stroke: 'hsl(0, 0%, 70%)'}"
                     />
                     <text v-for="(pt, i) in truchet.notchPoints" v-bind="pt.xyProps()">

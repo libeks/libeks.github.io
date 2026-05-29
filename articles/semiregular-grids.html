@@ -40,7 +40,11 @@
                   v-for="(poly,i) in polygons"
                   :style="toTransform({x: 50 + (i%3)*100, y:50 + 100 * Math.floor(i/3)})"
                 >
-                  <path class="polygon" :d="poly.d" :style="{fill: poly.color, stroke: 'black'}" />
+                  <path
+                    class="polygon"
+                    :d="poly.d()"
+                    :style="{fill: poly.color, stroke: 'black'}"
+                  />
                 </g>
               </g>
             </svg>

@@ -903,7 +903,7 @@ const gridTiling = {
         <path
           class="polygon"
           :data-face="face.id"
-          :d="face.face.d"
+          :d="face.face.d()"
           :style="{fill: showFaceColors ? face.face.color : 'white', stroke: 'black', 'fill-opacity':0.8}"
         />
         <text v-if="debugFaceNumber" text-anchor="middle" v-bind="face.face.center.xyProps()" class="debug">

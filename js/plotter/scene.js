@@ -63,14 +63,18 @@ class Scene {
       let newLayers = {}
       for (let [name, layer] of Object.entries(layers)) {
         let curves = []
-        // console.log('layer', layer)
-        for (let curve of layer) {
-          console.log('curve.type', curve.type, curve)
-          let clipped = curve.clip(bbox)
-          console.log('clipped', clipped)
-          curves.push(...clipped)
+
+        if (clipToBBox) {
+          for (let curve of layer) {
+            console.log('curve.type', curve.type, curve)
+            let clipped = curve.clip(bbox)
+            console.log('clipped', clipped)
+            curves.push(...clipped)
+          }
+          console.log('clipped curves for layer', name, curves)
+        } else {
+          curves.push(...layer)
         }
-        console.log('clipped curves for layer', name, curves)
         newLayers[name] = curves
       }
       layers = newLayers

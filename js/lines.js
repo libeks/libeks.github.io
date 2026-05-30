@@ -1,6 +1,6 @@
 import { pairs } from '/js/utils.js'
-import { Point, Line } from '/js/geometry.js'
-import { average } from '/js/math.js'
+import { Point, Line, Point2DOrigin } from '/js/geometry.js'
+import { average, quadratic, cubic } from '/js/math.js'
 import { BBox, bboxFromPointCloud } from '/js/bbox.js'
 
 class StraightStroke {
@@ -158,11 +158,59 @@ class QuadraticBezier {
   }
 
   clip(bbox) {
-    // throw `QuadraticBezier.clip not implemented`
     if (!bbox.boxHasIntersection(this.bbox())) {
       return []
     }
-    return [this]
+    if (bbox.boxInside(this.bbox())) {
+      return [this]
+    }
+
+    let ts = []
+    for (let line of bbox.lines()) {
+      let roots = this.intersectLineT(line)
+      for (let root of roots) {
+        if (root >= 0 && root <= 1) {
+          ts.push(root)
+        }
+      }
+    }
+    console.log('quadratic roots', ts)
+
+    if (ts.length == 0) {
+      // appears that the bezier doesn't intersect the boundary of the box
+      return []
+    }
+    ts.push(0, 1)
+    ts.sort()
+    for (let [a, b] of pairs(ts)) {
+      // TODO: allow for subsequent sections to be consecutive
+      let midpoint = average(a, b)
+      if (bbox.inside(this.at(midpoint))) {
+        return [this.subsection(a, b)]
+      }
+    }
+    return []
+  }
+
+  intersectLineT(line) {
+    if (line.type != 'Line') {
+      throw `Invalid parameter to QuadraticBezier.intersectLineT: ${line.type}`
+    }
+    // compute quadratic parameters (a,b,c), given the implicit notation of the line A⋅x=d, and the parametric equation of the Quadratic Bezier curve
+    // X(t) = (1-t)^2 * P0 + 2t(1-t) * P1 + t^2 + P2
+
+    // the math works out to doing math on points, which is intentionally not supported, so they need to be converted to vectors
+    let v0 = Point2DOrigin.vectTo(this.from)
+    let v1 = Point2DOrigin.vectTo(this.c1)
+    let v2 = Point2DOrigin.vectTo(this.to)
+    let [A, lineD] = line.implicit()
+    let aVect = v0.add(v1.mult(-2).add(v2))
+    let a = A.dot(aVect)
+    let bVect = v0.mult(-1).add(v1).mult(2)
+    let b = A.dot(bVect)
+    let c = A.dot(v0) - lineD
+    let roots = quadratic(a, b, c)
+    return roots
   }
 
   bbox() {
@@ -176,27 +224,25 @@ class QuadraticBezier {
     ).at(t)
   }
 
-  // if the original line goes from t=[0,1], return a new line that goes from t=[from, to]
-  subsection(from, to) {
-    // p0 := c.Start
-    // p1 := c.End
-    // a1 := LineChunk{Start: c.Start, End: c.P1}.At(t)
-    // a2 := LineChunk{Start: c.P1, End: c.End}.At(t)
-    // b1 := LineChunk{Start: a1, End: a2}.At(t)
-    // return QuadraticBezierChunk{Start: p0, P1: a1, End: b1}, QuadraticBezierChunk{Start: b1, P1: a2, End: p1}
-
-    let start = this.at(from)
-    let end = this.at(to)
+  // return two quadratic bezier curves, one from [0, t], the other from [t, 1]
+  subdivide(t) {
+    let start = this.from
+    let end = this.to
 
     let a1 = new StraightStroke(this.from, this.c1).at(t)
     let a2 = new StraightStroke(this.c1, this.to).at(t)
     let b1 = new StraightStroke(a1, a2).at(t)
+    return [new QuadraticBezier(this.from, a1, b1), new QuadraticBezier(b1, a2, end)]
+  }
 
-    // let a1 = new StraightStroke(this.from, this.c1).at(t)
-    // let a2 = new StraightStroke(this.c1, this.to).at(t)
-    // let b1 = new StraightStroke(a1, a2).at(t)
-    // return new QuadraticBezier(this.from, a1, b1)
-    return new QuadraticBezier(start, b1, end)
+  // if the original line goes from t=[0,1], return a new line that goes from t=[from, to]
+  subsection(from, to) {
+    if (to < from) {
+      throw `QuadraticBezier.subsection parameters out of order ${from} ${to}`
+    }
+    let [, subcurve] = this.subdivide(from)
+    let [subtwo, _] = subcurve.subdivide((to - from) / (1 - from))
+    return subtwo
   }
 
   dContinued() {
@@ -263,12 +309,63 @@ class CubicBezier {
     )
   }
 
+  intersectLineT(line) {
+    if (line.type != 'Line') {
+      throw `Invalid parameter to CubicBezier.intersectLineT: ${line.type}`
+    }
+    // compute cubic parameters (a,b,c,d), given the implicit notation of the line A⋅x=d, and the parametric equation of the Quadratic Bezier curve
+    // X(t) = (1-t)^3 * P0 + 3t(1-t)^2 * P1 + 3t^2(1-t) * P2 + P3
+
+    // the math works out to doing math on points, which is intentionally not supported, so they need to be converted to vectors
+    let v0 = Point2DOrigin.vectTo(this.from)
+    let v1 = Point2DOrigin.vectTo(this.c1)
+    let v2 = Point2DOrigin.vectTo(this.c2)
+    let v3 = Point2DOrigin.vectTo(this.to)
+    let [A, lineD] = line.implicit()
+    let aVect = v0.mult(-1).add(v1.mult(3).add(v2.mult(-3).add(v3))) // -P0 + 3P1 - 3P2 + P3
+    let a = A.dot(aVect)
+    let bVect = v0.mult(3).add(v1.mult(-6)).add(v2.mult(3)) // 3P0 - 6P1 + 3P2
+    let b = A.dot(bVect)
+    let cVect = v0.mult(-3).add(v1.mult(3))
+    let c = A.dot(cVect)
+    let d = A.dot(v0) - lineD
+    let roots = cubic(a, b, c, d)
+    return roots
+  }
+
   clip(bbox) {
-    // throw `CubicBezier.clip not implemented`
     if (!bbox.boxHasIntersection(this.bbox())) {
       return []
     }
-    return [this]
+    if (bbox.boxInside(this.bbox())) {
+      return [this]
+    }
+
+    let ts = []
+    for (let line of bbox.lines()) {
+      let roots = this.intersectLineT(line)
+      for (let root of roots) {
+        if (root >= 0 && root <= 1) {
+          ts.push(root)
+        }
+      }
+    }
+    console.log('cubic roots', ts)
+
+    if (ts.length == 0) {
+      // appears that the bezier doesn't intersect the boundary of the box
+      return []
+    }
+    ts.push(0, 1)
+    ts.sort()
+    for (let [a, b] of pairs(ts)) {
+      // TODO: allow for subsequent sections to be consecutive
+      let midpoint = average(a, b)
+      if (bbox.inside(this.at(midpoint))) {
+        return [this.subsection(a, b)]
+      }
+    }
+    return []
   }
 
   bbox() {
@@ -276,31 +373,37 @@ class CubicBezier {
   }
 
   at(t) {
-    let a1 = StraightStroke(this.from, this.c1).at(t)
-    let a2 = StraightStroke(this.c1, this.c2).at(t)
-    let a3 = StraightStroke(this.c2, this.to).at(t)
+    let a1 = new StraightStroke(this.from, this.c1).at(t)
+    let a2 = new StraightStroke(this.c1, this.c2).at(t)
+    let a3 = new StraightStroke(this.c2, this.to).at(t)
 
-    let b1 = StraightStroke(a1, a2).at(t)
-    let b2 = StraightStroke(a2, a3).at(t)
+    let b1 = new StraightStroke(a1, a2).at(t)
+    let b2 = new StraightStroke(a2, a3).at(t)
     return new StraightStroke(b1, b2).at(t)
   }
 
-  // if the original line goes from t=[0,1], return a new line that goes from t=[from, to]
-  subsection(from, to) {
-    let start = this.at(from)
-    let end = this.at(to)
+  // return two cubic bezier curves, one from [0, t], the other from [t, 1]
+  subdivide(t) {
+    let start = this.from
+    let end = this.to
 
     let a1 = new StraightStroke(this.from, this.c1).at(t)
     let a2 = new StraightStroke(this.c1, this.c2).at(t)
     let a3 = new StraightStroke(this.c2, this.to).at(t)
     let b1 = new StraightStroke(a1, a2).at(t)
     let b2 = new StraightStroke(a2, a3).at(t)
+    let c = new StraightStroke(b1, b2).at(t)
+    return [new CubicBezier(this.from, a1, b1, c), new CubicBezier(c, b2, a3, end)]
+  }
 
-    // let a1 = new StraightStroke(this.from, this.c1).at(t)
-    // let a2 = new StraightStroke(this.c1, this.to).at(t)
-    // let b1 = new StraightStroke(a1, a2).at(t)
-    // return new QuadraticBezier(this.from, a1, b1)
-    return new CubicBezier(start, b1, b2, end)
+  // if the original line goes from t=[0,1], return a new line that goes from t=[from, to]
+  subsection(from, to) {
+    if (to < from) {
+      throw `CubicBezier.subsection parameters out of order ${from} ${to}`
+    }
+    let [, subcurve] = this.subdivide(from)
+    let [subtwo, _] = subcurve.subdivide((to - from) / (1 - from))
+    return subtwo
   }
 
   dContinued() {

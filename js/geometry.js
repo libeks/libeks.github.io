@@ -261,13 +261,18 @@ class Line {
 
   projectPoint(p) {
     // project the point orthogonally down onto the line, return the point that is its projection
-    // if the point p is on the line, it will return itself
+    // if the point p is on the line, it will return a point identical to itself
     if (p.type != 'Point') {
       throw `Line.projectPoint got unexpected argument ${p.type}`
     }
     let vA = this.p.vectTo(p)
     let vB = this.v
     return this.p.addVect(vB.mult(vA.dot(vB) / vB.dot(vB)))
+  }
+
+  // return the implicit parameters [A, d] such that for every point x on the line, A⋅x = d, or A⋅x - d = 0
+  implicit() {
+    return [this.v.perp(), Point2DOrigin.vectTo(this.p).dot(this.v.perp())]
   }
 }
 

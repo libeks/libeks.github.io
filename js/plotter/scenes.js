@@ -22,6 +22,7 @@ const PlaneTree = new Scene()
 
 const Tiling = new Scene()
   .withTemplate(genericTruchetGrid, (bbox) => ({
+    // bbox: bbox.withPadding(1000),
     bbox,
     start: bbox.center(),
     size: 300,

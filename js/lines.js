@@ -174,7 +174,7 @@ class QuadraticBezier {
         }
       }
     }
-    console.log('quadratic roots', ts)
+    // console.log('quadratic roots', ts)
 
     if (ts.length == 0) {
       // appears that the bezier doesn't intersect the boundary of the box
@@ -225,6 +225,7 @@ class QuadraticBezier {
   }
 
   // return two quadratic bezier curves, one from [0, t], the other from [t, 1]
+  // this is helpful: https://pomax.github.io/bezierinfo/#splitting
   subdivide(t) {
     let start = this.from
     let end = this.to
@@ -350,7 +351,7 @@ class CubicBezier {
         }
       }
     }
-    console.log('cubic roots', ts)
+    // console.losg('cubic roots', ts)
 
     if (ts.length == 0) {
       // appears that the bezier doesn't intersect the boundary of the box
@@ -383,6 +384,7 @@ class CubicBezier {
   }
 
   // return two cubic bezier curves, one from [0, t], the other from [t, 1]
+  // this is helpful: https://pomax.github.io/bezierinfo/#splitting
   subdivide(t) {
     let start = this.from
     let end = this.to

@@ -40,14 +40,14 @@ const svgPlot = {
         layers.push(this.guideFrameLayer)
       }
       for (let [name, layer] of Object.entries(this.layers)) {
-        console.log('layer', name, layer)
+        // console.log('layer', name, layer)
         layers.push(new Layer(name).withCurves(...layer))
       }
-      console.log(
-        'layers',
-        layers,
-        Object.values(layers).map((layer) => layer.curves.map((curve) => curve.d())),
-      )
+      // console.log(
+      //   'layers',
+      //   layers,
+      //   Object.values(layers).map((layer) => layer.curves.map((curve) => curve.d())),
+      // )
       return layers
     },
   },

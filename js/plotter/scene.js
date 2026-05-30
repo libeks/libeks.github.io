@@ -9,7 +9,7 @@ function applyTemplate(template, parameters) {
     for (let [prop, typeDefault] of Object.entries(template.props)) {
       if (!(prop in parameters)) {
         console.warn(`Using default value for prop ${prop}`)
-        console.log('typeDefault', typeDefault)
+        // console.log('typeDefault', typeDefault)
         if ('default' in typeDefault) {
           obj[prop] = typeDefault.default
         } else {
@@ -66,12 +66,12 @@ class Scene {
 
         if (clipToBBox) {
           for (let curve of layer) {
-            console.log('curve.type', curve.type, curve)
+            // console.log('curve.type', curve.type, curve)
             let clipped = curve.clip(bbox)
-            console.log('clipped', clipped)
+            // console.log('clipped', clipped)
             curves.push(...clipped)
           }
-          console.log('clipped curves for layer', name, curves)
+          // console.log('clipped curves for layer', name, curves)
         } else {
           curves.push(...layer)
         }

@@ -56,6 +56,21 @@ class BBox {
     return true
   }
 
+  // returns whether the bbox is completely inside the current box
+  boxInside(bbox) {
+    return this.x1 <= bbox.x1 && this.x2 >= bbox.x2 && this.y1 <= bbox.y1 && this.y2 >= bbox.y2
+  }
+
+  // returns whether bbox is completely outside the current box
+  boxOutside(bbox) {
+    return this.x2 < bbox.x1 || this.x1 > bbox.x2 || this.y2 < bbox.y1 || this.y1 > bbox.y2
+  }
+
+  // returns whether bbox intersects at all with the current box
+  boxHasIntersection(bbox) {
+    return !this.boxOutside(bbox)
+  }
+
   // distance is 0 if the point is inside the box, otherwise it is the distance to the closest point on the boudnary
   distance(point) {
     if (point.type != 'Point') {
@@ -113,9 +128,25 @@ class BBox {
     return [this.top(), this.right(), this.bottom(), this.left()]
   }
 
+  // combine two bboxes together, producing a possibly larger box
+  add(bbox) {
+    return new BBox(
+      Math.min(this.x1, bbox.x1),
+      Math.max(this.x2, bbox.x2),
+      Math.min(this.y1, bbox.y1),
+      Math.max(this.y2, bbox.y2),
+    )
+  }
+
   d() {
     return `M ${this.x1} ${this.y1} L ${this.x2} ${this.y1} L ${this.x2} ${this.y2} L ${this.x1} ${this.y2} L ${this.x1} ${this.y1}`
   }
+}
+
+function bboxFromPointCloud(...points) {
+  let xs = points.map((pt) => pt.x)
+  let ys = points.map((pt) => pt.y)
+  return new BBox(Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys))
 }
 
 const svgBox = {
@@ -129,4 +160,4 @@ const svgBox = {
   },
 }
 
-export { BBox, svgBox }
+export { BBox, svgBox, bboxFromPointCloud }

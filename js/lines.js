@@ -1,6 +1,7 @@
 import { pairs } from '/js/utils.js'
 import { Point, Line } from '/js/geometry.js'
 import { average } from '/js/math.js'
+import { BBox, bboxFromPointCloud } from '/js/bbox.js'
 
 class StraightStroke {
   constructor(from, to) {
@@ -34,15 +35,6 @@ class StraightStroke {
   reverse() {
     // return the stroke in reverse order
     return new StraightStroke(this.to, this.from)
-  }
-
-  dContinued() {
-    // when rendering a sequence of strokes, skip the MOVE operation
-    return `L ${this.to.string()}`
-  }
-
-  d() {
-    return `M ${this.from.string()} ${this.dContinued()}`
   }
 
   midpoint() {
@@ -81,10 +73,8 @@ class StraightStroke {
       return [this]
     }
     let l = this.line()
-    console.log('line', l)
     let ts = [] // t-values relative to this segment
     for (let bboxLine of bbox.lines()) {
-      console.log('bbox line', bboxLine)
       let t = l.intersectT(bboxLine)
       if (t >= 0 && t <= 1) {
         ts.push(t)
@@ -96,7 +86,6 @@ class StraightStroke {
     }
     ts.push(0, 1)
     ts.sort()
-    console.log('ts', ts)
     for (let [a, b] of pairs(ts)) {
       let midpoint = average(a, b)
       if (bbox.inside(this.at(midpoint))) {
@@ -104,6 +93,24 @@ class StraightStroke {
       }
     }
     return []
+  }
+
+  bbox() {
+    return bboxFromPointCloud(this.from, this.to)
+  }
+
+  // if the original line goes from t=[0,1], return a new line that goes from t=[from, to]
+  subsection(from, to) {
+    return new StraightStroke(this.at(from), this.at(to))
+  }
+
+  dContinued() {
+    // when rendering a sequence of strokes, skip the MOVE operation
+    return `L ${this.to.string()}`
+  }
+
+  d() {
+    return `M ${this.from.string()} ${this.dContinued()}`
   }
 }
 
@@ -125,11 +132,6 @@ class QuadraticBezier {
 
   reverse() {
     return new QuadraticBezier(this.to, this.c1, this.from)
-  }
-
-  dContinued() {
-    // when rendering a sequence of strokes, skip the MOVE operation
-    return `Q ${this.c1.string()} ${this.to.string()}`
   }
 
   move(v) {
@@ -157,7 +159,49 @@ class QuadraticBezier {
 
   clip(bbox) {
     // throw `QuadraticBezier.clip not implemented`
+    if (!bbox.boxHasIntersection(this.bbox())) {
+      return []
+    }
     return [this]
+  }
+
+  bbox() {
+    return bboxFromPointCloud(this.from, this.c1, this.to)
+  }
+
+  at(t) {
+    return new StraightStroke(
+      new StraightStroke(this.from, this.c1).at(t),
+      new StraightStroke(this.c1, this.to).at(t),
+    ).at(t)
+  }
+
+  // if the original line goes from t=[0,1], return a new line that goes from t=[from, to]
+  subsection(from, to) {
+    // p0 := c.Start
+    // p1 := c.End
+    // a1 := LineChunk{Start: c.Start, End: c.P1}.At(t)
+    // a2 := LineChunk{Start: c.P1, End: c.End}.At(t)
+    // b1 := LineChunk{Start: a1, End: a2}.At(t)
+    // return QuadraticBezierChunk{Start: p0, P1: a1, End: b1}, QuadraticBezierChunk{Start: b1, P1: a2, End: p1}
+
+    let start = this.at(from)
+    let end = this.at(to)
+
+    let a1 = new StraightStroke(this.from, this.c1).at(t)
+    let a2 = new StraightStroke(this.c1, this.to).at(t)
+    let b1 = new StraightStroke(a1, a2).at(t)
+
+    // let a1 = new StraightStroke(this.from, this.c1).at(t)
+    // let a2 = new StraightStroke(this.c1, this.to).at(t)
+    // let b1 = new StraightStroke(a1, a2).at(t)
+    // return new QuadraticBezier(this.from, a1, b1)
+    return new QuadraticBezier(start, b1, end)
+  }
+
+  dContinued() {
+    // when rendering a sequence of strokes, skip the MOVE operation
+    return `Q ${this.c1.string()} ${this.to.string()}`
   }
 
   d() {
@@ -187,11 +231,6 @@ class CubicBezier {
 
   reverse() {
     return new CubicBezier(this.to, this.c2, this.c1, this.from)
-  }
-
-  dContinued() {
-    // when rendering a sequence of strokes, skip the MOVE operation
-    return `C ${this.c1.string()} ${this.c2.string()} ${this.to.string()}`
   }
 
   move(v) {
@@ -224,13 +263,53 @@ class CubicBezier {
     )
   }
 
-  d() {
-    return `M ${this.from.string()} ${this.dContinued()}`
-  }
-
   clip(bbox) {
     // throw `CubicBezier.clip not implemented`
+    if (!bbox.boxHasIntersection(this.bbox())) {
+      return []
+    }
     return [this]
+  }
+
+  bbox() {
+    return bboxFromPointCloud(this.from, this.c1, this.c2, this.to)
+  }
+
+  at(t) {
+    let a1 = StraightStroke(this.from, this.c1).at(t)
+    let a2 = StraightStroke(this.c1, this.c2).at(t)
+    let a3 = StraightStroke(this.c2, this.to).at(t)
+
+    let b1 = StraightStroke(a1, a2).at(t)
+    let b2 = StraightStroke(a2, a3).at(t)
+    return new StraightStroke(b1, b2).at(t)
+  }
+
+  // if the original line goes from t=[0,1], return a new line that goes from t=[from, to]
+  subsection(from, to) {
+    let start = this.at(from)
+    let end = this.at(to)
+
+    let a1 = new StraightStroke(this.from, this.c1).at(t)
+    let a2 = new StraightStroke(this.c1, this.c2).at(t)
+    let a3 = new StraightStroke(this.c2, this.to).at(t)
+    let b1 = new StraightStroke(a1, a2).at(t)
+    let b2 = new StraightStroke(a2, a3).at(t)
+
+    // let a1 = new StraightStroke(this.from, this.c1).at(t)
+    // let a2 = new StraightStroke(this.c1, this.to).at(t)
+    // let b1 = new StraightStroke(a1, a2).at(t)
+    // return new QuadraticBezier(this.from, a1, b1)
+    return new CubicBezier(start, b1, b2, end)
+  }
+
+  dContinued() {
+    // when rendering a sequence of strokes, skip the MOVE operation
+    return `C ${this.c1.string()} ${this.c2.string()} ${this.to.string()}`
+  }
+
+  d() {
+    return `M ${this.from.string()} ${this.dContinued()}`
   }
 }
 
@@ -419,10 +498,20 @@ class CompositeCurve {
     let clipped = []
     for (let component of this.curves) {
       let result = component.clip(bbox)
-      console.log('result', result)
       clipped.push(...result)
     }
-    return clipped
+    return clipped // the result will NOT be a CompositeCurve, since the segments will no longer be guaranteed to be connected
+  }
+
+  bbox() {
+    if (this.curves.length == 0) {
+      return new BBox(0, 0, 0, 0)
+    }
+    let bbox = this.curves[0]
+    for (let i = 1; i < this.curves.length; i++) {
+      bbox = bbox.add(this.curves[i].bbox())
+    }
+    return bbox
   }
 }
 

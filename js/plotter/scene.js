@@ -65,7 +65,7 @@ class Scene {
         let curves = []
 
         if (clipToBBox) {
-          for (let curve of layer) {
+          for (let curve of layer.curves) {
             // console.log('curve.type', curve.type, curve)
             let clipped = curve.clip(bbox)
             // console.log('clipped', clipped)

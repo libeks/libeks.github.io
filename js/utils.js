@@ -59,4 +59,6 @@ function enumerate(list) {
   return list.entries()
 }
 
-export { pairs, circularPairs, zip, shift, rightShift, reversed, enumerate }
+const range = (n) => Array(n).keys()
+
+export { pairs, circularPairs, zip, shift, rightShift, reversed, enumerate, range }

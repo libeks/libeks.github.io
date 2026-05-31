@@ -16,7 +16,10 @@ const PlaneTree = new Scene()
   }))
   .withLayers((template) => {
     return {
-      edges: template.edges.map((edge) => edge.line),
+      edges: {
+        curves: template.edges.map((edge) => edge.line),
+        color: 'blue',
+      },
     }
   })
 
@@ -25,13 +28,19 @@ const Tiling = new Scene()
     // bbox: bbox.withPadding(1000),
     bbox,
     start: bbox.center(),
-    size: 300,
-    pattern: uniform4Tilings[7],
+    size: 200,
+    pattern: uniform4Tilings[5],
     notches: [0.33],
   }))
   .withLayers((template) => ({
-    edges: template.grid.map((face) => face.ngon.face.straightStrokes).flat(),
-    curve: template.grid.map((face) => face.tile.getCatalanTile({ n: face.n })).flat(),
+    edges: {
+      curves: template.grid.map((face) => face.ngon.face.straightStrokes).flat(),
+      color: 'black',
+    },
+    curve: {
+      curves: template.grid.map((face) => face.tile.getCatalanTile({ n: face.n })).flat(),
+      color: 'red',
+    },
   }))
 
 const scenes = {

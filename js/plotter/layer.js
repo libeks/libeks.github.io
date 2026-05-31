@@ -11,11 +11,12 @@ class Layer {
     return this // allow chaining
   }
 
-  withCurves(...curves) {
+  withCurves(curves) {
     // check that each curve can be rendered, i.e. it has a '.d()' method
+    // console.log('withCurves', curves.length)
     for (let curve of curves) {
       if (!('d' in curve)) {
-        console.error('object without a .d method', curve)
+        console.error('Layer.withCurves passed object without a .d method', curve)
         throw `Curve in layer cannot be rendered`
       }
     }

@@ -325,13 +325,13 @@ const rootedTree = {
       this.tree.offsetY = 50
       this.tree.verticalStep = this.bbox.height() / (this.tree.maxDepth + 1)
       const tree = this.tree // capture to be used in setPosition
-      console.log(
-        'bbox',
-        this.bbox,
-        this.bbox.height(),
-        this.tree.maxDepth + 1,
-        this.bbox.height() / (this.tree.maxDepth + 1),
-      )
+      // console.log(
+      //   'bbox',
+      //   this.bbox,
+      //   this.bbox.height(),
+      //   this.tree.maxDepth + 1,
+      //   this.bbox.height() / (this.tree.maxDepth + 1),
+      // )
       // console.log('tree', tree)
       function setPosition(node) {
         node.y = (node.depth + 0.5) * tree.verticalStep

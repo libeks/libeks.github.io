@@ -4,11 +4,12 @@ class Pen {
     this.spacing = spacing
     this.xOffset = xOffset
     this.yOffset = yOffset
+    this.type = 'Pen'
   }
 }
 
 const pens = {
-  Micron005: new Pen('Micron 005', 6, 0, 0),
+  Micron005: new Pen('Micron 005', 6, 0, 0), // baseline, everything is relateive to this position. The frame and combs are drawn with this pen
   Micron01: new Pen('Micron 01', 6, 3, -4),
   Micron05: new Pen('Micron 05', 15, 0, 0),
   Micron10: new Pen('Micron 10', 20, -5, 15),

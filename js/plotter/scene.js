@@ -75,9 +75,10 @@ class Scene {
         } else {
           curves.push(...layer)
         }
-        newLayers[name] = curves
+        // newLayers[name] =
+        layer.curves = curves
       }
-      layers = newLayers
+      // layers = newLayers
     }
     this.layers = layers
     return this

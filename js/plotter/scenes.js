@@ -6,6 +6,7 @@ import { Point } from '/js/geometry.js'
 import { uniform4Tilings } from '/js/grid.js'
 
 import { Scene } from '/js/plotter/scene.js'
+import { pens } from '/js/plotter/pens.js'
 
 // a list of all the scenes available for plotting
 
@@ -40,6 +41,7 @@ const Tiling = new Scene()
     curve: {
       curves: template.grid.map((face) => face.tile.getCatalanTile({ n: face.n })).flat(),
       color: 'red',
+      pen: pens.CrayolaSuperTips,
     },
   }))
 

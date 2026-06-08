@@ -65,12 +65,13 @@ const svgPlot = {
       }, 20)
     },
     prettyTime(t) {
-      let minutes = t / 60
-      let seconds = t % 60
-      if (minutes < 1) {
-        return `${seconds.toFixed(0)}s`
-      }
-      return `${minutes.toFixed(0)}m${seconds.toFixed(0)}s`
+      let hours = Math.trunc(t / 3600)
+      let minutes = Math.trunc((t % 3600) / 60)
+      let seconds = Math.trunc(t % 60)
+      let hoursChunk = hours > 0 ? `${hours}h` : ''
+      let minutesChunk = minutes > 0 ? `${minutes}m` : ''
+      let secondsChunk = `${seconds}s` // display '0s' as a last resort
+      return `${hoursChunk}${minutesChunk}${secondsChunk}`
     },
   },
   computed: {

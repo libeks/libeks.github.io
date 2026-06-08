@@ -41,8 +41,8 @@ const Tiling = new Scene()
     },
     curve: {
       // curves: template.grid.map((face) => face.tile.getCatalanTile({ n: face.n })).flat(),
-      curves: [template.continuousTruchetCurves[0]],
-      // curves: template.continuousTruchetCurves,
+      // curves: [template.continuousTruchetCurves[0]],
+      curves: template.continuousTruchetCurves,
       // curves:
       color: 'blue',
       pen: pens.CrayolaSuperTips,

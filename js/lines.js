@@ -631,10 +631,34 @@ class CompositeCurve {
     let clipped = []
     for (let component of this.curves) {
       let result = component.clip(bbox)
-      // TODO: connect the chunks if they are continuous
       clipped.push(...result)
     }
-    return clipped // the result will NOT be a CompositeCurve, since the segments will no longer be guaranteed to be connected
+    // join continuous elements back together
+    if (clipped.length == 0) {
+      return []
+    }
+    let joined = []
+    let current
+    for (let elt of clipped) {
+      if (current == null) {
+        current = elt
+        continue
+      }
+      if (current.endpoint().same(elt.startpoint())) {
+        if (current.type == 'CompositeCurve') {
+          current.add(elt)
+        } else {
+          current = new CompositeCurve(current, elt)
+        }
+      } else {
+        joined.push(current)
+        current = elt
+      }
+    }
+    if (current != null) {
+      joined.push(current)
+    }
+    return joined // the result will be a list of curves, each disjoint
   }
 
   // return a this curve reversed, such that the endpoints are flipped

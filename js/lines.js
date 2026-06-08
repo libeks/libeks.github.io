@@ -473,6 +473,19 @@ class CircleArc {
 
 class CompositeCurve {
   constructor(...args) {
+    for (let [a, b] of pairs(args)) {
+      if (!a.endpoint().same(b.startpoint())) {
+        throw `Composite Curve called with non-connected segments`
+      }
+    }
+    for (let curve of args) {
+      if (
+        !['StraightStroke', 'QuadraticBezier', 'CubicBezier', 'CompositeCurve'].includes(curve.type)
+      ) {
+        console.trace()
+        throw `CompositeCurve got unexpected argument ${curve.type}`
+      }
+    }
     this.curves = args
     this.type = 'CompositeCurve'
   }
@@ -482,15 +495,30 @@ class CompositeCurve {
     return this
   }
 
+  // append curve segment at the end of the list. The segment's startpoint must match the endpoint of the composite curve
   add(curve) {
-    if (
-      this.curves.length > 0 &&
-      !curve.startpoint().same(this.curves[this.curves.length - 1].endpoint())
-    ) {
+    if (this.curves.length == 0) {
+      this.curves.push(curve)
+      return this
+    }
+    if (!curve.startpoint().same(this.curves[this.curves.length - 1].endpoint())) {
       console.trace()
       throw `Adding a new curve that is not continuous ${curve.d()}`
     }
     this.curves.push(curve)
+  }
+
+  // prepend a curve segment to the front of the list. The segment's endpoint must match the startpoint of the composite curve
+  prepend(curve) {
+    if (this.curves.length == 0) {
+      this.curves.push(curve)
+      return this
+    }
+    if (!curve.endpoint().same(this.curves[0].startpoint())) {
+      console.trace()
+      throw `Prepending a new curve that is not continuous ${curve.d()}`
+    }
+    this.curves.unshift(curve) // prepend the curve item to the list
   }
 
   startpoint() {
@@ -507,25 +535,25 @@ class CompositeCurve {
     return this.curves[this.curves.length - 1].endpoint()
   }
 
-  // return whether the current curve is continuous (except for endpoints)
-  continuous() {
-    if (this.curves.length < 2) {
-      // trivially true, including the empty case
-      return true
-    }
-    for (let i = 1; i < this.curves.length; i++) {
-      if (!this.curves[i - 1].endpoint().same(this.curves[i].startpoint())) {
-        return false
-      }
-    }
-    return true
-  }
+  // // return whether the current curve is continuous (except for endpoints)
+  // continuous() {
+  //   if (this.curves.length < 2) {
+  //     // trivially true, including the empty case
+  //     return true
+  //   }
+  //   for (let i = 1; i < this.curves.length; i++) {
+  //     if (!this.curves[i - 1].endpoint().same(this.curves[i].startpoint())) {
+  //       return false
+  //     }
+  //   }
+  //   return true
+  // }
 
   // return whether the curve is closed, i.e. it is continuous and its start and end points are connected
   closed() {
-    if (!this.continuous()) {
-      return false
-    }
+    // if (!this.continuous()) {
+    //   return false
+    // }
     return this.startpoint().same(this.endpoint())
   }
 
@@ -606,6 +634,12 @@ class CompositeCurve {
       clipped.push(...result)
     }
     return clipped // the result will NOT be a CompositeCurve, since the segments will no longer be guaranteed to be connected
+  }
+
+  // return a this curve reversed, such that the endpoints are flipped
+  reverse() {
+    let reversed = this.curves.toReversed().map((curve) => curve.reverse())
+    return new CompositeCurve(...reversed)
   }
 
   bbox() {

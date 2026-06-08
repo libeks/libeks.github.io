@@ -1,5 +1,5 @@
 import { Point, Line, Ray } from '/js/geometry.js'
-import { reversed, shift, rightShift, zip } from '/js/utils.js'
+import { reversed, shift, rightShift, zip, enumerate } from '/js/utils.js'
 import { degToRad, radToDeg, distance, randomInt } from '/js/math.js'
 import { generateIterativeCatalanNumerical } from '/js/catalan.js'
 import { getPairs } from '/js/triangular-tiles.js'
@@ -18,66 +18,66 @@ import { VertexGrid } from '/js/grid.js'
 
 const THRESHOLD = 0.01
 
-class GenericTriangleTruchetTile {
-  constructor(vertices, hasCenterNotch, notches, nCatalan) {
-    this.vertices = vertices
-    this.hasCenterNotch = hasCenterNotch
-    this.notches = notches
-    this.computePoints()
-    // this.nCatalan = nCatalan // the triangular tile to use
-  }
+// class GenericTriangleTruchetTile {
+//   constructor(vertices, hasCenterNotch, notches, nCatalan) {
+//     this.vertices = vertices
+//     this.hasCenterNotch = hasCenterNotch
+//     this.notches = notches
+//     this.computePoints()
+//     // this.nCatalan = nCatalan // the triangular tile to use
+//   }
 
-  getN() {
-    return this.vertices.length
-  }
+//   getN() {
+//     return this.vertices.length
+//   }
 
-  get center() {
-    let x = 0
-    let y = 0
-    for (let vertex of this.vertices) {
-      x += vertex.x
-      y += vertex.y
-    }
-    return new Point(x / this.getN(), y / this.getN())
-  }
+//   get center() {
+//     let x = 0
+//     let y = 0
+//     for (let vertex of this.vertices) {
+//       x += vertex.x
+//       y += vertex.y
+//     }
+//     return new Point(x / this.getN(), y / this.getN())
+//   }
 
-  // return a list of lines
-  computePoints() {
-    let center = this.center
-    let midpoints = zip(this.vertices, rightShift(this.vertices)).map(([v1, v2]) => v1.midpoint(v2))
-    let notches = []
-    let stars = {}
-    let perps = midpoints.map((pt) => pt.vectTo(center))
-    for (let [[c1, c2], [m1, perp]] of zip(
-      zip(this.vertices, rightShift(this.vertices)),
-      zip(midpoints, perps),
-    )) {
-      for (let notch of reversed(this.notches)) {
-        let id = notches.length
-        let n = m1.towards(c1, notch)
-        notches.push(n)
-        stars[id] = new Line(c1, c1.vectTo(center)).intersect(new Line(n, perp))
-      }
-      if (this.hasCenterNotch) {
-        notches.push(m1)
-      }
-      for (let notch of this.notches) {
-        let id = notches.length
-        let n = m1.towards(c2, notch)
-        notches.push(m1.towards(c2, notch))
-        stars[id] = new Line(c2, c2.vectTo(center)).intersect(new Line(n, perp))
-      }
-    }
+//   // return a list of lines
+//   computePoints() {
+//     let center = this.center
+//     let midpoints = zip(this.vertices, rightShift(this.vertices)).map(([v1, v2]) => v1.midpoint(v2))
+//     let notches = []
+//     let stars = {}
+//     let perps = midpoints.map((pt) => pt.vectTo(center))
+//     for (let [[c1, c2], [m1, perp]] of zip(
+//       zip(this.vertices, rightShift(this.vertices)),
+//       zip(midpoints, perps),
+//     )) {
+//       for (let notch of reversed(this.notches)) {
+//         let id = notches.length
+//         let n = m1.towards(c1, notch)
+//         notches.push(n)
+//         stars[id] = new Line(c1, c1.vectTo(center)).intersect(new Line(n, perp))
+//       }
+//       if (this.hasCenterNotch) {
+//         notches.push(m1)
+//       }
+//       for (let notch of this.notches) {
+//         let id = notches.length
+//         let n = m1.towards(c2, notch)
+//         notches.push(m1.towards(c2, notch))
+//         stars[id] = new Line(c2, c2.vectTo(center)).intersect(new Line(n, perp))
+//       }
+//     }
 
-    this.midpoints = midpoints
-    this.notchPoints = notches
-    this.stars = stars
-  }
+//     this.midpoints = midpoints
+//     this.notchPoints = notches
+//     this.stars = stars
+//   }
 
-  getCatalanTile(n) {
-    return []
-  }
-}
+//   getCatalanTile(n) {
+//     return []
+//   }
+// }
 
 class GenericTruchetTile {
   constructor(vertices, hasCenterNotch, notches, side) {
@@ -372,10 +372,13 @@ const genericTruchetGrid = {
             :style="{fill: 'white', stroke: 'black', 'fill-opacity':0.8}"
           />
         </g>
-        <template v-for="curve in face.tile.getCatalanTile({n:face.n})">
+        <template v-if="!showContinuous" v-for="curve in face.tile.getCatalanTile({n:face.n})">
           <path class="stroke medium" :d="curve.d()" />
         </template>
       </template>
+      <g v-if="showContinuous" v-for="curve in continuousTruchetCurves">
+        <path class="polygon" :d="curve.d()" :style="{fill: 'white', stroke: 'black', 'fill-opacity':0.8}" />
+      </g>
     </g>
     `,
   props: {
@@ -398,6 +401,7 @@ const genericTruchetGrid = {
       default: -1,
     },
     showEdges: Boolean,
+    showContinuous: Boolean,
     notches: Object,
   },
   computed: {
@@ -425,11 +429,132 @@ const genericTruchetGrid = {
       }
       return retList
     },
-  },
-  other: {
-    aaa: 1,
-    bbb: 2,
+    curveFragmentsByNgons() {
+      let byNGon = {}
+      for (let face of this.grid) {
+        let curves = []
+        // console.log('ngon.id', face.ngon.id, curves)
+        console.log('face', face)
+        for (let [id, curve] of enumerate(face.tile.getCatalanTile({ n: face.n }))) {
+          curves.push({
+            id: `${face.ngon.id}.${id}`,
+            faceID: face.ngon.id,
+            curve,
+          })
+        }
+        byNGon[face.ngon.id] = curves
+      }
+      console.log('byNGon', byNGon)
+      return byNGon
+    },
+    neighborNGonIDs() {
+      let byNGon = {}
+      for (let face of this.grid) {
+        byNGon[face.ngon.id] = face.ngon.edges.map((edge) => edge.id)
+      }
+      return byNGon
+    },
+    neighborNGonFragments() {
+      let byNGon = {}
+      for (let face of this.grid) {
+        byNGon[face.id] = face.ngon.edges.map((edge) => edge.id)
+      }
+      return byNGon
+    },
+    continuousTruchetCurves() {
+      // FIXME: fix this, so that each ngon maps to the curves that are in its neighbors
+      // FIXME: fix this so we can move both forwards and backwards from an arbitrary segment
+      // populate 'unprocessed' so all segments intially appear there. by the end of this method, 'unprocessed' should be empty
+      let unprocessed = {}
+      for (let ngon of Object.values(this.curveFragmentsByNgons)) {
+        for (let curve of ngon) {
+          unprocessed[curve.id] = curve
+        }
+      }
+      let curves = []
+      while (Object.keys(unprocessed).length > 0) {
+        let start = Object.values(unprocessed)[0]
+        let directions = ['forward', 'backward']
+        let end = start // initially the start and end are the same
+        delete unprocessed[start.id]
+        let aggregate = new CompositeCurve(start.curve)
+        // while (!current.endpoint().same(start.startpoint())) {
+        while (!aggregate.closed() && directions.length > 0) {
+          for (let direction of directions) {
+            let found = false
+            if (direction == 'forward') {
+              console.log('this.neighborNGonIDs', this.neighborNGonIDs)
+              for (let neighborNGonID of this.neighborNGonIDs[end.faceID]) {
+                let neighborNGon = this.curveFragmentsByNgons[neighborNGonID]
+                for (let curve of neighborNGon) {
+                  if (!(curve.id in unprocessed)) {
+                    continue
+                  }
+                  console.log('curve', curve)
+                  if (curve.curve.startpoint().same(end.curve.endpoint())) {
+                    aggregate.add(curve.curve)
+                    end = curve
+                    delete unprocessed[curve.id]
+                    found = true
+                    break
+                  } else if (curve.curve.endpoint().same(end.curve.endpoint())) {
+                    console.log('curve.curve', curve.curve)
+                    curve.curve = curve.curve.reverse()
+                    aggregate.add(curve.curve)
+                    end = curve
+                    delete unprocessed[curve.id]
+                    found = true
+                    break
+                  }
+                }
+                if (found) {
+                  break
+                }
+              }
+            } else {
+              // backwards
+              for (let neighborNGonID of this.neighborNGonIDs[start.faceID]) {
+                let neighborNGon = this.curveFragmentsByNgons[neighborNGonID]
+                for (let curve of neighborNGon) {
+                  if (!(curve.id in unprocessed)) {
+                    continue
+                  }
+                  if (curve.curve.endpoint().same(start.curve.startpoint())) {
+                    aggregate.prepend(curve.curve)
+                    start = curve
+                    delete unprocessed[curve.id]
+                    found = true
+                    break
+                  } else if (curve.curve.startpoint().same(start.curve.startpoint())) {
+                    curve.curve = curve.curve.reverse()
+                    aggregate.prepend(curve.curve)
+                    start = curve
+                    delete unprocessed[curve.id]
+                    found = true
+                    break
+                  }
+                }
+                if (found) {
+                  break
+                }
+              }
+            }
+            if (!found) {
+              directions = directions.filter((dir) => dir != direction)
+            }
+          }
+          // FIXME: figure out what to do if nothing is found, or if it hits the beginning
+          // if (!found)
+        }
+        // the curve is completed, i.e. it is closed, or we cannot make any progress on the curve
+        curves.push(aggregate)
+      }
+      // for (let ngon of this.grid) {
+      //   // console.log('ngon', ngon)
+      // }
+      return curves
+    },
   },
 }
 
-export { GenericTriangleTruchetTile, GenericTruchetTile, genericTruchetGrid }
+export { GenericTruchetTile, genericTruchetGrid }

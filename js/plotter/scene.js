@@ -1,6 +1,3 @@
-// import { compile } from '/js/vue.js'
-// import '/js/vue.js'
-
 const clipToBBox = true
 
 function applyTemplate(template, parameters) {
@@ -9,7 +6,6 @@ function applyTemplate(template, parameters) {
     for (let [prop, typeDefault] of Object.entries(template.props)) {
       if (!(prop in parameters)) {
         console.warn(`Using default value for prop ${prop}`)
-        // console.log('typeDefault', typeDefault)
         if ('default' in typeDefault) {
           obj[prop] = typeDefault.default
         } else {
@@ -34,7 +30,6 @@ function applyTemplate(template, parameters) {
       })
     }
   }
-  // console.log('template after application', template)
   return obj
 }
 
@@ -66,19 +61,14 @@ class Scene {
 
         if (clipToBBox) {
           for (let curve of layer.curves) {
-            // console.log('curve.type', curve.type, curve)
             let clipped = curve.clip(bbox)
-            // console.log('clipped', clipped)
             curves.push(...clipped)
           }
-          // console.log('clipped curves for layer', name, curves)
         } else {
           curves.push(...layer)
         }
-        // newLayers[name] =
         layer.curves = curves
       }
-      // layers = newLayers
     }
     this.layers = layers
     return this

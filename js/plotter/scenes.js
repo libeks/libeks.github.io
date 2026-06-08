@@ -26,10 +26,10 @@ const PlaneTree = new Scene()
 
 const Tiling = new Scene()
   .withTemplate(genericTruchetGrid, (bbox) => ({
-    // bbox: bbox.withPadding(1000),
-    bbox,
+    bbox: bbox.withPadding(1000),
+    // bbox,
     start: bbox.center(),
-    size: 200,
+    size: 300,
     pattern: uniform4Tilings[5],
     notches: [0.33],
   }))
@@ -37,10 +37,14 @@ const Tiling = new Scene()
     edges: {
       curves: template.grid.map((face) => face.ngon.face.straightStrokes).flat(),
       color: 'black',
+      pen: pens.CrayolaSuperTips,
     },
     curve: {
-      curves: template.grid.map((face) => face.tile.getCatalanTile({ n: face.n })).flat(),
-      color: 'red',
+      // curves: template.grid.map((face) => face.tile.getCatalanTile({ n: face.n })).flat(),
+      curves: [template.continuousTruchetCurves[0]],
+      // curves: template.continuousTruchetCurves,
+      // curves:
+      color: 'blue',
       pen: pens.CrayolaSuperTips,
     },
   }))

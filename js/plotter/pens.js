@@ -9,6 +9,7 @@ class Pen {
 }
 
 const pens = {
+  // all units here fit 10000 = 8in
   Micron005: new Pen('Micron 005', 6, 0, 0), // baseline, everything is relateive to this position. The frame and combs are drawn with this pen
   Micron01: new Pen('Micron 01', 6, 3, -4),
   Micron05: new Pen('Micron 05', 15, 0, 0),

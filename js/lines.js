@@ -3,6 +3,8 @@ import { Point, Line, Point2DOrigin } from '/js/geometry.js'
 import { average, quadratic, cubic } from '/js/math.js'
 import { BBox, bboxFromPointCloud } from '/js/bbox.js'
 
+const THRESHOLD = 1 // used to determine the length of Bezier curves
+
 class StraightStroke {
   constructor(from, to) {
     if (from.type != 'Point') {
@@ -104,8 +106,8 @@ class StraightStroke {
     return new StraightStroke(this.at(from), this.at(to))
   }
 
-  lenght() {
-    return this.vect().length()
+  length() {
+    return this.vect().len()
   }
 
   dContinued() {
@@ -241,8 +243,8 @@ class QuadraticBezier {
   }
 
   length() {
-    let firstLast = this.from.vectTo(this.to).length() // length of direct line from start to end
-    let fullContour = this.from.vectTo(this.c1).length() + this.c1.vectTo(this.to).length() // length of the full contour
+    let firstLast = this.from.vectTo(this.to).len() // length of direct line from start to end
+    let fullContour = this.from.vectTo(this.c1).len() + this.c1.vectTo(this.to).len() // length of the full contour
     if (fullContour - firstLast < THRESHOLD) {
       return firstLast
     }
@@ -413,11 +415,11 @@ class CubicBezier {
   }
 
   length() {
-    let firstLast = this.from.vectTo(this.to).length()
+    let firstLast = this.from.vectTo(this.to).len()
     let fullContour =
-      this.from.vectTo(this.c1).length() +
-      this.c1.vectTo(this.c2).length() +
-      this.c2.vectTo(this.to).length()
+      this.from.vectTo(this.c1).len() +
+      this.c1.vectTo(this.c2).len() +
+      this.c2.vectTo(this.to).len()
     if (fullContour - firstLast < THRESHOLD) {
       return firstLast
     }
@@ -691,6 +693,7 @@ class CompositeCurve {
   length() {
     let sum = 0
     for (let chunk of this.curves) {
+      // console.log('chunk', chunk)
       sum += chunk.length()
     }
     return sum

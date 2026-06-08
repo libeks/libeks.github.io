@@ -1,4 +1,5 @@
 import { Point, Vector, Line } from '/js/geometry.js'
+import { StraightStroke, CompositeCurve } from '/js/lines.js'
 
 class BBox {
   constructor(x1, y1, x2, y2) {
@@ -9,6 +10,7 @@ class BBox {
     this.x2 = x2
     this.y1 = y1
     this.y2 = y2
+    this.type = 'BBox'
   }
 
   width() {
@@ -135,6 +137,15 @@ class BBox {
       Math.max(this.x2, bbox.x2),
       Math.min(this.y1, bbox.y1),
       Math.max(this.y2, bbox.y2),
+    )
+  }
+
+  continuousCurve() {
+    return new CompositeCurve(
+      new StraightStroke(this.upperLeft(), this.upperRight()),
+      new StraightStroke(this.upperRight(), this.lowerRight()),
+      new StraightStroke(this.lowerRight(), this.lowerLeft()),
+      new StraightStroke(this.lowerLeft(), this.upperLeft()),
     )
   }
 

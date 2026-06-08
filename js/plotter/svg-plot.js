@@ -18,9 +18,24 @@ const svgPlot = {
       </div>
       <a ref="download" @click="getSVG" >⤓ Download SVG</a>
       <div class="plot-statistics">
-        <ul>
-          <li v-for="layer in allLayers">{{layer.name}}</li>
-        </ul>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">
+                Name
+              </th>
+              <th scope="col">
+                Time
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="layer in allLayers">
+              <td>{{layer.name}}</td>
+              <td style="text-align: right">{{prettyTime(layer.statistics().time)}}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
     </div>
@@ -49,6 +64,14 @@ const svgPlot = {
         URL.revokeObjectURL(href)
       }, 20)
     },
+    prettyTime(t) {
+      let minutes = t / 60
+      let seconds = t % 60
+      if (minutes < 1) {
+        return `${seconds.toFixed(0)}s`
+      }
+      return `${minutes.toFixed(0)}m${seconds.toFixed(0)}s`
+    },
   },
   computed: {
     canvas() {
@@ -60,7 +83,7 @@ const svgPlot = {
       return new BBox(0, yOffset, 13333, 10000).withPadding(framePadding)
     },
     guideFrameLayer() {
-      return new Layer('frame').withCurves([this.canvas])
+      return new Layer('frame').withCurves([this.canvas.continuousCurve()])
     },
     layers() {
       // only the layers relevant to the scene

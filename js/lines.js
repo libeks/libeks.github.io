@@ -104,6 +104,10 @@ class StraightStroke {
     return new StraightStroke(this.at(from), this.at(to))
   }
 
+  lenght() {
+    return this.vect().length()
+  }
+
   dContinued() {
     // when rendering a sequence of strokes, skip the MOVE operation
     return `L ${this.to.string()}`
@@ -234,6 +238,16 @@ class QuadraticBezier {
     let a2 = new StraightStroke(this.c1, this.to).at(t)
     let b1 = new StraightStroke(a1, a2).at(t)
     return [new QuadraticBezier(this.from, a1, b1), new QuadraticBezier(b1, a2, end)]
+  }
+
+  length() {
+    let firstLast = this.from.vectTo(this.to).length() // length of direct line from start to end
+    let fullContour = this.from.vectTo(this.c1).length() + this.c1.vectTo(this.to).length() // length of the full contour
+    if (fullContour - firstLast < THRESHOLD) {
+      return firstLast
+    }
+    let [a, b] = this.subdivide(0.5)
+    return a.length() + b.length()
   }
 
   // if the original line goes from t=[0,1], return a new line that goes from t=[from, to]
@@ -396,6 +410,19 @@ class CubicBezier {
     let b2 = new StraightStroke(a2, a3).at(t)
     let c = new StraightStroke(b1, b2).at(t)
     return [new CubicBezier(this.from, a1, b1, c), new CubicBezier(c, b2, a3, end)]
+  }
+
+  length() {
+    let firstLast = this.from.vectTo(this.to).length()
+    let fullContour =
+      this.from.vectTo(this.c1).length() +
+      this.c1.vectTo(this.c2).length() +
+      this.c2.vectTo(this.to).length()
+    if (fullContour - firstLast < THRESHOLD) {
+      return firstLast
+    }
+    let [a, b] = this.subdivide(0.5)
+    return a.length() + b.length()
   }
 
   // if the original line goes from t=[0,1], return a new line that goes from t=[from, to]
@@ -659,6 +686,14 @@ class CompositeCurve {
       joined.push(current)
     }
     return joined // the result will be a list of curves, each disjoint
+  }
+
+  length() {
+    let sum = 0
+    for (let chunk of this.curves) {
+      sum += chunk.length()
+    }
+    return sum
   }
 
   // return a this curve reversed, such that the endpoints are flipped

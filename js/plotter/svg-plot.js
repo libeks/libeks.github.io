@@ -34,22 +34,15 @@ const svgPlot = {
   },
   methods: {
     getSVG() {
-      // console.log()
-      // const data = new XMLSerializer().serializeToString(this.$refs.plot.children[0])
       let ref = this.$refs.plot.children[0].outerHTML
-      // console.log('blob', ref)
       const blob = new Blob([ref], { type: 'image/svg+xml' })
-      // console.log('blob', blob)
       const href = URL.createObjectURL(blob)
-      // console.log('href', href)
       let element = document.createElement('a')
-      // element.setAttribute('href', 'data:application/json;charset=utf-8,' + href)
       element.setAttribute('href', href)
       element.setAttribute('download', 'plot.svg')
       element.setAttribute('target', '_blank')
       element.style.display = 'none'
       document.body.appendChild(element)
-      // console.log('element', element)
       element.click()
       document.body.removeChild(element)
       setTimeout(function () {
@@ -122,6 +115,9 @@ const svgPlot = {
         }
         if (layer.pen) {
           layerObj = layerObj.withPen(layer.pen)
+        }
+        if (!layer.dontOptimize) {
+          layerObj = layerObj.optimize()
         }
         layers.push(layerObj)
       }

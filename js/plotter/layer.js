@@ -40,6 +40,11 @@ class Layer {
     return this // allow chaining
   }
 
+  // rearrange the layer to minimize pen uptime
+  optimize() {
+    return this
+  }
+
   // the transform property of the <g> element, to position the pen correctly relative to the comb
   transform() {
     return `translate(${this.pen.xOffset} ${this.pen.yOffset})`

@@ -433,8 +433,6 @@ const genericTruchetGrid = {
       let byNGon = {}
       for (let face of this.grid) {
         let curves = []
-        // console.log('ngon.id', face.ngon.id, curves)
-        console.log('face', face)
         for (let [id, curve] of enumerate(face.tile.getCatalanTile({ n: face.n }))) {
           curves.push({
             id: `${face.ngon.id}.${id}`,
@@ -444,7 +442,6 @@ const genericTruchetGrid = {
         }
         byNGon[face.ngon.id] = curves
       }
-      console.log('byNGon', byNGon)
       return byNGon
     },
     neighborNGonIDs() {
@@ -462,8 +459,6 @@ const genericTruchetGrid = {
       return byNGon
     },
     continuousTruchetCurves() {
-      // FIXME: fix this, so that each ngon maps to the curves that are in its neighbors
-      // FIXME: fix this so we can move both forwards and backwards from an arbitrary segment
       // populate 'unprocessed' so all segments intially appear there. by the end of this method, 'unprocessed' should be empty
       let unprocessed = {}
       for (let ngon of Object.values(this.curveFragmentsByNgons)) {
@@ -478,19 +473,16 @@ const genericTruchetGrid = {
         let end = start // initially the start and end are the same
         delete unprocessed[start.id]
         let aggregate = new CompositeCurve(start.curve)
-        // while (!current.endpoint().same(start.startpoint())) {
         while (!aggregate.closed() && directions.length > 0) {
           for (let direction of directions) {
             let found = false
             if (direction == 'forward') {
-              console.log('this.neighborNGonIDs', this.neighborNGonIDs)
               for (let neighborNGonID of this.neighborNGonIDs[end.faceID]) {
                 let neighborNGon = this.curveFragmentsByNgons[neighborNGonID]
                 for (let curve of neighborNGon) {
                   if (!(curve.id in unprocessed)) {
                     continue
                   }
-                  console.log('curve', curve)
                   if (curve.curve.startpoint().same(end.curve.endpoint())) {
                     aggregate.add(curve.curve)
                     end = curve
@@ -498,7 +490,6 @@ const genericTruchetGrid = {
                     found = true
                     break
                   } else if (curve.curve.endpoint().same(end.curve.endpoint())) {
-                    console.log('curve.curve', curve.curve)
                     curve.curve = curve.curve.reverse()
                     aggregate.add(curve.curve)
                     end = curve
@@ -543,15 +534,10 @@ const genericTruchetGrid = {
               directions = directions.filter((dir) => dir != direction)
             }
           }
-          // FIXME: figure out what to do if nothing is found, or if it hits the beginning
-          // if (!found)
         }
         // the curve is completed, i.e. it is closed, or we cannot make any progress on the curve
         curves.push(aggregate)
       }
-      // for (let ngon of this.grid) {
-      //   // console.log('ngon', ngon)
-      // }
       return curves
     },
   },

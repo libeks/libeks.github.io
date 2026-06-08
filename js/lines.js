@@ -631,6 +631,7 @@ class CompositeCurve {
     let clipped = []
     for (let component of this.curves) {
       let result = component.clip(bbox)
+      // TODO: connect the chunks if they are continuous
       clipped.push(...result)
     }
     return clipped // the result will NOT be a CompositeCurve, since the segments will no longer be guaranteed to be connected

@@ -33,16 +33,17 @@ const PlaneTree = new Scene()
 const Tiling = new Scene()
   .withTemplate(
     genericTruchetGrid,
-    (bbox, { size, pattern }) => ({
-      bbox: bbox.withPadding(1000),
-      // bbox,
-      start: bbox.center(),
-      // size: 300,
-      size,
-      // pattern: uniform4Tilings[5],
-      pattern,
-      notches: [0.33],
-    }),
+    (bbox, { size, pattern, notch1, notch2, notches, padding }) => {
+      // let
+      return {
+        // bbox: bbox.withPadding(1000),
+        bbox: padding ? bbox.withPadding(padding) : bbox,
+        start: bbox.center(),
+        size,
+        pattern,
+        notches: notches == 1 ? [notch1] : [notch1, notch2],
+      }
+    },
     [
       {
         name: 'pattern',
@@ -63,6 +64,35 @@ const Tiling = new Scene()
         step: 20,
         max: 1000,
         default: 300,
+      },
+      {
+        name: 'notch1',
+        type: 'slider',
+        min: 0.01,
+        step: 0.01,
+        max: 0.99,
+        default: 0.33,
+      },
+      {
+        name: 'notch2',
+        type: 'slider',
+        min: 0.01,
+        step: 0.01,
+        max: 0.99,
+        default: 0.66,
+      },
+      {
+        name: 'notches',
+        type: 'radioButton',
+        choices: [
+          { value: 1, display: '1' },
+          { value: 2, display: '2' },
+        ],
+        default: 1,
+      },
+      {
+        name: 'padding',
+        default: 1000,
       },
     ],
   )

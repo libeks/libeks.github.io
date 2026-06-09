@@ -13,12 +13,12 @@ const playControls = {
 
 const radioButtons = {
   template: `
-    <div class="radio">
+    <div class="radio button-block">
       <div v-for="choice in choices" :class="{button:true, 'button-radio': true, active:choice.value==value}" @click="$emit('setChoice', choice.value)">{{choice.display}}</div>
     </div
   `,
   props: {
-    value: String,
+    value: [String, Number],
     choices: Object,
   },
 }
@@ -84,7 +84,7 @@ const incrementalButtons = {
   template: `
     <div class="controls button-block">
       <div class="button" @click="n>=min+step ? $emit('value', n-step) : null">-</div>
-      <div class="button">{{n}}</div>
+      <div class="button disabled">{{n}}</div>
       <div class="button" @click="n<=max-step ? $emit('value', n+step) : null">+</div>
     </div>
   `,

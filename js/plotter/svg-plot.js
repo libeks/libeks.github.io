@@ -2,7 +2,7 @@ import { StraightStroke, Polygon } from '/js/lines.js'
 import { Point, Vector } from '/js/geometry.js'
 import { BBox } from '/js/bbox.js'
 import { range, enumerate } from '/js/utils.js'
-import { incrementalButtons } from '/js/buttons.js'
+import { incrementalButtons, radioButtons } from '/js/buttons.js'
 
 import { pens } from '/js/plotter/pens.js'
 import { Layer } from '/js/plotter/layer.js'
@@ -49,6 +49,23 @@ const svgPlot = {
               :max="option.max" 
               :step="option.step"
               @value="(n) => configs[option.name] = n"/>
+            <radio-buttons
+              v-if="option.type=='radioButton'"
+              :choices="option.choices"
+              :value="configs[option.name]"
+              @set-choice="(v) => configs[option.name] = v"
+            > </radio-buttons>
+            <input
+              v-if="option.type=='slider'"
+              class="slider"
+              type="range"
+              :name="option.name"
+              :min="option.min"
+              :max="option.max"
+              :step="option.step"
+              v-model.number="configs[option.name]"
+            />
+            
           </div>
         </div>
       </div>
@@ -101,6 +118,7 @@ const svgPlot = {
   },
   components: {
     incrementalButtons,
+    radioButtons,
   },
   computed: {
     canvas() {

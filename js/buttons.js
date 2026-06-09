@@ -74,11 +74,34 @@ const integerButtons = {
       <div class="button" @click="$emit('increase')">+</div>
     </div>
   `,
-
   props: {
     n: Number,
   },
   emits: ['increase', 'decrease'],
 }
 
-export { playControls, radioButtons, toggleButton, collapsibleButton, integerButtons }
+const incrementalButtons = {
+  template: `
+    <div class="controls button-block">
+      <div class="button" @click="n>=min+step ? $emit('value', n-step) : null">-</div>
+      <div class="button">{{n}}</div>
+      <div class="button" @click="n<=max-step ? $emit('value', n+step) : null">+</div>
+    </div>
+  `,
+  props: {
+    n: Number,
+    min: Number,
+    max: Number,
+    step: Number,
+  },
+  emits: ['value'],
+}
+
+export {
+  playControls,
+  radioButtons,
+  toggleButton,
+  collapsibleButton,
+  integerButtons,
+  incrementalButtons,
+}

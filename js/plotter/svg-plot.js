@@ -2,6 +2,7 @@ import { StraightStroke, Polygon } from '/js/lines.js'
 import { Point, Vector } from '/js/geometry.js'
 import { BBox } from '/js/bbox.js'
 import { range, enumerate } from '/js/utils.js'
+import { incrementalButtons } from '/js/buttons.js'
 
 import { pens } from '/js/plotter/pens.js'
 import { Layer } from '/js/plotter/layer.js'
@@ -11,7 +12,8 @@ const svgPlot = {
     <div>
       <div class='plot' ref="plot" style="border: solid 1px black">
         <svg viewBox="0,0,13333,10000"  version="1.1" sodipodi:docname="test_inkscape.svg" inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
-          <g v-for="layer in allLayers" inkscape:groupmode="layer" :inkscape:label="layer.name" :transform="layer.transform()">
+          <metadata class="configs" v-html="rawHTMLComment" />
+          <g v-for="layer in allLayers" inkscape:groupmode="layer" :inkscape:label="layer.displayName" :transform="layer.transform()">
             <path v-for="curve in layer.curves" :d="curve.d()" :stroke="layer.color" fill="none" :stroke-width="layer.pen.spacing" stroke-opacity="0.5"/>
           </g>
         </svg>
@@ -21,26 +23,49 @@ const svgPlot = {
         <table>
           <thead>
             <tr>
-              <th scope="col">
-                Name
-              </th>
-              <th scope="col">
-                Time
-              </th>
+              <th scope="col">Name</th>
+              <th scope="col">Time</th>
+              <th scope="col">Pen</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="layer in allLayers">
-              <td>{{layer.name}}</td>
+              <td>{{layer.displayName}}</td>
               <td style="text-align: right">{{prettyTime(layer.statistics().time)}}</td>
+              <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1" :style="{color: layer.color}">{{layer.pen.name}}</td>
             </tr>
           </tbody>
         </table>
+        <div class="options">
+          <div v-for="option in scene.options">
+            <div class="name">{{option.name}}</div>
+            <select v-if="option.type=='dropdown' "v-model="configs[option.name]">
+              <option v-for="elt of option.options" :value="elt.value">{{elt.name}}</option>
+            </select>
+            <incremental-buttons 
+              v-if="option.type=='incremental'" 
+              :n="configs[option.name]" 
+              :min="option.min" 
+              :max="option.max" 
+              :step="option.step"
+              @value="(n) => configs[option.name] = n"/>
+          </div>
+        </div>
       </div>
 
     </div>
 
   `,
+  data() {
+    let configs = {}
+    for (let option of this.scene.options) {
+      configs[option.name] = option.default
+    }
+    console.log('configs', configs)
+    return {
+      configs,
+    }
+  },
   props: {
     scene: Object,
     bbox: Object,
@@ -74,6 +99,9 @@ const svgPlot = {
       return `${hoursChunk}${minutesChunk}${secondsChunk}`
     },
   },
+  components: {
+    incrementalButtons,
+  },
   computed: {
     canvas() {
       let yOffset = 0
@@ -88,7 +116,11 @@ const svgPlot = {
     },
     layers() {
       // only the layers relevant to the scene
-      return this.scene.place(this.canvas).layers
+      console.log('computing layers with', this.configs)
+      return this.scene.place(this.canvas, this.configs).layers
+    },
+    rawHTMLComment() {
+      return `<!-- ${Object.keys(this.configs)} -->`
     },
     combLayer() {
       // return the combs for the guides to be printed into
@@ -97,7 +129,6 @@ const svgPlot = {
       }
 
       let n = 0
-      // console.log('layers', this.layers)
       for (let layer of Object.values(this.namedLayers)) {
         if (layer.drawGuides) {
           n += 1
@@ -149,6 +180,7 @@ const svgPlot = {
     },
     allLayers() {
       let layers = []
+      console.log('scene options', this.scene.options)
       if (this.withFrame) {
         layers.push(this.guideFrameLayer)
       }
@@ -165,9 +197,11 @@ const svgPlot = {
               new StraightStroke(new Point(300, 500), new Point(700, 500)).move(offset),
             ])
             .withPen(layer.pen)
+
           if (layer.color) {
             layerObj = layerObj.withColor(layer.color)
           }
+          layer.attachChild(layerObj) // make sure the real layer has the guide layer as a child
           layers.push(layerObj)
           offset = offset.add(new Vector(1000, 0))
         }
@@ -175,7 +209,7 @@ const svgPlot = {
       }
       // prefix each layer with a numerical index
       for (let [id, layer] of enumerate(layers)) {
-        layer.name = `${id} - ${layer.name}`
+        layer.displayName = `${id} - ${layer.name}`
       }
 
       return layers

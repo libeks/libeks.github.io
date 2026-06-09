@@ -3,7 +3,13 @@ import { BBox } from '/js/bbox.js'
 import { genericTruchetGrid } from '/js/regular-truchet.js'
 import { Point } from '/js/geometry.js'
 
-import { uniform4Tilings } from '/js/grid.js'
+import {
+  regularTilings,
+  semiregularTilings,
+  uniform2Tilings,
+  uniform3Tilings,
+  uniform4Tilings,
+} from '/js/grid.js'
 
 import { Scene } from '/js/plotter/scene.js'
 import { pens } from '/js/plotter/pens.js'
@@ -25,14 +31,41 @@ const PlaneTree = new Scene()
   })
 
 const Tiling = new Scene()
-  .withTemplate(genericTruchetGrid, (bbox) => ({
-    bbox: bbox.withPadding(1000),
-    // bbox,
-    start: bbox.center(),
-    size: 300,
-    pattern: uniform4Tilings[5],
-    notches: [0.33],
-  }))
+  .withTemplate(
+    genericTruchetGrid,
+    (bbox, { size, pattern }) => ({
+      bbox: bbox.withPadding(1000),
+      // bbox,
+      start: bbox.center(),
+      // size: 300,
+      size,
+      // pattern: uniform4Tilings[5],
+      pattern,
+      notches: [0.33],
+    }),
+    [
+      {
+        name: 'pattern',
+        type: 'dropdown',
+        options: [
+          ...regularTilings,
+          ...semiregularTilings,
+          ...uniform2Tilings,
+          ...uniform3Tilings,
+          ...uniform4Tilings,
+        ].map((tiling) => ({ name: tiling.string(), value: tiling })),
+        default: uniform4Tilings[5],
+      },
+      {
+        name: 'size',
+        type: 'incremental',
+        min: 300,
+        step: 20,
+        max: 1000,
+        default: 300,
+      },
+    ],
+  )
   .withLayers((template) => ({
     edges: {
       curves: template.grid.map((face) => face.ngon.face.straightStrokes).flat(),
@@ -40,10 +73,7 @@ const Tiling = new Scene()
       pen: pens.CrayolaSuperTips,
     },
     curve: {
-      // curves: template.grid.map((face) => face.tile.getCatalanTile({ n: face.n })).flat(),
-      // curves: [template.continuousTruchetCurves[0]],
       curves: template.continuousTruchetCurves,
-      // curves:
       color: 'blue',
       pen: pens.CrayolaSuperTips,
     },

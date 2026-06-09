@@ -687,7 +687,7 @@ class CompositeCurve {
     if (current != null) {
       joined.push(current)
     }
-    return joined // the result will be a list of curves, each disjoint
+    return joined // the result will be a list of curves (some primitive, some composite curves), each disjoint
   }
 
   length() {

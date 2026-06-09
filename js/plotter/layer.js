@@ -27,6 +27,10 @@ class Layer {
     this.drawGuides = false
     this.color = 'black'
     this.pen = pens.Micron005
+    this.child = null
+    this.parent = null
+
+    this.type = 'Layer'
   }
 
   withGuides() {
@@ -65,29 +69,31 @@ class Layer {
     return this
   }
 
+  attachChild(layer) {
+    if (layer.type != 'Layer') {
+      throw `Layer.attachLayer called with unexpected argument ${layer}`
+    }
+    this.child = layer
+    layer.parent = this
+  }
+
   statistics() {
     // TODO: take curvature into account when computing down distance, the pen moves slower on curves
-    // console.log('this.curves', this.name, this.curves)
-    // let downLength = this.curves.reduce((acc, current) => acc + current.length(), 0)
     let downLength = 0
     for (let curve of this.curves) {
-      // console.log('curve lenght', curve, curve.length())
       downLength += curve.length()
     }
     let upLength = 0
     for (let [a, b] of pairs(this.curves)) {
-      // console.log('a,b', a, b)
       let distance = a.endpoint().vectTo(b.startpoint()).len()
       upLength += distance
     }
-    // console.log('startpoint', this.curves[0].startpoint().vectTo(Point2DOrigin))
     upLength +=
       this.curves[0].startpoint().vectTo(Point2DOrigin).len() +
       this.curves[this.curves.length - 1].endpoint().vectTo(Point2DOrigin).len()
     let totalDistance = downLength + upLength
     let meters = imageSpaceToMeters(totalDistance)
     let seconds = metersToSeconds(meters)
-    // console.log('totalDistance', downLength, upLength, totalDistance, meters, seconds)
     return {
       downLength,
       upLength,

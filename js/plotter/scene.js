@@ -37,11 +37,13 @@ class Scene {
   constructor() {
     this.layers = []
     this.template = null
+    this.options = []
   }
 
-  withTemplate(template, parameterFn) {
+  withTemplate(template, parameterFn, options) {
     this.rawTemplate = template
     this.parameterFn = parameterFn
+    this.options = options
     return this
   }
 
@@ -50,8 +52,9 @@ class Scene {
     return this
   }
 
-  place(bbox) {
-    this.parameters = this.parameterFn(bbox)
+  place(bbox, options) {
+    console.log('received options', options)
+    this.parameters = this.parameterFn(bbox, options)
     this.template = applyTemplate(this.rawTemplate, this.parameters)
     let layers = this.layerFn(this.template)
     if (clipToBBox) {

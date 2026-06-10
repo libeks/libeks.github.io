@@ -37,7 +37,7 @@ const Tiling = new Scene()
       // let
       return {
         // bbox: bbox.withPadding(1000),
-        bbox: padding ? bbox.withPadding(padding) : bbox,
+        bbox: padding ? bbox.withPadding(size * 3.3) : bbox,
         start: bbox.center(),
         size,
         pattern,

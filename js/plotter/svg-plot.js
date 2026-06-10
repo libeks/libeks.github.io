@@ -65,7 +65,6 @@ const svgPlot = {
               :step="option.step"
               v-model.number="scene.configs[option.name]"
             />
-            
           </div>
         </div>
       </div>
@@ -73,16 +72,6 @@ const svgPlot = {
     </div>
 
   `,
-  // data() {
-  //   let configs = {}
-  //   for (let option of this.scene.options) {
-  //     configs[option.name] = option.default
-  //   }
-  //   console.log('configs', configs)
-  //   return {
-  //     configs,
-  //   }
-  // },
   props: {
     scene: Object,
     bbox: Object,
@@ -120,12 +109,6 @@ const svgPlot = {
       let secondsChunk = `${seconds}s` // display '0s' as a last resort
       return `${hoursChunk}${minutesChunk}${secondsChunk}`
     },
-    // configValue(key) {
-    //   if (key in this.configs) {
-    //     return this.configs[key]
-    //   }
-    //   return this.scene.options[key].default
-    // },
   },
   components: {
     incrementalButtons,

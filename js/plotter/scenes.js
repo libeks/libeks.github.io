@@ -42,7 +42,8 @@ const Tiling = new Scene('TruchetTiling')
       // let
       return {
         // bbox: bbox.withPadding(1000),
-        bbox: padding ? bbox.withPadding(size * 3.3) : bbox,
+        // bbox: padding ? bbox.withPadding(size * 3.3) : bbox,
+        bbox,
         start: bbox.center(),
         size,
         pattern,
@@ -65,7 +66,7 @@ const Tiling = new Scene('TruchetTiling')
       {
         name: 'size',
         type: 'incremental',
-        min: 300,
+        min: 100,
         step: 20,
         max: 1000,
         default: 300,

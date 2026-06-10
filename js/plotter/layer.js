@@ -150,8 +150,8 @@ class Layer {
       upLength,
       total: totalDistance,
       time: seconds,
-      upDownCount,
-      nCurves: this.curves.length,
+      upDownCount, // number of times the pen has to lift and descend
+      nCurves: this.curves.length, // number of curves, some may be continuous
     }
   }
 

@@ -11,7 +11,7 @@ const svgPlot = {
   template: `
     <div>
       <div class='plot' ref="plot" style="border: solid 1px black">
-        <svg viewBox="0,0,13333,10000"  version="1.1" sodipodi:docname="test_inkscape.svg" inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+        <svg width="12in" height="9in" viewBox="0,0,13333,10000"  version="1.1" sodipodi:docname="test_inkscape.svg" inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
           <metadata class="configs" v-html="rawHTMLComment" />
           <g v-for="layer in allLayers" inkscape:groupmode="layer" :inkscape:label="layer.displayName" :transform="layer.transform()">
             <path v-for="curve in layer.curves" :d="curve.d()" :stroke="layer.color" fill="none" :stroke-width="layer.pen.spacing" stroke-opacity="0.5"/>

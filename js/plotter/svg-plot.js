@@ -39,21 +39,21 @@ const svgPlot = {
         <div class="options">
           <div v-for="option in scene.options">
             <div class="name">{{option.name}}</div>
-            <select v-if="option.type=='dropdown' "v-model="configs[option.name]">
+            <select v-if="option.type=='dropdown' "v-model="scene.configs[option.name]">
               <option v-for="elt of option.options" :value="elt.value">{{elt.name}}</option>
             </select>
             <incremental-buttons 
               v-if="option.type=='incremental'" 
-              :n="configs[option.name]" 
+              :n="scene.configs[option.name]" 
               :min="option.min" 
               :max="option.max" 
               :step="option.step"
-              @value="(n) => configs[option.name] = n"/>
+              @value="(n) => scene.configs[option.name] = n"/>
             <radio-buttons
               v-if="option.type=='radioButton'"
               :choices="option.choices"
-              :value="configs[option.name]"
-              @set-choice="(v) => configs[option.name] = v"
+              :value="scene.configs[option.name]"
+              @set-choice="(v) => scene.configs[option.name] = v"
             > </radio-buttons>
             <input
               v-if="option.type=='slider'"
@@ -63,7 +63,7 @@ const svgPlot = {
               :min="option.min"
               :max="option.max"
               :step="option.step"
-              v-model.number="configs[option.name]"
+              v-model.number="scene.configs[option.name]"
             />
             
           </div>
@@ -73,16 +73,16 @@ const svgPlot = {
     </div>
 
   `,
-  data() {
-    let configs = {}
-    for (let option of this.scene.options) {
-      configs[option.name] = option.default
-    }
-    console.log('configs', configs)
-    return {
-      configs,
-    }
-  },
+  // data() {
+  //   let configs = {}
+  //   for (let option of this.scene.options) {
+  //     configs[option.name] = option.default
+  //   }
+  //   console.log('configs', configs)
+  //   return {
+  //     configs,
+  //   }
+  // },
   props: {
     scene: Object,
     bbox: Object,
@@ -115,6 +115,12 @@ const svgPlot = {
       let secondsChunk = `${seconds}s` // display '0s' as a last resort
       return `${hoursChunk}${minutesChunk}${secondsChunk}`
     },
+    // configValue(key) {
+    //   if (key in this.configs) {
+    //     return this.configs[key]
+    //   }
+    //   return this.scene.options[key].default
+    // },
   },
   components: {
     incrementalButtons,
@@ -134,14 +140,14 @@ const svgPlot = {
     },
     layers() {
       // only the layers relevant to the scene
-      console.log('computing layers with', this.configs)
-      let layerDict = this.scene.place(this.canvas, this.configs).layers
+      console.log('computing layers with', this.scene.configs)
+      let layerDict = this.scene.place(this.canvas, this.scene.configs).layers
       // console.log('layers', layerDict)
       // Object.values(layerDict).forEach((elt) => elt.optimize()) // optimize the layer
       return layerDict
     },
     rawHTMLComment() {
-      return `<!-- ${Object.keys(this.configs)} -->`
+      return `<!-- ${Object.keys(this.scene.configs)} -->`
     },
     combLayer() {
       // return the combs for the guides to be printed into

@@ -34,16 +34,26 @@ function applyTemplate(template, parameters) {
 }
 
 class Scene {
-  constructor() {
+  constructor(name) {
+    this.name = name
     this.layers = []
-    this.template = null
+    this.rawTemplate = {}
+    this.parameterFn = (bbox) => {}
+    this.layerFn = (template) => []
+
     this.options = []
+    this.configs = {}
   }
 
   withTemplate(template, parameterFn, options) {
     this.rawTemplate = template
     this.parameterFn = parameterFn
     this.options = options
+
+    console.log('options', options)
+    for (let option of options) {
+      this.configs[option.name] = option.default
+    }
     return this
   }
 

@@ -27,6 +27,11 @@
       </section>
       <section>
         <div id="plot">
+          <div class="selector">
+            <select v-model="scene">
+              <option v-for="scene of scenes" :value="scene">{{scene.name}}</option>
+            </select>
+          </div>
           <svg-plot :scene="scene" with-frame with-guides> </svg-plot>
         </div>
       </section>
@@ -38,18 +43,16 @@
     <script type="module">
       const { createApp, ref, defineComponent } = Vue
       import { svgPlot } from '/js/plotter/svg-plot.js'
-      // import { polygonTriangulation } from '/js/catalan-structures.js'
-      import { PlaneTree, Tiling } from '/js/plotter/scenes.js'
+      import { PlaneTree, Tiling, Empty, scenes } from '/js/plotter/scenes.js'
 
       const fullTriangleApp = createApp({
         data() {
           return {
-            // scene: scenes['lines'],
-            scene: Tiling,
-            // scene: PlaneTree,
+            // scene: Tiling,
+            scene: Empty,
+            scenes,
           }
         },
-        methods: {},
         components: {
           svgPlot,
         },

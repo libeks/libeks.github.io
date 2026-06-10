@@ -15,12 +15,17 @@ import { Scene } from '/js/plotter/scene.js'
 import { pens } from '/js/plotter/pens.js'
 
 // a list of all the scenes available for plotting
+const Empty = new Scene('Empty')
 
-const PlaneTree = new Scene()
-  .withTemplate(rootedTree, (bbox) => ({
-    bbox: bbox,
-    tile: '((()((()))()()))(())',
-  }))
+const PlaneTree = new Scene('PlaneTree')
+  .withTemplate(
+    rootedTree,
+    (bbox) => ({
+      bbox: bbox,
+      tile: '((()((()))()()))(())',
+    }),
+    [],
+  )
   .withLayers((template) => {
     return {
       edges: {
@@ -30,7 +35,7 @@ const PlaneTree = new Scene()
     }
   })
 
-const Tiling = new Scene()
+const Tiling = new Scene('TruchetTiling')
   .withTemplate(
     genericTruchetGrid,
     (bbox, { size, pattern, notch1, notch2, notches, padding }) => {
@@ -112,6 +117,7 @@ const Tiling = new Scene()
 const scenes = {
   PlaneTree,
   Tiling,
+  Empty, // used for debugging
 }
 
-export { scenes, PlaneTree, Tiling }
+export { scenes, PlaneTree, Tiling, Empty }

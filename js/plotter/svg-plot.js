@@ -137,8 +137,9 @@ const svgPlot = {
       if (this.withGuides) {
         yOffset = 800
       }
-      const framePadding = 500
-      return new BBox(0, yOffset, 13333, 10000).withPadding(framePadding)
+      const framePadding = 1000
+      // return new BBox(0, yOffset, 13333, 10000).withPadding(framePadding)
+      return new BBox(0, yOffset, 13333, 10000).withIndividualPadding(500, 1000, 1000, 500)
     },
     guideFrameLayer() {
       return new Layer('frame').withCurves([this.canvas.continuousCurve()])

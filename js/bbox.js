@@ -45,6 +45,13 @@ class BBox {
     return new BBox(this.x1 + size, this.y1 + size, this.x2 - size, this.y2 - size)
   }
 
+  withIndividualPadding(top, right, bottom, left) {
+    if (this.width() < left + right || this.height() < top + bottom) {
+      throw `BBox is too small to be padded, ${this.width()}x${this.height()}`
+    }
+    return new BBox(this.x1 + left, this.y1 + top, this.x2 - right, this.y2 - bottom)
+  }
+
   inside(point) {
     if (point.type != 'Point') {
       throw `BBox.inside unexpected argument ${point.type}`

@@ -135,7 +135,10 @@ const svgPlot = {
     layers() {
       // only the layers relevant to the scene
       console.log('computing layers with', this.configs)
-      return this.scene.place(this.canvas, this.configs).layers
+      let layerDict = this.scene.place(this.canvas, this.configs).layers
+      // console.log('layers', layerDict)
+      // Object.values(layerDict).forEach((elt) => elt.optimize()) // optimize the layer
+      return layerDict
     },
     rawHTMLComment() {
       return `<!-- ${Object.keys(this.configs)} -->`
@@ -189,9 +192,12 @@ const svgPlot = {
         if (layer.pen) {
           layerObj = layerObj.withPen(layer.pen)
         }
-        if (!layer.dontOptimize) {
-          layerObj = layerObj.optimize()
+        if (layer.dontOptimize) {
+          layerObj = layerObj.withoutOptimize()
         }
+        console.log('before', layerObj.name, layerObj.statistics())
+        layerObj = layerObj.optimize()
+        console.log('after', layerObj.name, layerObj.statistics())
         layers.push(layerObj)
       }
       return layers

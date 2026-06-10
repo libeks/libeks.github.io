@@ -61,4 +61,16 @@ function enumerate(list) {
 
 const range = (n) => Array(n).keys()
 
-export { pairs, circularPairs, zip, shift, rightShift, reversed, enumerate, range }
+// given a list, return the list of all pairs, where the first element comes before the second one
+// this is the upper triangular matrix of the elements
+function crossProduct(list) {
+  let result = []
+  for (let a = 0; a < list.length; a++) {
+    for (let b = a + 1; b < list.length; b++) {
+      result.push([list[a], list[b]])
+    }
+  }
+  return result
+}
+
+export { pairs, circularPairs, zip, shift, rightShift, reversed, enumerate, range, crossProduct }

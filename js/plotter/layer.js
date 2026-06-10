@@ -1,5 +1,5 @@
 import { Point2DOrigin } from '/js/geometry.js'
-import { pairs } from '/js/utils.js'
+import { pairs, enumerate, crossProduct } from '/js/utils.js'
 import { pens } from '/js/plotter/pens.js'
 
 // func metersToTime(m float64) time.Duration {
@@ -24,9 +24,12 @@ class Layer {
   constructor(name) {
     this.name = name
     this.curves = []
-    this.drawGuides = false
-    this.color = 'black'
-    this.pen = pens.Micron005
+    this.drawGuides = false // can be changed with .withGuides()
+    this.color = 'black' // can be changed with .withColor(color)
+    this.pen = pens.Micron005 // can be changed with .withPen(pen)
+    this.canOptimize = true // whether curves should be rearranged to minimine uptime, can be disabled with .withoutOptimize()
+
+    // child/parent relationships, used to render time table, set with .attachChild(child)
     this.child = null
     this.parent = null
 
@@ -56,6 +59,11 @@ class Layer {
     return this // allow chaining
   }
 
+  withoutOptimize() {
+    this.canOptimize = false
+    return this
+  }
+
   withPen(pen) {
     if (pen.type != 'Pen') {
       throw `Layer.withPen got unexpected argument ${pen.type}`
@@ -66,6 +74,45 @@ class Layer {
 
   // rearrange the layer to minimize pen uptime
   optimize() {
+    if (!this.canOptimize) {
+      console.log('not optimizing')
+      return this
+    }
+    let allCurves = Array.from(enumerate(this.curves).map(([i, curve]) => ({ curve, i })))
+    console.log('allCurves', allCurves)
+    // let allPairs = crossProduct(allCurves)
+    // let distances = {}
+    // for (let [a, b] of allPairs) {
+    //   distances[`${a.i}->${b.i}`] = a.curve.endpoint().distance(b.curve.startpoint())
+    //   distances[`${b.i}->${a.i}`] = b.curve.endpoint().distance(a.curve.startpoint())
+    // }
+    let curves = [allCurves[0]]
+    let toProcess = allCurves.slice(1)
+
+    while (toProcess.length > 0) {
+      let minDist = Number.MAX_VALUE
+      let candidateIdx
+      let lastI = curves[curves.length - 1].i
+      for (let i = 0; i < toProcess.length; i++) {
+        let candidate = toProcess[i]
+        if (lastI == candidate.i) {
+          continue // don't add duplicates back in
+        }
+        let distance = curves[curves.length - 1].curve
+          .endpoint()
+          .distance(candidate.curve.startpoint())
+        // let distance = distances[`${lastI}->${candidate.i}`]
+        if (distance < minDist) {
+          candidateIdx = i
+          minDist = distance
+        }
+      }
+      let candidate = toProcess[candidateIdx]
+      toProcess.splice(candidateIdx, 1)
+      curves.push(candidate)
+    }
+    this.curves = curves.map(({ curve }) => curve)
+
     return this
   }
 

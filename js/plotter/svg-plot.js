@@ -146,14 +146,30 @@ const svgPlot = {
     },
     layers() {
       // only the layers relevant to the scene
-      console.log('computing layers with', this.scene.configs)
+      // console.log('computing layers with', this.scene.configs)
       let layerDict = this.scene.place(this.canvas, this.scene.configs).layers
       // console.log('layers', layerDict)
       // Object.values(layerDict).forEach((elt) => elt.optimize()) // optimize the layer
       return layerDict
     },
     rawHTMLComment() {
-      return `<!-- ${Object.keys(this.scene.configs)} -->`
+      let output = []
+      for (let option of this.scene.options) {
+        // console.log('value.type', value, value.type)
+        let key = option.name
+        // console.log('this.scene.configs', this.scene.configs, option, key)
+        let value =
+          option.name in this.scene.configs ? this.scene.configs[option.name] : option.default
+
+        if (option.type == 'dropdown') {
+          // console.log('option.type', option.type, value)
+          // value = value.name
+          value = value.string() // FIXME: this won't work for other types of dropdowns
+          // console.log('option.type after', option.type, value)
+        }
+        output.push(`${key}: ${value}`)
+      }
+      return `<!-- ${output} -->`
     },
     combLayer() {
       // return the combs for the guides to be printed into

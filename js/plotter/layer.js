@@ -10,7 +10,7 @@ function metersToSeconds(m) {
   return 22.6 * m
 }
 
-// given a distance in image space (10000 units = 8 in), return the length in meters
+// given a distance in image space (10000 units = 9 in), return the length in meters
 function imageSpaceToMeters(l) {
   return l / 44092
 }
@@ -75,11 +75,11 @@ class Layer {
   // rearrange the layer to minimize pen uptime
   optimize() {
     if (!this.canOptimize) {
-      console.log('not optimizing')
+      // console.log('not optimizing')
       return this
     }
     let allCurves = Array.from(enumerate(this.curves).map(([i, curve]) => ({ curve, i })))
-    console.log('allCurves', allCurves)
+    // console.log('allCurves', allCurves)
     // let allPairs = crossProduct(allCurves)
     // let distances = {}
     // for (let [a, b] of allPairs) {
@@ -131,8 +131,12 @@ class Layer {
       downLength += curve.length()
     }
     let upLength = 0
+    let upDownCount = 0
     for (let [a, b] of pairs(this.curves)) {
       let distance = a.endpoint().vectTo(b.startpoint()).len()
+      if (distance > 0) {
+        upDownCount += 1
+      }
       upLength += distance
     }
     upLength +=
@@ -140,19 +144,20 @@ class Layer {
       this.curves[this.curves.length - 1].endpoint().vectTo(Point2DOrigin).len()
     let totalDistance = downLength + upLength
     let meters = imageSpaceToMeters(totalDistance)
-    let seconds = metersToSeconds(meters)
+    let seconds = metersToSeconds(meters) + upDownCount * 0.5 // each up-down action takes some time as well
     return {
       downLength,
       upLength,
       total: totalDistance,
       time: seconds,
+      upDownCount,
       nCurves: this.curves.length,
     }
   }
 
   // the transform property of the <g> element, to position the pen correctly relative to the comb
   transform() {
-    return `translate(${this.pen.xOffset} ${this.pen.yOffset})`
+    return `translate(${-this.pen.xOffset} ${-this.pen.yOffset})`
   }
 }
 

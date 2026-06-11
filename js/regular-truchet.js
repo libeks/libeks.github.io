@@ -241,7 +241,7 @@ class GenericTruchetTile {
   }
 
   // Should only be used for triangles, doesn't look good for other ngons
-  getStarCurve(curve) {
+  getTriangleCurve(curve) {
     let c1 = curve[0]
     let c2 = curve[1]
     let cn1 = hexToNumerical(c1) - 1 // iterative starts at 1, not 0
@@ -249,7 +249,6 @@ class GenericTruchetTile {
     if (cn1 > cn2) {
       throw `getCurve got unordered curve ${curve}`
     }
-    // console.log('notch points', this.notchPoints)
     let p1 = this.notchPoints[cn1]
     let p2 = this.notchPoints[cn2]
     let c1star = this.stars[cn1]
@@ -260,6 +259,9 @@ class GenericTruchetTile {
       if (c1star.distance(c2star) < THRESHOLD) {
         return new QuadraticBezier(p1, c1star, p2)
       }
+      if (['14', '25', '36'].includes(curve)) {
+        return new CubicBezier(p1, p1.towards(c1star, 0.75), p2.towards(c2star, 0.75), p2) // shorten to not interfere with '12'
+      }
       return new CubicBezier(p1, c1star, c2star, p2)
     }
 
@@ -269,15 +271,9 @@ class GenericTruchetTile {
       return new QuadraticBezier(p1, c1star, p2)
     }
     if (step == 1) {
-      // console.log('step 1', this.notches.length, curve)
       if (this.notches.length == 2) {
         if (['23', '67', 'AB'].includes(curve)) {
-          return new CubicBezier(
-            p1,
-            p1.addVect(p1.vectTo(c1star).mult(0.5)),
-            p2.addVect(p2.vectTo(c2star).mult(0.5)),
-            p2,
-          )
+          return new CubicBezier(p1, p1.towards(c1star, 0.33), p2.towards(c2star, 0.33), p2)
         }
       }
       let dist = Math.min(p1.distance(p2), p1.distance(c1star), p2.distance(c2star))
@@ -296,25 +292,14 @@ class GenericTruchetTile {
         new CubicBezier(mid, p3plusstar, c2star, p2),
       )
     }
-    if (
-      [
-        '16',
-        '1A',
-        '47',
-        '4B',
-        '52',
-        '5A',
-        '28',
-        '8B',
-        '39',
-        '69',
-        '3C',
-        '7C',
-        '25',
-        '29',
-        '38',
-      ].includes(curve)
-    ) {
+    if (['16', '29', '38', '4B', '5A', '7C'].includes(curve)) {
+      let midpoint = c1star.midpoint(c2star)
+      return new CompositeCurve(
+        new QuadraticBezier(p1, c1star, midpoint),
+        new QuadraticBezier(midpoint, c2star, p2),
+      )
+    }
+    if (['1A', '25', '38', '3C', '69', '8B'].includes(curve)) {
       return new CubicBezier(p1, c1star, c2star, p2)
     }
     if (['18', '49', '5C'].includes(curve)) {
@@ -327,20 +312,16 @@ class GenericTruchetTile {
       )
     }
     if (['27', '3A', '6B'].includes(curve)) {
-      // return new CompositeCurve(
-      //     new QuadraticBezier(p1, p1prime, midprime),
-      //     new QuadraticBezier(midprime, p2prime, p2),
-      //   )
-      return new CubicBezier(p1, c1star, c2star, p2)
+      return new CubicBezier(p1, p1.towards(c1star, 0.5), p2.towards(c2star, 0.5), p2)
     }
 
-    console.log('straight line', curve)
+    console.warn('unknown curve segment, returning straight line', curve)
     return new StraightStroke(p1, p2)
   }
 
   getCurve(curve) {
     if (this.vertices.length == 3) {
-      return this.getStarCurve(curve)
+      return this.getTriangleCurve(curve)
     }
 
     return this.getTrackCurve(curve)
@@ -552,5 +533,195 @@ const genericTruchetGrid = {
     },
   },
 }
+
+// const genericTriangulationGrid = {
+//   template: `
+//     <g v-if="grid" class="grid squares">
+//       <template v-for="face in grid">
+//         <g v-if="showEdges"  class="face">
+//           <path
+//             class="polygon"
+//             :data-face="face.id"
+//             :d="face.ngon.face.d()"
+//             :style="{fill: 'white', stroke: 'black', 'fill-opacity':0.8}"
+//           />
+//         </g>
+//         <template v-if="!showContinuous" v-for="curve in face.tile.getCatalanTile({n:face.n})">
+//           <path class="stroke medium" :d="curve.d()" />
+//         </template>
+//       </template>
+//     </g>
+//     `,
+//   props: {
+//     pattern: Object,
+//     bbox: Object,
+//     start: {
+//       type: Object,
+//       default: new Point(0, 0),
+//     },
+//     size: {
+//       type: Number,
+//       default: 100,
+//     },
+//     angle: {
+//       type: Number,
+//       default: 0,
+//     },
+//     iterations: {
+//       type: Number,
+//       default: -1,
+//     },
+//     showEdges: Boolean,
+//     // showContinuous: Boolean,
+//     // notches: Object,
+//     // onlyNgonsInsideBBox: Boolean,
+//   },
+//   computed: {
+//     grid() {
+//       let grid = new VertexGrid({
+//         bbox: this.bbox,
+//         start: this.start,
+//         size: this.size,
+//         angle: this.angle,
+//         pattern: this.pattern,
+//         iterations: this.iterations,
+//       }).generate()
+//       let retList = []
+//       let allFaces = this.onlyNgonsInsideBBox ? grid.getFacesInBBox() : grid.getFaces()
+//       for (let ngon of allFaces) {
+//         retList.push({
+//           ngon,
+//           tile: new GenericTruchetTile(
+//             ngon.vertices.map((vertex) => vertex.point),
+//             false,
+//             this.notches,
+//             this.size,
+//           ),
+//           n: randomInt(1289904147324), // 1289904147324 is C24
+//         })
+//       }
+//       return retList
+//     },
+//     curveFragmentsByNgons() {
+//       let byNGon = {}
+//       for (let face of this.grid) {
+//         let curves = []
+//         for (let [id, curve] of enumerate(face.tile.getCatalanTile({ n: face.n }))) {
+//           curves.push({
+//             id: `${face.ngon.id}.${id}`,
+//             faceID: face.ngon.id,
+//             curve,
+//           })
+//         }
+//         byNGon[face.ngon.id] = curves
+//       }
+//       return byNGon
+//     },
+//     neighborNGonIDs() {
+//       let byNGon = {}
+//       for (let face of this.grid) {
+//         byNGon[face.ngon.id] = face.ngon.edges.map((edge) => edge.id)
+//       }
+//       return byNGon
+//     },
+//     neighborNGonFragments() {
+//       let byNGon = {}
+//       for (let face of this.grid) {
+//         byNGon[face.id] = face.ngon.edges.map((edge) => edge.id)
+//       }
+//       return byNGon
+//     },
+//     continuousTruchetCurves() {
+//       // populate 'unprocessed' so all segments intially appear there. by the end of this method, 'unprocessed' should be empty
+//       let unprocessed = {}
+//       for (let ngon of Object.values(this.curveFragmentsByNgons)) {
+//         for (let curve of ngon) {
+//           unprocessed[curve.id] = curve
+//         }
+//       }
+//       let curves = []
+//       while (Object.keys(unprocessed).length > 0) {
+//         let start = Object.values(unprocessed)[0]
+//         let directions = ['forward', 'backward']
+//         let end = start // initially the start and end are the same
+//         delete unprocessed[start.id]
+//         let aggregate = new CompositeCurve(start.curve)
+//         while (!aggregate.closed() && directions.length > 0) {
+//           for (let direction of directions) {
+//             let found = false
+//             if (direction == 'forward') {
+//               for (let neighborNGonID of this.neighborNGonIDs[end.faceID]) {
+//                 if (!(neighborNGonID in this.curveFragmentsByNgons)) {
+//                   // neighbor ngon is filtered out, maybe it doesn't fit in the bbox
+//                   continue
+//                 }
+//                 let neighborNGon = this.curveFragmentsByNgons[neighborNGonID]
+//                 for (let curve of neighborNGon) {
+//                   if (!(curve.id in unprocessed)) {
+//                     continue
+//                   }
+//                   if (curve.curve.startpoint().same(end.curve.endpoint())) {
+//                     aggregate.add(curve.curve)
+//                     end = curve
+//                     delete unprocessed[curve.id]
+//                     found = true
+//                     break
+//                   } else if (curve.curve.endpoint().same(end.curve.endpoint())) {
+//                     curve.curve = curve.curve.reverse()
+//                     aggregate.add(curve.curve)
+//                     end = curve
+//                     delete unprocessed[curve.id]
+//                     found = true
+//                     break
+//                   }
+//                 }
+//                 if (found) {
+//                   break
+//                 }
+//               }
+//             } else {
+//               // backwards
+//               for (let neighborNGonID of this.neighborNGonIDs[start.faceID]) {
+//                 if (!(neighborNGonID in this.curveFragmentsByNgons)) {
+//                   // neighbor ngon is filtered out, maybe it doesn't fit in the bbox
+//                   continue
+//                 }
+//                 let neighborNGon = this.curveFragmentsByNgons[neighborNGonID]
+//                 for (let curve of neighborNGon) {
+//                   if (!(curve.id in unprocessed)) {
+//                     continue
+//                   }
+//                   if (curve.curve.endpoint().same(start.curve.startpoint())) {
+//                     aggregate.prepend(curve.curve)
+//                     start = curve
+//                     delete unprocessed[curve.id]
+//                     found = true
+//                     break
+//                   } else if (curve.curve.startpoint().same(start.curve.startpoint())) {
+//                     curve.curve = curve.curve.reverse()
+//                     aggregate.prepend(curve.curve)
+//                     start = curve
+//                     delete unprocessed[curve.id]
+//                     found = true
+//                     break
+//                   }
+//                 }
+//                 if (found) {
+//                   break
+//                 }
+//               }
+//             }
+//             if (!found) {
+//               directions = directions.filter((dir) => dir != direction)
+//             }
+//           }
+//         }
+//         // the curve is completed, i.e. it is closed, or we cannot make any progress on the curve
+//         curves.push(aggregate)
+//       }
+//       return curves
+//     },
+//   },
+// }
 
 export { GenericTruchetTile, genericTruchetGrid }

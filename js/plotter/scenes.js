@@ -141,6 +141,89 @@ const Tiling = new Scene('TruchetTiling')
     },
   }))
 
+// const Triangulation = new Scene('Triangulation')
+//   .withTemplate(
+//     polygonTriangulation,
+//     (bbox, { size, pattern, notch1, notch2, notches, padding }) => {
+//       // let
+//       return {
+//         // bbox: bbox.withPadding(1000),
+//         // bbox: padding ? bbox.withPadding(size * 3.3) : bbox,
+//         bbox,
+//         start: bbox.center(),
+//         size,
+//         pattern,
+//         // notches: notches == 1 ? [notch1] : [notch1, notch2],
+//         // onlyNgonsInsideBBox: true,
+//       }
+//     },
+//     [
+//       {
+//         name: 'pattern',
+//         type: 'dropdown',
+//         options: [
+//           ...regularTilings,
+//           ...semiregularTilings,
+//           ...uniform2Tilings,
+//           ...uniform3Tilings,
+//           ...uniform4Tilings,
+//         ].map((tiling) => ({ name: tiling.string(), value: tiling })),
+//         default: uniform4Tilings[5],
+//       },
+//       {
+//         name: 'size',
+//         type: 'incremental',
+//         min: 100,
+//         step: 20,
+//         max: 1000,
+//         default: 300,
+//       },
+//       {
+//         name: 'notch1',
+//         type: 'slider',
+//         min: 0.01,
+//         step: 0.01,
+//         max: 0.99,
+//         default: 0.33,
+//       },
+//       {
+//         name: 'notch2',
+//         type: 'slider',
+//         min: 0.01,
+//         step: 0.01,
+//         max: 0.99,
+//         default: 0.66,
+//       },
+//       {
+//         name: 'notches',
+//         type: 'radioButton',
+//         choices: [
+//           { value: 1, display: '1' },
+//           { value: 2, display: '2' },
+//         ],
+//         default: 1,
+//       },
+//       {
+//         name: 'padding',
+//         default: 1000,
+//       },
+//     ],
+//   )
+//   .withLayers((template) => ({
+//     edges: {
+//       curves: vertexListsToLines(template.grid.map((face) => face.ngon.vertices)),
+//       color: 'black',
+//       pen: pens.CrayolaSuperTips,
+//       // dontOptimize: true,
+//     },
+//     curve: {
+//       curves: template.continuousTruchetCurves,
+//       color: 'blue',
+//       pen: pens.CrayolaSuperTips,
+//       // dontOptimize: true,
+//     },
+//   }))
+
 const scenes = {
   PlaneTree,
   Tiling,

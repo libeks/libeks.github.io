@@ -122,6 +122,11 @@ class Vector {
     return this.x * v.x + this.y * v.y
   }
 
+  // return a scaled vector of exactly the provided length
+  withLength(l) {
+    return this.unit().mult(l)
+  }
+
   unit() {
     // return a vector pointing in the same direction, but of length 1
     if (this.x == 0 && this.y == 0) {

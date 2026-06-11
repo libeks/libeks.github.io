@@ -113,7 +113,7 @@ const circleChords = {
     notchLabelPos() {
       let ret = []
       for (let [i, nv] of this.notchVects.entries()) {
-        ret.push(this.notchPts[i].addVect(nv.unit().mult(30).add(new Vector(0, 10))))
+        ret.push(this.notchPts[i].addVect(nv.withLength(30).add(new Vector(0, 10))))
       }
       return ret
     },

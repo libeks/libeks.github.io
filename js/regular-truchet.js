@@ -167,8 +167,6 @@ class GenericTruchetTile {
     let c2star = this.stars[cn2]
 
     let step = distance(this.n * 2, cn1, cn2)
-    // console.log('p1 p2', step, curve, p1, p2, cn1, cn2)
-    // console.log('getCurve', curve, step, this.vertices.length)
 
     // compute symmetry axis
     let midpoint = p1.midpoint(p2)
@@ -176,62 +174,130 @@ class GenericTruchetTile {
     if (midpoint.same(this.center)) {
       throw `midpoint is center ${this.vertices.length} ${curve}`
     }
-    // console.log('midpoint', p1, p2, midpoint)
 
-    // let symmetryLine = new Line(midpoint, midpoint.vectTo(this.center))
-    // let symmetryLine = new Line(this.center, this.center.vectTo(midpoint))
     let symmetryLine = new Line(this.center, p1.vectTo(p2).perp())
-    // console.log('symmetry line', symmetryLine)
-    // console.log('center', this.center)
 
     let alphaAngle = degToRad(360 / this.vertices.length) // angle from center between consecutive vertices
     let edgeDistance = this.side / 2 / Math.tan(alphaAngle / 2) // distance from the center to the closest edge, it's height
-    // if (this.vertices.length == 4) {
-    //   edgeDistance = (this.side / 2 / Math.tan(alphaAngle / 2)) * 0.3
-    // }
-    // console.log('edgeDistance', this.vertices.length, edgeDistance, radToDeg(alphaAngle), this.side)
 
     let nTracks = this.notchPoints.length / 4
     let centerOffset = 0.5
-    // if (this.vertices.length == 4) {
-    //   centerOffset = -1
-    // }
-    // console.log('nTracks', this.vertices.length, this.notchPoints.length, nTracks)
     let incrementDistance = edgeDistance / (nTracks + centerOffset) // ensure that the first track starts some way from the center
-    // console.log('incrementDistance', this.vertices.length, incrementDistance)
 
     let incrementVect = symmetryLine.v.unit()
     if (incrementVect.dot(this.center.vectTo(midpoint)) < 0) {
-      // console.warn(`IncrementVector is in wrong direction`)
       incrementVect = incrementVect.mult(-1)
     }
     let gap = (step + 1) / 2
     let stepFromCenter = this.notchPoints.length / 4 - gap
-    // console.log('stepFromCenter', this.vertices.length, step, gap, stepFromCenter)
     let track = new Line(
-      // this.center.addVect(incrementVect.mult((2 * stepFromCenter - 1) * incrementDistance)),
       this.center.addVect(incrementVect.mult((1 * stepFromCenter + 0.5) * incrementDistance)),
       incrementVect.perp(),
     )
     return new rayLineRayCurve(
-      new Ray(
-        p1,
-        p1
-          .vectTo(c1star)
-          .unit()
-          .mult(this.side * 0.2),
-      ),
+      new Ray(p1, p1.vectTo(c1star).withLength(this.side * 0.2)),
       track,
-      new Ray(
-        p2,
-        p2
-          .vectTo(c2star)
-          .unit()
-          .mult(this.side * 0.2),
-      ),
+      new Ray(p2, p2.vectTo(c2star).withLength(this.side * 0.2)),
     )
-    // return new QuadraticBezier(p1, track.p, p2)
-    // return new StraightStroke(p1, p2)
+  }
+
+  getSquareCurve(curve) {
+    if (this.vertices.length % 2 == 1) {
+      throw `getTrackCurve with odd number of vertices ${this.vertices.length}`
+    }
+    let c1 = curve[0]
+    let c2 = curve[1]
+    let cn1 = hexToNumerical(c1) - 1 // iterative starts at 1, not 0
+    let cn2 = hexToNumerical(c2) - 1 // iterative starts at 1, not 0
+    if (cn1 > cn2) {
+      throw `getCurve got unordered curve ${curve}`
+    }
+    // console.log('notch points', this.notchPoints)
+    let p1 = this.notchPoints[cn1]
+    let p2 = this.notchPoints[cn2]
+    let c1star = this.stars[cn1]
+    let c2star = this.stars[cn2]
+
+    // console.log('square curve', curve)
+    if (this.notches.length == 1) {
+      if (['16', '25', '38', '47'].includes(curve)) {
+        return new StraightStroke(p1, p2)
+      }
+      if (['18', '23', '45', '67'].includes(curve)) {
+        return new QuadraticBezier(p1, c1star, p2)
+      }
+    }
+
+    // the below handles 2-notches (i.e. 4 notches per side)
+
+    if (['1G', '45', '89', 'CD'].includes(curve)) {
+      // small corner
+      return new QuadraticBezier(p1, c1star, p2)
+    }
+    if (['2F', '36', '7A', 'BE'].includes(curve)) {
+      // larger corner
+      return new QuadraticBezier(p1, c1star, p2)
+    }
+
+    if (['12', '34', '56', '78', '9A', 'BC', 'DE', 'FG'].includes(curve)) {
+      // same side next to corner, close by
+      return new CubicBezier(
+        p1,
+        p1.addVect(p1.vectTo(c1star).withLength(this.side * 0.1)),
+        p2.addVect(p2.vectTo(c2star).withLength(this.side * 0.1)),
+        p2,
+      )
+    }
+
+    if (['1A', '29', '3C', '4B', '5E', '6D', '7G', '8F'].includes(curve)) {
+      // almost diagonal curve, passing closest to centerpoint
+      let c1pt = p1.addVect(p1.vectTo(c1star).withLength(this.side * 0.15))
+      let c2pt = p2.addVect(p2.vectTo(c2star).withLength(this.side * 0.15))
+      let midpoint = c1pt.midpoint(c2pt)
+      return new CompositeCurve(
+        new QuadraticBezier(p1, c1pt, midpoint),
+        new QuadraticBezier(midpoint, c2pt, p2),
+      )
+    }
+
+    if (['16', '38', '4F', '5A', '7C', '9E', 'AD', 'CG'].includes(curve)) {
+      return new CubicBezier(p1, c1star, c2star, p2)
+    }
+
+    let step = distance(this.n * 2, cn1, cn2)
+
+    // compute symmetry axis
+    let midpoint = p1.midpoint(p2)
+
+    if (midpoint.same(this.center)) {
+      throw `midpoint is center ${this.vertices.length} ${curve}`
+    }
+
+    let symmetryLine = new Line(this.center, p1.vectTo(p2).perp())
+
+    let alphaAngle = degToRad(360 / this.vertices.length) // angle from center between consecutive vertices
+    let edgeDistance = this.side / 2 / Math.tan(alphaAngle / 2) // distance from the center to the closest edge, it's height
+
+    let nTracks = this.notchPoints.length / 4
+    let centerOffset = 0.5
+    let incrementDistance = edgeDistance / (nTracks + centerOffset) // ensure that the first track starts some way from the center
+
+    let incrementVect = symmetryLine.v.unit()
+    if (incrementVect.dot(this.center.vectTo(midpoint)) < 0) {
+      incrementVect = incrementVect.mult(-1)
+    }
+    let gap = (step + 1) / 2
+    let stepFromCenter = this.notchPoints.length / 4 - gap
+    let track = new Line(
+      this.center.addVect(incrementVect.mult((1 * stepFromCenter + 0.5) * incrementDistance)),
+      incrementVect.perp(),
+    )
+    // console.log('returning rayline for cube curve', curve)
+    return new rayLineRayCurve(
+      new Ray(p1, p1.vectTo(c1star).withLength(this.side * 0.2)),
+      track,
+      new Ray(p2, p2.vectTo(c2star).withLength(this.side * 0.2)),
+    )
   }
 
   nextChar(c) {
@@ -273,12 +339,19 @@ class GenericTruchetTile {
     if (step == 1) {
       if (this.notches.length == 2) {
         if (['23', '67', 'AB'].includes(curve)) {
-          return new CubicBezier(p1, p1.towards(c1star, 0.33), p2.towards(c2star, 0.33), p2)
+          let c1pt = p1.towards(c1star, 0.4)
+          let c2pt = p2.towards(c2star, 0.4)
+          let midpoint = c1pt.midpoint(c2pt)
+          return new CubicBezier(p1, c1pt, c2pt, p2)
+          // return new CompositeCurve(
+          //   new QuadraticBezier(p1, c1pt, midpoint),
+          //   new QuadraticBezier(midpoint, c2pt, p2),
+          // )
         }
       }
       let dist = Math.min(p1.distance(p2), p1.distance(c1star), p2.distance(c2star))
-      let perp1 = p1.addVect(p1.vectTo(c1star).unit().mult(dist))
-      let perp2 = p2.addVect(p2.vectTo(c2star).unit().mult(dist))
+      let perp1 = p1.addVect(p1.vectTo(c1star).withLength(dist))
+      let perp2 = p2.addVect(p2.vectTo(c2star).withLength(dist))
       return new CubicBezier(p1, perp1, perp2, p2)
     }
     if (step == 3 && ['14', '58', '9C'].includes(curve)) {
@@ -299,7 +372,7 @@ class GenericTruchetTile {
         new QuadraticBezier(midpoint, c2star, p2),
       )
     }
-    if (['1A', '25', '38', '3C', '69', '8B'].includes(curve)) {
+    if (['1A', '25', '47', '3C', '69', '8B'].includes(curve)) {
       return new CubicBezier(p1, c1star, c2star, p2)
     }
     if (['18', '49', '5C'].includes(curve)) {
@@ -322,6 +395,10 @@ class GenericTruchetTile {
   getCurve(curve) {
     if (this.vertices.length == 3) {
       return this.getTriangleCurve(curve)
+    }
+
+    if (this.vertices.length == 4) {
+      return this.getSquareCurve(curve)
     }
 
     return this.getTrackCurve(curve)

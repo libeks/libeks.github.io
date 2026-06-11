@@ -7,7 +7,7 @@ import {
 } from '/js/math.js'
 import { Point, Vector, Point2DOrigin, LineSegment, NGon } from '/js/geometry.js'
 import { Polygon, StraightStroke } from '/js/lines.js'
-import { BBox } from '/js/bbox.js'
+import { BBox, bboxFromPointCloud } from '/js/bbox.js'
 import { pairs, circularPairs, zip, shift, enumerate, reversed } from '/js/utils.js'
 import { KDTree } from '/js/spatial.js'
 
@@ -361,11 +361,13 @@ class RotatedFace {
     }
     return true
   }
-}
 
-// function shiftPattern(pattern) {
-//   return [pattern[pattern.length - 1], ...pattern.slice(0, pattern.length - 1)]
-// }
+  bbox() {
+    let points = this.vertices.map((vertex) => vertex.point)
+    let bbox = bboxFromPointCloud(...points)
+    return bbox
+  }
+}
 
 class Vertex {
   constructor(id, point, pattern) {
@@ -861,6 +863,12 @@ class VertexGrid {
 
   getFaces() {
     let faces = Object.values(this.faces)
+    return faces
+  }
+
+  getFacesInBBox() {
+    let faces = Object.values(this.faces).filter((face) => this.bbox.boxInside(face.bbox()))
+    console.log('facesInBBox', faces)
     return faces
   }
 

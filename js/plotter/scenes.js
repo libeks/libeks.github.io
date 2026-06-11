@@ -48,6 +48,7 @@ const Tiling = new Scene('TruchetTiling')
         size,
         pattern,
         notches: notches == 1 ? [notch1] : [notch1, notch2],
+        onlyNgonsInsideBBox: true,
       }
     },
     [

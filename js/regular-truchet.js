@@ -403,6 +403,7 @@ const genericTruchetGrid = {
     showEdges: Boolean,
     showContinuous: Boolean,
     notches: Object,
+    onlyNgonsInsideBBox: Boolean,
   },
   computed: {
     grid() {
@@ -415,7 +416,8 @@ const genericTruchetGrid = {
         iterations: this.iterations,
       }).generate()
       let retList = []
-      for (let ngon of Object.values(grid.getFaces())) {
+      let allFaces = this.onlyNgonsInsideBBox ? grid.getFacesInBBox() : grid.getFaces()
+      for (let ngon of allFaces) {
         retList.push({
           ngon,
           tile: new GenericTruchetTile(
@@ -478,6 +480,10 @@ const genericTruchetGrid = {
             let found = false
             if (direction == 'forward') {
               for (let neighborNGonID of this.neighborNGonIDs[end.faceID]) {
+                if (!(neighborNGonID in this.curveFragmentsByNgons)) {
+                  // neighbor ngon is filtered out, maybe it doesn't fit in the bbox
+                  continue
+                }
                 let neighborNGon = this.curveFragmentsByNgons[neighborNGonID]
                 for (let curve of neighborNGon) {
                   if (!(curve.id in unprocessed)) {
@@ -505,6 +511,10 @@ const genericTruchetGrid = {
             } else {
               // backwards
               for (let neighborNGonID of this.neighborNGonIDs[start.faceID]) {
+                if (!(neighborNGonID in this.curveFragmentsByNgons)) {
+                  // neighbor ngon is filtered out, maybe it doesn't fit in the bbox
+                  continue
+                }
                 let neighborNGon = this.curveFragmentsByNgons[neighborNGonID]
                 for (let curve of neighborNGon) {
                   if (!(curve.id in unprocessed)) {

@@ -67,6 +67,9 @@ class BBox {
 
   // returns whether the bbox is completely inside the current box
   boxInside(bbox) {
+    if (bbox.type != 'BBox') {
+      throw `bbox.boxInside called with unexpected argument ${bbox.type}`
+    }
     return this.x1 <= bbox.x1 && this.x2 >= bbox.x2 && this.y1 <= bbox.y1 && this.y2 >= bbox.y2
   }
 
@@ -162,6 +165,11 @@ class BBox {
 }
 
 function bboxFromPointCloud(...points) {
+  for (let pt of points) {
+    if (pt.type != 'Point') {
+      throw `bboxFromPointCloud got unexpected argument ${pt.type}`
+    }
+  }
   let xs = points.map((pt) => pt.x)
   let ys = points.map((pt) => pt.y)
   return new BBox(Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys))

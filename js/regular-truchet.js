@@ -220,12 +220,23 @@ class GenericTruchetTile {
 
     // console.log('square curve', curve)
     if (this.notches.length == 1) {
+      // direct lines across, closest to center
       if (['16', '25', '38', '47'].includes(curve)) {
         return new StraightStroke(p1, p2)
       }
       if (['18', '23', '45', '67'].includes(curve)) {
+        // small corner
         return new QuadraticBezier(p1, c1star, p2)
       }
+      if (['12', '34', '56', '78'].includes(curve)) {
+        // same side
+        return new CubicBezier(p1, p1.towards(c1star, 0.7), p2.towards(c2star, 0.7), p2)
+      }
+      if (['14', '27', '36', '58'].includes(curve)) {
+        return new CubicBezier(p1, c1star, c2star, p2)
+      }
+      console.warn('Single notch cube curve without a curve, drawing straight line', curve)
+      return new StraightStroke(p1, p2)
     }
 
     // the below handles 2-notches (i.e. 4 notches per side)
@@ -339,8 +350,8 @@ class GenericTruchetTile {
     if (step == 1) {
       if (this.notches.length == 2) {
         if (['23', '67', 'AB'].includes(curve)) {
-          let c1pt = p1.towards(c1star, 0.4)
-          let c2pt = p2.towards(c2star, 0.4)
+          let c1pt = p1.towards(c1star, 0.6)
+          let c2pt = p2.towards(c2star, 0.6)
           let midpoint = c1pt.midpoint(c2pt)
           return new CubicBezier(p1, c1pt, c2pt, p2)
           // return new CompositeCurve(
@@ -357,8 +368,8 @@ class GenericTruchetTile {
     if (step == 3 && ['14', '58', '9C'].includes(curve)) {
       const p1plus = this.notchPoints[cn1 + 1]
       const p1plusplus = this.notchPoints[cn1 + 2]
-      const p2plusstar = p1plus.addVect(p1plus.vectTo(this.stars[cn1 + 1]).mult(0.5))
-      const p3plusstar = p1plusplus.addVect(p1plusplus.vectTo(this.stars[cn1 + 2]).mult(0.5))
+      const p2plusstar = p1plus.addVect(p1plus.vectTo(this.stars[cn1 + 1]).mult(0.7))
+      const p3plusstar = p1plusplus.addVect(p1plusplus.vectTo(this.stars[cn1 + 2]).mult(0.7))
       const mid = p2plusstar.midpoint(p3plusstar)
       return new CompositeCurve(
         new CubicBezier(p1, c1star, p2plusstar, mid),
@@ -376,9 +387,24 @@ class GenericTruchetTile {
       return new CubicBezier(p1, c1star, c2star, p2)
     }
     if (['18', '49', '5C'].includes(curve)) {
-      const p1plus = this.stars[cn1 + 1]
-      const p2plus = this.stars[cn2 - 1]
+      // console.log('drawing funny curve for', curve)
+      // if (curve == '49') {
+      //   return new StraightStroke(p1, p2)
+      // }
+      let p1plus
+      let p2plus
+      if (curve == 49) {
+        // for 49 the order is flipped, since the notches in between are consecutive
+        p1plus = this.stars[cn1 - 1]
+        p2plus = this.stars[cn2 + 1]
+      } else {
+        // the notces between the two notches are disjoint, they loop around
+        p1plus = this.stars[cn1 + 1]
+        p2plus = this.stars[cn2 - 1]
+      }
+      console.log('this.stars', this.stars)
       const mid = p1plus.midpoint(p2plus)
+      console.log('funny', curve, p1plus, p2plus, mid, cn1, cn2, cn1 + 1, cn2 - 1)
       return new CompositeCurve(
         new CubicBezier(p1, c1star, p1plus, mid),
         new CubicBezier(mid, p2plus, c2star, p2),

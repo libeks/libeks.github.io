@@ -3,10 +3,6 @@ import { pairs, enumerate, crossProduct } from '/js/utils.js'
 import { pens } from '/js/plotter/pens.js'
 import { BBox } from '/js/bbox.js'
 
-// func metersToTime(m float64) time.Duration {
-//   return time.Duration(22.6 * float64(time.Second) * m)
-// }
-
 function metersToSeconds(m) {
   return 22.6 * m
 }
@@ -15,11 +11,6 @@ function metersToSeconds(m) {
 function imageSpaceToMeters(l) {
   return l / 44092
 }
-
-// func imageSpaceToMeters(l float64) float64 {
-//   const unitPerMeter = 44092.0
-//   return l / unitPerMeter
-// }
 
 class Layer {
   constructor(name) {
@@ -44,7 +35,6 @@ class Layer {
 
   withCurves(curves) {
     // check that each curve can be rendered, i.e. it has a '.d()' method
-    // console.log('withCurves', curves.length)
     for (let curve of curves) {
       if (!('d' in curve)) {
         console.error('Layer.withCurves passed object without a .d method', curve)
@@ -120,7 +110,7 @@ class Layer {
     }
     this.curves = curves.map(({ curve }) => curve)
 
-    return this
+    return this // allow chaining
   }
 
   attachChild(layer) {

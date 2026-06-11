@@ -68,7 +68,6 @@ const svgPlot = {
           </div>
         </div>
       </div>
-
     </div>
 
   `,
@@ -84,7 +83,6 @@ const svgPlot = {
       svgNode.setAttribute('width', '12in')
       svgNode.setAttribute('height', '9in')
       let ref = svgNode.outerHTML
-      console.log('ref', ref)
 
       const blob = new Blob([ref], { type: 'image/svg+xml' })
       const href = URL.createObjectURL(blob)
@@ -128,27 +126,18 @@ const svgPlot = {
       return new Layer('frame').withCurves([this.canvas.continuousCurve()])
     },
     layers() {
-      // only the layers relevant to the scene
-      // console.log('computing layers with', this.scene.configs)
       let layerDict = this.scene.place(this.canvas, this.scene.configs).layers
-      // console.log('layers', layerDict)
-      // Object.values(layerDict).forEach((elt) => elt.optimize()) // optimize the layer
       return layerDict
     },
     rawHTMLComment() {
       let output = []
       for (let option of this.scene.options) {
-        // console.log('value.type', value, value.type)
         let key = option.name
-        // console.log('this.scene.configs', this.scene.configs, option, key)
         let value =
           option.name in this.scene.configs ? this.scene.configs[option.name] : option.default
 
         if (option.type == 'dropdown') {
-          // console.log('option.type', option.type, value)
-          // value = value.name
           value = value.string() // FIXME: this won't work for other types of dropdowns
-          // console.log('option.type after', option.type, value)
         }
         output.push(`${key}: ${value}`)
       }
@@ -215,7 +204,6 @@ const svgPlot = {
     },
     allLayers() {
       let layers = []
-      console.log('scene options', this.scene.options)
       if (this.withFrame) {
         layers.push(this.guideFrameLayer)
       }

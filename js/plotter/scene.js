@@ -63,7 +63,6 @@ class Scene {
   }
 
   place(bbox, options) {
-    // console.log('received options', options)
     this.parameters = this.parameterFn(bbox, options)
     this.template = applyTemplate(this.rawTemplate, this.parameters)
     let layers = this.layerFn(this.template)
@@ -74,7 +73,6 @@ class Scene {
 
         if (clipToBBox) {
           for (let curve of layer.curves) {
-            // console.log('curve', curve)
             let clipped = curve.clip(bbox)
             curves.push(...clipped)
           }

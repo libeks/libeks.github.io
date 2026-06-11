@@ -18,67 +18,6 @@ import { VertexGrid } from '/js/grid.js'
 
 const THRESHOLD = 0.01
 
-// class GenericTriangleTruchetTile {
-//   constructor(vertices, hasCenterNotch, notches, nCatalan) {
-//     this.vertices = vertices
-//     this.hasCenterNotch = hasCenterNotch
-//     this.notches = notches
-//     this.computePoints()
-//     // this.nCatalan = nCatalan // the triangular tile to use
-//   }
-
-//   getN() {
-//     return this.vertices.length
-//   }
-
-//   get center() {
-//     let x = 0
-//     let y = 0
-//     for (let vertex of this.vertices) {
-//       x += vertex.x
-//       y += vertex.y
-//     }
-//     return new Point(x / this.getN(), y / this.getN())
-//   }
-
-//   // return a list of lines
-//   computePoints() {
-//     let center = this.center
-//     let midpoints = zip(this.vertices, rightShift(this.vertices)).map(([v1, v2]) => v1.midpoint(v2))
-//     let notches = []
-//     let stars = {}
-//     let perps = midpoints.map((pt) => pt.vectTo(center))
-//     for (let [[c1, c2], [m1, perp]] of zip(
-//       zip(this.vertices, rightShift(this.vertices)),
-//       zip(midpoints, perps),
-//     )) {
-//       for (let notch of reversed(this.notches)) {
-//         let id = notches.length
-//         let n = m1.towards(c1, notch)
-//         notches.push(n)
-//         stars[id] = new Line(c1, c1.vectTo(center)).intersect(new Line(n, perp))
-//       }
-//       if (this.hasCenterNotch) {
-//         notches.push(m1)
-//       }
-//       for (let notch of this.notches) {
-//         let id = notches.length
-//         let n = m1.towards(c2, notch)
-//         notches.push(m1.towards(c2, notch))
-//         stars[id] = new Line(c2, c2.vectTo(center)).intersect(new Line(n, perp))
-//       }
-//     }
-
-//     this.midpoints = midpoints
-//     this.notchPoints = notches
-//     this.stars = stars
-//   }
-
-//   getCatalanTile(n) {
-//     return []
-//   }
-// }
-
 class GenericTruchetTile {
   constructor(vertices, hasCenterNotch, notches, side) {
     // console.log('side', side)
@@ -212,13 +151,11 @@ class GenericTruchetTile {
     if (cn1 > cn2) {
       throw `getCurve got unordered curve ${curve}`
     }
-    // console.log('notch points', this.notchPoints)
     let p1 = this.notchPoints[cn1]
     let p2 = this.notchPoints[cn2]
     let c1star = this.stars[cn1]
     let c2star = this.stars[cn2]
 
-    // console.log('square curve', curve)
     if (this.notches.length == 1) {
       // direct lines across, closest to center
       if (['16', '25', '38', '47'].includes(curve)) {
@@ -303,7 +240,6 @@ class GenericTruchetTile {
       this.center.addVect(incrementVect.mult((1 * stepFromCenter + 0.5) * incrementDistance)),
       incrementVect.perp(),
     )
-    // console.log('returning rayline for cube curve', curve)
     return new rayLineRayCurve(
       new Ray(p1, p1.vectTo(c1star).withLength(this.side * 0.2)),
       track,
@@ -313,7 +249,6 @@ class GenericTruchetTile {
 
   nextChar(c) {
     let numeric = hexToNumerical(c) - 1
-    // console.log('next of', c, 'is', numericalToHex(numeric + 2))
     return numericalToHex(numeric + 2)
   }
 
@@ -354,10 +289,6 @@ class GenericTruchetTile {
           let c2pt = p2.towards(c2star, 0.6)
           let midpoint = c1pt.midpoint(c2pt)
           return new CubicBezier(p1, c1pt, c2pt, p2)
-          // return new CompositeCurve(
-          //   new QuadraticBezier(p1, c1pt, midpoint),
-          //   new QuadraticBezier(midpoint, c2pt, p2),
-          // )
         }
       }
       let dist = Math.min(p1.distance(p2), p1.distance(c1star), p2.distance(c2star))
@@ -387,10 +318,6 @@ class GenericTruchetTile {
       return new CubicBezier(p1, c1star, c2star, p2)
     }
     if (['18', '49', '5C'].includes(curve)) {
-      // console.log('drawing funny curve for', curve)
-      // if (curve == '49') {
-      //   return new StraightStroke(p1, p2)
-      // }
       let p1plus
       let p2plus
       if (curve == 49) {

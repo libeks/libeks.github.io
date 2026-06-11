@@ -37,6 +37,10 @@ class Point {
     return this.subPt(p).len()
   }
 
+  distanceSquared(p) {
+    return this.subPt(p).lenSquare()
+  }
+
   manhattanDistance(p) {
     return Math.abs(this.x - p.x) + Math.abs(this.y - p.y)
   }
@@ -57,7 +61,7 @@ class Point {
 
   // returns true if the two points are close enough, within tolerance
   same(p) {
-    return this.distance(p) < THRESHOLD
+    return this.distanceSquared(p) < THRESHOLD
   }
 
   display() {
@@ -87,6 +91,11 @@ class Vector {
 
   len() {
     return Math.sqrt(this.x * this.x + this.y * this.y)
+  }
+
+  // lenSquare returns the square of the length, which is more efficient when finding nearest neighbors
+  lenSquare() {
+    return this.x * this.x + this.y * this.y
   }
 
   add(v) {

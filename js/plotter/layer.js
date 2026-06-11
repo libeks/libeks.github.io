@@ -1,6 +1,7 @@
 import { Point2DOrigin } from '/js/geometry.js'
 import { pairs, enumerate, crossProduct } from '/js/utils.js'
 import { pens } from '/js/plotter/pens.js'
+import { BBox } from '/js/bbox.js'
 
 // func metersToTime(m float64) time.Duration {
 //   return time.Duration(22.6 * float64(time.Second) * m)
@@ -75,36 +76,42 @@ class Layer {
   // rearrange the layer to minimize pen uptime
   optimize() {
     if (!this.canOptimize) {
-      // console.log('not optimizing')
+      return this
+    }
+    if (this.curves.length == 0) {
       return this
     }
     let allCurves = Array.from(enumerate(this.curves).map(([i, curve]) => ({ curve, i })))
-    // console.log('allCurves', allCurves)
-    // let allPairs = crossProduct(allCurves)
-    // let distances = {}
-    // for (let [a, b] of allPairs) {
-    //   distances[`${a.i}->${b.i}`] = a.curve.endpoint().distance(b.curve.startpoint())
-    //   distances[`${b.i}->${a.i}`] = b.curve.endpoint().distance(a.curve.startpoint())
-    // }
     let curves = [allCurves[0]]
     let toProcess = allCurves.slice(1)
 
     while (toProcess.length > 0) {
-      let minDist = Number.MAX_VALUE
+      let minDistSq = Number.MAX_VALUE
+      let bbox = new BBox(0, 0, 13333, 10000) // start with the bbox that contains everything
       let candidateIdx
+      let targetPoint = curves[curves.length - 1].curve.endpoint()
       let lastI = curves[curves.length - 1].i
       for (let i = 0; i < toProcess.length; i++) {
         let candidate = toProcess[i]
         if (lastI == candidate.i) {
           continue // don't add duplicates back in
         }
-        let distance = curves[curves.length - 1].curve
+        if (!bbox.inside(candidate.curve.startpoint())) {
+          continue // the point is too far
+        }
+        let distanceSq = curves[curves.length - 1].curve
           .endpoint()
-          .distance(candidate.curve.startpoint())
-        // let distance = distances[`${lastI}->${candidate.i}`]
-        if (distance < minDist) {
+          .distanceSquared(candidate.curve.startpoint())
+        if (distanceSq < minDistSq) {
           candidateIdx = i
-          minDist = distance
+          minDistSq = distanceSq
+          let distance = Math.sqrt(distanceSq)
+          bbox = new BBox(
+            targetPoint.x - distance,
+            targetPoint.y - distance,
+            targetPoint.x + distance,
+            targetPoint.y + distance,
+          )
         }
       }
       let candidate = toProcess[candidateIdx]
@@ -139,9 +146,11 @@ class Layer {
       }
       upLength += distance
     }
-    upLength +=
-      this.curves[0].startpoint().vectTo(Point2DOrigin).len() +
-      this.curves[this.curves.length - 1].endpoint().vectTo(Point2DOrigin).len()
+    if (this.curves.length > 0) {
+      upLength +=
+        this.curves[0].startpoint().vectTo(Point2DOrigin).len() +
+        this.curves[this.curves.length - 1].endpoint().vectTo(Point2DOrigin).len()
+    }
     let totalDistance = downLength + upLength
     let meters = imageSpaceToMeters(totalDistance)
     let seconds = metersToSeconds(meters) + upDownCount * 0.5 // each up-down action takes some time as well

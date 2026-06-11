@@ -2,6 +2,8 @@ import { rootedTree } from '/js/catalan-structures.js'
 import { BBox } from '/js/bbox.js'
 import { genericTruchetGrid } from '/js/regular-truchet.js'
 import { Point } from '/js/geometry.js'
+import { pairs, circularPairs } from '/js/utils.js'
+import { StraightStroke } from '/js/lines.js'
 
 import {
   regularTilings,
@@ -34,6 +36,27 @@ const PlaneTree = new Scene('PlaneTree')
       },
     }
   })
+
+function vertexListsToLines(vertexLists) {
+  // given a list of list of vertices, each of which has an id and point,
+  // return the list of StraightStrokes so that each edge is represented at most once (duplicates are removed)
+  // this is used to deduplicate the edges between adjoining ngons
+  let visited = {}
+  let lines = []
+  for (let vertices of vertexLists) {
+    for (let [a, b] of circularPairs(vertices)) {
+      if (a.id > b.id) {
+        ;[a, b] = [b, a]
+      }
+      let key = `${a.id}-${b.id}`
+      if (!(key in visited)) {
+        lines.push(new StraightStroke(a.point, b.point))
+        visited[key] = true
+      }
+    }
+  }
+  return lines
+}
 
 const Tiling = new Scene('TruchetTiling')
   .withTemplate(
@@ -105,14 +128,16 @@ const Tiling = new Scene('TruchetTiling')
   )
   .withLayers((template) => ({
     edges: {
-      curves: template.grid.map((face) => face.ngon.face.straightStrokes).flat(),
+      curves: vertexListsToLines(template.grid.map((face) => face.ngon.vertices)),
       color: 'black',
       pen: pens.CrayolaSuperTips,
+      // dontOptimize: true,
     },
     curve: {
       curves: template.continuousTruchetCurves,
       color: 'blue',
       pen: pens.CrayolaSuperTips,
+      // dontOptimize: true,
     },
   }))
 

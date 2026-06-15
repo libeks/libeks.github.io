@@ -617,6 +617,95 @@ const danglingBinaryTree = {
   },
 }
 
+class Triangulation {
+  constructor(tile) {
+    if (tile.length % 2 != 0) {
+      throw `Triangulation got tile of odd parentheses ${tile}`
+    }
+    // tile in parenthesis notation
+    this.tile = tile
+    this.n = tile.length / 2
+    this.tree = this.getDanglingTree()
+    this.triangles = this.nodes()
+    let { edges, internal } = this.edgeIDs()
+    this.edges = edges
+    this.internalEdges = internal.map(({ left, right }) =>
+      left > right ? [right, left] : [left, right],
+    )
+  }
+
+  getDanglingTree() {
+    let tree = getBinaryTree(this.tile)
+    let n = this.n + 2
+    let i = n
+    function markDangling(node) {
+      if (node.left != null) {
+        markDangling(node.left)
+        node.leftData = node.left.data
+      } else {
+        node.leftData = { left: i % n, right: (i - 1) % n }
+        i--
+      }
+      if (node.right != null) {
+        markDangling(node.right)
+        node.rightData = node.right.data
+      } else {
+        node.rightData = { left: i % n, right: (i - 1) % n }
+        i--
+      }
+
+      if (node.leftData != null && node.rightData != null) {
+        node.data = { left: node.leftData.left, right: node.rightData.right }
+      } else {
+        throw `Unexpected left or right data missing for node ${node.id}`
+      }
+    }
+    markDangling(tree.root)
+    return tree
+  }
+
+  nodes() {
+    let nodes = []
+    function getNodes(node) {
+      nodes.push(node)
+      if (node.left) {
+        getNodes(node.left)
+      }
+      if (node.right) {
+        getNodes(node.right)
+      }
+    }
+    getNodes(this.tree.root)
+    return nodes
+  }
+
+  edgeIDs() {
+    let edgePairs = []
+    let triangles = []
+    let internal = []
+    // let vertices = this.vertices // capture in scope for function
+    function gatherEdges(node) {
+      if (node.left != null) {
+        gatherEdges(node.left)
+        internal.push(node.leftData)
+      } else {
+        // console.log
+        edgePairs.push(node.leftData)
+      }
+      edgePairs.push(node.data)
+      if (node.right != null) {
+        gatherEdges(node.right)
+        internal.push(node.rightData)
+      } else {
+        edgePairs.push(node.rightData)
+      }
+      node.verticeIDs = [node.leftData.left, node.leftData.right, node.rightData.right]
+    }
+    gatherEdges(this.getDanglingTree().root)
+    return { edges: edgePairs, internal }
+  }
+}
+
 const polygonTriangulation = {
   template: `
     <g>
@@ -650,34 +739,13 @@ const polygonTriangulation = {
     truncatedLine: Boolean,
   },
   computed: {
+    triangulation() {
+      return new Triangulation(this.tile)
+    },
     tree() {
-      let tree = getBinaryTree(this.tile)
-      let n = this.n + 2
-      let i = n
-      function markDangling(node) {
-        if (node.left != null) {
-          markDangling(node.left)
-          node.leftData = node.left.data
-        } else {
-          node.leftData = { left: i % n, right: (i - 1) % n }
-          i--
-        }
-        if (node.right != null) {
-          markDangling(node.right)
-          node.rightData = node.right.data
-        } else {
-          node.rightData = { left: i % n, right: (i - 1) % n }
-          i--
-        }
-
-        if (node.leftData != null && node.rightData != null) {
-          node.data = { left: node.leftData.left, right: node.rightData.right }
-        } else {
-          throw `Unexpected left or right data missing for node ${node.id}`
-        }
-      }
-      markDangling(tree.root)
-      return tree
+      let triangulation = this.triangulation
+      // console.log('edgeIDs', triangulation.edgeIDs)
+      return this.triangulation.tree
     },
     n() {
       if (this.tile.length % 2 != 0) {
@@ -896,4 +964,5 @@ export {
   polygonTriangulation,
   danglingBinaryTree,
   murasakiDiagram,
+  Triangulation,
 }

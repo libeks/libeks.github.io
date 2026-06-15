@@ -1,9 +1,14 @@
 import { Point, Line, Ray } from '/js/geometry.js'
 import { reversed, shift, rightShift, zip, enumerate } from '/js/utils.js'
 import { degToRad, radToDeg, distance, randomInt } from '/js/math.js'
-import { generateIterativeCatalanNumerical } from '/js/catalan.js'
 import { getPairs } from '/js/triangular-tiles.js'
-import { hexToNumerical, numericalToHex } from '/js/catalan.js'
+import { Triangulation } from '/js/catalan-structures.js'
+import {
+  hexToNumerical,
+  numericalToHex,
+  generateIterativeCatalanNumerical,
+  generateIterativeCatalanParentheses,
+} from '/js/catalan.js'
 import {
   StraightStroke,
   QuadraticBezier,
@@ -564,194 +569,67 @@ const genericTruchetGrid = {
   },
 }
 
-// const genericTriangulationGrid = {
-//   template: `
-//     <g v-if="grid" class="grid squares">
-//       <template v-for="face in grid">
-//         <g v-if="showEdges"  class="face">
-//           <path
-//             class="polygon"
-//             :data-face="face.id"
-//             :d="face.ngon.face.d()"
-//             :style="{fill: 'white', stroke: 'black', 'fill-opacity':0.8}"
-//           />
-//         </g>
-//         <template v-if="!showContinuous" v-for="curve in face.tile.getCatalanTile({n:face.n})">
-//           <path class="stroke medium" :d="curve.d()" />
-//         </template>
-//       </template>
-//     </g>
-//     `,
-//   props: {
-//     pattern: Object,
-//     bbox: Object,
-//     start: {
-//       type: Object,
-//       default: new Point(0, 0),
-//     },
-//     size: {
-//       type: Number,
-//       default: 100,
-//     },
-//     angle: {
-//       type: Number,
-//       default: 0,
-//     },
-//     iterations: {
-//       type: Number,
-//       default: -1,
-//     },
-//     showEdges: Boolean,
-//     // showContinuous: Boolean,
-//     // notches: Object,
-//     // onlyNgonsInsideBBox: Boolean,
-//   },
-//   computed: {
-//     grid() {
-//       let grid = new VertexGrid({
-//         bbox: this.bbox,
-//         start: this.start,
-//         size: this.size,
-//         angle: this.angle,
-//         pattern: this.pattern,
-//         iterations: this.iterations,
-//       }).generate()
-//       let retList = []
-//       let allFaces = this.onlyNgonsInsideBBox ? grid.getFacesInBBox() : grid.getFaces()
-//       for (let ngon of allFaces) {
-//         retList.push({
-//           ngon,
-//           tile: new GenericTruchetTile(
-//             ngon.vertices.map((vertex) => vertex.point),
-//             false,
-//             this.notches,
-//             this.size,
-//           ),
-//           n: randomInt(1289904147324), // 1289904147324 is C24
-//         })
-//       }
-//       return retList
-//     },
-//     curveFragmentsByNgons() {
-//       let byNGon = {}
-//       for (let face of this.grid) {
-//         let curves = []
-//         for (let [id, curve] of enumerate(face.tile.getCatalanTile({ n: face.n }))) {
-//           curves.push({
-//             id: `${face.ngon.id}.${id}`,
-//             faceID: face.ngon.id,
-//             curve,
-//           })
-//         }
-//         byNGon[face.ngon.id] = curves
-//       }
-//       return byNGon
-//     },
-//     neighborNGonIDs() {
-//       let byNGon = {}
-//       for (let face of this.grid) {
-//         byNGon[face.ngon.id] = face.ngon.edges.map((edge) => edge.id)
-//       }
-//       return byNGon
-//     },
-//     neighborNGonFragments() {
-//       let byNGon = {}
-//       for (let face of this.grid) {
-//         byNGon[face.id] = face.ngon.edges.map((edge) => edge.id)
-//       }
-//       return byNGon
-//     },
-//     continuousTruchetCurves() {
-//       // populate 'unprocessed' so all segments intially appear there. by the end of this method, 'unprocessed' should be empty
-//       let unprocessed = {}
-//       for (let ngon of Object.values(this.curveFragmentsByNgons)) {
-//         for (let curve of ngon) {
-//           unprocessed[curve.id] = curve
-//         }
-//       }
-//       let curves = []
-//       while (Object.keys(unprocessed).length > 0) {
-//         let start = Object.values(unprocessed)[0]
-//         let directions = ['forward', 'backward']
-//         let end = start // initially the start and end are the same
-//         delete unprocessed[start.id]
-//         let aggregate = new CompositeCurve(start.curve)
-//         while (!aggregate.closed() && directions.length > 0) {
-//           for (let direction of directions) {
-//             let found = false
-//             if (direction == 'forward') {
-//               for (let neighborNGonID of this.neighborNGonIDs[end.faceID]) {
-//                 if (!(neighborNGonID in this.curveFragmentsByNgons)) {
-//                   // neighbor ngon is filtered out, maybe it doesn't fit in the bbox
-//                   continue
-//                 }
-//                 let neighborNGon = this.curveFragmentsByNgons[neighborNGonID]
-//                 for (let curve of neighborNGon) {
-//                   if (!(curve.id in unprocessed)) {
-//                     continue
-//                   }
-//                   if (curve.curve.startpoint().same(end.curve.endpoint())) {
-//                     aggregate.add(curve.curve)
-//                     end = curve
-//                     delete unprocessed[curve.id]
-//                     found = true
-//                     break
-//                   } else if (curve.curve.endpoint().same(end.curve.endpoint())) {
-//                     curve.curve = curve.curve.reverse()
-//                     aggregate.add(curve.curve)
-//                     end = curve
-//                     delete unprocessed[curve.id]
-//                     found = true
-//                     break
-//                   }
-//                 }
-//                 if (found) {
-//                   break
-//                 }
-//               }
-//             } else {
-//               // backwards
-//               for (let neighborNGonID of this.neighborNGonIDs[start.faceID]) {
-//                 if (!(neighborNGonID in this.curveFragmentsByNgons)) {
-//                   // neighbor ngon is filtered out, maybe it doesn't fit in the bbox
-//                   continue
-//                 }
-//                 let neighborNGon = this.curveFragmentsByNgons[neighborNGonID]
-//                 for (let curve of neighborNGon) {
-//                   if (!(curve.id in unprocessed)) {
-//                     continue
-//                   }
-//                   if (curve.curve.endpoint().same(start.curve.startpoint())) {
-//                     aggregate.prepend(curve.curve)
-//                     start = curve
-//                     delete unprocessed[curve.id]
-//                     found = true
-//                     break
-//                   } else if (curve.curve.startpoint().same(start.curve.startpoint())) {
-//                     curve.curve = curve.curve.reverse()
-//                     aggregate.prepend(curve.curve)
-//                     start = curve
-//                     delete unprocessed[curve.id]
-//                     found = true
-//                     break
-//                   }
-//                 }
-//                 if (found) {
-//                   break
-//                 }
-//               }
-//             }
-//             if (!found) {
-//               directions = directions.filter((dir) => dir != direction)
-//             }
-//           }
-//         }
-//         // the curve is completed, i.e. it is closed, or we cannot make any progress on the curve
-//         curves.push(aggregate)
-//       }
-//       return curves
-//     },
-//   },
-// }
+const genericTriangulationGrid = {
+  template: `
+    <g v-if="grid" class="grid squares">
+      <g v-for="face in grid" class="face">
+        <path
+          class="polygon"
+          :data-face="face.id"
+          :d="face.ngon.face.d()"
+          :style="{fill: 'white', stroke: 'black', 'fill-opacity':0.8}"
+        />
+        <path v-for="edge in face.internalEdges" :d="edge.d()" :style="{stroke: 'black', 'fill-opacity':0.8}" />
+      </g>
+    </g>
+    `,
+  props: {
+    pattern: Object,
+    bbox: Object,
+    start: {
+      type: Object,
+      default: new Point(0, 0),
+    },
+    size: {
+      type: Number,
+      default: 100,
+    },
+    angle: {
+      type: Number,
+      default: 0,
+    },
+    iterations: {
+      type: Number,
+      default: -1,
+    },
+  },
+  computed: {
+    grid() {
+      let grid = new VertexGrid({
+        bbox: this.bbox,
+        start: this.start,
+        size: this.size,
+        angle: this.angle,
+        pattern: this.pattern,
+        iterations: this.iterations,
+      }).generate()
+      let retList = []
+      let allFaces = this.onlyNgonsInsideBBox ? grid.getFacesInBBox() : grid.getFaces()
+      for (let ngon of allFaces) {
+        let face = {
+          ngon,
+          internalEdges: new Triangulation(
+            generateIterativeCatalanParentheses(ngon.vertices.length - 2, randomInt(1289904147324)),
+          ).internalEdges.map(
+            ([from, to]) => new StraightStroke(ngon.vertices[from].point, ngon.vertices[to].point),
+          ),
+          n: randomInt(1289904147324), // 1289904147324 is C24
+        }
+        retList.push(face)
+      }
+      return retList
+    },
+  },
+}
 
-export { GenericTruchetTile, genericTruchetGrid }
+export { GenericTruchetTile, genericTruchetGrid, genericTriangulationGrid }

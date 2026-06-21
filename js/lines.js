@@ -52,7 +52,7 @@ class StraightStroke {
     return this
   }
 
-  // strip off px off of each end of the Line
+  // shorten the line by px units off both ends
   stripPx(px) {
     let vect = this.vect().unit()
     return new StraightStroke(this.from.addVect(vect.mult(px)), this.to.addVect(vect.mult(-px)))
@@ -67,6 +67,20 @@ class StraightStroke {
 
   line() {
     return new Line(this.from, this.from.vectTo(this.to))
+  }
+
+  // intersect this line segment with the line, returning, possibly, a list of t-values of that line (there can only one at most one)
+  intersectLineU(line) {
+    let l = this.line()
+    let ans = l.intersectTU(line)
+    if (ans == null) {
+      return []
+    }
+    let [t, u] = ans
+    if (t >= 0 && t <= 1) {
+      return [u]
+    }
+    return []
   }
 
   // clip line to bbox
@@ -161,6 +175,22 @@ class QuadraticBezier {
       matrix.multPoint(this.c1),
       matrix.multPoint(this.to),
     )
+  }
+
+  intersectLineU(line) {
+    let l = this.line()
+    let ans = l.intersectLineT(line)
+    if (ans.length == 0) {
+      return []
+    }
+    let answers = []
+    for (let t of ans) {
+      let lineT = line.pointOnSide(l.at(t))
+      // if (lineT >= 0 && lineT <= 1) {
+      answers.push(lineT)
+      // }
+    }
+    return answers
   }
 
   clip(bbox) {
@@ -324,6 +354,22 @@ class CubicBezier {
       matrix.multPoint(this.c2),
       matrix.multPoint(this.to),
     )
+  }
+
+  intersectLineU(line) {
+    let l = this.line()
+    let ans = l.intersectLineT(line)
+    if (ans.length == 0) {
+      return []
+    }
+    let answers = []
+    for (let t of ans) {
+      let lineT = line.pointOnSide(l.at(t))
+      // if (lineT >= 0 && lineT <= 1) {
+      answers.push(lineT)
+      // }
+    }
+    return answers
   }
 
   intersectLineT(line) {
@@ -564,25 +610,39 @@ class CompositeCurve {
     return this.curves[this.curves.length - 1].endpoint()
   }
 
-  // // return whether the current curve is continuous (except for endpoints)
-  // continuous() {
-  //   if (this.curves.length < 2) {
-  //     // trivially true, including the empty case
-  //     return true
-  //   }
-  //   for (let i = 1; i < this.curves.length; i++) {
-  //     if (!this.curves[i - 1].endpoint().same(this.curves[i].startpoint())) {
-  //       return false
-  //     }
-  //   }
-  //   return true
-  // }
+  // given a line, return the list of t-values of it intersecting with the composite curve
+  intersectLineU(line) {
+    let answers = []
+    for (let curve of this.curves) {
+      answers.push(...curve.intersectLineU(line))
+      // let lineT = line.pointOnSide(l.at(t))
+      if (lineT >= 0 && lineT <= 1) {
+        answers.push(lineT)
+      }
+    }
+    return answers
+  }
+
+  inside(pt) {
+    if (pt.type != 'Point') {
+      throw `CompositeCurve.inside() got unexpected argument ${pt.type}`
+    }
+    if (!this.closed()) {
+      return false // non-closed curves don't have an "inside"
+    }
+    if (!this.bbox().inside(pt)) {
+      return false
+    }
+    let line = new Line(pt, new Vector(1, 0))
+    let intersections = this.intersectLineU(line)
+    console.log('intersections', intersections)
+    intersections.filter((t) => t >= 0)
+    console.log('intersections after removing negatives', intersections)
+    return intersections.length % 2 == 1 // TODO: detect identical or close-enough t-values
+  }
 
   // return whether the curve is closed, i.e. it is continuous and its start and end points are connected
   closed() {
-    // if (!this.continuous()) {
-    //   return false
-    // }
     return this.startpoint().same(this.endpoint())
   }
 

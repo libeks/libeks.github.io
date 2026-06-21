@@ -263,6 +263,7 @@ class Line {
     return new Line(this.p.addVect(v), this.v)
   }
 
+  // return the t-value of the point when projected onto the line
   pointOnSide(p) {
     if (p.type != 'Point') {
       console.trace()

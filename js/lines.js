@@ -78,6 +78,7 @@ class StraightStroke {
     }
     let { t, u } = ans
     if (t >= 0 && t <= 1) {
+      // console.log('intersectLineU StraightStroke', t, u, this)
       return [u]
     }
     return []
@@ -189,6 +190,7 @@ class QuadraticBezier {
     let answers = []
     for (let t of ans) {
       let lineT = line.pointProjectionTValue(this.at(t))
+      // console.log('intersectLineU QuadraticStroke', t, lineT, this)
       answers.push(lineT)
     }
     return answers
@@ -241,6 +243,7 @@ class QuadraticBezier {
     let b = A.dot(bVect)
     let c = A.dot(v0) - lineD
     let roots = quadratic(a, b, c)
+    // console.log('solving quadratic for ', a, b, c, 'got', roots)
     roots = roots.filter((t) => t >= 0 && t <= 1) // filter out intersections outside the span of this curve
     return roots
   }
@@ -361,6 +364,7 @@ class CubicBezier {
     let answers = []
     for (let t of ans) {
       let lineT = line.pointProjectionTValue(this.at(t))
+      // console.log('intersectLineU CubicStroke', t, lineT, this)
       answers.push(lineT)
     }
     return answers
@@ -388,6 +392,10 @@ class CubicBezier {
     let c = A.dot(cVect)
     let d = A.dot(v0) - lineD
     let roots = cubic(a, b, c, d)
+    // if (roots.length == 0) {
+    // if (this.from.x == 729.0230484541327) {
+    //   console.log('solving cubic with', a, b, c, d, roots, this)
+    // }
     roots = roots.filter((t) => t >= 0 && t <= 1) // filter out intersections outside the span of this curve
     return roots
   }
@@ -419,14 +427,6 @@ class CubicBezier {
     return reduceIntervals(ts, (t) => bbox.inside(this.at(t))).map(([a, b]) =>
       this.subsection(a, b),
     )
-    // for (let [a, b] of pairs(ts)) {
-    //   // TODO: allow for subsequent sections to be consecutive
-    //   let midpoint = average(a, b)
-    //   if (bbox.inside(this.at(midpoint))) {
-    //     return [this.subsection(a, b)]
-    //   }
-    // }
-    // return []
   }
 
   bbox() {
@@ -638,9 +638,11 @@ class CompositeCurve {
     let intersections = this.intersectLineU(line)
     // console.log('intersections', intersections)
     intersections = intersections.filter((t) => t > 0)
+    intersections = [...new Set(intersections)]
     // console.log('intersections after removing negatives', intersections)
     // return intersections.length % 2 == 1 // TODO: detect identical or close-enough t-values
     let inside = intersections.length % 2 == 1
+    console.log('ts', intersections)
     return {
       inside,
       intersections: intersections.map((t) => line.at(t)),
@@ -660,6 +662,8 @@ class CompositeCurve {
     let line = new Line(pt, new Vector(1, 0))
     let intersections = this.intersectLineU(line)
     intersections = intersections.filter((t) => t > 0)
+    intersections = [...new Set(intersections)]
+    // console.log('inside', pt, intersections)
     return intersections.length % 2 == 1
   }
 
@@ -864,30 +868,38 @@ class ClosedCurve {
       .corners()
       .map((corner) => perpLine.pointProjectionTValue(corner))
     tValues.sort((a, b) => a - b)
-    // console.log('tvalues', tValues)
+    console.log('tvalues', tValues)
+    // tValues = [216.86693101272223, 217]
     let allCurves = [this.curve, ...this.minus]
     let lines = []
     for (let i = tValues[0]; i < tValues[tValues.length - 1]; i++) {
       let line = new Line(perpLine.at(i), vect)
       let linelines = []
       let tvalues = []
+      let intersections = []
       for (let curve of allCurves) {
         tvalues.push(...curve.intersectLineU(line))
       }
       tvalues.sort((a, b) => a - b)
       let intervals = reduceIntervals(tvalues, (t) => {
         let midpoint = line.at(t)
-        return this.curve.inside(midpoint) && !this.minus.some((c) => c.inside(midpoint))
+        // return this.curve.inside(midpoint) && !this.minus.some((c) => c.inside(midpoint))
+        let inside = this.curve.insideExtended(midpoint)
+        intersections.push(...inside.intersections)
+        return inside.inside && !this.minus.some((c) => c.inside(midpoint))
       })
+      // insideExtended
       for (let [t1, t2] of intervals) {
         let p1 = line.at(t1)
         let p2 = line.at(t2)
         linelines.push(new StraightStroke(p1, p2))
       }
+      // console.log('intersections', intersections)
       lines.push({
         line,
         linelines,
         points: tvalues.map((t) => line.at(t)),
+        intersections,
       })
     }
     // console.log('fill returning lines', lines)

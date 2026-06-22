@@ -2,7 +2,7 @@ import { degToRad } from '/js/math.js'
 import { Polygon, StraightStroke } from '/js/lines.js'
 
 const THRESHOLD = 0.01
-const DIVISOR_THRESHOLD = 1e-10
+const DIVISOR_THRESHOLD = 1e-8
 
 class Point {
   constructor(x, y) {
@@ -234,6 +234,7 @@ class Line {
     const y1y3 = this.p.y - l.p.y
 
     const divisor = x1x2 * y3y4 - y1y2 * x3x4
+    // console.log('divisor', divisor)
     if (Math.abs(divisor) < DIVISOR_THRESHOLD) {
       return null
     }

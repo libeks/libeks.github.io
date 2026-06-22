@@ -177,11 +177,11 @@ class BBox {
     }
     ts.sort((a, b) => a - b)
     let intervals = reduceIntervals(ts, (t) => this.inside(line.at(t)))
-    console.log('intervals', intervals)
+    // console.log('intervals', intervals)
     let ans = reduceIntervals(ts, (t) => this.inside(line.at(t))).map(
       ([a, b]) => new StraightStroke(line.at(a), line.at(b)),
     )
-    console.log('clipLine returns', ans)
+    // console.log('clipLine returns', ans)
     return ans
   }
 
@@ -203,7 +203,7 @@ function bboxFromPointCloud(...points) {
 
 const svgBox = {
   template: `
-    <svg :viewBox="[bbox.x1, bbox.y1, bbox.x2, bbox.y2]">
+    <svg :viewBox="[bbox.x1, bbox.y1, bbox.width(), bbox.height()]">
       <slot></slot>
     </svg>
   `,

@@ -1,4 +1,5 @@
 const THRESHOLD = 0.01
+const THRESHOLD_FINE = 1e-8 // used for quadratic formula a parameter
 
 function reverseInterpolate(a, b, threshold) {
   if (a == b) {
@@ -77,7 +78,7 @@ function randomInt(n) {
 // solve the linear equation ax + b = 0, returning a list of 0 or 1 answers
 // this is trivial, but used for the case of quadratic and cubic
 function linear(a, b) {
-  if (a == 0) {
+  if (Math.abs(a) < THRESHOLD_FINE) {
     return []
   }
   return [-b / a]
@@ -85,7 +86,7 @@ function linear(a, b) {
 
 // solve the quadratic equation ax^2 + bx + c = 0, returning a list of 0 to 2 distinct roots
 function quadratic(a, b, c) {
-  if (a == 0) {
+  if (Math.abs(a) < THRESHOLD_FINE) {
     // return linear solution of bx + c = 0
     return linear(b, c)
   }
@@ -108,23 +109,23 @@ function cuberoot(x) {
 // adapted from https://stackoverflow.com/a/27176424
 // solve the cubic equation ax^3 + bx^2 + cx + d = 0, returning 0 to 3 roots (0 roots in the degenerate case)
 function cubic(a, b, c, d) {
-  if (Math.abs(a) < 1e-8) {
+  if (Math.abs(a) < THRESHOLD_FINE) {
     // Quadratic case, ax^2+bx+c=0
     a = b
     b = c
     c = d
-    if (Math.abs(a) < 1e-8) {
+    if (Math.abs(a) < THRESHOLD_FINE) {
       // Linear case, ax+b=0
       a = b
       b = c
-      if (Math.abs(a) < 1e-8)
+      if (Math.abs(a) < THRESHOLD_FINE)
         // Degenerate case
         return []
       return [-b / a]
     }
 
     var D = b * b - 4 * a * c
-    if (Math.abs(D) < 1e-8) return [-b / (2 * a)]
+    if (Math.abs(D) < THRESHOLD_FINE) return [-b / (2 * a)]
     else if (D > 0) return [(-b + Math.sqrt(D)) / (2 * a), (-b - Math.sqrt(D)) / (2 * a)]
     return []
   }
@@ -132,17 +133,19 @@ function cubic(a, b, c, d) {
   // Convert to depressed cubic t^3+pt+q = 0 (subst x = t - b/3a)
   var p = (3 * a * c - b * b) / (3 * a * a)
   var q = (2 * b * b * b - 9 * a * b * c + 27 * a * a * d) / (27 * a * a * a)
+  // console.log('cubic p, q', p, q)
   var roots
 
-  if (Math.abs(p) < 1e-8) {
+  if (Math.abs(p) < THRESHOLD_FINE) {
     // p = 0 -> t^3 = -q -> t = -q^1/3
     roots = [cuberoot(-q)]
-  } else if (Math.abs(q) < 1e-8) {
+  } else if (Math.abs(q) < THRESHOLD_FINE) {
     // q = 0 -> t^3 + pt = 0 -> t(t^2+p)=0
     roots = [0].concat(p < 0 ? [Math.sqrt(-p), -Math.sqrt(-p)] : [])
   } else {
     var D = (q * q) / 4 + (p * p * p) / 27
-    if (Math.abs(D) < 1e-8) {
+    // console.log('cubic D', D)
+    if (Math.abs(D) < THRESHOLD_FINE) {
       // D = 0 -> two roots
       roots = [(-1.5 * q) / p, (3 * q) / p]
     } else if (D > 0) {

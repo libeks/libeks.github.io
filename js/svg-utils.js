@@ -21,7 +21,7 @@ function dToLines(pathStr) {
   let tokens = []
   for (let i = 0; i < chunks.length; i++) {
     let chunk = chunks[i]
-    if (['M', 'C', 'Q'].includes(chunk)) {
+    if (['M', 'C', 'Q', 'L'].includes(chunk)) {
       tokens.push(chunk)
     } else {
       // get two chunks
@@ -34,6 +34,7 @@ function dToLines(pathStr) {
   }
   let endpoint
   let components = []
+  // console.log('tokens', tokens)
   for (let i = 0; i < tokens.length; i++) {
     let token = tokens[i]
     if (token == 'M') {

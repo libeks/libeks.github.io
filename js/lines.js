@@ -554,6 +554,9 @@ class CircleArc {
 }
 
 class CompositeCurve {
+  // Composite Curve is a continuous curve composed of StraightStrokes, quadratic-, and cubic- bezier curves. Circle arcs are not fully supported
+  // it is not necessarily closed; for that, use ClosedCurve
+
   constructor(...args) {
     for (let [a, b] of pairs(args)) {
       if (!a.endpoint().same(b.startpoint())) {
@@ -652,23 +655,22 @@ class CompositeCurve {
       intersections: intersections.map((t) => line.at(t)),
     }
   }
-  // inside(pt) {
-  //   if (pt.type != 'Point') {
-  //     throw `CompositeCurve.inside() got unexpected argument ${pt.type}`
-  //   }
-  //   if (!this.closed()) {
-  //     return false // non-closed curves don't have an "inside"
-  //   }
-  //   if (!this.bbox().inside(pt)) {
-  //     return false
-  //   }
-  //   let line = new Line(pt, new Vector(1, 0))
-  //   let intersections = this.intersectLineU(line)
-  //   console.log('intersections', intersections)
-  //   intersections = intersections.filter((t) => t > 0)
-  //   console.log('intersections after removing negatives', intersections)
-  //   return intersections.length % 2 == 1 // TODO: detect identical or close-enough t-values
-  // }
+  inside(pt) {
+    // return true if the point is inside the closed Composite Curve
+    if (pt.type != 'Point') {
+      throw `CompositeCurve.inside() got unexpected argument ${pt.type}`
+    }
+    if (!this.closed()) {
+      return false // non-closed curves don't have an "inside"
+    }
+    if (!this.bbox().inside(pt)) {
+      return false
+    }
+    let line = new Line(pt, new Vector(1, 0))
+    let intersections = this.intersectLineU(line)
+    intersections = intersections.filter((t) => t > 0)
+    return intersections.length % 2 == 1
+  }
 
   // return whether the curve is closed, i.e. it is continuous and its start and end points are connected
   closed() {
@@ -803,6 +805,34 @@ class CompositeCurve {
       bbox = bbox.add(this.curves[i].bbox())
     }
     return bbox
+  }
+}
+
+class ClosedCurve {
+  constructor(curve, minus) {
+    if (!curve.closed()) {
+      throw `ClosedCurve got non-closed primary component`
+    }
+    for (let m of minus) {
+      if (!m.closed()) {
+        throw `ClosedCurve got non-closed minus component`
+      }
+    }
+    this.curve = curve // the basic "positive curve"
+    // closed curves that should be removed from the current one. They usually are completely contained inside the closed curve
+    // note that doubly nested minus curves will result in the inner one being filled, using the fill-rule="evenodd"
+    this.minus = minus
+  }
+
+  bbox() {
+    return this.curve.bbox()
+  }
+
+  d() {
+    // this is to be displayed with fill-rule="evenodd", the clockwiseness of the curves doesn't matter. Triple nested minus curves will be filled
+    // FIXME: complete this with minus curves
+    let minusString = this.minus.map((m) => m.d()).join(' ')
+    return this.curve.d() + ' ' + minusString
   }
 }
 

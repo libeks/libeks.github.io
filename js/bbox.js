@@ -144,8 +144,8 @@ class BBox {
   add(bbox) {
     return new BBox(
       Math.min(this.x1, bbox.x1),
-      Math.max(this.x2, bbox.x2),
       Math.min(this.y1, bbox.y1),
+      Math.max(this.x2, bbox.x2),
       Math.max(this.y2, bbox.y2),
     )
   }

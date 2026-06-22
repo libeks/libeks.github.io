@@ -263,7 +263,22 @@ class Line {
     return new Line(this.p.addVect(v), this.v)
   }
 
-  // return the t-value of the point when projected onto the line
+  // if the point is projected onto the line, what would its t-value be
+  // this is helpful when the point is already on the line, but we need to find the t-value for it
+  pointProjectionTValue(p) {
+    if (p.type != 'Point') {
+      console.trace()
+      throw `Unrecognized argument to pointProjectionTValue: ${p.type}`
+    }
+    let v = this.p.vectTo(p)
+    let t = v.dot(this.v) / this.v.len()
+    // if (!this.at(t).same(p)) {
+    //   console.log('pointProjectionTValue doesnt match', t, this.at(t), p, this.at(t).distance(p))
+    // }
+    return t
+  }
+
+  // returns a float value that determines which side of the line the point is. The magnitude does not have much meaning
   pointOnSide(p) {
     if (p.type != 'Point') {
       console.trace()

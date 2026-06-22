@@ -1,5 +1,5 @@
 import { Point, Line, Ray } from '/js/geometry.js'
-import { reversed, shift, rightShift, zip, enumerate } from '/js/utils.js'
+import { reversed, shift, rightShift, zip, enumerate, range } from '/js/utils.js'
 import { degToRad, radToDeg, distance, randomInt } from '/js/math.js'
 import { getPairs } from '/js/triangular-tiles.js'
 import { Triangulation } from '/js/catalan-structures.js'
@@ -395,6 +395,11 @@ const genericTruchetGrid = {
       <g v-if="showContinuous" v-for="curve in continuousTruchetCurves">
         <path class="polygon" :d="curve.d()" :style="{fill: 'white', stroke: 'black', 'fill-opacity':0.8}" />
       </g>
+      <g v-if="showRandomPoints" v-for="point in points">
+        <circle v-bind="point.pt.cxcyProps()" r=2 :style='{stroke: "none", fill: point.inside ? "black" : "yellow"}' />
+        <circle v-if="showTangentPoints" v-for="inter in point.intersections" r=1 v-bind="inter.cxcyProps()" :style='{stroke: "green"}' />
+      </g>
+
     </g>
     `,
   props: {
@@ -446,6 +451,51 @@ const genericTruchetGrid = {
         })
       }
       return retList
+    },
+    showRandomPoints() {
+      return false
+    },
+    showTangentPoints() {
+      return false
+    },
+    points() {
+      let n = 10000
+      let points = []
+      for (let i of range(n)) {
+        let point = new Point(
+          Math.random() * this.bbox.width() + this.bbox.x1,
+          Math.random() * this.bbox.height() + this.bbox.y1,
+        )
+        if (!this.bbox.inside(point)) {
+          throw `Point ${point} not inside bbox ${this.bbox}`
+        }
+        let inside = false
+        let intersections = []
+        for (let curve of this.continuousTruchetCurves) {
+          if (curve.type == 'CompositeCurve') {
+            let check = curve.insideExtended(point)
+            // console.log('points.inside', check)
+            if (check.inside) {
+              // console.log('setting to true')
+              inside = true
+              intersections = check.intersections
+              break
+            }
+            // } && curve.inside(point)) {
+            //   inside = true
+            //   break
+            // }
+          }
+        }
+        // console.log('adding', inside)
+        points.push({
+          pt: point,
+          inside,
+          intersections,
+        })
+      }
+      console.log('points', this.bbox, points)
+      return points
     },
     curveFragmentsByNgons() {
       let byNGon = {}

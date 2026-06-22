@@ -1,5 +1,5 @@
 import { pairs } from '/js/utils.js'
-import { Point, Line, Point2DOrigin } from '/js/geometry.js'
+import { Point, Vector, Line, Point2DOrigin } from '/js/geometry.js'
 import { average, quadratic, cubic } from '/js/math.js'
 import { BBox, bboxFromPointCloud } from '/js/bbox.js'
 
@@ -76,8 +76,10 @@ class StraightStroke {
     if (ans == null) {
       return []
     }
-    let [t, u] = ans
+    // console.log('ans', ans)
+    let { t, u } = ans
     if (t >= 0 && t <= 1) {
+      // console.log('StraightStroke intersections', [u])
       return [u]
     }
     return []
@@ -178,18 +180,19 @@ class QuadraticBezier {
   }
 
   intersectLineU(line) {
-    let l = this.line()
-    let ans = l.intersectLineT(line)
+    // let l = this.line()
+    let ans = this.intersectLineT(line)
     if (ans.length == 0) {
       return []
     }
     let answers = []
     for (let t of ans) {
-      let lineT = line.pointOnSide(l.at(t))
+      let lineT = line.pointProjectionTValue(this.at(t))
       // if (lineT >= 0 && lineT <= 1) {
       answers.push(lineT)
       // }
     }
+    // console.log('QuadraticBezier intersections', answers)
     return answers
   }
 
@@ -246,6 +249,7 @@ class QuadraticBezier {
     let b = A.dot(bVect)
     let c = A.dot(v0) - lineD
     let roots = quadratic(a, b, c)
+    roots = roots.filter((t) => t >= 0 && t <= 1) // filter out intersections outside the span of this curve
     return roots
   }
 
@@ -357,18 +361,20 @@ class CubicBezier {
   }
 
   intersectLineU(line) {
-    let l = this.line()
-    let ans = l.intersectLineT(line)
+    // let l = this.line()
+    let ans = this.intersectLineT(line)
     if (ans.length == 0) {
       return []
     }
     let answers = []
     for (let t of ans) {
-      let lineT = line.pointOnSide(l.at(t))
+      let lineT = line.pointProjectionTValue(this.at(t))
+      // console.log('cubic bezier parameter', t, '->', lineT)
       // if (lineT >= 0 && lineT <= 1) {
       answers.push(lineT)
       // }
     }
+    // console.log('CubicBezier intersections', answers)
     return answers
   }
 
@@ -393,6 +399,7 @@ class CubicBezier {
     let c = A.dot(cVect)
     let d = A.dot(v0) - lineD
     let roots = cubic(a, b, c, d)
+    roots = roots.filter((t) => t >= 0 && t <= 1) // filter out intersections outside the span of this curve
     return roots
   }
 
@@ -615,15 +622,15 @@ class CompositeCurve {
     let answers = []
     for (let curve of this.curves) {
       answers.push(...curve.intersectLineU(line))
-      // let lineT = line.pointOnSide(l.at(t))
-      if (lineT >= 0 && lineT <= 1) {
-        answers.push(lineT)
-      }
+      // let lineT = line.pointProjectionTValue(l.at(t))
+      // if (lineT >= 0 && lineT <= 1) {
+      //   answers.push(lineT)
+      // }
     }
     return answers
   }
 
-  inside(pt) {
+  insideExtended(pt) {
     if (pt.type != 'Point') {
       throw `CompositeCurve.inside() got unexpected argument ${pt.type}`
     }
@@ -635,11 +642,33 @@ class CompositeCurve {
     }
     let line = new Line(pt, new Vector(1, 0))
     let intersections = this.intersectLineU(line)
-    console.log('intersections', intersections)
-    intersections.filter((t) => t >= 0)
-    console.log('intersections after removing negatives', intersections)
-    return intersections.length % 2 == 1 // TODO: detect identical or close-enough t-values
+    // console.log('intersections', intersections)
+    intersections = intersections.filter((t) => t > 0)
+    // console.log('intersections after removing negatives', intersections)
+    // return intersections.length % 2 == 1 // TODO: detect identical or close-enough t-values
+    let inside = intersections.length % 2 == 1
+    return {
+      inside,
+      intersections: intersections.map((t) => line.at(t)),
+    }
   }
+  // inside(pt) {
+  //   if (pt.type != 'Point') {
+  //     throw `CompositeCurve.inside() got unexpected argument ${pt.type}`
+  //   }
+  //   if (!this.closed()) {
+  //     return false // non-closed curves don't have an "inside"
+  //   }
+  //   if (!this.bbox().inside(pt)) {
+  //     return false
+  //   }
+  //   let line = new Line(pt, new Vector(1, 0))
+  //   let intersections = this.intersectLineU(line)
+  //   console.log('intersections', intersections)
+  //   intersections = intersections.filter((t) => t > 0)
+  //   console.log('intersections after removing negatives', intersections)
+  //   return intersections.length % 2 == 1 // TODO: detect identical or close-enough t-values
+  // }
 
   // return whether the curve is closed, i.e. it is continuous and its start and end points are connected
   closed() {
@@ -769,7 +798,7 @@ class CompositeCurve {
     if (this.curves.length == 0) {
       return new BBox(0, 0, 0, 0)
     }
-    let bbox = this.curves[0]
+    let bbox = this.curves[0].bbox()
     for (let i = 1; i < this.curves.length; i++) {
       bbox = bbox.add(this.curves[i].bbox())
     }

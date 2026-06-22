@@ -150,6 +150,10 @@ class BBox {
     )
   }
 
+  corners() {
+    return [this.upperLeft(), this.upperRight(), this.lowerRight(), this.lowerLeft()]
+  }
+
   continuousCurve() {
     return new CompositeCurve(
       new StraightStroke(this.upperLeft(), this.upperRight()),

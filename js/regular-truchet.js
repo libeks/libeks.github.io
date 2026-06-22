@@ -15,6 +15,7 @@ import {
   CubicBezier,
   CompositeCurve,
   rayLineRayCurve,
+  ClosedCurve,
 } from '/js/lines.js'
 import { VertexGrid } from '/js/grid.js'
 
@@ -395,6 +396,10 @@ const genericTruchetGrid = {
       <g v-if="showContinuous" v-for="curve in continuousTruchetCurves">
         <path class="polygon" :d="curve.d()" :style="{fill: 'white', stroke: 'black', 'fill-opacity':0.8}" />
       </g>
+      <g v-if="showFillLines" v-for="curve in closedTruchetCurves">
+        <path v-for="line in curve.fill(10, 0)" :d="line.d()" :style="{stroke:'purple'}" />
+      </g>
+    
       <g v-if="showRandomPoints" v-for="point in points">
         <circle v-bind="point.pt.cxcyProps()" r=2 :style='{stroke: "none", fill: point.inside ? "black" : "yellow"}' />
         <circle v-if="showTangentPoints" v-for="inter in point.intersections" r=1 v-bind="inter.cxcyProps()" :style='{stroke: "green"}' />
@@ -457,6 +462,9 @@ const genericTruchetGrid = {
     },
     showTangentPoints() {
       return false
+    },
+    showFillLines() {
+      return true
     },
     points() {
       let n = 10000
@@ -615,6 +623,13 @@ const genericTruchetGrid = {
         curves.push(aggregate)
       }
       return curves
+    },
+    closedTruchetCurves() {
+      let ret = this.continuousTruchetCurves
+        .filter((curve) => curve.closed())
+        .map((curve) => new ClosedCurve(curve, []))
+      console.log('closedTruchetCurves', ret)
+      return ret
     },
   },
 }

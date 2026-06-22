@@ -103,7 +103,7 @@ class StraightStroke {
       return []
     }
     ts.push(0, 1)
-    ts.sort()
+    ts.sort((a, b) => a - b)
     for (let [a, b] of pairs(ts)) {
       let midpoint = average(a, b)
       if (bbox.inside(this.at(midpoint))) {
@@ -179,8 +179,8 @@ class QuadraticBezier {
     )
   }
 
+  // intersect this QuadraticBezier curve with the line, returning the t-values of the line at the intersection points
   intersectLineU(line) {
-    // let l = this.line()
     let ans = this.intersectLineT(line)
     if (ans.length == 0) {
       return []
@@ -188,11 +188,8 @@ class QuadraticBezier {
     let answers = []
     for (let t of ans) {
       let lineT = line.pointProjectionTValue(this.at(t))
-      // if (lineT >= 0 && lineT <= 1) {
       answers.push(lineT)
-      // }
     }
-    // console.log('QuadraticBezier intersections', answers)
     return answers
   }
 
@@ -220,7 +217,7 @@ class QuadraticBezier {
       return []
     }
     ts.push(0, 1)
-    ts.sort()
+    ts.sort((a, b) => a - b)
     for (let [a, b] of pairs(ts)) {
       // TODO: allow for subsequent sections to be consecutive
       let midpoint = average(a, b)
@@ -360,8 +357,8 @@ class CubicBezier {
     )
   }
 
+  // intersect this CubicBezier curve with the line, returning the t-values of the line at the intersection points
   intersectLineU(line) {
-    // let l = this.line()
     let ans = this.intersectLineT(line)
     if (ans.length == 0) {
       return []
@@ -369,15 +366,12 @@ class CubicBezier {
     let answers = []
     for (let t of ans) {
       let lineT = line.pointProjectionTValue(this.at(t))
-      // console.log('cubic bezier parameter', t, '->', lineT)
-      // if (lineT >= 0 && lineT <= 1) {
       answers.push(lineT)
-      // }
     }
-    // console.log('CubicBezier intersections', answers)
     return answers
   }
 
+  // intersect this CubicBezier curve with the line, returning the t-values of the curve at the intersection points
   intersectLineT(line) {
     if (line.type != 'Line') {
       throw `Invalid parameter to CubicBezier.intersectLineT: ${line.type}`
@@ -420,14 +414,13 @@ class CubicBezier {
         }
       }
     }
-    // console.losg('cubic roots', ts)
 
     if (ts.length == 0) {
       // appears that the bezier doesn't intersect the boundary of the box
       return []
     }
     ts.push(0, 1)
-    ts.sort()
+    ts.sort((a, b) => a - b)
     for (let [a, b] of pairs(ts)) {
       // TODO: allow for subsequent sections to be consecutive
       let midpoint = average(a, b)
@@ -820,12 +813,61 @@ class ClosedCurve {
     }
     this.curve = curve // the basic "positive curve"
     // closed curves that should be removed from the current one. They usually are completely contained inside the closed curve
-    // note that doubly nested minus curves will result in the inner one being filled, using the fill-rule="evenodd"
+    // note that doubly nested minus curves will result in the inner one being filled, using fill-rule="evenodd"
     this.minus = minus
   }
 
   bbox() {
     return this.curve.bbox()
+  }
+
+  // fill fills the closed curve with parallel lines, all at 'directionDeg' angle (degrees)
+  fill(gap, directionDeg) {
+    let vect = new Vector(1, 0).rotateDeg(directionDeg).mult(gap)
+    let perpVect = vect.perp()
+    let perpLine = new Line(Point2DOrigin, perpVect)
+    // get the t-values of the corners of the bbox with respect to the vector
+    let tValues = this.bbox()
+      .corners()
+      .map((corner) => perpLine.pointProjectionTValue(corner))
+    tValues.sort((a, b) => a - b)
+    console.log('tvalues', tValues)
+    let allCurves = [this.curve, ...this.minus]
+    let lines = []
+    for (let i = tValues[0]; i < tValues[tValues.length - 1]; i++) {
+      let line = new Line(perpLine.at(i), vect)
+      console.log('at i', i, 'line', line)
+      let tvalues = []
+      for (let curve of allCurves) {
+        tvalues.push(...curve.intersectLineU(line))
+      }
+      tvalues.sort((a, b) => a - b)
+      console.log('intersection t values', tvalues)
+      for (let [t1, t2] of pairs(tvalues)) {
+        console.log('checking t values', t1, t2)
+        let midt = average(t1, t2)
+        let midpoint = line.at(midt)
+        if (!this.curve.inside(midpoint)) {
+          console.log('line is not inside main curve')
+          continue
+        }
+        for (let curve of this.minus) {
+          if (curve.inside(midpoint)) {
+            continue
+          }
+        }
+        let p1 = line.at(t1)
+        let p2 = line.at(t2)
+        lines.push(new StraightStroke(p1, p2))
+      }
+    }
+    console.log('fill returning lines', lines)
+    return lines
+  }
+
+  // fillCrosshatch fills the closed curve with two sets of lines, one in 'directionDeg', the other perpendicular
+  fillCrosshatch(gap, directionDeg) {
+    return [...fill(gap, directionDeg), ...fill(gap, directionDeg + 90)]
   }
 
   d() {
@@ -987,6 +1029,7 @@ export {
   CubicBezier,
   CircleArc,
   CompositeCurve,
+  ClosedCurve,
   CurveSet,
   Polygon,
   rayLineRayCurve,

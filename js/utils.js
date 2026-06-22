@@ -38,29 +38,27 @@ function reversed(list) {
   return [...list].reverse()
 }
 
-// zip together two arrays, the size of the return is the shortes of the two arrays
+// zip together a variable number of arrays, the size of the return is the shortest of the two arrays
+// zip([1,2,3], ['a', 'b']) => [[1,'a'], [2,'b']]
 function zip() {
-  // console.log('zip', arguments)
   let args = [...arguments]
-  // console.log(
-  //   'lengths',
-  //   args.map((l) => l.length),
-  // )
 
   let minLen = Math.min(...args.map((l) => l.length))
-  // console.log('minLen', minLen)
   let retList = []
   for (let i = 0; i < minLen; i++) {
     retList.push(args.map((arg) => arg[i]))
   }
-  // console.log('zip result', retList)
   return retList
 }
 
+// enumerate the elements of the list
+// enumerate(['a', 'b', 'c']) => [[0, 'a'], [1, 'b'], [2, 'c']]
 function enumerate(list) {
   return list.entries()
 }
 
+// range returns the numbers from 0 to n-1, inclusive
+// range(3) => [0,1,2]
 const range = (n) => Array(n).keys()
 
 // given a list, return the list of all pairs, where the first element comes before the second one
@@ -78,27 +76,21 @@ function crossProduct(list) {
 // reduceIntervals reduces a list of t-values and a filter function (c)=>Bool to return a list of pairs inside which the function is true
 // the filter function is assumed to be constant in between the provided t-values
 // the t-values are assumed to be sorted
-// [1,2,3,4,5,6],(c)=> (c>1&&c<3) || (c>4 && c<5) => [[1,3], [4,5]]
+// reduceIntervals([1,2,3,4,5,6],(c)=> (c>1&&c<3) || (c>4 && c<5)) => [[1,3], [4,5]]
 function reduceIntervals(tValues, filterFunction) {
   let intervals = pairs(tValues).filter(([a, b]) => filterFunction(average(a, b)))
-  // console.log('intervals', intervals)
   // now join contiguous intervals
   let answer = []
   let i = 0
   while (i < intervals.length) {
-    if (i < intervals.length - 1) {
-      if (intervals[i + 1][0] == intervals[i][1]) {
-        intervals[i][1] = intervals[i + 1][1]
-        intervals.splice(i + 1, 1)
-        // console.log('after removing', i + 1, intervals)
-      } else {
-        i++
-      }
+    if (i < intervals.length - 1 && intervals[i + 1][0] == intervals[i][1]) {
+      // this and the next intervals are continguous, join them
+      intervals[i][1] = intervals[i + 1][1]
+      intervals.splice(i + 1, 1) // remove the following interval, it has been merged into the current one
     } else {
       i++
     }
   }
-  // console.log('answer', intervals)
   return intervals
 }
 

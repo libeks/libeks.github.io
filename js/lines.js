@@ -829,46 +829,29 @@ class ClosedCurve {
       .corners()
       .map((corner) => perpLine.pointProjectionTValue(corner))
     tValues.sort((a, b) => a - b)
-    console.log('tvalues', tValues)
+    // console.log('tvalues', tValues)
     let allCurves = [this.curve, ...this.minus]
     let lines = []
     for (let i = tValues[0]; i < tValues[tValues.length - 1]; i++) {
       let line = new Line(perpLine.at(i), vect)
-      console.log('at i', i, 'line', line)
+      // console.log('at i', i, 'line', line)
       let tvalues = []
       for (let curve of allCurves) {
         tvalues.push(...curve.intersectLineU(line))
       }
       tvalues.sort((a, b) => a - b)
-      console.log('intersection t values', tvalues)
+      // console.log('intersection t values', tvalues)
       let intervals = reduceIntervals(tvalues, (t) => {
         let midpoint = line.at(t)
         return this.curve.inside(midpoint) && !this.minus.some((c) => c.inside(midpoint))
       })
-      // for (let [t1, t2] of pairs(tvalues)) {
-      //   console.log('checking t values', t1, t2)
-      //   let midt = average(t1, t2)
-      //   let midpoint = line.at(midt)
-      //   if (!this.curve.inside(midpoint)) {
-      //     console.log('line is not inside main curve')
-      //     continue
-      //   }
-      //   for (let curve of this.minus) {
-      //     if (curve.inside(midpoint)) {
-      //       continue
-      //     }
-      //   }
-      //   let p1 = line.at(t1)
-      //   let p2 = line.at(t2)
-      //   lines.push(new StraightStroke(p1, p2))
-      // }
       for (let [t1, t2] of intervals) {
         let p1 = line.at(t1)
         let p2 = line.at(t2)
         lines.push(new StraightStroke(p1, p2))
       }
     }
-    console.log('fill returning lines', lines)
+    // console.log('fill returning lines', lines)
     return lines
   }
 
@@ -881,36 +864,21 @@ class ClosedCurve {
       .corners()
       .map((corner) => perpLine.pointProjectionTValue(corner))
     tValues.sort((a, b) => a - b)
-    console.log('tvalues', tValues)
+    // console.log('tvalues', tValues)
     let allCurves = [this.curve, ...this.minus]
     let lines = []
     for (let i = tValues[0]; i < tValues[tValues.length - 1]; i++) {
       let line = new Line(perpLine.at(i), vect)
       let linelines = []
-      // console.log('at i', i, 'line', line)
       let tvalues = []
       for (let curve of allCurves) {
         tvalues.push(...curve.intersectLineU(line))
       }
       tvalues.sort((a, b) => a - b)
-      // console.log('intersection t values', tvalues)
       let intervals = reduceIntervals(tvalues, (t) => {
         let midpoint = line.at(t)
         return this.curve.inside(midpoint) && !this.minus.some((c) => c.inside(midpoint))
       })
-      // for (let [t1, t2] of pairs(tvalues)) {
-      //   console.log('checking t values', t1, t2)
-      //   let midt = average(t1, t2)
-      //   let midpoint = line.at(midt)
-      //   if (!this.curve.inside(midpoint)) {
-      //     console.log('line is not inside main curve')
-      //     continue
-      //   }
-      //   for (let curve of this.minus) {
-      //     if (curve.inside(midpoint)) {
-      //       continue
-      //     }
-      //   }
       for (let [t1, t2] of intervals) {
         let p1 = line.at(t1)
         let p2 = line.at(t2)
@@ -922,7 +890,7 @@ class ClosedCurve {
         points: tvalues.map((t) => line.at(t)),
       })
     }
-    console.log('fill returning lines', lines)
+    // console.log('fill returning lines', lines)
     return lines
   }
 

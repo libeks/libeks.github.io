@@ -335,9 +335,9 @@ class GenericTruchetTile {
         p1plus = this.stars[cn1 + 1]
         p2plus = this.stars[cn2 - 1]
       }
-      console.log('this.stars', this.stars)
+      // console.log('this.stars', this.stars)
       const mid = p1plus.midpoint(p2plus)
-      console.log('funny', curve, p1plus, p2plus, mid, cn1, cn2, cn1 + 1, cn2 - 1)
+      // console.log('funny', curve, p1plus, p2plus, mid, cn1, cn2, cn1 + 1, cn2 - 1)
       return new CompositeCurve(
         new CubicBezier(p1, c1star, p1plus, mid),
         new CubicBezier(mid, p2plus, c2star, p2),
@@ -397,7 +397,7 @@ const genericTruchetGrid = {
         <path class="polygon" :d="curve.d()" :style="{fill: 'white', stroke: 'black', 'fill-opacity':0.8}" />
       </g>
       <g v-if="showFillLines" v-for="curve in closedTruchetCurves">
-        <path v-for="line in curve.fill(10, 23)" :d="line.d()" :style="{stroke:'purple'}" />
+        <path v-for="line in curve.fill(3, Math.random()*180)" :d="line.d()" :style="{stroke:'purple'}" />
       </g>
     
       <g v-if="showRandomPoints" v-for="point in points">
@@ -628,7 +628,7 @@ const genericTruchetGrid = {
       let ret = this.continuousTruchetCurves
         .filter((curve) => curve.closed())
         .map((curve) => new ClosedCurve(curve, []))
-      console.log('closedTruchetCurves', ret)
+      // console.log('closedTruchetCurves', ret)
       return ret
     },
   },

@@ -1,4 +1,4 @@
-import { pairs } from '/js/utils.js'
+import { pairs, reduceIntervals } from '/js/utils.js'
 import { Point, Vector, Line, Point2DOrigin } from '/js/geometry.js'
 import { average, quadratic, cubic } from '/js/math.js'
 import { BBox, bboxFromPointCloud } from '/js/bbox.js'
@@ -76,10 +76,8 @@ class StraightStroke {
     if (ans == null) {
       return []
     }
-    // console.log('ans', ans)
     let { t, u } = ans
     if (t >= 0 && t <= 1) {
-      // console.log('StraightStroke intersections', [u])
       return [u]
     }
     return []
@@ -104,13 +102,16 @@ class StraightStroke {
     }
     ts.push(0, 1)
     ts.sort((a, b) => a - b)
-    for (let [a, b] of pairs(ts)) {
-      let midpoint = average(a, b)
-      if (bbox.inside(this.at(midpoint))) {
-        return [new StraightStroke(this.at(a), this.at(b))]
-      }
-    }
-    return []
+    let intervals = reduceIntervals(ts, (t) => bbox.inside(this.at(midpoint)))
+    return intervals.map(([a, b]) => new StraightStroke(this.at(a), this.at(b)))
+
+    // for (let [a, b] of pairs(ts)) {
+    //   let midpoint = average(a, b)
+    //   if (bbox.inside(this.at(midpoint))) {
+    //     return [new StraightStroke(this.at(a), this.at(b))]
+    //   }
+    // }
+    // return []
   }
 
   bbox() {
@@ -210,7 +211,6 @@ class QuadraticBezier {
         }
       }
     }
-    // console.log('quadratic roots', ts)
 
     if (ts.length == 0) {
       // appears that the bezier doesn't intersect the boundary of the box
@@ -218,14 +218,9 @@ class QuadraticBezier {
     }
     ts.push(0, 1)
     ts.sort((a, b) => a - b)
-    for (let [a, b] of pairs(ts)) {
-      // TODO: allow for subsequent sections to be consecutive
-      let midpoint = average(a, b)
-      if (bbox.inside(this.at(midpoint))) {
-        return [this.subsection(a, b)]
-      }
-    }
-    return []
+    return reduceIntervals(ts, (t) => bbox.inside(this.at(c))).map(([a, b]) =>
+      this.subsection(a, b),
+    )
   }
 
   intersectLineT(line) {
@@ -421,14 +416,17 @@ class CubicBezier {
     }
     ts.push(0, 1)
     ts.sort((a, b) => a - b)
-    for (let [a, b] of pairs(ts)) {
-      // TODO: allow for subsequent sections to be consecutive
-      let midpoint = average(a, b)
-      if (bbox.inside(this.at(midpoint))) {
-        return [this.subsection(a, b)]
-      }
-    }
-    return []
+    return reduceIntervals(ts, (t) => bbox.inside(this.at(t))).map(([a, b]) =>
+      this.subsection(a, b),
+    )
+    // for (let [a, b] of pairs(ts)) {
+    //   // TODO: allow for subsequent sections to be consecutive
+    //   let midpoint = average(a, b)
+    //   if (bbox.inside(this.at(midpoint))) {
+    //     return [this.subsection(a, b)]
+    //   }
+    // }
+    // return []
   }
 
   bbox() {
@@ -843,23 +841,86 @@ class ClosedCurve {
       }
       tvalues.sort((a, b) => a - b)
       console.log('intersection t values', tvalues)
-      for (let [t1, t2] of pairs(tvalues)) {
-        console.log('checking t values', t1, t2)
-        let midt = average(t1, t2)
-        let midpoint = line.at(midt)
-        if (!this.curve.inside(midpoint)) {
-          console.log('line is not inside main curve')
-          continue
-        }
-        for (let curve of this.minus) {
-          if (curve.inside(midpoint)) {
-            continue
-          }
-        }
+      let intervals = reduceIntervals(tvalues, (t) => {
+        let midpoint = line.at(t)
+        return this.curve.inside(midpoint) && !this.minus.some((c) => c.inside(midpoint))
+      })
+      // for (let [t1, t2] of pairs(tvalues)) {
+      //   console.log('checking t values', t1, t2)
+      //   let midt = average(t1, t2)
+      //   let midpoint = line.at(midt)
+      //   if (!this.curve.inside(midpoint)) {
+      //     console.log('line is not inside main curve')
+      //     continue
+      //   }
+      //   for (let curve of this.minus) {
+      //     if (curve.inside(midpoint)) {
+      //       continue
+      //     }
+      //   }
+      //   let p1 = line.at(t1)
+      //   let p2 = line.at(t2)
+      //   lines.push(new StraightStroke(p1, p2))
+      // }
+      for (let [t1, t2] of intervals) {
         let p1 = line.at(t1)
         let p2 = line.at(t2)
         lines.push(new StraightStroke(p1, p2))
       }
+    }
+    console.log('fill returning lines', lines)
+    return lines
+  }
+
+  fillDebug(gap, directionDeg) {
+    let vect = new Vector(1, 0).rotateDeg(directionDeg).mult(gap)
+    let perpVect = vect.perp()
+    let perpLine = new Line(Point2DOrigin, perpVect)
+    // get the t-values of the corners of the bbox with respect to the vector
+    let tValues = this.bbox()
+      .corners()
+      .map((corner) => perpLine.pointProjectionTValue(corner))
+    tValues.sort((a, b) => a - b)
+    console.log('tvalues', tValues)
+    let allCurves = [this.curve, ...this.minus]
+    let lines = []
+    for (let i = tValues[0]; i < tValues[tValues.length - 1]; i++) {
+      let line = new Line(perpLine.at(i), vect)
+      let linelines = []
+      // console.log('at i', i, 'line', line)
+      let tvalues = []
+      for (let curve of allCurves) {
+        tvalues.push(...curve.intersectLineU(line))
+      }
+      tvalues.sort((a, b) => a - b)
+      // console.log('intersection t values', tvalues)
+      let intervals = reduceIntervals(tvalues, (t) => {
+        let midpoint = line.at(t)
+        return this.curve.inside(midpoint) && !this.minus.some((c) => c.inside(midpoint))
+      })
+      // for (let [t1, t2] of pairs(tvalues)) {
+      //   console.log('checking t values', t1, t2)
+      //   let midt = average(t1, t2)
+      //   let midpoint = line.at(midt)
+      //   if (!this.curve.inside(midpoint)) {
+      //     console.log('line is not inside main curve')
+      //     continue
+      //   }
+      //   for (let curve of this.minus) {
+      //     if (curve.inside(midpoint)) {
+      //       continue
+      //     }
+      //   }
+      for (let [t1, t2] of intervals) {
+        let p1 = line.at(t1)
+        let p2 = line.at(t2)
+        linelines.push(new StraightStroke(p1, p2))
+      }
+      lines.push({
+        line,
+        linelines,
+        points: tvalues.map((t) => line.at(t)),
+      })
     }
     console.log('fill returning lines', lines)
     return lines

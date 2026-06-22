@@ -1,3 +1,5 @@
+import { average } from '/js/math.js'
+
 // given a list, return pairs
 // [1,2,3] => [[1,2], [2,3]]
 function pairs(list) {
@@ -73,4 +75,42 @@ function crossProduct(list) {
   return result
 }
 
-export { pairs, circularPairs, zip, shift, rightShift, reversed, enumerate, range, crossProduct }
+// reduceIntervals reduces a list of t-values and a filter function (c)=>Bool to return a list of pairs inside which the function is true
+// the filter function is assumed to be constant in between the provided t-values
+// the t-values are assumed to be sorted
+// [1,2,3,4,5,6],(c)=> (c>1&&c<3) || (c>4 && c<5) => [[1,3], [4,5]]
+function reduceIntervals(tValues, filterFunction) {
+  let intervals = pairs(tValues).filter(([a, b]) => filterFunction(average(a, b)))
+  // console.log('intervals', intervals)
+  // now join contiguous intervals
+  let answer = []
+  let i = 0
+  while (i < intervals.length) {
+    if (i < intervals.length - 1) {
+      if (intervals[i + 1][0] == intervals[i][1]) {
+        intervals[i][1] = intervals[i + 1][1]
+        intervals.splice(i + 1, 1)
+        // console.log('after removing', i + 1, intervals)
+      } else {
+        i++
+      }
+    } else {
+      i++
+    }
+  }
+  // console.log('answer', intervals)
+  return intervals
+}
+
+export {
+  pairs,
+  circularPairs,
+  zip,
+  shift,
+  rightShift,
+  reversed,
+  enumerate,
+  range,
+  crossProduct,
+  reduceIntervals,
+}

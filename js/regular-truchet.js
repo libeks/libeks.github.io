@@ -397,7 +397,7 @@ const genericTruchetGrid = {
         <path class="polygon" :d="curve.d()" :style="{fill: 'white', stroke: 'black', 'fill-opacity':0.8}" />
       </g>
       <g v-if="showFillLines" v-for="curve in closedTruchetCurves">
-        <path v-for="line in curve.fill(10, 0)" :d="line.d()" :style="{stroke:'purple'}" />
+        <path v-for="line in curve.fill(10, 23)" :d="line.d()" :style="{stroke:'purple'}" />
       </g>
     
       <g v-if="showRandomPoints" v-for="point in points">

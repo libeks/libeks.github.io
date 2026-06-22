@@ -271,10 +271,7 @@ class Line {
       throw `Unrecognized argument to pointProjectionTValue: ${p.type}`
     }
     let v = this.p.vectTo(p)
-    let t = v.dot(this.v) / this.v.len()
-    // if (!this.at(t).same(p)) {
-    //   console.log('pointProjectionTValue doesnt match', t, this.at(t), p, this.at(t).distance(p))
-    // }
+    let t = v.dot(this.v) / this.v.lenSquare()
     return t
   }
 

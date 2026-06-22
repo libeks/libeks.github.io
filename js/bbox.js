@@ -1,5 +1,6 @@
 import { Point, Vector, Line } from '/js/geometry.js'
 import { StraightStroke, CompositeCurve } from '/js/lines.js'
+import { reduceIntervals } from '/js/utils.js'
 
 class BBox {
   constructor(x1, y1, x2, y2) {
@@ -161,6 +162,27 @@ class BBox {
       new StraightStroke(this.lowerRight(), this.lowerLeft()),
       new StraightStroke(this.lowerLeft(), this.upperLeft()),
     )
+  }
+
+  clipLine(line) {
+    if (line.type != 'Line') {
+      throw `BBox.clipLine got unexpected argument ${line.type}`
+    }
+    let ts = []
+    for (let boxLine of this.lines()) {
+      let t = line.intersectT(boxLine)
+      if (t != null) {
+        ts.push(t)
+      }
+    }
+    ts.sort((a, b) => a - b)
+    let intervals = reduceIntervals(ts, (t) => this.inside(line.at(t)))
+    console.log('intervals', intervals)
+    let ans = reduceIntervals(ts, (t) => this.inside(line.at(t))).map(
+      ([a, b]) => new StraightStroke(line.at(a), line.at(b)),
+    )
+    console.log('clipLine returns', ans)
+    return ans
   }
 
   d() {

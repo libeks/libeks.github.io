@@ -531,7 +531,7 @@
           <span>Two-notch Semiregular Truchet grids</span>
         </h2>
         <figure id="grid-2-notch" class="full-width">
-          <svg viewBox="0 0 1000 500">
+          <svg-box v-for="bbox of [new BBox(0,0,1000,500)]" :bbox="bbox">
             <generic-truchet-grid
               :bbox="bbox"
               :start="start"
@@ -541,8 +541,10 @@
               :show-edges="showEdges"
               :notches="notches"
               show-continuous
+              only-ngons-inside-b-box
+              show-fill-lines
             ></generic-truchet-grid>
-          </svg>
+          </svg-box>
           <figcaption>
             <select v-model="tiling">
               <option disabled value="">Pick a tiling</option>
@@ -591,18 +593,13 @@
         uniform3Tilings,
         uniform4Tilings,
         gridTiling,
-        // displayKTiling,
       } from '/js/grid.js'
       import { toTransform } from '/js/svg-utils.js'
-      import { BBox } from '/js/bbox.js'
+      import { BBox, svgBox } from '/js/bbox.js'
       import { Point2DOrigin, Point, NGon } from '/js/geometry.js'
       import { degToRad } from '/js/math.js'
       import { playControls, radioButtons, toggleButton } from '/js/buttons.js'
-      import {
-        // GenericTriangleTruchetTile,
-        GenericTruchetTile,
-        genericTruchetGrid,
-      } from '/js/regular-truchet.js'
+      import { GenericTruchetTile, genericTruchetGrid } from '/js/regular-truchet.js'
       import { numericalToHex } from '/js/catalan.js'
 
       createApp({
@@ -617,9 +614,6 @@
           truchet() {
             return new GenericTruchetTile(this.ngon.vertices, false, [this.notch1], this.ngon.side)
           },
-          // tiles() {
-          //   return [0, 11, 24, 37, 401].map((n) => this.truchet.getTile(n))
-          // },
         },
         methods: {
           numericalToHex,
@@ -632,7 +626,6 @@
             notch1: 0.33,
             notch2: 0.66,
             tiles: ['182736459CAB', '123C4B5A6978', '1C2B3A495867', '14235C6B7A89'],
-            // tiles: ['AB9C'],
           }
         },
         computed: {
@@ -644,9 +637,6 @@
               this.ngon.side,
             )
           },
-          // tiles() {
-          //   return [0, 11, 24, 37, 401].map((n) => this.truchet.getTile(n))
-          // },
         },
         methods: {
           numericalToHex,
@@ -665,9 +655,6 @@
           truchet() {
             return new GenericTruchetTile(this.ngon.vertices, false, [this.notch1], this.ngon.side)
           },
-          // tiles() {
-          //   return [0, 100, 209, 313, 4030, 500251].map((n) => this.truchet.getTile(n))
-          // },
         },
         methods: {
           numericalToHex,
@@ -680,7 +667,6 @@
             notch1: 0.33,
             notch2: 0.66,
             tiles: ['123G4F5E6D7C8B9A', '14235G6F7E8D9CAB', '1G2F3E4D5C6B7A89'],
-            // tiles: ['5G', '5E6D'],
           }
         },
         computed: {
@@ -692,9 +678,6 @@
               this.ngon.side,
             )
           },
-          // tiles() {
-          //   return [0, 100, 209, 313, 4030, 500251].map((n) => this.truchet.getTile(n))
-          // },
         },
         methods: {
           numericalToHex,
@@ -713,9 +696,6 @@
           truchet() {
             return new GenericTruchetTile(this.ngon.vertices, false, [this.notch1], this.ngon.side)
           },
-          // tiles() {
-          //   return [0, 100, 209, 313, 4030, 500251].map((n) => this.truchet.getTile(n))
-          // },
         },
         methods: {
           numericalToHex,
@@ -743,9 +723,6 @@
               this.ngon.side,
             )
           },
-          // tiles() {
-          //   return [0, 100, 209, 313, 4030, 500251].map((n) => this.truchet.getTile(n))
-          // },
         },
         methods: {
           numericalToHex,
@@ -764,9 +741,6 @@
           truchet() {
             return new GenericTruchetTile(this.ngon.vertices, false, [this.notch1], this.ngon.side)
           },
-          // tiles() {
-          //   return [0, 100, 209, 313, 4030, 500251].map((n) => this.truchet.getTile(n))
-          // },
         },
         methods: {
           numericalToHex,
@@ -794,9 +768,6 @@
               this.ngon.side,
             )
           },
-          // tiles() {
-          //   return [0, 100, 209, 313, 4030, 500251].map((n) => this.truchet.getTile(n))
-          // },
         },
         methods: {
           numericalToHex,
@@ -815,9 +786,6 @@
           truchet() {
             return new GenericTruchetTile(this.ngon.vertices, false, [this.notch1], this.ngon.side)
           },
-          // tiles() {
-          //   return [0, 1000, 2090, 3130, 40300, 5002510].map((n) => this.truchet.getTile(n))
-          // },
         },
         methods: {
           numericalToHex,
@@ -845,9 +813,6 @@
               this.ngon.side,
             )
           },
-          // tiles() {
-          //   return [0, 1000, 2090, 3130, 40300, 5002510].map((n) => this.truchet.getTile(n))
-          // },
         },
         methods: {
           numericalToHex,
@@ -859,8 +824,6 @@
             tiling: uniform4Tilings[7],
             showEdges: true,
             start: new Point(500, 250),
-            // bbox: new BBox(-200, -100, 1200, 600),
-            bbox: new BBox(0, 0, 1000, 600),
             nNotches: '1',
             notchPositions: [0.33, 0.66], // modified by nothces() computed property
             tilingClasses: {
@@ -886,7 +849,7 @@
             return this.notchPositions
           },
         },
-        components: { genericTruchetGrid, toggleButton, radioButtons },
+        components: { genericTruchetGrid, toggleButton, radioButtons, svgBox },
       }).mount('#grid-2-notch')
     </script>
   </body>

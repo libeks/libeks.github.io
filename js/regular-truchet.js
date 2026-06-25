@@ -428,6 +428,7 @@ const genericTruchetGrid = {
     },
     showEdges: Boolean,
     showContinuous: Boolean,
+    showFillLines: Boolean,
     notches: Object,
     onlyNgonsInsideBBox: Boolean,
   },
@@ -463,9 +464,6 @@ const genericTruchetGrid = {
     showTangentPoints() {
       return false
     },
-    showFillLines() {
-      return true
-    },
     points() {
       let n = 10000
       let points = []
@@ -482,20 +480,13 @@ const genericTruchetGrid = {
         for (let curve of this.continuousTruchetCurves) {
           if (curve.type == 'CompositeCurve') {
             let check = curve.insideExtended(point)
-            // console.log('points.inside', check)
             if (check.inside) {
-              // console.log('setting to true')
               inside = true
               intersections = check.intersections
               break
             }
-            // } && curve.inside(point)) {
-            //   inside = true
-            //   break
-            // }
           }
         }
-        // console.log('adding', inside)
         points.push({
           pt: point,
           inside,
@@ -539,9 +530,11 @@ const genericTruchetGrid = {
       let unprocessed = {}
       for (let ngon of Object.values(this.curveFragmentsByNgons)) {
         for (let curve of ngon) {
+          console.log('curve', curve.id, curve, 'ngon', ngon)
           unprocessed[curve.id] = curve
         }
       }
+      console.log('unprocessed', unprocessed)
       let curves = []
       while (Object.keys(unprocessed).length > 0) {
         let start = Object.values(unprocessed)[0]

@@ -685,24 +685,24 @@ const genericTruchetGrid = {
       }
       // console.log('enumerate', Array.from(enumerate(curves)), crossProduct(enumerate(curves)))
       for (let [[a, curveA], [b, curveB]] of crossProduct(enumerate(curves))) {
-        console.log('closed', a, curveA, b, curveB)
-        console.log('at', curveA.at(0.34))
+        // console.log('closed', a, curveA, b, curveB)
+        // console.log('at', curveA.at(0.34))
         if (curveB.bbox().boxInside(curveA.bbox()) && curveB.inside(curveA.at(0.34))) {
           // console.log('curveA.startpoint inside curveB')
-          console.log(`curve:${a}.startpoint inside curve:${b}`)
+          // console.log(`curve:${a}.startpoint inside curve:${b}`)
           // curveA is a descendant of curveB
           descendants[b].push(a)
           ancestors[a].push(b)
         } else if (curveA.bbox().boxInside(curveB.bbox()) && curveA.inside(curveB.at(0.35))) {
-          console.log(`curve:${b}.startpoint inside curve:${a}`)
+          // console.log(`curve:${b}.startpoint inside curve:${a}`)
           // curveB is a descendant of curveA
           descendants[a].push(b)
           ancestors[b].push(a)
-        } else {
-          console.log(`curve:${a} and curve:${b} dont relate`)
+          // } else {
+          //   console.log(`curve:${a} and curve:${b} dont relate`)
         }
       }
-      console.log('ancestors', ancestors, 'descendants', descendants)
+      // console.log('ancestors', ancestors, 'descendants', descendants)
       // let ret = this.continuousTruchetCurves
       //   .filter((curve) => curve.closed())
       //   .map((curve) => new ClosedCurve(curve, []))
@@ -732,11 +732,11 @@ const genericTruchetGrid = {
 
       // return curves.map((curve) => new ClosedCurve(curve, []))
       // topLevel = topLevel.filter((curve) => curve.minus.length > 0)
-      console.log('closed', topLevel)
-      console.log(
-        'topLevel with holes',
-        topLevel.filter((curve) => curve.minus.length > 0),
-      )
+      // console.log('closed', topLevel)
+      // console.log(
+      //   'topLevel with holes',
+      //   topLevel.filter((curve) => curve.minus.length > 0),
+      // )
       return topLevel
     },
   },

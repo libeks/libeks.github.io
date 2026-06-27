@@ -624,7 +624,7 @@ class CompositeCurve {
     }
     let i = Math.floor(t * this.curves.length)
     let miniT = (t * this.curves.length) % 1
-    console.log('this.curves[i]', this.curves[i])
+    // console.log('this.curves[i]', this.curves[i])
     return this.curves[i].at(miniT)
   }
 

@@ -26,7 +26,7 @@ import { Random } from '/js/random.js'
 const THRESHOLD = 0.01
 
 class GenericTruchetTile {
-  constructor(vertices, hasCenterNotch, notches, side) {
+  constructor(vertices, notches, side) {
     // console.log('side', side)
     for (let vertex of vertices) {
       if (vertex.type != 'Point') {
@@ -34,7 +34,6 @@ class GenericTruchetTile {
       }
     }
     this.vertices = vertices
-    this.hasCenterNotch = hasCenterNotch
     this.notches = notches
     this.side = side
     this.computePoints()
@@ -70,9 +69,6 @@ class GenericTruchetTile {
         let n = m1.towards(c1, notch)
         notches.push(n)
         stars[id] = new Line(c1, c1.vectTo(center)).intersect(new Line(n, perp))
-      }
-      if (this.hasCenterNotch) {
-        notches.push(m1)
       }
       for (let notch of this.notches) {
         let id = notches.length
@@ -447,6 +443,10 @@ class CatalanFragment {
   }
 }
 
+function generateTruchetGrid(grid, seed, notches, chooser) {
+  // will return an array of top-level closed curves, along with individual curve fragments
+}
+
 const genericTruchetGrid = {
   template: `
     <g v-if="grid" class="grid squares">
@@ -519,7 +519,6 @@ const genericTruchetGrid = {
           ngon,
           tile: new GenericTruchetTile(
             ngon.vertices.map((vertex) => vertex.point),
-            false,
             this.notches,
             this.size,
           ),
@@ -635,7 +634,6 @@ const genericTruchetGrid = {
       return curves
     },
     closedTruchetCurves() {
-      // TODO: properly calculate the closed curve hierarchy, paying attention to the fact that they can be nested multiple times
       let curves = this.continuousTruchetCurves.filter((curve) => curve.closed())
       let ancestors = {}
       let descendants = {}

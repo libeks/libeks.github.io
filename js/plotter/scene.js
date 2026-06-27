@@ -69,21 +69,46 @@ class Scene {
     if (clipToBBox) {
       let newLayers = {}
       for (let [name, layer] of Object.entries(layers)) {
+        if (!('curves' in layer)) {
+          layer.curves = []
+        }
+        if (!('fill' in layer)) {
+          layer.fill = []
+        }
         let curves = []
+        let fill = []
 
         if (clipToBBox) {
           for (let curve of layer.curves) {
             let clipped = curve.clip(bbox)
             curves.push(...clipped)
           }
-        } else {
-          curves.push(...layer)
+          for (let curve of layer.fill) {
+            let clipped = curve.clip(bbox)
+            fill.push(...clipped)
+          }
+          layer.curves = curves
+          layer.fill = fill
         }
-        layer.curves = curves
       }
     }
+    console.log('layers', layers)
     this.layers = layers
+    this.fill()
     return this
+  }
+
+  fill() {
+    console.log('filling...')
+    for (let layer of Object.values(this.layers)) {
+      if (layer.fill.length > 0) {
+        for (let curve of layer.fill) {
+          console.log('filling curve', curve)
+          layer.curves.push(...curve.fill(60, 13))
+        }
+      }
+    }
+    console.log('done filling')
   }
 }
 

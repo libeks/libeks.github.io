@@ -823,10 +823,12 @@ class CompositeCurve {
 
 class ClosedCurve {
   constructor(curve, minus) {
+    console.log('closed', curve)
     if (!curve.closed()) {
       throw `ClosedCurve got non-closed primary component`
     }
     for (let m of minus) {
+      console.log('minus', m)
       if (!m.closed()) {
         throw `ClosedCurve got non-closed minus component`
       }
@@ -835,11 +837,16 @@ class ClosedCurve {
     // closed curves that should be removed from the current one. They usually are completely contained inside the closed curve
     // note that doubly nested minus curves will result in the inner one being filled, using fill-rule="evenodd"
     this.minus = minus
-    this.type = 'ClosedCurves'
+    this.type = 'ClosedCurve'
   }
 
   bbox() {
     return this.curve.bbox()
+  }
+
+  closed() {
+    // true by definition of it being a ClosedCurve
+    return true
   }
 
   inside(point) {
@@ -954,8 +961,15 @@ class ClosedCurve {
 
   clip(bbox) {
     // TODO: filter out empty curves. note that this could split the main curve into multiple
-    let minuses = this.minus.map((curve) => curve.clip(bbox))
-    return new ClosedCurve(this.curve.clip(bbox), minuses)
+    let minuses = this.minus.map((curve) => curve.clip(bbox)).flat()
+
+    let clipped = this.curve.clip(bbox)
+    console.log('clip', clipped)
+    if (clipped.length == 1) {
+      return [new ClosedCurve(clipped[0], minuses)]
+    }
+    throw `ClosedCurve.clip returned unexpected number of elements ${clipped.length}`
+    // if (clipped.length ==)
   }
 
   d() {

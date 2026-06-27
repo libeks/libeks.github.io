@@ -868,7 +868,6 @@ class VertexGrid {
 
   getFacesInBBox() {
     let faces = Object.values(this.faces).filter((face) => this.bbox.boxInside(face.bbox()))
-    console.log('facesInBBox', faces)
     return faces
   }
 

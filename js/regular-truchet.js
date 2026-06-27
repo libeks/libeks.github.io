@@ -435,6 +435,11 @@ class CatalanFragment {
       this.notchPoints,
     )
   }
+
+  clip(bbox) {
+    // console.log('this curve', this.curve)
+    return this.line.clip(bbox)
+  }
 }
 
 const genericTruchetGrid = {
@@ -663,6 +668,7 @@ const genericTruchetGrid = {
       return curves
     },
     closedTruchetCurves() {
+      // TODO: properly calculate the closed curve hierarchy, paying attention to the fact that they can be nested multiple times
       let ret = this.continuousTruchetCurves
         .filter((curve) => curve.closed())
         .map((curve) => new ClosedCurve(curve, []))

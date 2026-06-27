@@ -665,11 +665,12 @@ class CompositeCurve {
     if (!this.bbox().inside(pt)) {
       return false
     }
+    // extend a ray from the point in the 0x direction, count the number of intersections with the closed curve
+    // if odd, the point must be inside (modulo floating-point imprecisions)
     let line = new Line(pt, new Vector(1, 0))
     let intersections = this.intersectLineU(line)
     intersections = intersections.filter((t) => t > 0)
     intersections = [...new Set(intersections)]
-    // console.log('inside', pt, intersections)
     return intersections.length % 2 == 1
   }
 
@@ -915,6 +916,11 @@ class ClosedCurve {
   // fillCrosshatch fills the closed curve with two sets of lines, one in 'directionDeg', the other perpendicular
   fillCrosshatch(gap, directionDeg) {
     return [...fill(gap, directionDeg), ...fill(gap, directionDeg + 90)]
+  }
+
+  clip(bbox) {
+    let minuses = this.minus.map((curve) => curve.clip(bbox))
+    return new ClosedCurve(this.curve.clip(bbox), minuses)
   }
 
   d() {

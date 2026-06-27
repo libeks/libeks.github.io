@@ -556,7 +556,13 @@ class CompositeCurve {
     }
     for (let curve of args) {
       if (
-        !['StraightStroke', 'QuadraticBezier', 'CubicBezier', 'CompositeCurve'].includes(curve.type)
+        ![
+          'StraightStroke',
+          'QuadraticBezier',
+          'CubicBezier',
+          'CompositeCurve',
+          'CatalanFragment',
+        ].includes(curve.type)
       ) {
         console.trace()
         throw `CompositeCurve got unexpected argument ${curve.type}`

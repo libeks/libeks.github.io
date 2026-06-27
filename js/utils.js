@@ -54,7 +54,7 @@ function zip() {
 // enumerate the elements of the list
 // enumerate(['a', 'b', 'c']) => [[0, 'a'], [1, 'b'], [2, 'c']]
 function enumerate(list) {
-  return list.entries()
+  return Array.from(list.entries())
 }
 
 // range returns the numbers from 0 to n-1, inclusive
@@ -64,9 +64,15 @@ const range = (n) => Array(n).keys()
 // given a list, return the list of all pairs, where the first element comes before the second one
 // this is the upper triangular matrix of the elements
 function crossProduct(list) {
+  if (!Array.isArray(list)) {
+    throw `crossProduct got a non-array argument`
+  }
+  // console.log('cross product of', list, Array.isArray(list))
   let result = []
   for (let a = 0; a < list.length; a++) {
+    // console.log('cross a', a)
     for (let b = a + 1; b < list.length; b++) {
+      // console.log('cross b', b)
       result.push([list[a], list[b]])
     }
   }

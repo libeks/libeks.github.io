@@ -617,6 +617,17 @@ class CompositeCurve {
     return this.curves[this.curves.length - 1].endpoint()
   }
 
+  // linearly interpolate, each segment takes up equal proportion of [0,1]
+  at(t) {
+    if (this.curves.length == 0) {
+      return null
+    }
+    let i = Math.floor(t * this.curves.length)
+    let miniT = (t * this.curves.length) % 1
+    console.log('this.curves[i]', this.curves[i])
+    return this.curves[i].at(miniT)
+  }
+
   // given a line, return the list of t-values of it intersecting with the composite curve
   intersectLineU(line) {
     let answers = []
@@ -824,10 +835,23 @@ class ClosedCurve {
     // closed curves that should be removed from the current one. They usually are completely contained inside the closed curve
     // note that doubly nested minus curves will result in the inner one being filled, using fill-rule="evenodd"
     this.minus = minus
+    this.type = 'ClosedCurves'
   }
 
   bbox() {
     return this.curve.bbox()
+  }
+
+  inside(point) {
+    if (!this.curve.inside(point)) {
+      return false
+    }
+    for (let m of this.minus) {
+      if (m.inside(point)) {
+        return false
+      }
+    }
+    return true
   }
 
   // fill fills the closed curve with parallel lines, all at 'directionDeg' angle (degrees)
@@ -848,12 +872,14 @@ class ClosedCurve {
       // console.log('at i', i, 'line', line)
       let tvalues = []
       for (let curve of allCurves) {
+        // console.log('intersectLineU', curve, line)
         tvalues.push(...curve.intersectLineU(line))
       }
       tvalues.sort((a, b) => a - b)
       // console.log('intersection t values', tvalues)
       let intervals = reduceIntervals(tvalues, (t) => {
         let midpoint = line.at(t)
+        // console.log('this.minus', this.minus)
         return this.curve.inside(midpoint) && !this.minus.some((c) => c.inside(midpoint))
       })
       for (let [t1, t2] of intervals) {
@@ -875,7 +901,7 @@ class ClosedCurve {
       .corners()
       .map((corner) => perpLine.pointProjectionTValue(corner))
     tValues.sort((a, b) => a - b)
-    console.log('tvalues', tValues)
+    // console.log('tvalues', tValues)
     // tValues = [216.86693101272223, 217]
     let allCurves = [this.curve, ...this.minus]
     let lines = []
@@ -913,12 +939,21 @@ class ClosedCurve {
     return lines
   }
 
+  intersectLineU(line) {
+    let values = this.curve.intersectLineU(line)
+    for (let m of this.minus) {
+      values.push(...m.intersectLineU(line))
+    }
+    return values
+  }
+
   // fillCrosshatch fills the closed curve with two sets of lines, one in 'directionDeg', the other perpendicular
   fillCrosshatch(gap, directionDeg) {
     return [...fill(gap, directionDeg), ...fill(gap, directionDeg + 90)]
   }
 
   clip(bbox) {
+    // TODO: filter out empty curves. note that this could split the main curve into multiple
     let minuses = this.minus.map((curve) => curve.clip(bbox))
     return new ClosedCurve(this.curve.clip(bbox), minuses)
   }

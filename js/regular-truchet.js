@@ -1,5 +1,5 @@
 import { Point, Line, Ray } from '/js/geometry.js'
-import { reversed, shift, rightShift, zip, enumerate, range } from '/js/utils.js'
+import { reversed, shift, rightShift, zip, enumerate, range, crossProduct } from '/js/utils.js'
 import { degToRad, radToDeg, distance, randomInt } from '/js/math.js'
 import { getPairs } from '/js/triangular-tiles.js'
 import { Triangulation } from '/js/catalan-structures.js'
@@ -428,6 +428,10 @@ class CatalanFragment {
     return this.line.intersectLineU(line)
   }
 
+  at(t) {
+    return this.line.at(t)
+  }
+
   reverse() {
     return new CatalanFragment(
       this.curve.split('').reverse().join(''),
@@ -458,8 +462,8 @@ const genericTruchetGrid = {
           <path class="stroke medium" :d="curve.d()" />
         </template>
       </template>
-      <g v-if="showContinuous" v-for="curve in continuousTruchetCurves">
-        <path class="polygon" :d="curve.d()" :style="{fill: 'white', stroke: 'black', 'fill-opacity':0.8}" />
+      <g v-if="showContinuous" v-for="(curve,i) in continuousTruchetCurves">
+        <path class="polygon" :d="curve.d()" :style="{fill: 'white', stroke: 'black', 'fill-opacity':0.8}" :data-face="i" />
       </g>
       <g v-if="showFillLines" v-for="curve in closedTruchetCurves">
         <path v-for="line in curve.fill(3, Math.random()*180)" :d="line.d()" :style="{stroke:'purple'}" />
@@ -669,10 +673,71 @@ const genericTruchetGrid = {
     },
     closedTruchetCurves() {
       // TODO: properly calculate the closed curve hierarchy, paying attention to the fact that they can be nested multiple times
-      let ret = this.continuousTruchetCurves
-        .filter((curve) => curve.closed())
-        .map((curve) => new ClosedCurve(curve, []))
-      return ret
+      let curves = this.continuousTruchetCurves.filter((curve) => curve.closed())
+      let ancestors = {}
+      let descendants = {}
+      let children = {}
+      let depth = {}
+      for (let [i, c] of enumerate(curves)) {
+        ancestors[i] = []
+        descendants[i] = []
+        children[i] = []
+      }
+      // console.log('enumerate', Array.from(enumerate(curves)), crossProduct(enumerate(curves)))
+      for (let [[a, curveA], [b, curveB]] of crossProduct(enumerate(curves))) {
+        console.log('closed', a, curveA, b, curveB)
+        console.log('at', curveA.at(0.34))
+        if (curveB.bbox().boxInside(curveA.bbox()) && curveB.inside(curveA.at(0.34))) {
+          // console.log('curveA.startpoint inside curveB')
+          console.log(`curve:${a}.startpoint inside curve:${b}`)
+          // curveA is a descendant of curveB
+          descendants[b].push(a)
+          ancestors[a].push(b)
+        } else if (curveA.bbox().boxInside(curveB.bbox()) && curveA.inside(curveB.at(0.35))) {
+          console.log(`curve:${b}.startpoint inside curve:${a}`)
+          // curveB is a descendant of curveA
+          descendants[a].push(b)
+          ancestors[b].push(a)
+        } else {
+          console.log(`curve:${a} and curve:${b} dont relate`)
+        }
+      }
+      console.log('ancestors', ancestors, 'descendants', descendants)
+      // let ret = this.continuousTruchetCurves
+      //   .filter((curve) => curve.closed())
+      //   .map((curve) => new ClosedCurve(curve, []))
+      // return ret
+
+      for (let [i, curve] of enumerate(curves)) {
+        if (ancestors[i].length > 0) {
+          let depth = ancestors[i].length
+          // let parent
+          for (let j of ancestors[i]) {
+            if (ancestors[j].length == depth - 1) {
+              children[j].push(i)
+            }
+          }
+        }
+      }
+      let closed = curves.map((curve) => new ClosedCurve(curve, []))
+      for (let [i, curve] of enumerate(closed)) {
+        for (let childID of children[i]) {
+          curve.minus.push(closed[childID])
+        }
+      }
+
+      let topLevel = enumerate(closed)
+        .filter(([i, curve]) => ancestors[i].length == 0)
+        .map(([i, curve]) => curve)
+
+      // return curves.map((curve) => new ClosedCurve(curve, []))
+      // topLevel = topLevel.filter((curve) => curve.minus.length > 0)
+      console.log('closed', topLevel)
+      console.log(
+        'topLevel with holes',
+        topLevel.filter((curve) => curve.minus.length > 0),
+      )
+      return topLevel
     },
   },
 }

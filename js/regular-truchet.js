@@ -590,207 +590,75 @@ const genericTruchetGrid = {
       let unprocessed = {}
       for (let ngon of Object.values(this.curveFragmentsByNgons)) {
         for (let curve of ngon) {
-          // console.log('curve', curve.id, curve, 'ngon', ngon)
           unprocessed[curve.id] = curve
         }
       }
-      // console.log('unprocessed', unprocessed)
       let curves = []
       while (Object.keys(unprocessed).length > 0) {
-        let start = Object.values(unprocessed)[0]
-        // let directions = ['forward', 'backward']
-        let directions = ['forward']
+        let start = Object.values(unprocessed)[0] // pick a 'random' curve to start with
         let end = start // initially the start and end are the same
         delete unprocessed[start.id]
         let aggregate = new CompositeCurve(start.curve)
-        // console.log('start.curve', start.curve)
-        while (!aggregate.closed() && directions.length > 0) {
-          for (let direction of directions) {
-            let found = false
-            if (direction == 'forward') {
-              // console.log('neighbor ngon ids', end.faceID, this.neighborNGonIDs[end.faceID])
-              // if the last element is a connector (straight stroke along perimeter), consider curves in the same face,
-              // otherwise look at the current face's neighbors
-              let neighbors = end.isConnector ? [end.faceID] : this.neighborNGonIDs[end.faceID]
-              for (let neighborNGonID of neighbors) {
-                // console.log('neighbor ngon id', neighborNGonID)
-                if (!(neighborNGonID in this.curveFragmentsByNgons)) {
-                  // neighbor ngon is filtered out, maybe it doesn't fit in the bbox
-                  // console.log(
-                  //   'neighbor ngon id not in curve fragments',
-                  //   neighborNGonID,
-                  //   Object.keys(this.curveFragmentsByNgons),
-                  // )
-                  continue
-                }
-                // console.log('neighbor ngon id in fragments', neighborNGonID)
-                let neighborNGon = this.curveFragmentsByNgons[neighborNGonID]
-                for (let curve of neighborNGon) {
-                  if (!(curve.id in unprocessed)) {
-                    continue
-                  }
-                  // console.log('curve is a candidate', curve.id, curve)
-                  if (curve.curve.startpoint().same(end.curve.endpoint())) {
-                    // console.log('adding curve', curve, curve.faceID)
-                    aggregate.add(curve.curve)
-                    end = curve
-                    delete unprocessed[curve.id]
-                    found = true
-                    break
-                  } else if (curve.curve.endpoint().same(end.curve.endpoint())) {
-                    curve.curve = curve.curve.reverse()
-                    // console.log('adding reversed curve', curve, curve.faceID)
-                    aggregate.add(curve.curve)
-                    end = curve
-                    delete unprocessed[curve.id]
-                    found = true
-                    break
-                  } else {
-                    // console.log(
-                    //   'curve doesnt touch endpoint',
-                    //   curve,
-                    //   curve.curve.startpoint(),
-                    //   curve.curve.endpoint(),
-                    //   end.curve.endpoint(),
-                    // )
-                  }
-                }
-                if (found) {
-                  // console.log('couldnt find a new curve')
-                  break
-                }
+        while (!aggregate.closed()) {
+          let found = false
+          // if the last element is a connector (straight stroke along perimeter), consider curves in the same face,
+          // otherwise look at the current face's neighbors
+          let neighbors = end.isConnector ? [end.faceID] : this.neighborNGonIDs[end.faceID]
+          for (let neighborNGonID of neighbors) {
+            if (!(neighborNGonID in this.curveFragmentsByNgons)) {
+              continue
+            }
+            let neighborNGon = this.curveFragmentsByNgons[neighborNGonID]
+            for (let curve of neighborNGon) {
+              if (!(curve.id in unprocessed)) {
+                continue
               }
-              if (!found && !end.isConnector) {
-                // console.log('couldnt find a curve, adding a direct line segment')
-                let endpointVertexID = hexToNumerical(end.curve.curve[1]) - 1
-                let otherVertexNum =
-                  endpointVertexID % 2 == 0 ? endpointVertexID + 1 : endpointVertexID - 1
-                // let otherVertexID = numericalToHex(otherVertexNum + 1)
-                // console.log('end.curve', end.curve)
-                let otherVertex = end.curve.notchPoints[otherVertexNum]
-                let last = aggregate.curves[aggregate.curves.length - 1]
-                // console.log(
-                //   'endpoint',
-                //   end.curve.endpoint(),
-                //   end.curve.curve,
-                //   // end.curve.vertices ? end.curve.vertices.length : end.curve,
-                //   'n=',
-                //   end.curve.notchPoints.length,
-                //   end.curve.curve[1],
-                //   endpointVertexID,
-                //   otherVertexNum,
-                //   otherVertex,
-                //   end.faceID,
-                // )
-
-                // console.log(
-                //   'adding straight line segment',
-                //   new StraightStroke(end.curve.endpoint(), otherVertex),
-                // )
-                end = {
-                  curve: new CatalanFragment(
-                    end.curve.curve[1] + numericalToHex(otherVertexNum),
-                    new StraightStroke(end.curve.endpoint(), otherVertex),
-                    end.curve.notchPoints,
-                  ),
-                  faceID: end.faceID,
-                  isConnector: true,
-                }
-                aggregate.add(end.curve)
+              if (curve.curve.startpoint().same(end.curve.endpoint())) {
+                aggregate.add(curve.curve)
+                end = curve
+                delete unprocessed[curve.id]
                 found = true
+                break
+              } else if (curve.curve.endpoint().same(end.curve.endpoint())) {
+                // the curve needs to be reversed before it can be added
+                curve.curve = curve.curve.reverse()
+                aggregate.add(curve.curve)
+                end = curve
+                delete unprocessed[curve.id]
+                found = true
+                break
               }
-              // } else {
-              //   // backwards
-              //   for (let neighborNGonID of this.neighborNGonIDs[start.faceID]) {
-              //     if (!(neighborNGonID in this.curveFragmentsByNgons)) {
-              //       // neighbor ngon is filtered out, maybe it doesn't fit in the bbox
-              //       continue
-              //     }
-              //     let neighborNGon = this.curveFragmentsByNgons[neighborNGonID]
-              //     for (let curve of neighborNGon) {
-              //       if (!(curve.id in unprocessed)) {
-              //         continue
-              //       }
-              //       if (curve.curve.endpoint().same(start.curve.startpoint())) {
-              //         aggregate.prepend(curve.curve)
-              //         start = curve
-              //         delete unprocessed[curve.id]
-              //         found = true
-              //         break
-              //       } else if (curve.curve.startpoint().same(start.curve.startpoint())) {
-              //         curve.curve = curve.curve.reverse()
-              //         aggregate.prepend(curve.curve)
-              //         start = curve
-              //         delete unprocessed[curve.id]
-              //         found = true
-              //         break
-              //       }
-              //     }
-              //     if (found) {
-              //       break
-              //     }
-              //   }
-              //   // if (!found && !end.isConnector) {
-              //   //   let endpointVertexID = hexToNumerical(start.curve.curve[0]) - 1
-              //   //   let otherVertexNum =
-              //   //     endpointVertexID % 2 == 0 ? endpointVertexID + 1 : endpointVertexID - 1
-              //   //   // let otherVertexID = numericalToHex(otherVertexNum + 1)
-              //   //   // console.log('end.curve', end.curve)
-              //   //   let otherVertex = start.curve.notchPoints[otherVertexNum]
-              //   //   let first = aggregate.curves[0]
-              //   //   // console.log(
-              //   //   //   'endpoint',
-              //   //   //   end.curve.endpoint(),
-              //   //   //   end.curve.curve,
-              //   //   //   // end.curve.vertices ? end.curve.vertices.length : end.curve,
-              //   //   //   'n=',
-              //   //   //   end.curve.notchPoints.length,
-              //   //   //   end.curve.curve[1],
-              //   //   //   endpointVertexID,
-              //   //   //   otherVertexNum,
-              //   //   //   otherVertex,
-              //   //   //   end.faceID,
-              //   //   // )
-
-              //   //   console.log('line', new StraightStroke(end.curve.endpoint(), otherVertex))
-              //   //   end = {
-              //   //     curve: new CatalanFragment(
-              //   //       start.curve.curve[0] + numericalToHex(otherVertexNum),
-              //   //       new StraightStroke(start.curve.endpoint(), otherVertex),
-              //   //       start.curve.notchPoints,
-              //   //     ),
-              //   //     faceID: end.faceID,
-              //   //     isConnector: true,
-              //   //   }
-              //   //   aggregate.prepend(start.curve)
-              //   //   found = true
-              //   // }
             }
-            if (!found) {
-              directions = directions.filter((dir) => dir != direction)
+            if (found) {
+              // no need to look at curves in other neighbor ngons
+              break
             }
+          }
+          if (!found && !end.isConnector) {
+            // if we've run out of truchet curves to add to the end, add a straight line segment to the 'neighbor' notch of
+            // the endpoint's notch. This should only be happening on the perimeter, where there is no neighbor ngon to connect to
+            let endpointVertexID = hexToNumerical(end.curve.curve[1]) - 1
+            let otherVertexNum =
+              endpointVertexID % 2 == 0 ? endpointVertexID + 1 : endpointVertexID - 1
+            let otherVertex = end.curve.notchPoints[otherVertexNum]
+            end = {
+              curve: new CatalanFragment(
+                end.curve.curve[1] + numericalToHex(otherVertexNum),
+                new StraightStroke(end.curve.endpoint(), otherVertex),
+                end.curve.notchPoints,
+              ),
+              faceID: end.faceID,
+              isConnector: true,
+            }
+            aggregate.add(end.curve)
+            found = true
+          }
+          if (!found) {
+            directions = directions.filter((dir) => dir != direction)
           }
         }
         // the curve is completed, i.e. it is closed, or we cannot make any progress on the curve
-
-        // if (aggregate.curves.length > 6 && !aggregate.closed()) {
-        //   console.log(
-        //     'aggregate',
-        //     aggregate,
-        //     aggregate.curves.map((curve) => ({
-        //       curve: curve.curve,
-        //       // n: curve.ngon.vertices.length,
-        //       id: curve.ngon,
-        //     })),
-        //     aggregate.closed(),
-        //   )
-        if (!aggregate.closed()) {
-          curves.push(aggregate)
-          return curves
-        } else {
-          curves.push(aggregate)
-        }
-        // }
+        curves.push(aggregate)
       }
       return curves
     },
@@ -798,7 +666,6 @@ const genericTruchetGrid = {
       let ret = this.continuousTruchetCurves
         .filter((curve) => curve.closed())
         .map((curve) => new ClosedCurve(curve, []))
-      // console.log('closedTruchetCurves', ret)
       return ret
     },
   },

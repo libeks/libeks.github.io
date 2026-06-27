@@ -119,7 +119,6 @@ const svgPlot = {
         yOffset = 800
       }
       const framePadding = 1000
-      // return new BBox(0, yOffset, 13333, 10000).withPadding(framePadding)
       return new BBox(0, yOffset, 13333, 10000).withIndividualPadding(500, 1000, 1000, 500)
     },
     guideFrameLayer() {

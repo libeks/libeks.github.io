@@ -823,12 +823,12 @@ class CompositeCurve {
 
 class ClosedCurve {
   constructor(curve, minus) {
-    console.log('closed', curve)
+    // console.log('closed', curve)
     if (!curve.closed()) {
       throw `ClosedCurve got non-closed primary component`
     }
     for (let m of minus) {
-      console.log('minus', m)
+      // console.log('minus', m)
       if (!m.closed()) {
         throw `ClosedCurve got non-closed minus component`
       }

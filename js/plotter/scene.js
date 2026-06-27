@@ -72,9 +72,9 @@ class Scene {
         if (!('curves' in layer)) {
           layer.curves = []
         }
-        if (!('fill' in layer)) {
-          layer.fill = []
-        }
+        // if (!('fill' in layer)) {
+        //   layer.fill = []
+        // }
         let curves = []
         let fill = []
 
@@ -83,16 +83,19 @@ class Scene {
             let clipped = curve.clip(bbox)
             curves.push(...clipped)
           }
-          for (let curve of layer.fill) {
-            let clipped = curve.clip(bbox)
-            fill.push(...clipped)
-          }
           layer.curves = curves
-          layer.fill = fill
+          if (layer.fill) {
+            // console.log('layer.fill', layer.fill)
+            for (let curve of layer.fill.curves) {
+              let clipped = curve.clip(bbox)
+              fill.push(...clipped)
+            }
+            layer.fill.curves = fill
+          }
         }
       }
     }
-    console.log('layers', layers)
+    // console.log('layers', layers)
     this.layers = layers
     this.fill()
     return this
@@ -101,10 +104,19 @@ class Scene {
   fill() {
     console.log('filling...')
     for (let layer of Object.values(this.layers)) {
-      if (layer.fill.length > 0) {
-        for (let curve of layer.fill) {
+      if (layer.fill && layer.fill.curves.length > 0) {
+        let spacing = 20
+        if (layer.fill.spacing) {
+          spacing = layer.fill.spacing
+        }
+        let direction = 13
+        if (layer.fill.direction) {
+          direction = layer.fill.direction
+        }
+        for (let curve of layer.fill.curves) {
           console.log('filling curve', curve)
-          layer.curves.push(...curve.fill(60, 13))
+
+          layer.curves.push(...curve.fill(spacing, direction))
         }
       }
     }

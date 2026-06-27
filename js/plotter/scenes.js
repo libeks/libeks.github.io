@@ -216,16 +216,22 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
       pen: pens.CrayolaSuperTips,
       // dontOptimize: true,
     },
-    curve: {
-      curves: template.continuousTruchetCurves,
-      color: 'blue',
-      pen: pens.CrayolaSuperTips,
-      // dontOptimize: true,
-    },
+    // curve: {
+    //   curves: template.continuousTruchetCurves,
+    //   color: 'blue',
+    //   pen: pens.CrayolaSuperTips,
+    //   // dontOptimize: true,
+    // },
     fill1: {
-      fill: template.closedTruchetCurves,
+      curves: template.continuousTruchetCurves,
+      fill: {
+        curves: template.closedTruchetCurves,
+        direction: 20,
+        spacing: 70,
+      },
       color: 'red',
       pen: pens.CrayolaSuperTips,
+      dontOptimize: true,
     },
   }))
 

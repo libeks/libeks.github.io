@@ -18,6 +18,7 @@ import {
   ClosedCurve,
 } from '/js/lines.js'
 import { VertexGrid } from '/js/grid.js'
+import { Random } from '/js/random.js'
 
 // This is similar to triangular-tiles.js and square-tiles.js, but tries to generalize to any n-gon.
 // It also operates on an arbitrarily placed and rotated n-gon, based off of its vertices
@@ -468,11 +469,6 @@ const genericTruchetGrid = {
       <g v-if="showFillLines" v-for="curve in closedTruchetCurves">
         <path v-for="line in curve.fill(3, Math.random()*180)" :d="line.d()" :style="{stroke:'purple'}" />
       </g>
-    
-      <g v-if="showRandomPoints" v-for="point in points">
-        <circle v-bind="point.pt.cxcyProps()" r=2 :style='{stroke: "none", fill: point.inside ? "black" : "yellow"}' />
-        <circle v-if="showTangentPoints" v-for="inter in point.intersections" r=1 v-bind="inter.cxcyProps()" :style='{stroke: "green"}' />
-      </g>
 
     </g>
     `,
@@ -500,8 +496,13 @@ const genericTruchetGrid = {
     showFillLines: Boolean,
     notches: Object,
     onlyNgonsInsideBBox: Boolean,
+    seed: Number,
   },
   computed: {
+    random() {
+      console.log('random for pattern and seed', this.pattern, this.seed)
+      return new Random(this.seed)
+    },
     grid() {
       let grid = new VertexGrid({
         bbox: this.bbox,
@@ -522,48 +523,10 @@ const genericTruchetGrid = {
             this.notches,
             this.size,
           ),
-          n: randomInt(1289904147324), // 1289904147324 is C24
+          n: this.random.int(1289904147324), // 1289904147324 is C24
         })
       }
       return retList
-    },
-    showRandomPoints() {
-      return false
-    },
-    showTangentPoints() {
-      return false
-    },
-    points() {
-      let n = 10000
-      let points = []
-      for (let i of range(n)) {
-        let point = new Point(
-          Math.random() * this.bbox.width() + this.bbox.x1,
-          Math.random() * this.bbox.height() + this.bbox.y1,
-        )
-        if (!this.bbox.inside(point)) {
-          throw `Point ${point} not inside bbox ${this.bbox}`
-        }
-        let inside = false
-        let intersections = []
-        for (let curve of this.continuousTruchetCurves) {
-          if (curve.type == 'CompositeCurve') {
-            let check = curve.insideExtended(point)
-            if (check.inside) {
-              inside = true
-              intersections = check.intersections
-              break
-            }
-          }
-        }
-        points.push({
-          pt: point,
-          inside,
-          intersections,
-        })
-      }
-      console.log('points', this.bbox, points)
-      return points
     },
     curveFragmentsByNgons() {
       let byNGon = {}
@@ -683,35 +646,21 @@ const genericTruchetGrid = {
         descendants[i] = []
         children[i] = []
       }
-      // console.log('enumerate', Array.from(enumerate(curves)), crossProduct(enumerate(curves)))
       for (let [[a, curveA], [b, curveB]] of crossProduct(enumerate(curves))) {
-        // console.log('closed', a, curveA, b, curveB)
-        // console.log('at', curveA.at(0.34))
         if (curveB.bbox().boxInside(curveA.bbox()) && curveB.inside(curveA.at(0.34))) {
-          // console.log('curveA.startpoint inside curveB')
-          // console.log(`curve:${a}.startpoint inside curve:${b}`)
           // curveA is a descendant of curveB
           descendants[b].push(a)
           ancestors[a].push(b)
         } else if (curveA.bbox().boxInside(curveB.bbox()) && curveA.inside(curveB.at(0.35))) {
-          // console.log(`curve:${b}.startpoint inside curve:${a}`)
           // curveB is a descendant of curveA
           descendants[a].push(b)
           ancestors[b].push(a)
-          // } else {
-          //   console.log(`curve:${a} and curve:${b} dont relate`)
         }
       }
-      // console.log('ancestors', ancestors, 'descendants', descendants)
-      // let ret = this.continuousTruchetCurves
-      //   .filter((curve) => curve.closed())
-      //   .map((curve) => new ClosedCurve(curve, []))
-      // return ret
 
       for (let [i, curve] of enumerate(curves)) {
         if (ancestors[i].length > 0) {
           let depth = ancestors[i].length
-          // let parent
           for (let j of ancestors[i]) {
             if (ancestors[j].length == depth - 1) {
               children[j].push(i)
@@ -730,13 +679,6 @@ const genericTruchetGrid = {
         .filter(([i, curve]) => ancestors[i].length == 0)
         .map(([i, curve]) => curve)
 
-      // return curves.map((curve) => new ClosedCurve(curve, []))
-      // topLevel = topLevel.filter((curve) => curve.minus.length > 0)
-      // console.log('closed', topLevel)
-      // console.log(
-      //   'topLevel with holes',
-      //   topLevel.filter((curve) => curve.minus.length > 0),
-      // )
       return topLevel
     },
   },

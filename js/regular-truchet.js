@@ -27,7 +27,6 @@ const THRESHOLD = 0.01
 
 class GenericTruchetTile {
   constructor(vertices, notches, side) {
-    // console.log('side', side)
     for (let vertex of vertices) {
       if (vertex.type != 'Point') {
         throw `GenericTruchetTile got vertex with unexpected type ${vertex.type}`
@@ -646,10 +645,12 @@ const genericTruchetGrid = {
       }
       for (let [[a, curveA], [b, curveB]] of crossProduct(enumerate(curves))) {
         if (curveB.bbox().boxInside(curveA.bbox()) && curveB.inside(curveA.at(0.34))) {
+          // get at 0.34 to not coincide with boundaries
           // curveA is a descendant of curveB
           descendants[b].push(a)
           ancestors[a].push(b)
-        } else if (curveA.bbox().boxInside(curveB.bbox()) && curveA.inside(curveB.at(0.35))) {
+        } else if (curveA.bbox().boxInside(curveB.bbox()) && curveA.inside(curveB.at(0.34))) {
+          // get at 0.35 to not fall on a boundary
           // curveB is a descendant of curveA
           descendants[a].push(b)
           ancestors[b].push(a)

@@ -168,7 +168,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
           ...uniform3Tilings,
           ...uniform4Tilings,
         ].map((tiling) => ({ name: tiling.string(), value: tiling })),
-        default: uniform4Tilings[5],
+        default: semiregularTilings[0],
       },
       {
         name: 'size',
@@ -176,7 +176,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         min: 100,
         step: 50,
         max: 1000,
-        default: 400,
+        default: 550,
       },
       {
         name: 'notch1',

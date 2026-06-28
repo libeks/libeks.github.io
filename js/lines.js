@@ -964,17 +964,14 @@ class ClosedCurve {
     let minuses = this.minus.map((curve) => curve.clip(bbox)).flat()
 
     let clipped = this.curve.clip(bbox)
-    console.log('clip', clipped)
     if (clipped.length == 1) {
       return [new ClosedCurve(clipped[0], minuses)]
     }
     throw `ClosedCurve.clip returned unexpected number of elements ${clipped.length}`
-    // if (clipped.length ==)
   }
 
   d() {
     // this is to be displayed with fill-rule="evenodd", the clockwiseness of the curves doesn't matter. Triple nested minus curves will be filled
-    // FIXME: complete this with minus curves
     let minusString = this.minus.map((m) => m.d()).join(' ')
     return this.curve.d() + ' ' + minusString
   }

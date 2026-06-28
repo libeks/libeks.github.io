@@ -493,11 +493,11 @@ function generateTruchetGrid(grid, random, notches, size) {
       }
     }
 
-    console.log('unprocessed', unprocessed)
+    // console.log('unprocessed', unprocessed)
     let curves = []
     while (Object.keys(unprocessed).length > 0) {
       let start = Object.values(unprocessed)[0] // pick a 'random' curve to start with
-      console.log('start, end', start)
+      // console.log('start, end', start)
       let end = start // initially the start and end are the same
       delete unprocessed[start.id]
       let aggregate = new CompositeCurve(start.curve)
@@ -506,14 +506,14 @@ function generateTruchetGrid(grid, random, notches, size) {
         // if the last element is a connector (straight stroke along perimeter), consider curves in the same face,
         // otherwise look at the current face's neighbors
         let neighbors = end.isConnector ? [end.faceID] : neighborNGonIDs[end.faceID]
-        console.log(
-          'neighbors',
-          neighbors,
-          end.isConnector,
-          end.faceID,
-          neighborNGonIDs,
-          neighborNGonIDs[end.faceID],
-        )
+        // console.log(
+        //   'neighbors',
+        //   neighbors,
+        //   end.isConnector,
+        //   end.faceID,
+        //   neighborNGonIDs,
+        //   neighborNGonIDs[end.faceID],
+        // )
         for (let neighborNGonID of neighbors) {
           if (!(neighborNGonID in curveFragmentsByNgons)) {
             continue

@@ -1,9 +1,10 @@
 import { rootedTree } from '/js/catalan-structures.js'
 import { BBox } from '/js/bbox.js'
-import { genericTruchetGrid } from '/js/regular-truchet.js'
+import { genericTruchetGrid, generateTruchetGrid } from '/js/regular-truchet.js'
 import { Point } from '/js/geometry.js'
 import { pairs, circularPairs } from '/js/utils.js'
 import { StraightStroke } from '/js/lines.js'
+import { Random } from '/js/random.js'
 
 import {
   regularTilings,
@@ -209,31 +210,51 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
       },
     ],
   )
-  .withLayers((template) => ({
-    edges: {
-      curves: vertexListsToLines(template.grid.map((face) => face.ngon.vertices)),
-      color: 'black',
-      pen: pens.CrayolaSuperTips,
-      // dontOptimize: true,
-    },
-    // curve: {
-    //   curves: template.continuousTruchetCurves,
-    //   color: 'blue',
-    //   pen: pens.CrayolaSuperTips,
-    //   // dontOptimize: true,
-    // },
-    fill1: {
-      curves: template.continuousTruchetCurves,
-      fill: {
-        curves: template.closedTruchetCurves,
-        direction: 20,
-        spacing: 70,
+  .withLayers((template) => {
+    let curves = [0, 1, 2].map((seed) =>
+      generateTruchetGrid(template.tilingFaces, new Random(seed), template.notches, template.size),
+    )
+    return {
+      edges: {
+        curves: vertexListsToLines(template.grid.faces.map((face) => face.ngon.vertices)),
+        color: 'black',
+        pen: pens.CrayolaSuperTips,
       },
-      color: 'red',
-      pen: pens.CrayolaSuperTips,
-      dontOptimize: true,
-    },
-  }))
+      fill1: {
+        curves: curves[0].continuousCurves,
+        fill: {
+          curves: curves[0].closedCurves,
+          direction: 20,
+          spacing: 70,
+        },
+        color: 'yellow',
+        pen: pens.CrayolaSuperTips,
+        dontOptimize: true,
+      },
+      fill2: {
+        curves: curves[1].continuousCurves,
+        fill: {
+          curves: curves[1].closedCurves,
+          direction: 80,
+          spacing: 70,
+        },
+        color: 'cyan',
+        pen: pens.CrayolaSuperTips,
+        dontOptimize: true,
+      },
+      fill3: {
+        curves: curves[2].continuousCurves,
+        fill: {
+          curves: curves[2].closedCurves,
+          direction: 140,
+          spacing: 70,
+        },
+        color: 'magenta',
+        pen: pens.CrayolaSuperTips,
+        dontOptimize: true,
+      },
+    }
+  })
 
 const scenes = {
   PlaneTree,

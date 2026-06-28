@@ -442,14 +442,199 @@ class CatalanFragment {
   }
 }
 
-function generateTruchetGrid(grid, seed, notches, chooser) {
+function generateTruchetGrid(grid, random, notches, size) {
   // will return an array of top-level closed curves, along with individual curve fragments
+  function getTruchetGrid(faces) {
+    return faces.map((ngon) => ({
+      ngon,
+      tile: new GenericTruchetTile(
+        ngon.vertices.map((vertex) => vertex.point),
+        notches,
+        size,
+      ),
+      n: random.int(1289904147324), // 1289904147324 is C24
+    }))
+  }
+
+  let faces = getTruchetGrid(grid)
+
+  function getCurveFragmentsByNgons(faces) {
+    let byNGon = {}
+    for (let face of faces) {
+      let curves = []
+      for (let [id, curve] of enumerate(face.tile.getCatalanTile({ n: face.n }))) {
+        curves.push({
+          id: `${face.ngon.id}.${id}`,
+          faceID: face.ngon.id,
+          curve,
+        })
+      }
+      byNGon[face.ngon.id] = curves
+    }
+    return byNGon
+  }
+
+  let curveFragmentsByNgons = getCurveFragmentsByNgons(faces)
+
+  let neighborNGonIDs = faces.reduce(
+    (prev, face) => ({
+      ...prev,
+      [face.ngon.id]: face.ngon.edges.map((edge) => edge.id),
+    }),
+    {},
+  )
+
+  function continuousTruchetCurves(curveFragmentsByNgons, neighborNGonIDs) {
+    // populate 'unprocessed' so all segments intially appear there. by the end of this method, 'unprocessed' should be empty
+    let unprocessed = {}
+    for (let ngon of Object.values(curveFragmentsByNgons)) {
+      for (let curve of ngon) {
+        unprocessed[curve.id] = curve
+      }
+    }
+
+    console.log('unprocessed', unprocessed)
+    let curves = []
+    while (Object.keys(unprocessed).length > 0) {
+      let start = Object.values(unprocessed)[0] // pick a 'random' curve to start with
+      console.log('start, end', start)
+      let end = start // initially the start and end are the same
+      delete unprocessed[start.id]
+      let aggregate = new CompositeCurve(start.curve)
+      while (!aggregate.closed()) {
+        let found = false
+        // if the last element is a connector (straight stroke along perimeter), consider curves in the same face,
+        // otherwise look at the current face's neighbors
+        let neighbors = end.isConnector ? [end.faceID] : neighborNGonIDs[end.faceID]
+        console.log(
+          'neighbors',
+          neighbors,
+          end.isConnector,
+          end.faceID,
+          neighborNGonIDs,
+          neighborNGonIDs[end.faceID],
+        )
+        for (let neighborNGonID of neighbors) {
+          if (!(neighborNGonID in curveFragmentsByNgons)) {
+            continue
+          }
+          let neighborNGon = curveFragmentsByNgons[neighborNGonID]
+          for (let curve of neighborNGon) {
+            if (!(curve.id in unprocessed)) {
+              continue
+            }
+            if (curve.curve.startpoint().same(end.curve.endpoint())) {
+              aggregate.add(curve.curve)
+              end = curve
+              delete unprocessed[curve.id]
+              found = true
+              break
+            } else if (curve.curve.endpoint().same(end.curve.endpoint())) {
+              // the curve needs to be reversed before it can be added
+              curve.curve = curve.curve.reverse()
+              aggregate.add(curve.curve)
+              end = curve
+              delete unprocessed[curve.id]
+              found = true
+              break
+            }
+          }
+          if (found) {
+            // no need to look at curves in other neighbor ngons
+            break
+          }
+        }
+        if (!found && !end.isConnector) {
+          // if we've run out of truchet curves to add to the end, add a straight line segment to the 'neighbor' notch of
+          // the endpoint's notch. This should only be happening on the perimeter, where there is no neighbor ngon to connect to
+          let endpointVertexID = hexToNumerical(end.curve.curve[1]) - 1
+          let otherVertexNum =
+            endpointVertexID % 2 == 0 ? endpointVertexID + 1 : endpointVertexID - 1
+          let otherVertex = end.curve.notchPoints[otherVertexNum]
+          end = {
+            curve: new CatalanFragment(
+              end.curve.curve[1] + numericalToHex(otherVertexNum),
+              new StraightStroke(end.curve.endpoint(), otherVertex),
+              end.curve.notchPoints,
+            ),
+            faceID: end.faceID,
+            isConnector: true,
+          }
+          aggregate.add(end.curve)
+          found = true
+        }
+        if (!found) {
+          directions = directions.filter((dir) => dir != direction)
+        }
+      }
+      // the curve is completed, i.e. it is closed, or we cannot make any progress on the curve
+      curves.push(aggregate)
+    }
+    return curves
+  }
+
+  function closedTruchetCurves(continuousTruchetCurves) {
+    let curves = continuousTruchetCurves.filter((curve) => curve.closed())
+    let ancestors = {}
+    let descendants = {}
+    let children = {}
+    let depth = {}
+    for (let [i, c] of enumerate(curves)) {
+      ancestors[i] = []
+      descendants[i] = []
+      children[i] = []
+    }
+    for (let [[a, curveA], [b, curveB]] of crossProduct(enumerate(curves))) {
+      if (curveB.bbox().boxInside(curveA.bbox()) && curveB.inside(curveA.at(0.34))) {
+        // get at 0.34 to not coincide with boundaries
+        // curveA is a descendant of curveB
+        descendants[b].push(a)
+        ancestors[a].push(b)
+      } else if (curveA.bbox().boxInside(curveB.bbox()) && curveA.inside(curveB.at(0.34))) {
+        // get at 0.35 to not fall on a boundary
+        // curveB is a descendant of curveA
+        descendants[a].push(b)
+        ancestors[b].push(a)
+      }
+    }
+
+    for (let [i, curve] of enumerate(curves)) {
+      if (ancestors[i].length > 0) {
+        let depth = ancestors[i].length
+        for (let j of ancestors[i]) {
+          if (ancestors[j].length == depth - 1) {
+            children[j].push(i)
+          }
+        }
+      }
+    }
+    let closed = curves.map((curve) => new ClosedCurve(curve, []))
+    for (let [i, curve] of enumerate(closed)) {
+      for (let childID of children[i]) {
+        curve.minus.push(closed[childID])
+      }
+    }
+
+    let topLevel = enumerate(closed)
+      .filter(([i, curve]) => ancestors[i].length == 0)
+      .map(([i, curve]) => curve)
+
+    return topLevel
+  }
+
+  let continuousCurves = continuousTruchetCurves(curveFragmentsByNgons, neighborNGonIDs)
+  let closedCurves = closedTruchetCurves(continuousCurves)
+  return {
+    continuousCurves,
+    closedCurves,
+    faces,
+  }
 }
 
 const genericTruchetGrid = {
   template: `
     <g v-if="grid" class="grid squares">
-      <template v-for="face in grid">
+      <template v-for="face in grid.faces">
         <g v-if="showEdges"  class="face">
           <path
             class="polygon"
@@ -502,7 +687,7 @@ const genericTruchetGrid = {
       console.log('random for pattern and seed', this.pattern, this.seed)
       return new Random(this.seed)
     },
-    grid() {
+    tilingFaces() {
       let grid = new VertexGrid({
         bbox: this.bbox,
         start: this.start,
@@ -511,174 +696,18 @@ const genericTruchetGrid = {
         pattern: this.pattern,
         iterations: this.iterations,
       }).generate()
-      let retList = []
-      let allFaces = this.onlyNgonsInsideBBox ? grid.getFacesInBBox() : grid.getFaces()
-      for (let ngon of allFaces) {
-        retList.push({
-          ngon,
-          tile: new GenericTruchetTile(
-            ngon.vertices.map((vertex) => vertex.point),
-            this.notches,
-            this.size,
-          ),
-          n: this.random.int(1289904147324), // 1289904147324 is C24
-        })
-      }
-      return retList
+      let faces = this.onlyNgonsInsideBBox ? grid.getFacesInBBox() : grid.getFaces()
+      return faces
     },
-    curveFragmentsByNgons() {
-      let byNGon = {}
-      for (let face of this.grid) {
-        let curves = []
-        for (let [id, curve] of enumerate(face.tile.getCatalanTile({ n: face.n }))) {
-          curves.push({
-            id: `${face.ngon.id}.${id}`,
-            faceID: face.ngon.id,
-            curve,
-          })
-        }
-        byNGon[face.ngon.id] = curves
-      }
-      return byNGon
-    },
-    neighborNGonIDs() {
-      let byNGon = {}
-      for (let face of this.grid) {
-        byNGon[face.ngon.id] = face.ngon.edges.map((edge) => edge.id)
-      }
-      return byNGon
-    },
-    neighborNGonFragments() {
-      let byNGon = {}
-      for (let face of this.grid) {
-        byNGon[face.id] = face.ngon.edges.map((edge) => edge.id)
-      }
-      return byNGon
+    grid() {
+      // let faces = this.onlyNgonsInsideBBox ? grid.getFacesInBBox() : grid.getFaces()
+      return generateTruchetGrid(this.tilingFaces, this.random, this.notches, this.size)
     },
     continuousTruchetCurves() {
-      // populate 'unprocessed' so all segments intially appear there. by the end of this method, 'unprocessed' should be empty
-      let unprocessed = {}
-      for (let ngon of Object.values(this.curveFragmentsByNgons)) {
-        for (let curve of ngon) {
-          unprocessed[curve.id] = curve
-        }
-      }
-      let curves = []
-      while (Object.keys(unprocessed).length > 0) {
-        let start = Object.values(unprocessed)[0] // pick a 'random' curve to start with
-        let end = start // initially the start and end are the same
-        delete unprocessed[start.id]
-        let aggregate = new CompositeCurve(start.curve)
-        while (!aggregate.closed()) {
-          let found = false
-          // if the last element is a connector (straight stroke along perimeter), consider curves in the same face,
-          // otherwise look at the current face's neighbors
-          let neighbors = end.isConnector ? [end.faceID] : this.neighborNGonIDs[end.faceID]
-          for (let neighborNGonID of neighbors) {
-            if (!(neighborNGonID in this.curveFragmentsByNgons)) {
-              continue
-            }
-            let neighborNGon = this.curveFragmentsByNgons[neighborNGonID]
-            for (let curve of neighborNGon) {
-              if (!(curve.id in unprocessed)) {
-                continue
-              }
-              if (curve.curve.startpoint().same(end.curve.endpoint())) {
-                aggregate.add(curve.curve)
-                end = curve
-                delete unprocessed[curve.id]
-                found = true
-                break
-              } else if (curve.curve.endpoint().same(end.curve.endpoint())) {
-                // the curve needs to be reversed before it can be added
-                curve.curve = curve.curve.reverse()
-                aggregate.add(curve.curve)
-                end = curve
-                delete unprocessed[curve.id]
-                found = true
-                break
-              }
-            }
-            if (found) {
-              // no need to look at curves in other neighbor ngons
-              break
-            }
-          }
-          if (!found && !end.isConnector) {
-            // if we've run out of truchet curves to add to the end, add a straight line segment to the 'neighbor' notch of
-            // the endpoint's notch. This should only be happening on the perimeter, where there is no neighbor ngon to connect to
-            let endpointVertexID = hexToNumerical(end.curve.curve[1]) - 1
-            let otherVertexNum =
-              endpointVertexID % 2 == 0 ? endpointVertexID + 1 : endpointVertexID - 1
-            let otherVertex = end.curve.notchPoints[otherVertexNum]
-            end = {
-              curve: new CatalanFragment(
-                end.curve.curve[1] + numericalToHex(otherVertexNum),
-                new StraightStroke(end.curve.endpoint(), otherVertex),
-                end.curve.notchPoints,
-              ),
-              faceID: end.faceID,
-              isConnector: true,
-            }
-            aggregate.add(end.curve)
-            found = true
-          }
-          if (!found) {
-            directions = directions.filter((dir) => dir != direction)
-          }
-        }
-        // the curve is completed, i.e. it is closed, or we cannot make any progress on the curve
-        curves.push(aggregate)
-      }
-      return curves
+      return this.grid.continuousCurves
     },
     closedTruchetCurves() {
-      let curves = this.continuousTruchetCurves.filter((curve) => curve.closed())
-      let ancestors = {}
-      let descendants = {}
-      let children = {}
-      let depth = {}
-      for (let [i, c] of enumerate(curves)) {
-        ancestors[i] = []
-        descendants[i] = []
-        children[i] = []
-      }
-      for (let [[a, curveA], [b, curveB]] of crossProduct(enumerate(curves))) {
-        if (curveB.bbox().boxInside(curveA.bbox()) && curveB.inside(curveA.at(0.34))) {
-          // get at 0.34 to not coincide with boundaries
-          // curveA is a descendant of curveB
-          descendants[b].push(a)
-          ancestors[a].push(b)
-        } else if (curveA.bbox().boxInside(curveB.bbox()) && curveA.inside(curveB.at(0.34))) {
-          // get at 0.35 to not fall on a boundary
-          // curveB is a descendant of curveA
-          descendants[a].push(b)
-          ancestors[b].push(a)
-        }
-      }
-
-      for (let [i, curve] of enumerate(curves)) {
-        if (ancestors[i].length > 0) {
-          let depth = ancestors[i].length
-          for (let j of ancestors[i]) {
-            if (ancestors[j].length == depth - 1) {
-              children[j].push(i)
-            }
-          }
-        }
-      }
-      let closed = curves.map((curve) => new ClosedCurve(curve, []))
-      for (let [i, curve] of enumerate(closed)) {
-        for (let childID of children[i]) {
-          curve.minus.push(closed[childID])
-        }
-      }
-
-      let topLevel = enumerate(closed)
-        .filter(([i, curve]) => ancestors[i].length == 0)
-        .map(([i, curve]) => curve)
-
-      return topLevel
+      return this.grid.closedCurves
     },
   },
 }
@@ -746,4 +775,4 @@ const genericTriangulationGrid = {
   },
 }
 
-export { GenericTruchetTile, genericTruchetGrid, genericTriangulationGrid }
+export { GenericTruchetTile, genericTruchetGrid, genericTriangulationGrid, generateTruchetGrid }

@@ -114,7 +114,7 @@ class Scene {
           direction = layer.fill.direction
         }
         for (let curve of layer.fill.curves) {
-          console.log('filling curve', curve)
+          // console.log('filling curve', curve)
 
           layer.curves.push(...curve.fill(spacing, direction))
         }

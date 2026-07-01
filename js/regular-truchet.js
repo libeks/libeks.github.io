@@ -430,7 +430,7 @@ class CatalanFragment {
   }
 
   tangentAt(t) {
-    console.log('this.line', this.line)
+    // console.log('this.line', this.line)
     return this.line.tangentAt(t)
   }
 

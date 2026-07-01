@@ -211,7 +211,7 @@ class BBox {
   perimeterPath(a, b) {
     console.log(`bbox.perimeterpath from ${a} to ${b}`)
     if (a == b) {
-      return new CompositeCurve(this.at(a), this.at(b))
+      return new CompositeCurve(new StraightStroke(this.at(a), this.at(b)))
     }
     if (b < a) {
       b += 4

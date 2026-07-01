@@ -250,11 +250,11 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
       },
       fill3: {
         curves: curves[2].continuousCurves,
-        fill: {
-          curves: curves[2].closedCurves,
-          direction: 140,
-          spacing: 70,
-        },
+        // fill: {
+        //   curves: curves[2].closedCurves,
+        //   direction: 140,
+        //   spacing: 70,
+        // },
         color: 'magenta',
         pen: pens.CrayolaSuperTips,
         dontOptimize: true,

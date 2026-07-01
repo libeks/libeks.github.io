@@ -1,6 +1,8 @@
 import { Point, Vector, Line } from '/js/geometry.js'
 import { StraightStroke, CompositeCurve } from '/js/lines.js'
-import { reduceIntervals } from '/js/utils.js'
+import { reduceIntervals, enumerate, pairs } from '/js/utils.js'
+
+const THRESHOLD = 0.1
 
 class BBox {
   constructor(x1, y1, x2, y2) {
@@ -122,23 +124,24 @@ class BBox {
   }
 
   top() {
-    return new Line(this.upperLeft(), this.upperLeft().vectTo(this.upperRight()))
+    return new Line(this.upperRight(), this.upperRight().vectTo(this.upperLeft()))
   }
 
   right() {
-    return new Line(this.upperRight(), this.upperRight().vectTo(this.lowerRight()))
+    return new Line(this.lowerRight(), this.lowerRight().vectTo(this.upperRight()))
   }
 
   bottom() {
-    return new Line(this.lowerRight(), this.lowerRight().vectTo(this.lowerLeft()))
+    return new Line(this.lowerLeft(), this.lowerLeft().vectTo(this.lowerRight()))
   }
 
   left() {
-    return new Line(this.lowerLeft(), this.lowerLeft().vectTo(this.upperLeft()))
+    return new Line(this.upperLeft(), this.upperLeft().vectTo(this.lowerLeft()))
   }
 
+  // return the perimeter lines, in counter-clockwise order, starting at the top
   lines() {
-    return [this.top(), this.right(), this.bottom(), this.left()]
+    return [this.top(), this.left(), this.bottom(), this.right()]
   }
 
   // combine two bboxes together, producing a possibly larger box
@@ -155,13 +158,72 @@ class BBox {
     return [this.upperLeft(), this.upperRight(), this.lowerRight(), this.lowerLeft()]
   }
 
+  // return a composite line that traces the perimeter, counter-clockwise, starting at the top
   continuousCurve() {
     return new CompositeCurve(
-      new StraightStroke(this.upperLeft(), this.upperRight()),
-      new StraightStroke(this.upperRight(), this.lowerRight()),
-      new StraightStroke(this.lowerRight(), this.lowerLeft()),
-      new StraightStroke(this.lowerLeft(), this.upperLeft()),
+      new StraightStroke(this.upperRight(), this.upperLeft()),
+      new StraightStroke(this.upperLeft(), this.lowerLeft()),
+      new StraightStroke(this.lowerLeft(), this.lowerRight()),
+      new StraightStroke(this.lowerRight(), this.upperRight()),
     )
+  }
+
+  // return a point on the perimeter, given the t-value [0,4), such that,
+  // counter-clockwise [0,1) is top, [1,2) is left, [2,3) is bottom, [3,4) is right
+  at(t) {
+    if (t < 0 || t > 4) {
+      throw `BBox.at got unexpected argument ${t}`
+    }
+    if (t < 1) {
+      return this.top().at(t)
+    }
+    if (t < 2) {
+      return this.left().at(t - 1)
+    }
+    if (t < 3) {
+      return this.bottom().at(t - 2)
+    }
+    return this.right().at(t - 3)
+  }
+
+  // given a point on the perimeter, return the t-value that matches to it, so pt.same(bbox.at(bbox.perimeterPoint(pt))) == true
+  perimeterPointT(point) {
+    if (point.type != 'Point') {
+      throw `BBox.perimeterPointT got unexpected argument ${point.type}`
+    }
+    let distances = []
+    for (let [id, line] of enumerate(this.lines())) {
+      let nPt = line.projectPoint(point)
+      if (nPt.distance(point) < THRESHOLD) {
+        return id + line.pointProjectionTValue(point)
+      } else {
+        distances.push(nPt.distance(point))
+      }
+    }
+    console.trace()
+    console.log('point', point, 'bbox', this, distances)
+    throw `Point ${point.string()} doesn't appear to be on the perimeter of bbox, distance of ${distances}`
+  }
+
+  // given two t-values in the range [0,4), return the counter-clockwise path on the perimeter from a to b
+  // if a > b, pass through the upper right corner
+  // t-values correspond to the at(t) method
+  perimeterPath(a, b) {
+    console.log(`bbox.perimeterpath from ${a} to ${b}`)
+    if (a == b) {
+      return new CompositeCurve(this.at(a), this.at(b))
+    }
+    if (b < a) {
+      b += 4
+    }
+    // let start = this.at(a)
+    let controls = [a]
+    for (let i = Math.floor(a + 1); i < b; i++) {
+      controls.push(i % 4)
+    }
+    controls.push(b % 4)
+    let components = pairs(controls).map(([a, b]) => new StraightStroke(this.at(a), this.at(b)))
+    return new CompositeCurve(...components)
   }
 
   clipLine(line) {

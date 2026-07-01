@@ -145,17 +145,15 @@ const Tiling = new Scene('TruchetTiling')
 const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
   .withTemplate(
     genericTruchetGrid,
-    (bbox, { size, pattern, notch1, notch2, notches, padding }) => {
+    (bbox, { size, small, pattern, notch1, notch2, notches, clip }) => {
       // let
       return {
-        // bbox: bbox.withPadding(1000),
-        // bbox: padding ? bbox.withPadding(size * 3.3) : bbox,
-        bbox,
+        bbox: small ? bbox.withPadding(1000) : bbox,
         start: bbox.center(),
         size,
         pattern,
         notches: notches == 1 ? [notch1] : [notch1, notch2],
-        onlyNgonsInsideBBox: true,
+        onlyNgonsInsideBBox: clip,
       }
     },
     [
@@ -178,6 +176,18 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         step: 50,
         max: 1000,
         default: 550,
+      },
+      {
+        name: 'small',
+        display: 'Small Box',
+        type: 'toggle',
+        default: false,
+      },
+      {
+        name: 'clip',
+        display: 'Only ngons in bbox',
+        type: 'toggle',
+        default: false,
       },
       {
         name: 'notch1',
@@ -203,10 +213,6 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
           { value: 2, display: '2' },
         ],
         default: 1,
-      },
-      {
-        name: 'padding',
-        default: 1000,
       },
     ],
   )

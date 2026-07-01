@@ -1,9 +1,10 @@
-import { pairs, reduceIntervals } from '/js/utils.js'
+import { pairs, reduceIntervals, enumerate, crossProduct } from '/js/utils.js'
 import { Point, Vector, Line, Point2DOrigin } from '/js/geometry.js'
 import { average, quadratic, cubic } from '/js/math.js'
 import { BBox, bboxFromPointCloud } from '/js/bbox.js'
 
 const THRESHOLD = 1 // used to determine the length of Bezier curves
+const DELTA_DERIVATIVE = 0.01
 
 class StraightStroke {
   constructor(from, to) {
@@ -103,7 +104,7 @@ class StraightStroke {
     }
     ts.push(0, 1)
     ts.sort((a, b) => a - b)
-    let intervals = reduceIntervals(ts, (t) => bbox.inside(this.at(midpoint)))
+    let intervals = reduceIntervals(ts, (t) => bbox.inside(this.at(t)))
     return intervals.map(([a, b]) => new StraightStroke(this.at(a), this.at(b)))
 
     // for (let [a, b] of pairs(ts)) {
@@ -113,6 +114,10 @@ class StraightStroke {
     //   }
     // }
     // return []
+  }
+
+  tangentAt(t) {
+    return this.from.vectTo(this.to).unit() // tangent is constant to t for a straight stroke
   }
 
   bbox() {
@@ -214,13 +219,13 @@ class QuadraticBezier {
       }
     }
 
-    if (ts.length == 0) {
-      // appears that the bezier doesn't intersect the boundary of the box
-      return []
-    }
+    // if (ts.length == 0) {
+    //   // appears that the bezier doesn't intersect the boundary of the box
+    //   return []
+    // }
     ts.push(0, 1)
     ts.sort((a, b) => a - b)
-    return reduceIntervals(ts, (t) => bbox.inside(this.at(c))).map(([a, b]) =>
+    return reduceIntervals(ts, (t) => bbox.inside(this.at(t))).map(([a, b]) =>
       this.subsection(a, b),
     )
   }
@@ -257,6 +262,20 @@ class QuadraticBezier {
       new StraightStroke(this.from, this.c1).at(t),
       new StraightStroke(this.c1, this.to).at(t),
     ).at(t)
+  }
+
+  tangentAt(t) {
+    let p1 = this.at(t)
+    let p2 = this.at(t + DELTA_DERIVATIVE)
+    let vect = p1.vectTo(p2).unit()
+    // console.log('tangent vect', vect)
+    return vect
+    // if (Math.abs(t - 1) < THRESHOLD) {
+    //   return this.c1.vectTo(this.to)
+    // }
+    // let a1 = new StraightStroke(this.from, this.c1).at(t)
+    // let a2 = new StraightStroke(this.c1, this.to).at(t)
+    // let b = new StraightStroke(a1, a2).at(t).vectTo(a2).mult(10)
   }
 
   // return two quadratic bezier curves, one from [0, t], the other from [t, 1]
@@ -418,10 +437,10 @@ class CubicBezier {
       }
     }
 
-    if (ts.length == 0) {
-      // appears that the bezier doesn't intersect the boundary of the box
-      return []
-    }
+    // if (ts.length == 0) {
+    //   // appears that the bezier doesn't intersect the boundary of the box
+    //   return []
+    // }
     ts.push(0, 1)
     ts.sort((a, b) => a - b)
     return reduceIntervals(ts, (t) => bbox.inside(this.at(t))).map(([a, b]) =>
@@ -441,6 +460,23 @@ class CubicBezier {
     let b1 = new StraightStroke(a1, a2).at(t)
     let b2 = new StraightStroke(a2, a3).at(t)
     return new StraightStroke(b1, b2).at(t)
+  }
+
+  tangentAt(t) {
+    let p1 = this.at(t)
+    let p2 = this.at(t + DELTA_DERIVATIVE)
+    let vect = p1.vectTo(p2).unit()
+    // console.log('tangent vect', vect)
+    return vect
+    // if (Math.abs(t - 1) < THRESHOLD) {
+    //   return this.c2.vectTo(this.to)
+    // }
+    // let a1 = new StraightStroke(this.from, this.c1).at(t)
+    // let a2 = new StraightStroke(this.c1, this.c2).at(t)
+    // let a3 = new StraightStroke(this.c2, this.to).at(t)
+    // let b1 = new StraightStroke(a1, a2).at(t)
+    // let b2 = new StraightStroke(a2, a3).at(t)
+    // return new StraightStroke(b1, b2).at(t).vectTo(b2)
   }
 
   // return two cubic bezier curves, one from [0, t], the other from [t, 1]
@@ -554,6 +590,7 @@ class CompositeCurve {
         throw `Composite Curve called with non-connected segments`
       }
     }
+    let curves = []
     for (let curve of args) {
       if (
         ![
@@ -567,8 +604,14 @@ class CompositeCurve {
         console.trace()
         throw `CompositeCurve got unexpected argument ${curve.type}`
       }
+      if (curve.type == 'CompositeCurve') {
+        curves.push(...curve.curves)
+      } else {
+        curves.push(curve)
+      }
     }
-    this.curves = args
+
+    this.curves = curves
     this.type = 'CompositeCurve'
   }
 
@@ -587,7 +630,11 @@ class CompositeCurve {
       console.trace()
       throw `Adding a new curve that is not continuous ${curve.d()}`
     }
-    this.curves.push(curve)
+    if (curve.type == 'CompositeCurve') {
+      this.curves.push(...curve.curves)
+    } else {
+      this.curves.push(curve)
+    }
   }
 
   // prepend a curve segment to the front of the list. The segment's endpoint must match the startpoint of the composite curve
@@ -626,6 +673,16 @@ class CompositeCurve {
     let miniT = (t * this.curves.length) % 1
     // console.log('this.curves[i]', this.curves[i])
     return this.curves[i].at(miniT)
+  }
+
+  tangentAt(t) {
+    if (this.curves.length == 0) {
+      return null
+    }
+    let i = Math.floor(t * this.curves.length)
+    let miniT = (t * this.curves.length) % 1
+    // console.log('this.curves[i]', this.curves[i])
+    return this.curves[i].tangentAt(miniT)
   }
 
   // given a line, return the list of t-values of it intersecting with the composite curve
@@ -764,6 +821,16 @@ class CompositeCurve {
     let clipped = []
     for (let component of this.curves) {
       let result = component.clip(bbox)
+      console.log(
+        'composite clipping',
+        component,
+        component.startpoint(),
+        component.endpoint(),
+        result,
+        result.length,
+        result.map((c) => [c.startpoint(), c.endpoint()]),
+        bbox,
+      )
       clipped.push(...result)
     }
     // join continuous elements back together
@@ -791,13 +858,25 @@ class CompositeCurve {
     if (current != null) {
       joined.push(current)
     }
-    return joined // the result will be a list of curves (some primitive, some composite curves), each disjoint
+    if (joined[0].startpoint().same(joined[joined.length - 1].endpoint())) {
+      console.log(
+        'joining endpoints!',
+        joined,
+        joined.map((c) => [c.startpoint(), c.endpoint()]),
+        joined[0],
+        joined[joined.length - 1],
+      )
+      joined[0] = new CompositeCurve(joined[joined.length - 1], joined[0])
+      joined.splice(joined.length - 1, 1) //remove the last item, it has been merged with the first one
+    }
+    // the result will be a list of curves (some primitive, some composite curves), each disjoint
+    return joined
   }
 
   length() {
     let sum = 0
     for (let chunk of this.curves) {
-      // console.log('chunk', chunk)
+      console.log('chunk', chunk)
       sum += chunk.length()
     }
     return sum
@@ -822,22 +901,16 @@ class CompositeCurve {
 }
 
 class ClosedCurve {
-  constructor(curve, minus) {
-    // console.log('closed', curve)
+  constructor(curve) {
     if (!curve.closed()) {
-      throw `ClosedCurve got non-closed primary component`
+      throw `ClosedCurve got non-closed curve`
     }
-    for (let m of minus) {
-      // console.log('minus', m)
-      if (!m.closed()) {
-        throw `ClosedCurve got non-closed minus component`
-      }
-    }
-    this.curve = curve // the basic "positive curve"
-    // closed curves that should be removed from the current one. They usually are completely contained inside the closed curve
-    // note that doubly nested minus curves will result in the inner one being filled, using fill-rule="evenodd"
-    this.minus = minus
+    this.curve = curve
     this.type = 'ClosedCurve'
+  }
+
+  at(t) {
+    return this.curve.at(t)
   }
 
   bbox() {
@@ -845,7 +918,129 @@ class ClosedCurve {
   }
 
   closed() {
-    // true by definition of it being a ClosedCurve
+    return true // true by definition
+  }
+
+  inside(point) {
+    return this.curve.inside(point)
+  }
+
+  // return true if the closed curve curves counter-clockwise, false if clockwise
+  isCounterClockwise() {
+    const t = 0.34
+    // for (let curve of this.curve.curves) {
+    //   console.log('curve', curve)
+    //   console.log('tangent', curve.tangentAt(t))
+    // }
+    // console.log('')
+    // console.log(
+    //   'directions',
+    //   this.curve.curves.map((curve) =>
+    //     this.inside(curve.at(t).addVect(curve.tangentAt(t).perp().withLength(2))),
+    //   ),
+    //   this.curve.curves.map((curve) =>
+    //     this.inside(curve.at(t).addVect(curve.tangentAt(t).perp().withLength(-2))),
+    //   ),
+    // )
+    let val = this.curve.curves
+      .map((curve) => this.inside(curve.at(t).addVect(curve.tangentAt(t).perp().withLength(-2))))
+      .filter((v) => v).length
+    console.log(`isCounterClockwise got ${val}/${this.curve.curves.length}`)
+    // if (val > this.curve.curves.length - 2) {
+    //   return true
+    // } else if (val < 2) {
+    //   return false
+    // }
+
+    // throw `isCounterClockwise got inconclusive results ${val}/${this.curve.curves.length}`
+    return val > this.curve.curves.length / 2
+  }
+
+  debugCounterClockwisePoints() {
+    const t = 0.34
+    let tangents = this.curve.curves.map(
+      (curve) => new StraightStroke(curve.at(t), curve.at(t).addVect(curve.tangentAt(t).mult(5))),
+    )
+    let tangentPerps = this.curve.curves.map(
+      (curve) =>
+        new StraightStroke(curve.at(t), curve.at(t).addVect(curve.tangentAt(t).perp().mult(5))),
+    )
+    let points = this.curve.curves.map((curve) =>
+      curve.at(t).addVect(curve.tangentAt(t).perp().withLength(2)),
+    )
+    let annotatedPoints = points.map((pt) => ({ pt, inside: this.inside(pt) }))
+    let contours = this.curve.curves.map((curve) => curve.contour())
+    console.log('contours', contours)
+    return {
+      tangents,
+      tangentPerps,
+      annotatedPoints,
+      contours,
+    }
+  }
+
+  reverse() {
+    return new ClosedCurve(this.curve.reverse())
+  }
+
+  // return a copy of the curve that is counter-clockwise, including all of the minuses being clockwise
+  counterClockwise() {
+    return this.isCounterClockwise() ? this : this.reverse()
+  }
+
+  clockwise() {
+    return this.isCounterClockwise() ? this.reverse() : this
+  }
+
+  intersectLineU(line) {
+    return this.curve.intersectLineU(line)
+  }
+
+  // clip the closed curve to the bbox, return the components (may be non-closed)
+  clipComponents(bbox) {
+    if (bbox.boxInside(this.bbox())) {
+      // nothing to clip
+      return [this]
+    }
+    // the returned clipped curves should either be closed, or their start and endpoints lie on the perimeter of bbox
+    let ret = this.curve.clip(bbox)
+    for (let r of ret) {
+      console.log('comp', this, r, r.type)
+      // console.log('clipped component', this, r, r.closed(), r.startpoint(), r.endpoint(), bbox)
+    }
+    return ret
+  }
+
+  d() {
+    return this.curve.d()
+  }
+}
+
+class ClosedCurveWithMinus {
+  constructor(curve, minus) {
+    // console.log('closed', curve)
+    if (curve.type != 'ClosedCurve') {
+      throw `ClosedCurve got a non-ClosedCurve argument ${curve.type}`
+    }
+    for (let m of minus) {
+      // console.log('minus', m)
+      if (m.type != 'ClosedCurveWithMinus') {
+        throw `ClosedCurve got a non-ClosedCurveWithMinus minus component ${m.type}`
+      }
+    }
+    this.curve = curve // the basic "positive curve"
+    // closed curves that should be removed from the current one. They usually are completely contained inside the closed curve
+    // note that doubly nested minus curves will result in the inner one being filled, using fill-rule="evenodd"
+    this.minus = minus
+    this.type = 'ClosedCurveWithMinus'
+  }
+
+  bbox() {
+    return this.curve.bbox()
+  }
+
+  closed() {
+    // true by definition of it being a ClosedCurveWithMinus
     return true
   }
 
@@ -861,6 +1056,26 @@ class ClosedCurve {
     return true
   }
 
+  // return a copy of the curve that is counter-clockwise, including all of the minuses being clockwise
+  counterClockwise() {
+    let minuses = this.minus.map((minus) => minus.clockwise())
+    return new ClosedCurveWithMinus(this.curve.counterClockwise(), minuses)
+  }
+
+  clockwise() {
+    let minuses = this.minus.map((minus) => minus.counterClockwise()) // minuses need to oriented in reverse, i.e. clounter clockwise
+    return new ClosedCurveWithMinus(this.curve.clockwise(), minuses)
+  }
+
+  // gather all of the closed curves together, walking through the full minus-tree of this component
+  allComponents() {
+    let components = [this.curve]
+    for (let minus of this.minus) {
+      components.push(...minus.allComponents())
+    }
+    return components
+  }
+
   // fill fills the closed curve with parallel lines, all at 'directionDeg' angle (degrees)
   fill(gap, directionDeg) {
     let vect = new Vector(1, 0).rotateDeg(directionDeg).mult(gap)
@@ -871,22 +1086,17 @@ class ClosedCurve {
       .corners()
       .map((corner) => perpLine.pointProjectionTValue(corner))
     tValues.sort((a, b) => a - b)
-    // console.log('tvalues', tValues)
     let allCurves = [this.curve, ...this.minus]
     let lines = []
     for (let i = tValues[0]; i < tValues[tValues.length - 1]; i++) {
       let line = new Line(perpLine.at(i), vect)
-      // console.log('at i', i, 'line', line)
       let tvalues = []
       for (let curve of allCurves) {
-        // console.log('intersectLineU', curve, line)
         tvalues.push(...curve.intersectLineU(line))
       }
       tvalues.sort((a, b) => a - b)
-      // console.log('intersection t values', tvalues)
       let intervals = reduceIntervals(tvalues, (t) => {
         let midpoint = line.at(t)
-        // console.log('this.minus', this.minus)
         return this.curve.inside(midpoint) && !this.minus.some((c) => c.inside(midpoint))
       })
       for (let [t1, t2] of intervals) {
@@ -895,10 +1105,11 @@ class ClosedCurve {
         lines.push(new StraightStroke(p1, p2))
       }
     }
-    // console.log('fill returning lines', lines)
     return lines
   }
 
+  // TODO: remove
+  // used in experimentation.html to debug fill logic, may be removed later
   fillDebug(gap, directionDeg) {
     let vect = new Vector(1, 0).rotateDeg(directionDeg).mult(gap)
     let perpVect = vect.perp()
@@ -961,13 +1172,248 @@ class ClosedCurve {
 
   clip(bbox) {
     // TODO: filter out empty curves. note that this could split the main curve into multiple
-    let minuses = this.minus.map((curve) => curve.clip(bbox)).flat()
-
-    let clipped = this.curve.clip(bbox)
-    if (clipped.length == 1) {
-      return [new ClosedCurve(clipped[0], minuses)]
+    if (bbox.boxInside(this.bbox())) {
+      // nothing to clip
+      return [this]
     }
-    throw `ClosedCurve.clip returned unexpected number of elements ${clipped.length}`
+    let curveClip = this.curve.clipComponents(bbox)
+    if (curveClip.length == 1 && curveClip[0].type == 'ClosedCurve') {
+      // main curve was not clipped, so the minus curves are also preserved, the curve is not affected
+      return [this]
+    }
+    let counterClockwise = this.counterClockwise()
+    console.log('counterClockwise', counterClockwise)
+    let components = counterClockwise.allComponents()
+    console.log(
+      'components',
+      components.map((c) => c.type),
+    )
+    // let minuses = [] // closed clipped versions of minus, these were not clipped at all
+    // let elements = []
+    // for (let minus of counterClockwise.minus) {
+    //   let clip = curve.clip(bbox)
+    //   if (clip.length == 1) {
+    //     minuses.push(clip[0])
+    //   }
+    // }
+    // let minuses = counterClockwise.minus.map((curve) => curve.clip(bbox)).flat()
+
+    // let clipped = counterClockwise.curve.clip(bbox)
+    // if (clipped.length == 1) {
+    //   // main curve is completely inside the bbox,
+    //   return [new ClosedCurve(clipped[0], minuses)]
+    // }
+    let bits = []
+    // all the clipped components should have their endpoints on the perimeter of the bbox
+    for (let component of components) {
+      console.log('component', component)
+      let clipped = component.clipComponents(bbox)
+      bits.push(...clipped)
+    }
+    console.log(
+      'bits',
+      bits,
+      bits.map((b) => b.type),
+    )
+    let closed = bits.filter((bit) => bit.closed && bit.closed())
+    let open = bits.filter((bit) => !(bit.closed && bit.closed()))
+    if (open.length + closed.length != bits.length) {
+      throw `Open and closed curves don't add up ${closed.length} ${open.length} ${bits.length}`
+    }
+    // console.log(
+    //   'clipped',
+    //   clipped,
+    //   clipped.map((curve) => (curve.type == 'CompositeCurve' ? curve.closed() : false)),
+    // )
+    // let processed = {}
+    let startpoints = []
+    for (let [i, curve] of enumerate(open)) {
+      // processed[i] = false
+      console.log('open curve', open[i], open[i].startpoint(), open[i].endpoint())
+      startpoints.push([bbox.perimeterPointT(open[i].startpoint()), i])
+    }
+    startpoints.sort(([a, aID], [b, bID]) => a - b)
+
+    // open = enumerate(open)
+    let unprocessed = {}
+    for (let [id, elt] of enumerate(open)) {
+      unprocessed[id] = elt
+    }
+    while (Object.keys(unprocessed).length > 0) {
+      let id = Object.keys(unprocessed)[0]
+      let component = unprocessed[id]
+      let curve = new CompositeCurve(component)
+
+      while (!curve.closed() && Object.keys(unprocessed).length > 0 && startpoints.length > 0) {
+        // find the startpoint of a non-processed curve whose t-value comes after the t-value of this endpoint
+        let endpoint = curve.endpoint()
+        let endpointT = bbox.perimeterPointT(endpoint)
+        let t
+        let nextComponentID
+        console.log('startpoints', startpoints, unprocessed, curve, curve.closed())
+        let filtered = startpoints.filter(([a, id]) => a > endpointT)
+        if (filtered.length > 0) {
+          ;[t, nextComponentID] = filtered[0]
+        } else {
+          ;[t, nextComponentID] = startpoints[0]
+        }
+        curve.add(bbox.perimeterPath(endpointT, t))
+        let nextComponent = unprocessed[nextComponentID]
+        curve.add(nextComponent)
+        // processed[i] = true
+        delete unprocessed[id]
+        startpoints = startpoints.filter(([a, id]) => unprocessed[id])
+        ;[id, component] = [nextComponentID, nextComponent]
+      }
+      if (id in unprocessed) {
+        delete unprocessed[id]
+      }
+      closed.push(curve)
+    }
+
+    return nestClosedCurves(closed.filter((curve) => curve.closed && curve.closed()))
+  }
+
+  clipDebug(bbox) {
+    // TODO: filter out empty curves. note that this could split the main curve into multiple
+    if (bbox.boxInside(this.bbox())) {
+      // nothing to clip
+      return [this]
+    }
+    let curveClip = this.curve.clipComponents(bbox)
+    if (curveClip.length == 1 && curveClip[0].type == 'ClosedCurve') {
+      // main curve was not clipped, so the minus curves are also preserved, the curve is not affected
+      return [this]
+    }
+    let counterClockwise = this.counterClockwise()
+    console.log('counterClockwise', counterClockwise)
+    let components = counterClockwise.allComponents()
+    console.log(
+      'components',
+      components.map((c) => c.type),
+    )
+    // let minuses = [] // closed clipped versions of minus, these were not clipped at all
+    // let elements = []
+    // for (let minus of counterClockwise.minus) {
+    //   let clip = curve.clip(bbox)
+    //   if (clip.length == 1) {
+    //     minuses.push(clip[0])
+    //   }
+    // }
+    // let minuses = counterClockwise.minus.map((curve) => curve.clip(bbox)).flat()
+
+    // let clipped = counterClockwise.curve.clip(bbox)
+    // if (clipped.length == 1) {
+    //   // main curve is completely inside the bbox,
+    //   return [new ClosedCurve(clipped[0], minuses)]
+    // }
+    let bits = []
+    // all the clipped components should have their endpoints on the perimeter of the bbox
+    for (let component of components) {
+      console.log('component', component)
+      let clipped = component.clipComponents(bbox)
+      bits.push(...clipped)
+    }
+    let debugClip = components[0].curve.curves
+    let debugBits = components[0].curve.curves.map((curve) => curve.clip(bbox)).flat()
+    let debugBits2 = components[0].curve.clip(bbox)
+
+    // console.log('bits', bit)
+
+    console.log(
+      'bits',
+      bits,
+      debugBits,
+      bits.map((b) => b.type),
+    )
+    let closed = bits.filter((bit) => bit.closed && bit.closed())
+    let closedBits = [...closed]
+    let open = bits.filter((bit) => !(bit.closed && bit.closed()))
+    let openBits = [...open]
+    if (open.length + closed.length != bits.length) {
+      throw `Open and closed curves don't add up ${closed.length} ${open.length} ${bits.length}`
+    }
+    // return {
+    //   answer: [],
+    //   bits,
+    //   debugClip,
+    //   debugBits,
+    //   debugBits2,
+    //   closed,
+    //   closedBits,
+    //   openBits,
+    // }
+    // console.log(
+    //   'clipped',
+    //   clipped,
+    //   clipped.map((curve) => (curve.type == 'CompositeCurve' ? curve.closed() : false)),
+    // )
+    // let processed = {}
+    let startpoints = []
+    for (let [i, curve] of enumerate(open)) {
+      // processed[i] = false
+      console.log('open curve', open[i], open[i].startpoint(), open[i].endpoint())
+      startpoints.push([bbox.perimeterPointT(open[i].startpoint()), i])
+    }
+    startpoints.sort(([a, aID], [b, bID]) => a - b)
+
+    // open = enumerate(open)
+    let unprocessed = {}
+    for (let [id, elt] of enumerate(open)) {
+      unprocessed[id] = elt
+    }
+    while (Object.keys(unprocessed).length > 0) {
+      let id = Object.keys(unprocessed)[0]
+      let startID = id
+      let component = unprocessed[id]
+      let curve = new CompositeCurve(component)
+
+      while (!curve.closed() && Object.keys(unprocessed).length > 0 && startpoints.length > 0) {
+        // find the startpoint of a non-processed curve whose t-value comes after the t-value of this endpoint
+        let endpoint = curve.endpoint()
+        let endpointT = bbox.perimeterPointT(endpoint)
+        let t
+        let nextComponentID
+        console.log('startpoints', startpoints, unprocessed, curve, curve.closed())
+        let filtered = startpoints.filter(([a, id]) => a > endpointT)
+        if (filtered.length > 0) {
+          ;[t, nextComponentID] = filtered[0]
+        } else {
+          ;[t, nextComponentID] = startpoints[0]
+        }
+        console.log('perimeter path', bbox.perimeterPath(endpointT, t))
+        curve.add(bbox.perimeterPath(endpointT, t))
+        console.log('curve after adding perimeter path', curve.curves[curve.curves.length - 1])
+        let nextComponent = unprocessed[nextComponentID]
+        if (nextComponentID != startID) {
+          curve.add(nextComponent)
+          console.log('curve added another component', nextComponentID, startID)
+        }
+        // processed[i] = true
+        delete unprocessed[id]
+        startpoints = startpoints.filter(([a, id]) => unprocessed[id])
+        ;[id, component] = [nextComponentID, nextComponent]
+      }
+      if (id in unprocessed) {
+        delete unprocessed[id]
+      }
+      closed.push(curve)
+    }
+
+    let trueClosed = closed
+      .filter((curve) => curve.closed && curve.closed())
+      .map((curve) => new ClosedCurve(curve))
+
+    let answer = nestClosedCurves(trueClosed).flat()
+    // let answer = []
+
+    return {
+      answer,
+      bits,
+      closed,
+      closedBits,
+      openBits,
+    }
   }
 
   d() {
@@ -975,6 +1421,64 @@ class ClosedCurve {
     let minusString = this.minus.map((m) => m.d()).join(' ')
     return this.curve.d() + ' ' + minusString
   }
+}
+
+// given an array of closed, non-intersecting curves, return an array of ClosedCurvesWithMinus,
+// such that each closed curve appears in one of the trees, and they are properly nested
+function nestClosedCurves(curves) {
+  // let curves = continuousTruchetCurves.filter((curve) => curve.closed())
+  if (curves.some((curve) => curve.type != 'ClosedCurve')) {
+    throw `nestClosedCurves got non-closed element (${curves.map((curve) => curve.type)})`
+  }
+  // if (curves.some((curve) => !curve.closed())) {
+  //   throw `nestClosedCurves got non-closed element`
+  // }
+  const t = 0.34 // t-value to check for inside-ness. This should be neither 0 nor 1 to avoid edge cases with inside floating point math
+  let ancestors = {}
+  let descendants = {}
+  let children = {}
+  let depth = {}
+  for (let [i, c] of enumerate(curves)) {
+    ancestors[i] = []
+    descendants[i] = []
+    children[i] = []
+  }
+  for (let [[a, curveA], [b, curveB]] of crossProduct(enumerate(curves))) {
+    if (curveB.bbox().boxInside(curveA.bbox()) && curveB.inside(curveA.at(t))) {
+      // get at 0.34 to not coincide with boundaries
+      // curveA is a descendant of curveB
+      descendants[b].push(a)
+      ancestors[a].push(b)
+    } else if (curveA.bbox().boxInside(curveB.bbox()) && curveA.inside(curveB.at(t))) {
+      // get at 0.35 to not fall on a boundary
+      // curveB is a descendant of curveA
+      descendants[a].push(b)
+      ancestors[b].push(a)
+    }
+  }
+
+  for (let [i, curve] of enumerate(curves)) {
+    if (ancestors[i].length > 0) {
+      let depth = ancestors[i].length
+      for (let j of ancestors[i]) {
+        if (ancestors[j].length == depth - 1) {
+          children[j].push(i)
+        }
+      }
+    }
+  }
+  let closed = curves.map((curve) => new ClosedCurveWithMinus(curve, []))
+  for (let [i, curve] of enumerate(closed)) {
+    for (let childID of children[i]) {
+      curve.minus.push(closed[childID])
+    }
+  }
+
+  let topLevel = enumerate(closed)
+    .filter(([i, curve]) => ancestors[i].length == 0)
+    .map(([i, curve]) => curve)
+
+  return topLevel
 }
 
 function rayLineRayCurve(r1, line, r2) {
@@ -1129,8 +1633,10 @@ export {
   CircleArc,
   CompositeCurve,
   ClosedCurve,
+  ClosedCurveWithMinus,
   CurveSet,
   Polygon,
   rayLineRayCurve,
   compositeQuadraticBezier,
+  nestClosedCurves,
 }

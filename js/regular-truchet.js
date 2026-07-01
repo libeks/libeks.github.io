@@ -16,6 +16,7 @@ import {
   CompositeCurve,
   rayLineRayCurve,
   ClosedCurve,
+  nestClosedCurves,
 } from '/js/lines.js'
 import { VertexGrid } from '/js/grid.js'
 import { Random } from '/js/random.js'
@@ -392,10 +393,6 @@ class CatalanFragment {
     this.type = 'CatalanFragment'
   }
 
-  // get type() {
-  //   return 'CatalanFragment'
-  // }
-
   d() {
     return this.line.d()
   }
@@ -426,6 +423,15 @@ class CatalanFragment {
 
   at(t) {
     return this.line.at(t)
+  }
+
+  length() {
+    return this.line.length()
+  }
+
+  tangentAt(t) {
+    console.log('this.line', this.line)
+    return this.line.tangentAt(t)
   }
 
   reverse() {
@@ -574,52 +580,10 @@ function generateTruchetGrid(grid, random, notches, size) {
   }
 
   function closedTruchetCurves(continuousTruchetCurves) {
-    let curves = continuousTruchetCurves.filter((curve) => curve.closed())
-    let ancestors = {}
-    let descendants = {}
-    let children = {}
-    let depth = {}
-    for (let [i, c] of enumerate(curves)) {
-      ancestors[i] = []
-      descendants[i] = []
-      children[i] = []
-    }
-    for (let [[a, curveA], [b, curveB]] of crossProduct(enumerate(curves))) {
-      if (curveB.bbox().boxInside(curveA.bbox()) && curveB.inside(curveA.at(0.34))) {
-        // get at 0.34 to not coincide with boundaries
-        // curveA is a descendant of curveB
-        descendants[b].push(a)
-        ancestors[a].push(b)
-      } else if (curveA.bbox().boxInside(curveB.bbox()) && curveA.inside(curveB.at(0.34))) {
-        // get at 0.35 to not fall on a boundary
-        // curveB is a descendant of curveA
-        descendants[a].push(b)
-        ancestors[b].push(a)
-      }
-    }
-
-    for (let [i, curve] of enumerate(curves)) {
-      if (ancestors[i].length > 0) {
-        let depth = ancestors[i].length
-        for (let j of ancestors[i]) {
-          if (ancestors[j].length == depth - 1) {
-            children[j].push(i)
-          }
-        }
-      }
-    }
-    let closed = curves.map((curve) => new ClosedCurve(curve, []))
-    for (let [i, curve] of enumerate(closed)) {
-      for (let childID of children[i]) {
-        curve.minus.push(closed[childID])
-      }
-    }
-
-    let topLevel = enumerate(closed)
-      .filter(([i, curve]) => ancestors[i].length == 0)
-      .map(([i, curve]) => curve)
-
-    return topLevel
+    let curves = continuousTruchetCurves
+      .filter((curve) => curve.closed())
+      .map((curve) => new ClosedCurve(curve))
+    return nestClosedCurves(curves)
   }
 
   let continuousCurves = continuousTruchetCurves(curveFragmentsByNgons, neighborNGonIDs)

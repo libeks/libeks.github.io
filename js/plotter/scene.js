@@ -50,7 +50,6 @@ class Scene {
     this.parameterFn = parameterFn
     this.options = options
 
-    // console.log('options', options)
     for (let option of options) {
       this.configs[option.name] = option.default
     }
@@ -72,9 +71,6 @@ class Scene {
         if (!('curves' in layer)) {
           layer.curves = []
         }
-        // if (!('fill' in layer)) {
-        //   layer.fill = []
-        // }
         let curves = []
         let fill = []
 
@@ -85,7 +81,6 @@ class Scene {
           }
           layer.curves = curves
           if (layer.fill) {
-            // console.log('layer.fill', layer.fill)
             for (let curve of layer.fill.curves) {
               let clipped = curve.clip(bbox)
               fill.push(...clipped)
@@ -95,7 +90,6 @@ class Scene {
         }
       }
     }
-    // console.log('layers', layers)
     this.layers = layers
     this.fill()
     return this

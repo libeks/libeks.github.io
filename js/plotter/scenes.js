@@ -220,25 +220,42 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
     let curves = [0, 1, 2].map((seed) =>
       generateTruchetGrid(template.tilingFaces, new Random(seed), template.notches, template.size),
     )
+    console.log('scene curves', curves)
+    for (let curve of curves) {
+      console.log(
+        'curve xyz',
+        curve,
+        // curve.closedCurves.map((c) => c.curve.curve),
+        curve.closedCurves.map((c) => c.curve.curve.isContinousDebug()),
+        curve.closedCurves.some((c) => c.curve.curve.isContinousDebug()),
+      )
+
+      if (curve.closedCurves.some((c) => !c.curve.curve.isContinousDebug())) {
+        throw `TricolorFillTiling has noncontinuous fill curves`
+      }
+    }
+    let c = curves[1].closedCurves[3]
+    console.log('curves[3]', c.curve.curve.isContinousDebug(), c)
     return {
       edges: {
         curves: vertexListsToLines(template.grid.faces.map((face) => face.ngon.vertices)),
         color: 'black',
         pen: pens.CrayolaSuperTips,
       },
-      fill1: {
-        curves: curves[0].continuousCurves,
-        fill: {
-          curves: curves[0].closedCurves,
-          direction: 20,
-          spacing: 70,
-        },
-        color: 'yellow',
-        pen: pens.CrayolaSuperTips,
-        dontOptimize: true,
-      },
+      // fill1: {
+      //   curves: curves[0].continuousCurves,
+      //   fill: {
+      //     curves: curves[0].closedCurves,
+      //     direction: 20,
+      //     spacing: 70,
+      //   },
+      //   color: 'yellow',
+      //   pen: pens.CrayolaSuperTips,
+      //   dontOptimize: true,
+      // },
       fill2: {
         curves: curves[1].continuousCurves,
+        // curves: [],
         fill: {
           curves: curves[1].closedCurves,
           direction: 80,
@@ -248,17 +265,17 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         pen: pens.CrayolaSuperTips,
         dontOptimize: true,
       },
-      fill3: {
-        curves: curves[2].continuousCurves,
-        // fill: {
-        //   curves: curves[2].closedCurves,
-        //   direction: 140,
-        //   spacing: 70,
-        // },
-        color: 'magenta',
-        pen: pens.CrayolaSuperTips,
-        dontOptimize: true,
-      },
+      // fill3: {
+      //   curves: curves[2].continuousCurves,
+      //   // fill: {
+      //   //   curves: curves[2].closedCurves,
+      //   //   direction: 140,
+      //   //   spacing: 70,
+      //   // },
+      //   color: 'magenta',
+      //   pen: pens.CrayolaSuperTips,
+      //   dontOptimize: true,
+      // },
     }
   })
 

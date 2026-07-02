@@ -105,7 +105,8 @@ class Layer {
         }
       }
       let candidate = toProcess[candidateIdx]
-      toProcess.splice(candidateIdx, 1)
+      // toProcess.splice(candidateIdx, 1)
+      toProcess = [...toProcess.slice(0, candidateIdx - 1), ...toProcess.slice(candidateIdx + 1)]
       curves.push(candidate)
     }
     this.curves = curves.map(({ curve }) => curve)

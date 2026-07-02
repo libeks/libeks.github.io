@@ -1,5 +1,14 @@
 import { Point, Line, Ray } from '/js/geometry.js'
-import { reversed, shift, rightShift, zip, enumerate, range, crossProduct } from '/js/utils.js'
+import {
+  reversed,
+  shift,
+  rightShift,
+  zip,
+  enumerate,
+  range,
+  crossProduct,
+  pairs,
+} from '/js/utils.js'
 import { degToRad, radToDeg, distance, randomInt } from '/js/math.js'
 import { getPairs } from '/js/triangular-tiles.js'
 import { Triangulation } from '/js/catalan-structures.js'
@@ -576,6 +585,14 @@ function generateTruchetGrid(grid, random, notches, size) {
       // the curve is completed, i.e. it is closed, or we cannot make any progress on the curve
       curves.push(aggregate)
     }
+    console.log(
+      'libex curves',
+      curves,
+      curves.map((curve) => curve.isContinousDebug()),
+    )
+    if (curves.some((curve) => !curve.isContinousDebug())) {
+      throw `continuousTruchetCurves returning a non-continuous element`
+    }
     return curves
   }
 
@@ -588,6 +605,15 @@ function generateTruchetGrid(grid, random, notches, size) {
 
   let continuousCurves = continuousTruchetCurves(curveFragmentsByNgons, neighborNGonIDs)
   let closedCurves = closedTruchetCurves(continuousCurves)
+  console.log(
+    'continuousCurves',
+    continuousCurves,
+    continuousCurves.every((curve) => curve.isContinousDebug()),
+    'closedCurves',
+    closedCurves,
+    closedCurves.every((curve) => curve.curve.curve.isContinousDebug()),
+  )
+  // console.log('continuous abc', closedCurves[0].curve.curve.isContinousDebug())
   return {
     continuousCurves,
     closedCurves,

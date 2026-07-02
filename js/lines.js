@@ -586,10 +586,10 @@ class CompositeCurve {
 
   constructor(...args) {
     // console.log('args', args)
-    console.log(
-      'Composite curve continuous',
-      pairs(args).map(([a, b]) => a.endpoint().same(b.startpoint())),
-    )
+    // console.log(
+    //   'Composite curve continuous',
+    //   pairs(args).map(([a, b]) => a.endpoint().same(b.startpoint())),
+    // )
     for (let [a, b] of pairs(args)) {
       // console.log('a,b', a.endpoint(), b.endpoint())
 
@@ -725,7 +725,7 @@ class CompositeCurve {
     // console.log('intersections after removing negatives', intersections)
     // return intersections.length % 2 == 1 // TODO: detect identical or close-enough t-values
     let inside = intersections.length % 2 == 1
-    console.log('ts', intersections)
+    // console.log('ts', intersections)
     return {
       inside,
       intersections: intersections.map((t) => line.at(t)),
@@ -878,31 +878,31 @@ class CompositeCurve {
       return joined
     }
     if (joined[0].startpoint().same(joined[joined.length - 1].endpoint())) {
-      console.log(
-        'joining endpoints!',
-        joined,
-        joined.map((c) => [c.startpoint(), c.endpoint()]),
-        joined[0],
-        joined[joined.length - 1],
-      )
+      // console.log(
+      //   'joining endpoints!',
+      //   joined,
+      //   joined.map((c) => [c.startpoint(), c.endpoint()]),
+      //   joined[0],
+      //   joined[joined.length - 1],
+      // )
       // joined[0] = new CompositeCurve(joined[joined.length - 1], joined[0])
       // joined.splice(joined.length - 1, 1) //remove the last item, it has been merged with the first one
       joined = [
         new CompositeCurve(joined[joined.length - 1], joined[0]),
-        ...joined.slice(1, joined.length - 2),
+        ...joined.slice(1, joined.length - 1),
       ]
-      console.log('joined after splicing', joined)
-      console.log(
-        'clip joining',
-        pairs(joined).map(([a, b]) => a.startpoint().same(b.endpoint())),
-      )
+      // console.log('joined after splicing', joined)
+      // console.log(
+      //   'clip joining',
+      //   pairs(joined).map(([a, b]) => a.startpoint().same(b.endpoint())),
+      // )
     }
     // the result will be a list of curves (some primitive, some composite curves), each disjoint
-    console.log('clip() returning', joined)
-    console.log(
-      'ccc',
-      joined.map((curve) => curve.type != 'CompositeCurve' || curve.isContinousDebug()),
-    )
+    // console.log('clip() returning', joined)
+    // console.log(
+    //   'ccc',
+    //   joined.map((curve) => curve.type != 'CompositeCurve' || curve.isContinousDebug()),
+    // )
     return joined
   }
 
@@ -917,24 +917,24 @@ class CompositeCurve {
 
   // return a this curve reversed, such that the endpoints are flipped
   reverse() {
-    console.log(
-      'before reverse()',
-      this,
-      this.closed(),
-      pairs(this.curves).map(([a, b]) => a.endpoint().same(b.startpoint())),
-    )
+    // console.log(
+    //   'before reverse()',
+    //   this,
+    //   this.closed(),
+    //   pairs(this.curves).map(([a, b]) => a.endpoint().same(b.startpoint())),
+    // )
     // let reversed = this.curves.toReversed().map((curve) => curve.reverse())
     let partial = this.curves.map((curve) => curve.reverse())
-    console.log(
-      'partial',
-      partial,
-      pairs(partial).map(([a, b]) => a.startpoint().same(b.endpoint())),
-    )
+    // console.log(
+    //   'partial',
+    //   partial,
+    //   pairs(partial).map(([a, b]) => a.startpoint().same(b.endpoint())),
+    // )
     let reversed = this.curves.map((curve) => curve.reverse()).toReversed()
-    console.log(
-      'after reverse()',
-      pairs(reversed).map(([a, b]) => a.endpoint().same(b.startpoint())),
-    )
+    // console.log(
+    //   'after reverse()',
+    //   pairs(reversed).map(([a, b]) => a.endpoint().same(b.startpoint())),
+    // )
     let ret = new CompositeCurve(...reversed)
     // console.log('ret', ret, ret.closed())
     return ret
@@ -994,12 +994,17 @@ class ClosedCurve {
 
   debugCounterClockwisePoints() {
     const t = 0.34
+    const length = 50
     let tangents = this.curve.curves.map(
-      (curve) => new StraightStroke(curve.at(t), curve.at(t).addVect(curve.tangentAt(t).mult(5))),
+      (curve) =>
+        new StraightStroke(curve.at(t), curve.at(t).addVect(curve.tangentAt(t).mult(length))),
     )
     let tangentPerps = this.curve.curves.map(
       (curve) =>
-        new StraightStroke(curve.at(t), curve.at(t).addVect(curve.tangentAt(t).perp().mult(5))),
+        new StraightStroke(
+          curve.at(t),
+          curve.at(t).addVect(curve.tangentAt(t).perp().mult(length)),
+        ),
     )
     let points = this.curve.curves.map((curve) =>
       curve.at(t).addVect(curve.tangentAt(t).perp().withLength(2)),
@@ -1204,10 +1209,10 @@ class ClosedCurveWithMinus {
 
   clip(bbox) {
     // TODO: filter out empty curves. note that this could split the main curve into multiple
-    console.log(
-      'clip closed continuity',
-      pairs(this.curve.curve.curves).map(([a, b]) => a.endpoint().same(b.startpoint())),
-    )
+    // console.log(
+    //   'clip closed continuity',
+    //   pairs(this.curve.curve.curves).map(([a, b]) => a.endpoint().same(b.startpoint())),
+    // )
     if (bbox.boxInside(this.bbox())) {
       // nothing to clip
       return [this]
@@ -1237,26 +1242,29 @@ class ClosedCurveWithMinus {
     if (open.length + closed.length != bits.length) {
       throw `Open and closed curves don't add up ${closed.length} ${open.length} ${bits.length}`
     }
-    let startpoints = []
-    let endpoints = []
+    // let startpoints = []
+    // let endpoints = []
     let allpoints = []
     for (let [i, curve] of enumerate(open)) {
       // processed[i] = false
       // console.log('open curve', open[i], open[i].startpoint(), open[i].endpoint())
       let start = bbox.perimeterPointT(open[i].startpoint())
       let end = bbox.perimeterPointT(open[i].endpoint())
-      startpoints.push([start, i])
-      endpoints.push([end, i])
+      // startpoints.push([start, i])
+      // endpoints.push([end, i])
       allpoints.push([start, i, 'start'], [end, i, 'end'])
     }
-    startpoints.sort(([a, aID], [b, bID]) => a - b)
-    endpoints.sort(([a, aID], [b, bID]) => a - b)
+    if (allpoints.length % 2 == 1) {
+      throw `allpoints is of odd length ${allpoints.length}`
+    }
+    // startpoints.sort(([a, aID], [b, bID]) => a - b)
+    // endpoints.sort(([a, aID], [b, bID]) => a - b)
     allpoints.sort(([a, aid, at], [b, bid, bt]) => a - b)
     // console.log('start-end points', startpoints, endpoints)
-    console.log('allpoints', allpoints)
+    // console.log('allpoints', allpoints)
     for (let [[a, aid, at], [b, bid, bt]] of pairs(allpoints)) {
       if (at == bt) {
-        console.log('this', this, this.d())
+        // console.log('this', this, this.d())
         throw `Allpoints appear in non-alternating order`
       }
     }
@@ -1264,7 +1272,9 @@ class ClosedCurveWithMinus {
       // if first element is not an 'end' (i.e. it is a start), move it to the end, so that the sequence always starts with 'end'
       // allpoints.push(allpoints[allpoints.length - 1]) // add first element to the end
       // allpoints.splice(0, 1) // remove first element ('start'), it now is at the end
-      allpoints = [...allpoints.slice(1, allpoints.lenght - 1), allpoints[0]]
+      // console.log('allpoints: moving beginning to end', allpoints)
+      allpoints = [...allpoints.slice(1), allpoints[0]]
+      // console.log('allpoints2', allpoints)
     }
 
     let pairMapping = {} // mapping from the id of the endpoint to the id of the startpoint
@@ -1276,6 +1286,7 @@ class ClosedCurveWithMinus {
       pairMapping[aid] = bid
       connectors[aid] = bbox.perimeterPath(a, b)
     }
+    // console.log('pairMapping, connectors', pairMapping, connectors)
 
     let loops = []
     let processed = {}
@@ -1296,14 +1307,14 @@ class ClosedCurveWithMinus {
       loops.push(loop)
     }
 
-    console.log('loops', loops)
+    // console.log('loops', loops)
 
     for (let loop of loops) {
       let components = []
       for (let id of loop) {
         components.push(open[id], connectors[id])
       }
-      console.log('components', components)
+      // console.log('components', components)
       closed.push(new ClosedCurve(new CompositeCurve(...components)))
     }
 
@@ -1334,6 +1345,9 @@ class ClosedCurveWithMinus {
       'components',
       components.map((c) => c.type),
     )
+    if (components.length > 0) {
+      components = [components[0]]
+    }
     // let minuses = [] // closed clipped versions of minus, these were not clipped at all
     // let elements = []
     // for (let minus of counterClockwise.minus) {
@@ -1354,6 +1368,7 @@ class ClosedCurveWithMinus {
     for (let component of components) {
       console.log('component', component)
       let clipped = component.clipComponents(bbox)
+      console.log('clipped', clipped)
       bits.push(...clipped)
     }
     let debugClip = components[0].curve.curves
@@ -1367,6 +1382,7 @@ class ClosedCurveWithMinus {
       bits,
       debugBits,
       bits.map((b) => b.type),
+      bits.map((b) => b.closed && b.closed()),
     )
     let closed = bits.filter((bit) => bit.closed && bit.closed())
     let closedBits = [...closed]
@@ -1375,23 +1391,34 @@ class ClosedCurveWithMinus {
     if (open.length + closed.length != bits.length) {
       throw `Open and closed curves don't add up ${closed.length} ${open.length} ${bits.length}`
     }
-    let startpoints = []
-    let endpoints = []
+
+    // let startpoints = []
+    // let endpoints = []
     let allpoints = []
     for (let [i, curve] of enumerate(open)) {
       // processed[i] = false
       console.log('open curve', open[i], open[i].startpoint(), open[i].endpoint())
       let start = bbox.perimeterPointT(open[i].startpoint())
       let end = bbox.perimeterPointT(open[i].endpoint())
-      startpoints.push([start, i])
-      endpoints.push([end, i])
+      // startpoints.push([start, i])
+      // endpoints.push([end, i])
       allpoints.push([start, i, 'start'], [end, i, 'end'])
     }
-    startpoints.sort(([a, aID], [b, bID]) => a - b)
-    endpoints.sort(([a, aID], [b, bID]) => a - b)
+    // startpoints.sort(([a, aID], [b, bID]) => a - b)
+    // endpoints.sort(([a, aID], [b, bID]) => a - b)
     allpoints.sort(([a, aid, at], [b, bid, bt]) => a - b)
     // console.log('start-end points', startpoints, endpoints)
     console.log('allpoints', allpoints)
+    return {
+      bits,
+      components,
+      debugBits,
+      closed,
+      closedBits,
+      open,
+      openBits,
+      allpoints,
+    }
     for (let [[a, aid, at], [b, bid, bt]] of pairs(allpoints)) {
       if (at == bt) {
         throw `Allpoints appear in non-alternating order`

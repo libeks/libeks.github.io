@@ -71,6 +71,7 @@ class Layer {
     if (this.curves.length == 0) {
       return this
     }
+    console.log(`optimizing ${this.curves.length} curves`)
     let allCurves = Array.from(enumerate(this.curves).map(([i, curve]) => ({ curve, i })))
     let curves = [allCurves[0]]
     let toProcess = allCurves.slice(1)
@@ -105,12 +106,12 @@ class Layer {
         }
       }
       let candidate = toProcess[candidateIdx]
-      // toProcess.splice(candidateIdx, 1)
-      toProcess = [...toProcess.slice(0, candidateIdx - 1), ...toProcess.slice(candidateIdx + 1)]
+      toProcess.splice(candidateIdx, 1)
+      // toProcess = [...toProcess.slice(0, candidateIdx - 1), ...toProcess.slice(candidateIdx + 1)]
       curves.push(candidate)
     }
     this.curves = curves.map(({ curve }) => curve)
-
+    console.log(`done optimizing ${this.curves.length} curves`)
     return this // allow chaining
   }
 
@@ -125,7 +126,10 @@ class Layer {
   statistics() {
     // TODO: take curvature into account when computing down distance, the pen moves slower on curves
     let downLength = 0
+    // console.log('this.curves', this.curves)
     for (let curve of this.curves) {
+      // console.log('curve.length', curve)
+      // console.log('curve.length2', curve.length())
       downLength += curve.length()
     }
     let upLength = 0

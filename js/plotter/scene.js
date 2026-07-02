@@ -1,4 +1,6 @@
+// consts used as kill switches for debugging
 const clipToBBox = true
+const fill = true
 
 function applyTemplate(template, parameters) {
   let obj = { __cached__: {} }
@@ -74,16 +76,17 @@ class Scene {
         let curves = []
         let fill = []
 
-        if (layer.fill) {
-          console.log(
-            'fill curve continuous before',
-            layer.fill.curves.map((curve) => curve.curve.curve.isContinousDebug()),
-          )
-        }
+        // if (layer.fill) {
+        //   console.log(
+        //     'fill curve continuous before',
+        //     layer.fill.curves.map((curve) => curve.curve.curve.isContinousDebug()),
+        //   )
+        // }
         if (clipToBBox) {
+          // console.log('bbox', bbox)
           for (let curve of layer.curves) {
             let clipped = curve.clip(bbox)
-            console.log('clipping of ', curve, 'got', clipped)
+            // console.log('clipping of ', curve, 'got', clipped)
             if (
               layer.fill &&
               layer.fill.curves.some((curve) => !curve.curve.curve.isContinousDebug())
@@ -92,24 +95,24 @@ class Scene {
             }
             curves.push(...clipped)
           }
-          console.log('setting layer', name, 'to have curves', curves)
+          // console.log('setting layer', name, 'to have curves', curves)
           layer.curves = curves
           if (layer.fill) {
-            console.log(
-              'fill curve continuous after',
-              layer.fill.curves.map(
-                (curve) =>
-                  curve.curve.curve.isContinousDebug() &&
-                  curve.minus.every((c) => c.curve.curve.isContinousDebug()),
-              ),
-              layer.fill.curves.map((curve) => curve.curve.curve.isContinousDebug()),
-            )
+            // console.log(
+            //   'fill curve continuous after',
+            //   layer.fill.curves.map(
+            //     (curve) =>
+            //       curve.curve.curve.isContinousDebug() &&
+            //       curve.minus.every((c) => c.curve.curve.isContinousDebug()),
+            //   ),
+            //   layer.fill.curves.map((curve) => curve.curve.curve.isContinousDebug()),
+            // )
             let c = layer.fill.curves[3]
-            console.log('curves[3]', c.curve.curve.isContinousDebug(), c)
+            // console.log('curves[3]', c.curve.curve.isContinousDebug(), c)
             for (let curve of layer.fill.curves) {
-              console.log('fill curve continuous', curve.curve.curve.isContinousDebug())
+              // console.log('fill curve continuous', curve.curve.curve.isContinousDebug())
               if (!curve.curve.curve.isContinousDebug()) {
-                console.log('curve', curve)
+                // console.log('curve', curve)
                 console.trace()
                 throw `fill layer has a non-continuous curve`
               }
@@ -122,7 +125,9 @@ class Scene {
       }
     }
     this.layers = layers
-    this.fill()
+    if (fill) {
+      this.fill()
+    }
     return this
   }
 
@@ -138,7 +143,7 @@ class Scene {
         if (layer.fill.direction) {
           direction = layer.fill.direction
         }
-        console.log('curves before fill', layer.curves)
+        // console.log('curves before fill', layer.curves)
         for (let curve of layer.fill.curves) {
           // console.log('filling curve', curve)
 

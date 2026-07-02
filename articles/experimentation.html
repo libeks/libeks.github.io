@@ -31,20 +31,20 @@
         <figure id="experiment-grid" class="full-width">
           <!-- <svg-box v-for="bbox of [new BBox(0,0,1000,600)]" :bbox="bbox"> -->
           <svg-box :bbox="bbox">
-            <path :d="smallerBBox.d()" :style="{stroke: 'pink', fill: 'none'}"> </path>
+            <!-- <path :d="smallerBBox.d()" :style="{stroke: 'pink', fill: 'none'}"> </path> -->
 
             <template v-for="curve in curves">
               <path :d="curve.d()" :style="{stroke: 'black', fill: 'none'}"></path>
 
               <template v-for="annot of [curve.curve.debugCounterClockwisePoints()]">
-                <!-- <path v-for="tangent of annot.tangents" :d="tangent.d()" :style="{stroke: 'red'}">
+                <path v-for="tangent of annot.tangents" :d="tangent.d()" :style="{stroke: 'red'}">
                 </path>
                 <path
                   v-for="tangent of annot.tangentPerps"
                   :d="tangent.d()"
                   :style="{stroke: 'blue'}"
                 >
-                </path> -->
+                </path>
                 <!-- <path
                   v-for="contour of annot.contours"
                   :d="contour.d()"
@@ -54,26 +54,33 @@
               </template>
             </template>
             <template v-for="curve of clippedCurves">
-              <path
+              <!-- <path
                 v-for="answer of curve.answer"
                 :d="answer.d()"
                 :style="{stroke: 'green', fill: 'none'}"
-              ></path>
-              <!-- <path
-                v-for="answer of curve.openBits"
+              ></path> -->
+              <path
+                v-for="answer of curve.bits"
                 :d="answer.d()"
-                :style="{stroke: 'purple', fill: 'none'}"
-              ></path> -->
-              <!-- <path
-                v-for="answer of curve.openBits"
-                :d="answer.curves[0].d()"
-                :style="{stroke: 'red', fill: 'none'}"
-              ></path> -->
+                :style="{stroke: 'purple', fill: 'none', 'stroke-width': 10}"
+              ></path>
+              <path
+                v-for="answer of curve.clipped"
+                :d="answer.d()"
+                :style="{stroke: 'red', fill: 'none' ,'stroke-width': 10}"
+              ></path>
               <!-- <path
                 v-for="answer of curve.debugBits2"
                 :d="answer.d()"
                 :style="{stroke: 'cyan', fill: 'none'}"
               ></path> -->
+              <circle
+                v-for="pt in curve.allpoints.map((pt)=> this.bbox.at(pt[0]))"
+                v-bind="pt.cxcyProps()"
+                r="50"
+                :style="{stroke: 'blue', fill:'none'}"
+              >
+              </circle>
               <path
                 v-for="answer of curve.closed"
                 :d="answer.d()"
@@ -207,15 +214,19 @@
               'winding',
               this.curves.map((curve) => curve.curve.isCounterClockwise()),
             )
-            let ret = this.curves.map((curve) => curve.clipDebug(this.smallerBBox))
+            let ret = this.curves.map((curve) => curve.clipDebug(this.bbox))
             console.log('ret', ret)
             return ret
           },
           bbox() {
             // return new BBox(500, 250, 1000, 600)
             // return new BBox(0, 0, 1000, 600)
-            return new BBox(0, 0, 13333, 10000)
+            return new BBox(6000, 6000, 9333, 9000)
+            // return new BBox(0, 0, 13333, 10000)
           },
+          // bboxPoints() {
+          //   return this.cu
+          // },
           smallerBBox() {
             console.log('cuve', this.curves[0].curve.curve.curves)
             return this.bbox.withPadding(57)

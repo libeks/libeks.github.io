@@ -1256,6 +1256,7 @@ class ClosedCurveWithMinus {
     console.log('allpoints', allpoints)
     for (let [[a, aid, at], [b, bid, bt]] of pairs(allpoints)) {
       if (at == bt) {
+        console.log('this', this, this.d())
         throw `Allpoints appear in non-alternating order`
       }
     }

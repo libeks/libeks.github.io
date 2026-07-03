@@ -203,9 +203,11 @@ class QuadraticBezier {
 
   clip(bbox) {
     if (!bbox.boxHasIntersection(this.bbox())) {
+      console.log('Quadratic: bbox has no intersection, returning empty')
       return []
     }
     if (bbox.boxInside(this.bbox())) {
+      console.log('Quadratic: bbox inside large bbox, returning self')
       return [this]
     }
 
@@ -225,9 +227,15 @@ class QuadraticBezier {
     // }
     ts.push(0, 1)
     ts.sort((a, b) => a - b)
-    return reduceIntervals(ts, (t) => bbox.inside(this.at(t))).map(([a, b]) =>
+    console.log('Quadratic: returning for ts', ts)
+    let ret = reduceIntervals(ts, (t) => bbox.inside(this.at(t))).map(([a, b]) =>
       this.subsection(a, b),
     )
+    console.log(
+      'ret',
+      ret.map((curve) => [curve.startpoint(), curve.endpoint()]),
+    )
+    return ret
   }
 
   intersectLineT(line) {
@@ -411,25 +419,30 @@ class CubicBezier {
     let c = A.dot(cVect)
     let d = A.dot(v0) - lineD
     let roots = cubic(a, b, c, d)
+
     // if (roots.length == 0) {
     // if (this.from.x == 729.0230484541327) {
-    //   console.log('solving cubic with', a, b, c, d, roots, this)
+    console.log('solving cubic with', a, b, c, d, roots, this)
     // }
     roots = roots.filter((t) => t >= 0 && t <= 1) // filter out intersections outside the span of this curve
     return roots
   }
 
   clip(bbox) {
+    console.log('Cubic.clip', this)
     if (!bbox.boxHasIntersection(this.bbox())) {
+      console.log('Cubic: bbox has no intersection, returning empty')
       return []
     }
     if (bbox.boxInside(this.bbox())) {
+      console.log('Cubic: bbox inside large bbox, returning self')
       return [this]
     }
 
     let ts = []
     for (let line of bbox.lines()) {
       let roots = this.intersectLineT(line)
+      console.log('roots', line, roots)
       for (let root of roots) {
         if (root >= 0 && root <= 1) {
           ts.push(root)
@@ -443,9 +456,12 @@ class CubicBezier {
     // }
     ts.push(0, 1)
     ts.sort((a, b) => a - b)
-    return reduceIntervals(ts, (t) => bbox.inside(this.at(t))).map(([a, b]) =>
+    console.log('Cubic: returning for ts', ts)
+    let ret = reduceIntervals(ts, (t) => bbox.inside(this.at(t))).map(([a, b]) =>
       this.subsection(a, b),
     )
+    console.log('ret', ret)
+    return ret
   }
 
   bbox() {
@@ -833,16 +849,16 @@ class CompositeCurve {
     let clipped = []
     for (let component of this.curves) {
       let result = component.clip(bbox)
-      // console.log(
-      //   'composite clipping',
-      //   component,
-      //   component.startpoint(),
-      //   component.endpoint(),
-      //   result,
-      //   result.length,
-      //   result.map((c) => [c.startpoint(), c.endpoint()]),
-      //   bbox,
-      // )
+      console.log(
+        'composite clipping',
+        component,
+        component.startpoint(),
+        component.endpoint(),
+        result,
+        result.length,
+        result.map((c) => [c.startpoint(), c.endpoint()]),
+        bbox,
+      )
       clipped.push(...result)
     }
     // join continuous elements back together
@@ -1046,7 +1062,9 @@ class ClosedCurve {
       return [this]
     }
     // the returned clipped curves should either be closed, or their start and endpoints lie on the perimeter of bbox
+
     let ret = this.curve.clip(bbox)
+    console.log('clipComponents', this, bbox, ret)
     return ret
   }
 
@@ -1247,7 +1265,8 @@ class ClosedCurveWithMinus {
     let allpoints = []
     for (let [i, curve] of enumerate(open)) {
       // processed[i] = false
-      // console.log('open curve', open[i], open[i].startpoint(), open[i].endpoint())
+      console.log('open curve', open[i], open[i].startpoint(), open[i].endpoint())
+      console.log('this.d', this.d(), bbox)
       let start = bbox.perimeterPointT(open[i].startpoint())
       let end = bbox.perimeterPointT(open[i].endpoint())
       // startpoints.push([start, i])
@@ -1390,6 +1409,16 @@ class ClosedCurveWithMinus {
     let openBits = [...open]
     if (open.length + closed.length != bits.length) {
       throw `Open and closed curves don't add up ${closed.length} ${open.length} ${bits.length}`
+    }
+    return {
+      bits,
+      components,
+      // debugBits,
+      closed,
+      closedBits,
+      open,
+      openBits,
+      // allpoints,
     }
 
     // let startpoints = []

@@ -203,11 +203,11 @@ class QuadraticBezier {
 
   clip(bbox) {
     if (!bbox.boxHasIntersection(this.bbox())) {
-      console.log('Quadratic: bbox has no intersection, returning empty')
+      // console.log('Quadratic: bbox has no intersection, returning empty')
       return []
     }
     if (bbox.boxInside(this.bbox())) {
-      console.log('Quadratic: bbox inside large bbox, returning self')
+      // console.log('Quadratic: bbox inside large bbox, returning self')
       return [this]
     }
 
@@ -227,14 +227,14 @@ class QuadraticBezier {
     // }
     ts.push(0, 1)
     ts.sort((a, b) => a - b)
-    console.log('Quadratic: returning for ts', ts)
+    // console.log('Quadratic: returning for ts', ts)
     let ret = reduceIntervals(ts, (t) => bbox.inside(this.at(t))).map(([a, b]) =>
       this.subsection(a, b),
     )
-    console.log(
-      'ret',
-      ret.map((curve) => [curve.startpoint(), curve.endpoint()]),
-    )
+    // console.log(
+    //   'ret',
+    //   ret.map((curve) => [curve.startpoint(), curve.endpoint()]),
+    // )
     return ret
   }
 
@@ -402,6 +402,15 @@ class CubicBezier {
     if (line.type != 'Line') {
       throw `Invalid parameter to CubicBezier.intersectLineT: ${line.type}`
     }
+    // clip the line to be within the bbox of the current curve, thereby making floating point issues less apparent
+    let lines = this.bbox().clipLine(line)
+    if (lines.length == 0) {
+      return [] // line doesn't appear to intersect the bbox, so it likely doesn't intersect the curve
+    }
+    if (lines.length > 1) {
+      throw `bbox.clipLine returned more than one answer`
+    }
+    line = new Line(lines[0].from, lines[0].from.vectTo(lines[0].to))
     // compute cubic parameters (a,b,c,d), given the implicit notation of the line A⋅x=d, and the parametric equation of the Quadratic Bezier curve
     // X(t) = (1-t)^3 * P0 + 3t(1-t)^2 * P1 + 3t^2(1-t) * P2 + P3
 
@@ -422,27 +431,27 @@ class CubicBezier {
 
     // if (roots.length == 0) {
     // if (this.from.x == 729.0230484541327) {
-    console.log('solving cubic with', a, b, c, d, roots, this)
+    // console.log('solving cubic with', a, b, c, d, roots, this)
     // }
     roots = roots.filter((t) => t >= 0 && t <= 1) // filter out intersections outside the span of this curve
     return roots
   }
 
   clip(bbox) {
-    console.log('Cubic.clip', this)
+    // console.log('Cubic.clip', this)
     if (!bbox.boxHasIntersection(this.bbox())) {
-      console.log('Cubic: bbox has no intersection, returning empty')
+      // console.log('Cubic: bbox has no intersection, returning empty')
       return []
     }
     if (bbox.boxInside(this.bbox())) {
-      console.log('Cubic: bbox inside large bbox, returning self')
+      // console.log('Cubic: bbox inside large bbox, returning self')
       return [this]
     }
 
     let ts = []
     for (let line of bbox.lines()) {
       let roots = this.intersectLineT(line)
-      console.log('roots', line, roots)
+      // console.log('roots', line, roots)
       for (let root of roots) {
         if (root >= 0 && root <= 1) {
           ts.push(root)
@@ -456,11 +465,11 @@ class CubicBezier {
     // }
     ts.push(0, 1)
     ts.sort((a, b) => a - b)
-    console.log('Cubic: returning for ts', ts)
+    // console.log('Cubic: returning for ts', ts)
     let ret = reduceIntervals(ts, (t) => bbox.inside(this.at(t))).map(([a, b]) =>
       this.subsection(a, b),
     )
-    console.log('ret', ret)
+    // console.log('ret', ret)
     return ret
   }
 
@@ -849,16 +858,16 @@ class CompositeCurve {
     let clipped = []
     for (let component of this.curves) {
       let result = component.clip(bbox)
-      console.log(
-        'composite clipping',
-        component,
-        component.startpoint(),
-        component.endpoint(),
-        result,
-        result.length,
-        result.map((c) => [c.startpoint(), c.endpoint()]),
-        bbox,
-      )
+      // console.log(
+      //   'composite clipping',
+      //   component,
+      //   component.startpoint(),
+      //   component.endpoint(),
+      //   result,
+      //   result.length,
+      //   result.map((c) => [c.startpoint(), c.endpoint()]),
+      //   bbox,
+      // )
       clipped.push(...result)
     }
     // join continuous elements back together
@@ -1064,7 +1073,7 @@ class ClosedCurve {
     // the returned clipped curves should either be closed, or their start and endpoints lie on the perimeter of bbox
 
     let ret = this.curve.clip(bbox)
-    console.log('clipComponents', this, bbox, ret)
+    // console.log('clipComponents', this, bbox, ret)
     return ret
   }
 
@@ -1265,8 +1274,8 @@ class ClosedCurveWithMinus {
     let allpoints = []
     for (let [i, curve] of enumerate(open)) {
       // processed[i] = false
-      console.log('open curve', open[i], open[i].startpoint(), open[i].endpoint())
-      console.log('this.d', this.d(), bbox)
+      // console.log('open curve', open[i], open[i].startpoint(), open[i].endpoint())
+      // console.log('this.d', this.d(), bbox)
       let start = bbox.perimeterPointT(open[i].startpoint())
       let end = bbox.perimeterPointT(open[i].endpoint())
       // startpoints.push([start, i])

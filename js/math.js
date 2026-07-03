@@ -133,7 +133,7 @@ function cubic(a, b, c, d) {
   // Convert to depressed cubic t^3+pt+q = 0 (subst x = t - b/3a)
   var p = (3 * a * c - b * b) / (3 * a * a)
   var q = (2 * b * b * b - 9 * a * b * c + 27 * a * a * d) / (27 * a * a * a)
-  console.log('cubic p, q', p, q)
+  // console.log('cubic p, q', p, q)
   var roots
 
   if (Math.abs(p) < THRESHOLD_FINE) {

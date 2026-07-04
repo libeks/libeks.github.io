@@ -216,6 +216,12 @@ class QuadraticBezier {
       let roots = this.intersectLineT(line)
       for (let root of roots) {
         if (root >= 0 && root <= 1) {
+          let pt = this.at(root)
+          let distance = pt.distance(line.projectPoint(pt))
+          if (distance > 0.1) {
+            console.log(this, root, pt)
+            throw `Clip distance is too great ${distance}`
+          }
           ts.push(root)
         }
       }
@@ -242,6 +248,17 @@ class QuadraticBezier {
     if (line.type != 'Line') {
       throw `Invalid parameter to QuadraticBezier.intersectLineT: ${line.type}`
     }
+
+    // clip the line to be within the bbox of the current curve, thereby making floating point issues less apparent
+    let lines = this.bbox().clipLine(line)
+    if (lines.length == 0) {
+      return [] // line doesn't appear to intersect the bbox, so it likely doesn't intersect the curve
+    }
+    if (lines.length > 1) {
+      throw `bbox.clipLine returned more than one answer`
+    }
+    line = new Line(lines[0].from, lines[0].from.vectTo(lines[0].to))
+
     // compute quadratic parameters (a,b,c), given the implicit notation of the line A⋅x=d, and the parametric equation of the Quadratic Bezier curve
     // X(t) = (1-t)^2 * P0 + 2t(1-t) * P1 + t^2 + P2
 
@@ -256,7 +273,7 @@ class QuadraticBezier {
     let b = A.dot(bVect)
     let c = A.dot(v0) - lineD
     let roots = quadratic(a, b, c)
-    // console.log('solving quadratic for ', a, b, c, 'got', roots)
+    // console.log('solving quadratic for ', a, b, c, 'got', roots, 'line', line)
     roots = roots.filter((t) => t >= 0 && t <= 1) // filter out intersections outside the span of this curve
     return roots
   }
@@ -429,10 +446,7 @@ class CubicBezier {
     let d = A.dot(v0) - lineD
     let roots = cubic(a, b, c, d)
 
-    // if (roots.length == 0) {
-    // if (this.from.x == 729.0230484541327) {
     // console.log('solving cubic with', a, b, c, d, roots, this)
-    // }
     roots = roots.filter((t) => t >= 0 && t <= 1) // filter out intersections outside the span of this curve
     return roots
   }
@@ -1419,16 +1433,16 @@ class ClosedCurveWithMinus {
     if (open.length + closed.length != bits.length) {
       throw `Open and closed curves don't add up ${closed.length} ${open.length} ${bits.length}`
     }
-    return {
-      bits,
-      components,
-      // debugBits,
-      closed,
-      closedBits,
-      open,
-      openBits,
-      // allpoints,
-    }
+    // return {
+    //   bits,
+    //   components,
+    //   // debugBits,
+    //   closed,
+    //   closedBits,
+    //   open,
+    //   openBits,
+    //   // allpoints,
+    // }
 
     // let startpoints = []
     // let endpoints = []

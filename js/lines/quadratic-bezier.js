@@ -143,6 +143,7 @@ class QuadraticBezier {
     return roots
   }
 
+  // TODO: Improve bbox logic, this over-estimates the bbox
   bbox() {
     return bboxFromPointCloud(this.from, this.c1, this.to)
   }

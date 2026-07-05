@@ -84,8 +84,16 @@ class ClosedCurve {
     }
   }
 
+  contour() {
+    return this.curve.contour()
+  }
+
   reverse() {
-    return new ClosedCurve(this.curve.reverse())
+    let rev = new ClosedCurve(this.curve.reverse())
+    if (this.id) {
+      rev.id = this.id
+    }
+    return rev
   }
 
   // return a copy of the curve that is counter-clockwise, including all of the minuses being clockwise

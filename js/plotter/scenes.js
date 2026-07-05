@@ -249,7 +249,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
           direction: 20,
           spacing: 70,
         },
-        color: 'hsl(42, 100%, 45%)', // '#C0A870',
+        color: 'hsl(42, 100%, 45%)', // '#C0A870', 'yellow'
         pen: pens.CrayolaSuperTips,
         dontOptimize: true,
       },
@@ -261,7 +261,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
       //     direction: 80,
       //     spacing: 70,
       //   },
-      //   color: 'hsl(330, 80%, 60%)', //'#976f83',
+      //   color: 'hsl(330, 80%, 60%)', //'#976f83', 'cyan'
       //   pen: pens.CrayolaSuperTips,
       //   dontOptimize: true,
       // },
@@ -272,7 +272,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
       //     direction: 140,
       //     spacing: 70,
       //   },
-      //   color: 'hsl(208, 80%, 32%)', //'#386287',
+      //   color: 'hsl(208, 80%, 32%)', //'#386287', 'magenta'
       //   pen: pens.CrayolaSuperTips,
       //   dontOptimize: true,
       // },

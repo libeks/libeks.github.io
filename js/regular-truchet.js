@@ -604,17 +604,22 @@ function generateTruchetGrid(grid, random, notches, size) {
     let curves = continuousTruchetCurves
       .filter((curve) => curve.closed())
       .map((curve) => new ClosedCurve(curve))
-    return nestClosedCurves(curves)
+    let nested = nestClosedCurves(curves)
+    enumerate(nested).forEach(([id, curve]) => (curve.id = id.toString()))
+    if (nested.length > 78) {
+      console.log('nested', nested[78], nested[78].repr())
+    }
+    return nested
   }
 
   let continuousCurves = continuousTruchetCurves(curveFragmentsByNgons, neighborNGonIDs)
   let closedCurves = closedTruchetCurves(continuousCurves)
-  let pt = new Point(916.4999999999987, 8739.127944162881)
-  for (let curve of closedCurves) {
-    if (curve.inside(pt)) {
-      console.log('match', curve, curve.repr())
-    }
-  }
+  // let pt = new Point(916.4999999999987, 8739.127944162881)
+  // for (let curve of closedCurves) {
+  //   if (curve.inside(pt)) {
+  //     console.log('match', curve, curve.repr())
+  //   }
+  // }
   // console.log(
   //   'continuousCurves',
   //   continuousCurves,

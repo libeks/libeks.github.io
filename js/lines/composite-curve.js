@@ -399,7 +399,7 @@ class CompositeCurve {
 
   // return a string representation of this curve, so that it can be plugged back into code to get an equivalent curve
   repr() {
-    console.log('this.curves', this.curves)
+    // console.log('this.curves', this.curves)
     return `new CompositeCurve(${this.curves.map((curve) => curve.repr()).join(', ')})`
   }
 }

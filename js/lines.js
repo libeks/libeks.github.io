@@ -11,6 +11,9 @@ import { ClosedCurveWithMinus } from '/js/lines/closed-curve-with-minus.js'
 // given an array of closed, non-intersecting curves, return an array of ClosedCurvesWithMinus,
 // such that each closed curve appears in one of the trees, and they are properly nested
 function nestClosedCurves(curves) {
+  if (curves.length == 0) {
+    return []
+  }
   if (curves.some((curve) => curve.type != 'ClosedCurve')) {
     throw `nestClosedCurves got non-closed element (${curves.map((curve) => curve.type)})`
   }
@@ -28,6 +31,19 @@ function nestClosedCurves(curves) {
     children[i] = []
   }
   for (let [[a, curveA], [b, curveB]] of crossProduct(enumerate(curves))) {
+    if (curveA.id == '78.0') {
+      let abox = curveA.bbox()
+      let bbox = curveB.bbox()
+      console.log(
+        '78.0',
+        abox,
+        bbox,
+        abox.boxInside(bbox),
+        bbox.boxInside(abox),
+        curveB.inside(curveA.at(t)),
+        curveA.inside(curveB.at(t)),
+      )
+    }
     if (curveB.bbox().boxInside(curveA.bbox()) && curveB.inside(curveA.at(t))) {
       // get at 0.34 to not coincide with boundaries
       // curveA is a descendant of curveB
@@ -43,7 +59,12 @@ function nestClosedCurves(curves) {
     }
   }
 
-  // console.log('descendants and ancestors', descendants, ancestors)
+  console.log(
+    'descendants and ancestors',
+    curves.map((curve) => curve.id),
+    descendants,
+    ancestors,
+  )
   for (let [i, curve] of enumerate(curves)) {
     if (ancestors[i].length > 0) {
       let depth = ancestors[i].length

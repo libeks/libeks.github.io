@@ -58,12 +58,20 @@ class ClosedCurveWithMinus {
   // return a copy of the curve that is counter-clockwise, including all of the minuses being clockwise
   counterClockwise() {
     let minuses = this.minus.map((minus) => minus.clockwise())
-    return new ClosedCurveWithMinus(this.curve.counterClockwise(), minuses)
+    let ret = new ClosedCurveWithMinus(this.curve.counterClockwise(), minuses)
+    if (this.id) {
+      ret.id = this.id
+    }
+    return ret
   }
 
   clockwise() {
     let minuses = this.minus.map((minus) => minus.counterClockwise()) // minuses need to oriented in reverse, i.e. clounter clockwise
-    return new ClosedCurveWithMinus(this.curve.clockwise(), minuses)
+    let ret = new ClosedCurveWithMinus(this.curve.clockwise(), minuses)
+    if (this.id) {
+      ret.id = this.id
+    }
+    return ret
   }
 
   // gather all of the closed curves together, walking through the full minus-tree of this component
@@ -73,6 +81,12 @@ class ClosedCurveWithMinus {
       components.push(...minus.allComponents())
     }
     return components
+  }
+
+  contour() {
+    return this.allComponents()
+      .map((curve) => curve.contour())
+      .flat()
   }
 
   // fill fills the closed curve with parallel lines, all at 'directionDeg' angle (degrees)
@@ -286,6 +300,9 @@ class ClosedCurveWithMinus {
     let trueClosed = closed
       .filter((curve) => curve.closed && curve.closed())
       .map((curve) => new ClosedCurve(curve))
+    if (this.id) {
+      enumerate(trueClosed).forEach(([id, curve]) => (curve.id = `${this.id}.${id}`))
+    }
 
     // for (let a of trueClosed) {
     //   // console.log('aaa', a.curve.curves[0])
@@ -296,7 +313,16 @@ class ClosedCurveWithMinus {
     //     // console.log('match', this, this.repr())
     //   }
     // }
+    if (this.id == '78') {
+      console.log('trueClosed', trueClosed)
+    }
     let answer = nestClosedCurves(trueClosed).flat()
+    if (this.id == '78') {
+      console.log('answer', answer)
+    }
+    if (this.id) {
+      enumerate(answer).forEach(([id, curve]) => (curve.id = `${this.id}.${id}`))
+    }
 
     return answer
   }

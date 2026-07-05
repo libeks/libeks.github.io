@@ -1,3 +1,5 @@
+import { enumerate } from '/js/utils.js'
+
 // consts used as kill switches for debugging
 const clipToBBox = true
 const fill = true
@@ -116,6 +118,7 @@ class Scene {
                 console.trace()
                 throw `fill layer has a non-continuous curve`
               }
+              curve = curve.counterClockwise()
               let clipped = curve.clip(bbox)
               fill.push(...clipped)
             }
@@ -143,11 +146,17 @@ class Scene {
         if (layer.fill.direction) {
           direction = layer.fill.direction
         }
-        // console.log('curves before fill', layer.curves)
+        console.log('curves before fill', layer.curves)
+        console.log('fill curves', layer.fill.curves)
+        // layer.curves = [layer.curves[0]]
         for (let curve of layer.fill.curves) {
-          // console.log('filling curve', curve)
+          console.log('filling curve', curve, curve.id)
 
-          layer.curves.push(...curve.fill(spacing, direction))
+          let fill = curve.fill(spacing, direction)
+          if (curve.id) {
+            enumerate(fill).forEach(([id, c]) => (c.id = `${curve.id}.${id}`))
+          }
+          layer.curves.push(...fill)
         }
       }
     }

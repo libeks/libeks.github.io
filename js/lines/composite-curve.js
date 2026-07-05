@@ -170,11 +170,21 @@ class CompositeCurve {
     }
     // extend a ray from the point in the 0x direction, count the number of intersections with the closed curve
     // if odd, the point must be inside (modulo floating-point imprecisions)
-    let line = new Line(pt, new Vector(1, 0))
-    let intersections = this.intersectLineU(line)
-    intersections = intersections.filter((t) => t > 0)
-    intersections = [...new Set(intersections)]
-    return intersections.length % 2 == 1
+    // let lines = [new Line(pt, new Vector(1, 0)), new Line(pt, new Vector(0, 1))]
+    let lines = [0, 1].map((n) => new Line(pt, new Vector(1, 0).rotateDeg(180 * Math.random()))) // temporary solution, randomly rotate the rays
+    let lengths = lines.map(
+      (line) => [...new Set(this.intersectLineU(line).filter((t) => t > 0))].length,
+    )
+    let parities = lengths.map((l) => l % 2 == 1)
+    let allEqual = parities.every((p) => p === parities[0])
+    if (!allEqual) {
+      console.warn(`CompositeCurve.inside got ambiguous results`, lengths)
+      throw `CompositeCureve.inside got ambiguous results`
+    }
+    // let intersections = this.intersectLineU(line)
+    // intersections = intersections.filter((t) => t > 0)
+    // intersections = [...new Set(intersections)]
+    return parities[0]
   }
 
   // return whether the curve is closed, i.e. it is continuous and its start and end points are connected
@@ -184,6 +194,10 @@ class CompositeCurve {
 
   isEmpty() {
     return this.curves.length == 0
+  }
+
+  move(v) {
+    return new CompositeCurve(...this.curves.map((curve) => curve.move(v)))
   }
 
   d() {

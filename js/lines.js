@@ -1,7 +1,5 @@
 import { pairs, reduceIntervals, enumerate, crossProduct } from '/js/utils.js'
 import { Point, Vector, Line, Point2DOrigin } from '/js/geometry.js'
-import { average, quadratic, cubic } from '/js/math.js'
-import { BBox, bboxFromPointCloud } from '/js/bbox.js'
 import { StraightStroke } from '/js/lines/straight-stroke.js'
 import { QuadraticBezier } from '/js/lines/quadratic-bezier.js'
 import { CubicBezier } from '/js/lines/cubic-bezier.js'
@@ -10,19 +8,15 @@ import { CompositeCurve } from '/js/lines/composite-curve.js'
 import { ClosedCurve } from '/js/lines/closed-curve.js'
 import { ClosedCurveWithMinus } from '/js/lines/closed-curve-with-minus.js'
 
-const THRESHOLD = 1 // used to determine the length of Bezier curves
-const DELTA_DERIVATIVE = 0.01
-
 // given an array of closed, non-intersecting curves, return an array of ClosedCurvesWithMinus,
 // such that each closed curve appears in one of the trees, and they are properly nested
 function nestClosedCurves(curves) {
-  // let curves = continuousTruchetCurves.filter((curve) => curve.closed())
   if (curves.some((curve) => curve.type != 'ClosedCurve')) {
     throw `nestClosedCurves got non-closed element (${curves.map((curve) => curve.type)})`
   }
-  // if (curves.some((curve) => !curve.closed())) {
-  //   throw `nestClosedCurves got non-closed element`
-  // }
+  if (curves.some((curve) => !curve.closed())) {
+    throw `nestClosedCurves got non-closed element`
+  }
   const t = 0.34 // t-value to check for inside-ness. This should be neither 0 nor 1 to avoid edge cases with inside floating point math
   let ancestors = {}
   let descendants = {}
@@ -37,16 +31,19 @@ function nestClosedCurves(curves) {
     if (curveB.bbox().boxInside(curveA.bbox()) && curveB.inside(curveA.at(t))) {
       // get at 0.34 to not coincide with boundaries
       // curveA is a descendant of curveB
+      // console.log(`curve ${a} is a descendant of ${b}`, curveA.at(t).repr())
       descendants[b].push(a)
       ancestors[a].push(b)
     } else if (curveA.bbox().boxInside(curveB.bbox()) && curveA.inside(curveB.at(t))) {
       // get at 0.35 to not fall on a boundary
       // curveB is a descendant of curveA
+      // console.log(`curve ${b} is a descendant of ${a}`, curveB.at(t).repr())
       descendants[a].push(b)
       ancestors[b].push(a)
     }
   }
 
+  // console.log('descendants and ancestors', descendants, ancestors)
   for (let [i, curve] of enumerate(curves)) {
     if (ancestors[i].length > 0) {
       let depth = ancestors[i].length

@@ -7,8 +7,15 @@ import { StraightStroke } from '/js/lines/straight-stroke.js'
 const THRESHOLD = 1 // used to determine the length of Bezier curves
 const DELTA_DERIVATIVE = 0.01
 
+// ClosedCurve is a wrapper around CompositeCurve only if it is closed
 class ClosedCurve {
   constructor(curve) {
+    if (curve.type == 'ClosedCurve') {
+      return curve
+    }
+    if (curve.type != 'CompositeCurve') {
+      throw `ClosedCurve called with unexpected argument ${curve.type}`
+    }
     if (!curve.closed()) {
       throw `ClosedCurve got non-closed curve`
     }
@@ -18,6 +25,10 @@ class ClosedCurve {
 
   at(t) {
     return this.curve.at(t)
+  }
+
+  move(v) {
+    return new ClosedCurve(this.curve.move(v))
   }
 
   bbox() {
@@ -41,7 +52,7 @@ class ClosedCurve {
         this.inside(curve.at(t).addVect(curve.tangentAt(t).perp().withLength(length))),
       )
       .filter((v) => v).length
-    console.log('isCounterClockwise', val, this.curve.curves.length)
+    // console.log('isCounterClockwise', val, this.curve.curves.length)
     return val > this.curve.curves.length / 2
   }
 
@@ -64,7 +75,7 @@ class ClosedCurve {
     )
     let annotatedPoints = points.map((pt) => ({ pt, inside: this.inside(pt) }))
     let contours = this.curve.curves.map((curve) => curve.contour())
-    console.log('contours', contours)
+    // console.log('contours', contours)
     return {
       tangents,
       tangentPerps,

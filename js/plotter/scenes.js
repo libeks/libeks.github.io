@@ -234,7 +234,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         throw `TricolorFillTiling has noncontinuous fill curves`
       }
     }
-    let c = curves[1].closedCurves[3]
+    // let c = curves[1].closedCurves[3]
     // console.log('curves[3]', c.curve.curve.isContinousDebug(), c)
     return {
       edges: {

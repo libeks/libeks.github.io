@@ -48,6 +48,13 @@ class ClosedCurveWithMinus {
     return true
   }
 
+  move(v) {
+    return new CompositeCurveWithMinus(
+      this.curve.move(v),
+      ...this.minus.map((curve) => curve.move(v)),
+    )
+  }
+
   // return a copy of the curve that is counter-clockwise, including all of the minuses being clockwise
   counterClockwise() {
     let minuses = this.minus.map((minus) => minus.clockwise())
@@ -177,8 +184,9 @@ class ClosedCurveWithMinus {
       return [this]
     }
     let counterClockwise = this.counterClockwise()
+    // let counterClockwise = this
     let components = counterClockwise.allComponents()
-    console.log('components', components)
+    // console.log('components', components)
 
     let bits = []
     // all the clipped components should have their endpoints on the perimeter of the bbox
@@ -217,10 +225,11 @@ class ClosedCurveWithMinus {
     // endpoints.sort(([a, aID], [b, bID]) => a - b)
     allpoints.sort(([a, aid, at], [b, bid, bt]) => a - b)
     // console.log('start-end points', startpoints, endpoints)
-    console.log('allpoints', allpoints)
+    // console.log('allpoints', allpoints)
     for (let [[a, aid, at], [b, bid, bt]] of pairs(allpoints)) {
       if (at == bt) {
         console.log('this', this, this.repr())
+        console.log('allpoints', allpoints)
         throw `Allpoints appear in non-alternating order`
       }
     }
@@ -278,6 +287,15 @@ class ClosedCurveWithMinus {
       .filter((curve) => curve.closed && curve.closed())
       .map((curve) => new ClosedCurve(curve))
 
+    // for (let a of trueClosed) {
+    //   // console.log('aaa', a.curve.curves[0])
+    //   if (
+    //     a.curve.curves[0].type == 'CubicBezier' &&
+    //     a.curve.curves[0].from.x == 1466.4999999999986
+    //   ) {
+    //     // console.log('match', this, this.repr())
+    //   }
+    // }
     let answer = nestClosedCurves(trueClosed).flat()
 
     return answer
@@ -294,12 +312,12 @@ class ClosedCurveWithMinus {
       return [this]
     }
     let counterClockwise = this.counterClockwise()
-    console.log('counterClockwise', counterClockwise)
+    // console.log('counterClockwise', counterClockwise)
     let components = counterClockwise.allComponents()
-    console.log(
-      'components',
-      components.map((c) => c.type),
-    )
+    // console.log(
+    //   'components',
+    //   components.map((c) => c.type),
+    // )
     // if (components.length > 0) {
     //   components = [components[0]]
     // }
@@ -321,9 +339,9 @@ class ClosedCurveWithMinus {
     let bits = []
     // all the clipped components should have their endpoints on the perimeter of the bbox
     for (let component of components) {
-      console.log('component', component)
+      // console.log('component', component)
       let clipped = component.clipComponents(bbox)
-      console.log('clipped', clipped)
+      // console.log('clipped', clipped)
       bits.push(...clipped)
     }
     let debugClip = components[0].curve.curves
@@ -332,13 +350,13 @@ class ClosedCurveWithMinus {
 
     // console.log('bits', bit)
 
-    console.log(
-      'bits',
-      bits,
-      debugBits,
-      bits.map((b) => b.type),
-      bits.map((b) => b.closed && b.closed()),
-    )
+    // console.log(
+    //   'bits',
+    //   bits,
+    //   debugBits,
+    //   bits.map((b) => b.type),
+    //   bits.map((b) => b.closed && b.closed()),
+    // )
     let closed = bits.filter((bit) => bit.closed && bit.closed())
     let closedBits = [...closed]
     let open = bits.filter((bit) => !(bit.closed && bit.closed()))

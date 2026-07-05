@@ -609,6 +609,12 @@ function generateTruchetGrid(grid, random, notches, size) {
 
   let continuousCurves = continuousTruchetCurves(curveFragmentsByNgons, neighborNGonIDs)
   let closedCurves = closedTruchetCurves(continuousCurves)
+  let pt = new Point(916.4999999999987, 8739.127944162881)
+  for (let curve of closedCurves) {
+    if (curve.inside(pt)) {
+      console.log('match', curve, curve.repr())
+    }
+  }
   // console.log(
   //   'continuousCurves',
   //   continuousCurves,

@@ -249,33 +249,33 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
           direction: 20,
           spacing: 70,
         },
-        color: 'yellow',
+        color: 'hsl(42, 100%, 45%)', // '#C0A870',
         pen: pens.CrayolaSuperTips,
         dontOptimize: true,
       },
-      fill2: {
-        curves: curves[1].continuousCurves,
-        // curves: [],
-        fill: {
-          curves: curves[1].closedCurves,
-          direction: 80,
-          spacing: 70,
-        },
-        color: 'cyan',
-        pen: pens.CrayolaSuperTips,
-        dontOptimize: true,
-      },
-      fill3: {
-        curves: curves[2].continuousCurves,
-        fill: {
-          curves: curves[2].closedCurves,
-          direction: 140,
-          spacing: 70,
-        },
-        color: 'magenta',
-        pen: pens.CrayolaSuperTips,
-        dontOptimize: true,
-      },
+      // fill2: {
+      //   curves: curves[1].continuousCurves,
+      //   // curves: [],
+      //   fill: {
+      //     curves: curves[1].closedCurves,
+      //     direction: 80,
+      //     spacing: 70,
+      //   },
+      //   color: 'hsl(330, 80%, 60%)', //'#976f83',
+      //   pen: pens.CrayolaSuperTips,
+      //   dontOptimize: true,
+      // },
+      // fill3: {
+      //   curves: curves[2].continuousCurves,
+      //   fill: {
+      //     curves: curves[2].closedCurves,
+      //     direction: 140,
+      //     spacing: 70,
+      //   },
+      //   color: 'hsl(208, 80%, 32%)', //'#386287',
+      //   pen: pens.CrayolaSuperTips,
+      //   dontOptimize: true,
+      // },
     }
   })
 

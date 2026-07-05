@@ -78,6 +78,11 @@ class Point {
   xyProps() {
     return { x: this.x, y: this.y }
   }
+
+  // return a string representation of this point, so that it can be plugged back into code to get an equivalent point
+  repr() {
+    return `new Point(${this.x}, ${this.y})`
+  }
 }
 
 const Point2DOrigin = new Point(0, 0)

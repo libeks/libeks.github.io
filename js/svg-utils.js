@@ -1,5 +1,13 @@
 import { Point, Vector } from '/js/geometry.js'
-import { CompositeCurve, CubicBezier, QuadraticBezier, StraightStroke } from '/js/lines.js'
+import {
+  CompositeCurve,
+  CubicBezier,
+  QuadraticBezier,
+  StraightStroke,
+  ClosedCurve,
+  ClosedCurveWithMinus,
+  nestClosedCurves,
+} from '/js/lines.js'
 
 // toTransform takes an object of x,y, and optional rotate values, and returns the string to pass into :style
 function toTransform(offsetVect) {
@@ -59,4 +67,30 @@ function dToLines(pathStr) {
   return new CompositeCurve(...components)
 }
 
-export { toTransform, dToLines }
+function dToClosedCurvesWithMinus(pathStr) {
+  let chunks = pathStr
+    .split('M ')
+    .slice(1)
+    .map((chunk) => 'M ' + chunk.trim())
+  console.log('chunks', chunks)
+  let elements = chunks.map((chunk) => dToLines(chunk))
+  for (let line of elements) {
+    if (!line.closed(line)) {
+      throw `dToClosedCurvesWithMinus called with non-closed segment`
+    }
+  }
+  let closed = elements.map((elt) => new ClosedCurve(elt))
+  console.log('closed', closed)
+  let ret = nestClosedCurves(closed)
+  if (ret.length != 1) {
+    throw `dToClosedCurvesWithMinus got string with multiple independent components ${ret.length}`
+    return ret[0]
+  }
+  return ret[0]
+  // return new ClosedCurveWithMinus(
+  //   closed[0],
+  //   closed.slice(1).map((curve) => new ClosedCurveWithMinus(curve, [])),
+  // )
+}
+
+export { toTransform, dToLines, dToClosedCurvesWithMinus }

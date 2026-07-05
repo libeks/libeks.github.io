@@ -406,6 +406,10 @@ class CatalanFragment {
     return this.line.d()
   }
 
+  repr() {
+    return this.line.repr()
+  }
+
   contour() {
     return this.line.contour()
   }

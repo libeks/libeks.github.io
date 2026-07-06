@@ -240,7 +240,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         throw `TricolorFillTiling has noncontinuous fill curves`
       }
     }
-    const spacing = 30
+    const spacing = 80
     return {
       edges: {
         curves: vertexListsToLines(template.grid.faces.map((face) => face.ngon.vertices)),
@@ -248,7 +248,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         pen: pens.CrayolaSuperTips,
       },
       'fill-yellow': {
-        curves: layers[0].continuousCurves,
+        curves: layers[0].closedCurves.map((curve) => curve.boundaryCurve()).flat(), //layers[0].continuousCurves,
         fill: {
           curves: layers[0].closedCurves,
           direction: 20,
@@ -259,7 +259,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         dontOptimize: true,
       },
       'fill-cyan': {
-        curves: layers[1].continuousCurves,
+        curves: layers[1].closedCurves.map((curve) => curve.boundaryCurve()).flat(), //curves: layers[1].continuousCurves,
         fill: {
           curves: layers[1].closedCurves,
           direction: 80,
@@ -270,7 +270,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         dontOptimize: true,
       },
       'fill-magenta': {
-        curves: layers[2].continuousCurves,
+        curves: layers[2].closedCurves.map((curve) => curve.boundaryCurve()).flat(), // curves: layers[2].continuousCurves,
         fill: {
           curves: layers[2].closedCurves,
           direction: 140,

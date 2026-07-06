@@ -5,10 +5,7 @@ import { BBox, bboxFromPointCloud } from '/js/bbox.js'
 import { StraightStroke } from '/js/lines/straight-stroke.js'
 import { ClosedCurve } from '/js/lines/closed-curve.js'
 import { CompositeCurve } from '/js/lines/composite-curve.js'
-import { nestClosedCurves } from '/js/lines.js'
-
-const THRESHOLD = 1 // used to determine the length of Bezier curves
-const DELTA_DERIVATIVE = 0.01
+import { nestClosedCurves, MetaFragment } from '/js/lines.js'
 
 class ClosedCurveWithMinus {
   constructor(curve, minus) {
@@ -263,7 +260,11 @@ class ClosedCurveWithMinus {
         continue // skip odd pairs
       }
       pairMapping[aid] = bid
-      connectors[aid] = bbox.perimeterPath(a, b)
+      let perimeter = new MetaFragment(bbox.perimeterPath(a, b)).withMeta({
+        isConnector: true,
+        type: 'framePerimeter',
+      })
+      connectors[aid] = perimeter
     }
     // console.log('pairMapping, connectors', pairMapping, connectors)
 
@@ -493,6 +494,12 @@ class ClosedCurveWithMinus {
       closedBits,
       openBits,
     }
+  }
+
+  // return the boundary curve of this curve, with box perimeter connectors removed
+  boundaryCurve() {
+    let curves = this.allComponents()
+    return curves.map((curve) => curve.boundaryCurve()).flat()
   }
 
   // return a string representation of this curve, so that it can be plugged back into code to get an equivalent curve

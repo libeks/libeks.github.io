@@ -7,6 +7,7 @@ import { CircleArc } from '/js/lines/circle-arc.js'
 import { CompositeCurve } from '/js/lines/composite-curve.js'
 import { ClosedCurve } from '/js/lines/closed-curve.js'
 import { ClosedCurveWithMinus } from '/js/lines/closed-curve-with-minus.js'
+import { MetaFragment } from '/js/lines/meta-fragment.js'
 
 // given an array of closed, non-intersecting curves, return an array of ClosedCurvesWithMinus,
 // such that each closed curve appears in one of the trees, and they are properly nested
@@ -249,4 +250,5 @@ export {
   rayLineRayCurve,
   compositeQuadraticBezier,
   nestClosedCurves,
+  MetaFragment,
 }

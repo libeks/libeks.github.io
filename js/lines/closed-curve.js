@@ -3,6 +3,7 @@ import { Point, Vector, Line, Point2DOrigin } from '/js/geometry.js'
 import { average, quadratic, cubic } from '/js/math.js'
 import { BBox, bboxFromPointCloud } from '/js/bbox.js'
 import { StraightStroke } from '/js/lines/straight-stroke.js'
+import { CompositeCurve } from '/js/lines/composite-curve.js'
 
 const THRESHOLD = 1 // used to determine the length of Bezier curves
 const DELTA_DERIVATIVE = 0.01
@@ -86,6 +87,30 @@ class ClosedCurve {
 
   contour() {
     return this.curve.contour()
+  }
+
+  // return the boundary curve of this curve, with box perimeter connectors removed
+  boundaryCurve() {
+    let current
+    let answers = []
+    for (let curve of this.curve.curves) {
+      if (curve.type == 'MetaFragment' && curve.meta.isConnector) {
+        if (current != null) {
+          answers.push(current)
+          current = null
+        }
+      } else {
+        if (current == null) {
+          current = [curve]
+        } else {
+          current.push(curve)
+        }
+      }
+    }
+    if (current != null) {
+      answers.push(current)
+    }
+    return answers.map((curves) => new CompositeCurve(...curves))
   }
 
   reverse() {

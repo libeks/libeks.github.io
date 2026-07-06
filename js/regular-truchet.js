@@ -26,6 +26,7 @@ import {
   rayLineRayCurve,
   ClosedCurve,
   nestClosedCurves,
+  MetaFragment,
 } from '/js/lines.js'
 import { VertexGrid } from '/js/grid.js'
 import { Random } from '/js/random.js'
@@ -380,86 +381,103 @@ class GenericTruchetTile {
     let curves = getPairs(tile)
     this.computePoints()
     // console.log('notchpoints', this.notchPoints)
-    let lines = curves.map(
-      (curve) => new CatalanFragment(curve, this.getCurve(curve), this.notchPoints),
+    let lines = curves.map((curve) =>
+      catalanFragment(
+        this.getCurve(curve),
+        curve,
+        this.notchPoints,
+        false, // isConnector
+      ),
     )
-    // console.log(
-    //   'getCatalanTile',
-    //   lines,
-    //   lines.map((line) => line.notchPoints.length),
-    //   // this.vertices.length,
-    // )
+    console.log(
+      'getCatalanTile',
+      curves,
+      lines,
+      // lines.map((line) => line.meta.notchPoints.length),
+      // this.vertices.length,
+    )
     return lines
   }
 }
 
-// CatalanFragment is a wrapper around a line, with extra information to help position it among other curves, and get directionality
-class CatalanFragment {
-  constructor(curve, line, points) {
-    this.curve = curve
-    this.line = line
-    this.notchPoints = points
-    this.type = 'CatalanFragment'
-  }
-
-  d() {
-    return this.line.d()
-  }
-
-  repr() {
-    return this.line.repr()
-  }
-
-  contour() {
-    return this.line.contour()
-  }
-
-  startpoint() {
-    return this.line.startpoint()
-  }
-
-  endpoint() {
-    return this.line.endpoint()
-  }
-
-  dContinued() {
-    return this.line.dContinued()
-  }
-
-  bbox() {
-    return this.line.bbox()
-  }
-
-  intersectLineU(line) {
-    return this.line.intersectLineU(line)
-  }
-
-  at(t) {
-    return this.line.at(t)
-  }
-
-  length() {
-    return this.line.length()
-  }
-
-  tangentAt(t) {
-    // console.log('this.line', this.line)
-    return this.line.tangentAt(t)
-  }
-
-  reverse() {
-    return new CatalanFragment(
-      this.curve.split('').reverse().join(''),
-      this.line.reverse(),
-      this.notchPoints,
-    )
-  }
-
-  clip(bbox) {
-    // console.log('this curve', this.curve)
-    return this.line.clip(bbox)
-  }
+function catalanFragment(line, curve, notchPoints, isConnector) {
+  return new MetaFragment(line).withMeta(
+    {
+      curve,
+      notchPoints,
+      isConnector,
+      type: 'catalanFragment',
+    },
+    { curve: (c) => c.split('').reverse().join('') }, // reversers
+  )
 }
+// // CatalanFragment is a wrapper around a line, with extra information to help position it among other curves, and get directionality
+// class CatalanFragment {
+//   constructor(curve, line, points) {
+//     this.curve = curve
+//     this.line = line
+//     this.notchPoints = points
+//     this.type = 'CatalanFragment'
+//   }
+
+//   d() {
+//     return this.line.d()
+//   }
+
+//   repr() {
+//     return this.line.repr()
+//   }
+
+//   contour() {
+//     return this.line.contour()
+//   }
+
+//   startpoint() {
+//     return this.line.startpoint()
+//   }
+
+//   endpoint() {
+//     return this.line.endpoint()
+//   }
+
+//   dContinued() {
+//     return this.line.dContinued()
+//   }
+
+//   bbox() {
+//     return this.line.bbox()
+//   }
+
+//   intersectLineU(line) {
+//     return this.line.intersectLineU(line)
+//   }
+
+//   at(t) {
+//     return this.line.at(t)
+//   }
+
+//   length() {
+//     return this.line.length()
+//   }
+
+//   tangentAt(t) {
+//     // console.log('this.line', this.line)
+//     return this.line.tangentAt(t)
+//   }
+
+//   reverse() {
+//     return new CatalanFragment(
+//       this.curve.split('').reverse().join(''),
+//       this.line.reverse(),
+//       this.notchPoints,
+//     )
+//   }
+
+//   clip(bbox) {
+//     // console.log('this curve', this.curve)
+//     return this.line.clip(bbox)
+//   }
+// }
 
 function generateTruchetGrid(grid, random, notches, size) {
   // will return an array of top-level closed curves, along with individual curve fragments
@@ -519,12 +537,13 @@ function generateTruchetGrid(grid, random, notches, size) {
       // console.log('start, end', start)
       let end = start // initially the start and end are the same
       delete unprocessed[start.id]
+      console.log('start', start)
       let aggregate = new CompositeCurve(start.curve)
       while (!aggregate.closed()) {
         let found = false
         // if the last element is a connector (straight stroke along perimeter), consider curves in the same face,
         // otherwise look at the current face's neighbors
-        let neighbors = end.isConnector ? [end.faceID] : neighborNGonIDs[end.faceID]
+        let neighbors = end.curve.meta.isConnector ? [end.faceID] : neighborNGonIDs[end.faceID]
         // console.log(
         //   'neighbors',
         //   neighbors,
@@ -538,6 +557,7 @@ function generateTruchetGrid(grid, random, notches, size) {
             continue
           }
           let neighborNGon = curveFragmentsByNgons[neighborNGonID]
+          console.log('curveFragmentsByNgons', curveFragmentsByNgons[neighborNGonID])
           for (let curve of neighborNGon) {
             if (!(curve.id in unprocessed)) {
               continue
@@ -550,7 +570,11 @@ function generateTruchetGrid(grid, random, notches, size) {
               break
             } else if (curve.curve.endpoint().same(end.curve.endpoint())) {
               // the curve needs to be reversed before it can be added
+              console.log('reversing curve', curve)
               curve.curve = curve.curve.reverse()
+              console.log('reversed curve', curve)
+              // curve.meta.curve = curve.meta.curve.reverse()
+
               aggregate.add(curve.curve)
               end = curve
               delete unprocessed[curve.id]
@@ -563,21 +587,23 @@ function generateTruchetGrid(grid, random, notches, size) {
             break
           }
         }
-        if (!found && !end.isConnector) {
+        if (!found && !end.curve.meta.isConnector) {
           // if we've run out of truchet curves to add to the end, add a straight line segment to the 'neighbor' notch of
           // the endpoint's notch. This should only be happening on the perimeter, where there is no neighbor ngon to connect to
-          let endpointVertexID = hexToNumerical(end.curve.curve[1]) - 1
+          console.log('end', end)
+          let endpointVertexID = hexToNumerical(end.curve.meta.curve[1]) - 1
           let otherVertexNum =
             endpointVertexID % 2 == 0 ? endpointVertexID + 1 : endpointVertexID - 1
-          let otherVertex = end.curve.notchPoints[otherVertexNum]
+          let otherVertex = end.curve.meta.notchPoints[otherVertexNum]
           end = {
-            curve: new CatalanFragment(
-              end.curve.curve[1] + numericalToHex(otherVertexNum),
+            curve: catalanFragment(
               new StraightStroke(end.curve.endpoint(), otherVertex),
-              end.curve.notchPoints,
+              end.curve.meta.curve[1] + numericalToHex(otherVertexNum),
+              end.curve.meta.notchPoints,
+              true, // isConnector
             ),
             faceID: end.faceID,
-            isConnector: true,
+            // isConnector: true,
           }
           aggregate.add(end.curve)
           found = true
@@ -612,6 +638,7 @@ function generateTruchetGrid(grid, random, notches, size) {
     return nested
   }
 
+  console.log('curveFragmentsByNgons', curveFragmentsByNgons)
   let continuousCurves = continuousTruchetCurves(curveFragmentsByNgons, neighborNGonIDs)
   let closedCurves = closedTruchetCurves(continuousCurves)
   // let pt = new Point(916.4999999999987, 8739.127944162881)

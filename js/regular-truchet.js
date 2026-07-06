@@ -389,13 +389,13 @@ class GenericTruchetTile {
         false, // isConnector
       ),
     )
-    console.log(
-      'getCatalanTile',
-      curves,
-      lines,
-      // lines.map((line) => line.meta.notchPoints.length),
-      // this.vertices.length,
-    )
+    // console.log(
+    //   'getCatalanTile',
+    //   curves,
+    //   lines,
+    //   // lines.map((line) => line.meta.notchPoints.length),
+    //   // this.vertices.length,
+    // )
     return lines
   }
 }
@@ -537,7 +537,7 @@ function generateTruchetGrid(grid, random, notches, size) {
       // console.log('start, end', start)
       let end = start // initially the start and end are the same
       delete unprocessed[start.id]
-      console.log('start', start)
+      // console.log('start', start)
       let aggregate = new CompositeCurve(start.curve)
       while (!aggregate.closed()) {
         let found = false
@@ -557,7 +557,7 @@ function generateTruchetGrid(grid, random, notches, size) {
             continue
           }
           let neighborNGon = curveFragmentsByNgons[neighborNGonID]
-          console.log('curveFragmentsByNgons', curveFragmentsByNgons[neighborNGonID])
+          // console.log('curveFragmentsByNgons', curveFragmentsByNgons[neighborNGonID])
           for (let curve of neighborNGon) {
             if (!(curve.id in unprocessed)) {
               continue
@@ -570,9 +570,9 @@ function generateTruchetGrid(grid, random, notches, size) {
               break
             } else if (curve.curve.endpoint().same(end.curve.endpoint())) {
               // the curve needs to be reversed before it can be added
-              console.log('reversing curve', curve)
+              // console.log('reversing curve', curve)
               curve.curve = curve.curve.reverse()
-              console.log('reversed curve', curve)
+              // console.log('reversed curve', curve)
               // curve.meta.curve = curve.meta.curve.reverse()
 
               aggregate.add(curve.curve)
@@ -590,7 +590,7 @@ function generateTruchetGrid(grid, random, notches, size) {
         if (!found && !end.curve.meta.isConnector) {
           // if we've run out of truchet curves to add to the end, add a straight line segment to the 'neighbor' notch of
           // the endpoint's notch. This should only be happening on the perimeter, where there is no neighbor ngon to connect to
-          console.log('end', end)
+          // console.log('end', end)
           let endpointVertexID = hexToNumerical(end.curve.meta.curve[1]) - 1
           let otherVertexNum =
             endpointVertexID % 2 == 0 ? endpointVertexID + 1 : endpointVertexID - 1
@@ -638,7 +638,7 @@ function generateTruchetGrid(grid, random, notches, size) {
     return nested
   }
 
-  console.log('curveFragmentsByNgons', curveFragmentsByNgons)
+  // console.log('curveFragmentsByNgons', curveFragmentsByNgons)
   let continuousCurves = continuousTruchetCurves(curveFragmentsByNgons, neighborNGonIDs)
   let closedCurves = closedTruchetCurves(continuousCurves)
   // let pt = new Point(916.4999999999987, 8739.127944162881)

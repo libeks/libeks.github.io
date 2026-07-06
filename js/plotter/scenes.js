@@ -190,6 +190,12 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         default: false,
       },
       {
+        name: 'filterShort',
+        display: 'Remove short curves',
+        type: 'toggle',
+        default: true,
+      },
+      {
         name: 'notch1',
         type: 'slider',
         min: 0.01,
@@ -219,6 +225,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
   .withLayers((template) => {
     // let bbox = template.bbox.withPadding(1500)
     let bbox = template.bbox
+    console.log('template', template)
     let layers = [0, 1, 2]
       .map((seed) =>
         generateTruchetGrid(
@@ -228,19 +235,40 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
           template.size,
         ),
       )
-      .map(({ continuousCurves, closedCurves, faces }) => ({
-        continuousCurves: continuousCurves.map((curve) => curve.clip(bbox)).flat(),
-        closedCurves: closedCurves.map((curve) => curve.clip(bbox)).flat(),
-        // faces can be ignored, they're not rendered
-        // faces: faces, //.map((face) => face.clip(bbox)),
-      }))
+      .map(({ continuousCurves, closedCurves, faces }) => {
+        // let closed = closedCurves.map((curve) => curve.clip(bbox)).flat()
+        template.filterShort = true // for debug only
+        template.filterPerimeter = true // for debug only
+        if (template.filterShort) {
+          console.log(
+            'curve lengths',
+            closedCurves.map((curve) => curve.curve.curve.curves.length),
+          )
+          closedCurves = closedCurves.filter((curve) => curve.curve.curve.curves.length > 10)
+        }
+
+        closedCurves = closedCurves.map((curve) => curve.clip(bbox)).flat()
+        if (template.filterPerimeter) {
+          console.log(
+            'curve connectors',
+            closedCurves.map((curve) => curve.curve.curve.curves.some((c) => c.meta.isConnector)),
+          )
+          closedCurves = closedCurves.filter(
+            (curve) =>
+              !curve.curve.curve.curves.some((c) => c.type == 'MetaFragment' && c.meta.isConnector),
+          )
+        }
+        return {
+          closedCurves,
+        }
+      })
     console.log('scene layers', layers)
     for (let layer of layers) {
       if (layer.closedCurves.some((c) => !c.curve.curve.isContinousDebug())) {
         throw `TricolorFillTiling has noncontinuous fill curves`
       }
     }
-    const spacing = 80
+    const spacing = 30
     return {
       edges: {
         curves: vertexListsToLines(template.grid.faces.map((face) => face.ngon.vertices)),

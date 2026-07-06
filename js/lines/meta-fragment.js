@@ -30,7 +30,7 @@ class MetaFragment {
     let meta
     let reversers = {}
     if (args.length == 0) {
-      console.log('returning early')
+      // console.log('returning early')
       return this
     }
     meta = args[0]
@@ -124,14 +124,14 @@ class MetaFragment {
     if (Object.keys(meta.meta).length != Object.keys(this.meta).length) {
       throw `MetaFragment.reverse fucked up meta parameters`
     }
-    console.log('returning reversed meta curve', meta)
+    // console.log('returning reversed meta curve', meta)
 
     return meta
   }
 
   clip(bbox) {
     // inherit the meta parameters from the parent without modification
-    console.log('clipping MetaFragment')
+    // console.log('clipping MetaFragment')
     return this.curve
       .clip(bbox)
       .map((curve) => new MetaFragment(curve).withMeta(this.meta, this.reversers))

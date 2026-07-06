@@ -65,7 +65,7 @@ class CompositeCurve {
       this.curves.push(curve)
       return this
     }
-    console.log('adding curve', curve)
+    // console.log('adding curve', curve)
     if (!curve.startpoint().same(this.curves[this.curves.length - 1].endpoint())) {
       console.trace()
       throw `Adding a new curve that is not continuous ${curve.repr()}`
@@ -375,12 +375,12 @@ class CompositeCurve {
     //   partial,
     //   pairs(partial).map(([a, b]) => a.startpoint().same(b.endpoint())),
     // )
-    console.log('this.curves', this.curves)
+    // console.log('this.curves', this.curves)
     let reversed = this.curves.map((curve) => curve.reverse()).toReversed()
-    console.log(
-      'after reverse()',
-      pairs(reversed).map(([a, b]) => a.endpoint().same(b.startpoint())),
-    )
+    // console.log(
+    //   'after reverse()',
+    //   pairs(reversed).map(([a, b]) => a.endpoint().same(b.startpoint())),
+    // )
     let ret = new CompositeCurve(...reversed)
     // console.log('ret', ret, ret.closed())
     return ret

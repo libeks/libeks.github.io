@@ -20,6 +20,7 @@ function applyTemplate(template, parameters) {
       }
     }
   }
+  // for (let [prop, val] of Object.entries(parameters))
   if (template.computed) {
     for (let [name, value] of Object.entries(template.computed)) {
       Object.defineProperty(obj, name, {
@@ -67,6 +68,7 @@ class Scene {
 
   place(bbox, options) {
     this.parameters = this.parameterFn(bbox, options)
+    console.log('parameters', options)
     this.template = applyTemplate(this.rawTemplate, this.parameters)
     let layers = this.layerFn(this.template)
     if (clipToBBox) {

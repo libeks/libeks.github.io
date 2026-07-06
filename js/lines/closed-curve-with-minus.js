@@ -313,13 +313,13 @@ class ClosedCurveWithMinus {
     //     // console.log('match', this, this.repr())
     //   }
     // }
-    if (this.id == '78') {
-      console.log('trueClosed', trueClosed)
-    }
+    // if (this.id == '78') {
+    //   console.log('trueClosed', trueClosed)
+    // }
     let answer = nestClosedCurves(trueClosed).flat()
-    if (this.id == '78') {
-      console.log('answer', answer)
-    }
+    // if (this.id == '78') {
+    //   console.log('answer', answer)
+    // }
     if (this.id) {
       enumerate(answer).forEach(([id, curve]) => (curve.id = `${this.id}.${id}`))
     }

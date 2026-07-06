@@ -217,65 +217,69 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
     ],
   )
   .withLayers((template) => {
-    let curves = [0, 1, 2].map((seed) =>
-      generateTruchetGrid(template.tilingFaces, new Random(seed), template.notches, template.size),
-    )
-    // console.log('scene curves', curves)
-    for (let curve of curves) {
-      // console.log(
-      //   'curve xyz',
-      //   curve,
-      //   // curve.closedCurves.map((c) => c.curve.curve),
-      //   curve.closedCurves.map((c) => c.curve.curve.isContinousDebug()),
-      //   curve.closedCurves.some((c) => c.curve.curve.isContinousDebug()),
-      // )
-
-      if (curve.closedCurves.some((c) => !c.curve.curve.isContinousDebug())) {
+    // let bbox = template.bbox.withPadding(1500)
+    let bbox = template.bbox
+    let layers = [0, 1, 2]
+      .map((seed) =>
+        generateTruchetGrid(
+          template.tilingFaces,
+          new Random(seed),
+          template.notches,
+          template.size,
+        ),
+      )
+      .map(({ continuousCurves, closedCurves, faces }) => ({
+        continuousCurves: continuousCurves.map((curve) => curve.clip(bbox)).flat(),
+        closedCurves: closedCurves.map((curve) => curve.clip(bbox)).flat(),
+        // faces can be ignored, they're not rendered
+        // faces: faces, //.map((face) => face.clip(bbox)),
+      }))
+    console.log('scene layers', layers)
+    for (let layer of layers) {
+      if (layer.closedCurves.some((c) => !c.curve.curve.isContinousDebug())) {
         throw `TricolorFillTiling has noncontinuous fill curves`
       }
     }
-    // let c = curves[1].closedCurves[3]
-    // console.log('curves[3]', c.curve.curve.isContinousDebug(), c)
+    const spacing = 30
     return {
       edges: {
         curves: vertexListsToLines(template.grid.faces.map((face) => face.ngon.vertices)),
         color: 'black',
         pen: pens.CrayolaSuperTips,
       },
-      fill1: {
-        curves: curves[0].continuousCurves,
+      'fill-yellow': {
+        curves: layers[0].continuousCurves,
         fill: {
-          curves: curves[0].closedCurves,
+          curves: layers[0].closedCurves,
           direction: 20,
-          spacing: 70,
+          spacing,
         },
-        color: 'hsl(42, 100%, 45%)', // '#C0A870', 'yellow'
+        color: 'hsl(42, 100%, 40%)', // '#C0A870', 'yellow'
         pen: pens.CrayolaSuperTips,
         dontOptimize: true,
       },
-      // fill2: {
-      //   curves: curves[1].continuousCurves,
-      //   // curves: [],
-      //   fill: {
-      //     curves: curves[1].closedCurves,
-      //     direction: 80,
-      //     spacing: 70,
-      //   },
-      //   color: 'hsl(330, 80%, 60%)', //'#976f83', 'cyan'
-      //   pen: pens.CrayolaSuperTips,
-      //   dontOptimize: true,
-      // },
-      // fill3: {
-      //   curves: curves[2].continuousCurves,
-      //   fill: {
-      //     curves: curves[2].closedCurves,
-      //     direction: 140,
-      //     spacing: 70,
-      //   },
-      //   color: 'hsl(208, 80%, 32%)', //'#386287', 'magenta'
-      //   pen: pens.CrayolaSuperTips,
-      //   dontOptimize: true,
-      // },
+      'fill-cyan': {
+        curves: layers[1].continuousCurves,
+        fill: {
+          curves: layers[1].closedCurves,
+          direction: 80,
+          spacing,
+        },
+        color: 'hsl(208, 80%, 32%)', //'#976f83', 'cyan'
+        pen: pens.CrayolaSuperTips,
+        dontOptimize: true,
+      },
+      'fill-magenta': {
+        curves: layers[2].continuousCurves,
+        fill: {
+          curves: layers[2].closedCurves,
+          direction: 140,
+          spacing,
+        },
+        color: 'hsl(330, 80%, 60%)', //'#386287', 'magenta'
+        pen: pens.CrayolaSuperTips,
+        dontOptimize: true,
+      },
     }
   })
 

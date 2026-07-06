@@ -606,9 +606,9 @@ function generateTruchetGrid(grid, random, notches, size) {
       .map((curve) => new ClosedCurve(curve))
     let nested = nestClosedCurves(curves)
     enumerate(nested).forEach(([id, curve]) => (curve.id = id.toString()))
-    if (nested.length > 78) {
-      console.log('nested', nested[78], nested[78].repr())
-    }
+    // if (nested.length > 78) {
+    //   console.log('nested', nested[78], nested[78].repr())
+    // }
     return nested
   }
 

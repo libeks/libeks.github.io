@@ -146,11 +146,11 @@ class Scene {
         if (layer.fill.direction) {
           direction = layer.fill.direction
         }
-        console.log('curves before fill', layer.curves)
-        console.log('fill curves', layer.fill.curves)
+        // console.log('curves before fill', layer.curves)
+        // console.log('fill curves', layer.fill.curves)
         // layer.curves = [layer.curves[0]]
         for (let curve of layer.fill.curves) {
-          console.log('filling curve', curve, curve.id)
+          // console.log('filling curve', curve, curve.id)
 
           let fill = curve.fill(spacing, direction)
           if (curve.id) {

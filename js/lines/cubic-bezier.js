@@ -150,6 +150,7 @@ class CubicBezier {
     return ret
   }
 
+  // TODO: Improve bbox logic, this over-estimates the bbox
   bbox() {
     return bboxFromPointCloud(this.from, this.c1, this.c2, this.to)
   }

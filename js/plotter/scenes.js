@@ -127,20 +127,27 @@ const Tiling = new Scene('TruchetTiling')
       },
     ],
   )
-  .withLayers((template) => ({
-    edges: {
-      curves: vertexListsToLines(template.grid.map((face) => face.ngon.vertices)),
-      color: 'black',
-      pen: pens.CrayolaSuperTips,
-      // dontOptimize: true,
-    },
-    curve: {
-      curves: template.continuousTruchetCurves,
-      color: 'blue',
-      pen: pens.CrayolaSuperTips,
-      // dontOptimize: true,
-    },
-  }))
+  .withLayers((template) => {
+    let grid = generateTruchetGrid(
+      template.tilingFaces,
+      new Random(100),
+      template.notches,
+      template.size,
+    )
+    // layer.closedCurves.
+    return {
+      edges: {
+        curves: vertexListsToLines(template.grid.faces.map((face) => face.ngon.vertices)),
+        color: 'black',
+        pen: pens.CrayolaSuperTips,
+      },
+      curve: {
+        curves: template.continuousTruchetCurves,
+        color: 'blue',
+        pen: pens.CrayolaSuperTips,
+      },
+    }
+  })
 
 const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
   .withTemplate(

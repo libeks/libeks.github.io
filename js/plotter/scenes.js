@@ -12,31 +12,35 @@ import {
   uniform2Tilings,
   uniform3Tilings,
   uniform4Tilings,
+  VertexGrid,
 } from '/js/grid.js'
 
 import { Scene } from '/js/plotter/scene.js'
 import { pens } from '/js/plotter/pens.js'
 
 // a list of all the scenes available for plotting
-const Empty = new Scene('Empty')
+const Empty = new Scene('Empty').withOptions(
+  (bbox, {}) => ({ bbox }),
+  [],
+  ({}) => ({}),
+)
 
-const PlaneTree = new Scene('PlaneTree')
-  .withTemplate(
-    rootedTree,
-    (bbox) => ({
-      bbox: bbox,
-      tile: '((()((()))()()))(())',
-    }),
-    [],
-  )
-  .withLayers((template) => {
+const PlaneTree = new Scene('PlaneTree').withTemplate(
+  rootedTree,
+  (bbox) => ({
+    bbox: bbox,
+    tile: '((()((()))()()))(())',
+  }),
+  [],
+  (template) => {
     return {
       edges: {
         curves: template.edges.map((edge) => edge.line),
         color: 'blue',
       },
     }
-  })
+  },
+)
 
 function vertexListsToLines(vertexLists) {
   // given a list of list of vertices, each of which has an id and point,
@@ -59,75 +63,73 @@ function vertexListsToLines(vertexLists) {
   return lines
 }
 
-const Tiling = new Scene('TruchetTiling')
-  .withTemplate(
-    genericTruchetGrid,
-    (bbox, { size, pattern, notch1, notch2, notches, padding }) => {
-      // let
-      return {
-        // bbox: bbox.withPadding(1000),
-        // bbox: padding ? bbox.withPadding(size * 3.3) : bbox,
-        bbox,
-        start: bbox.center(),
-        size,
-        pattern,
-        notches: notches == 1 ? [notch1] : [notch1, notch2],
-        onlyNgonsInsideBBox: true,
-      }
+const Tiling = new Scene('TruchetTiling').withTemplate(
+  genericTruchetGrid,
+  (bbox, { size, pattern, notch1, notch2, notches, padding }) => {
+    // let
+    return {
+      // bbox: bbox.withPadding(1000),
+      // bbox: padding ? bbox.withPadding(size * 3.3) : bbox,
+      bbox,
+      start: bbox.center(),
+      size,
+      pattern,
+      notches: notches == 1 ? [notch1] : [notch1, notch2],
+      onlyNgonsInsideBBox: true,
+    }
+  },
+  [
+    {
+      name: 'pattern',
+      type: 'dropdown',
+      options: [
+        ...regularTilings,
+        ...semiregularTilings,
+        ...uniform2Tilings,
+        ...uniform3Tilings,
+        ...uniform4Tilings,
+      ].map((tiling) => ({ name: tiling.string(), value: tiling })),
+      default: uniform4Tilings[5],
     },
-    [
-      {
-        name: 'pattern',
-        type: 'dropdown',
-        options: [
-          ...regularTilings,
-          ...semiregularTilings,
-          ...uniform2Tilings,
-          ...uniform3Tilings,
-          ...uniform4Tilings,
-        ].map((tiling) => ({ name: tiling.string(), value: tiling })),
-        default: uniform4Tilings[5],
-      },
-      {
-        name: 'size',
-        type: 'incremental',
-        min: 100,
-        step: 50,
-        max: 1000,
-        default: 400,
-      },
-      {
-        name: 'notch1',
-        type: 'slider',
-        min: 0.01,
-        step: 0.01,
-        max: 0.99,
-        default: 0.33,
-      },
-      {
-        name: 'notch2',
-        type: 'slider',
-        min: 0.01,
-        step: 0.01,
-        max: 0.99,
-        default: 0.66,
-      },
-      {
-        name: 'notches',
-        type: 'radioButton',
-        choices: [
-          { value: 1, display: '1' },
-          { value: 2, display: '2' },
-        ],
-        default: 1,
-      },
-      {
-        name: 'padding',
-        default: 1000,
-      },
-    ],
-  )
-  .withLayers((template) => {
+    {
+      name: 'size',
+      type: 'incremental',
+      min: 100,
+      step: 50,
+      max: 1000,
+      default: 400,
+    },
+    {
+      name: 'notch1',
+      type: 'slider',
+      min: 0.01,
+      step: 0.01,
+      max: 0.99,
+      default: 0.33,
+    },
+    {
+      name: 'notch2',
+      type: 'slider',
+      min: 0.01,
+      step: 0.01,
+      max: 0.99,
+      default: 0.66,
+    },
+    {
+      name: 'notches',
+      type: 'radioButton',
+      choices: [
+        { value: 1, display: '1' },
+        { value: 2, display: '2' },
+      ],
+      default: 1,
+    },
+    {
+      name: 'padding',
+      default: 1000,
+    },
+  ],
+  (template) => {
     let grid = generateTruchetGrid(
       template.tilingFaces,
       new Random(100),
@@ -147,106 +149,110 @@ const Tiling = new Scene('TruchetTiling')
         pen: pens.CrayolaSuperTips,
       },
     }
-  })
+  },
+)
 
-const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
-  .withTemplate(
-    genericTruchetGrid,
-    (bbox, { size, small, pattern, notch1, notch2, notches, clip }) => {
-      // let
-      return {
-        bbox: small ? bbox.withPadding(1000) : bbox,
-        start: bbox.center(),
-        size,
-        pattern,
-        notches: notches == 1 ? [notch1] : [notch1, notch2],
-        onlyNgonsInsideBBox: clip,
-      }
+const TricolorFillTiling = new Scene('TricolorFillTruchetTiling').withOptions(
+  (bbox, { size, small, pattern, notch1, notch2, notches, clip }) => {
+    // let
+    return {
+      bbox: small ? bbox.withPadding(1000) : bbox,
+      start: bbox.center(),
+      size,
+      pattern,
+      notches: notches == 1 ? [notch1] : [notch1, notch2],
+      onlyNgonsInsideBBox: clip,
+    }
+  },
+  [
+    {
+      name: 'pattern',
+      type: 'dropdown',
+      options: [
+        ...regularTilings,
+        ...semiregularTilings,
+        ...uniform2Tilings,
+        ...uniform3Tilings,
+        ...uniform4Tilings,
+      ].map((tiling) => ({ name: tiling.string(), value: tiling })),
+      default: semiregularTilings[0],
     },
-    [
-      {
-        name: 'pattern',
-        type: 'dropdown',
-        options: [
-          ...regularTilings,
-          ...semiregularTilings,
-          ...uniform2Tilings,
-          ...uniform3Tilings,
-          ...uniform4Tilings,
-        ].map((tiling) => ({ name: tiling.string(), value: tiling })),
-        default: semiregularTilings[0],
-      },
-      {
-        name: 'size',
-        type: 'incremental',
-        min: 100,
-        step: 50,
-        max: 1000,
-        default: 550,
-      },
-      {
-        name: 'small',
-        display: 'Small Box',
-        type: 'toggle',
-        default: false,
-      },
-      {
-        name: 'clip',
-        display: 'Only ngons in bbox',
-        type: 'toggle',
-        default: false,
-      },
-      {
-        name: 'filterShort',
-        display: 'Remove short curves',
-        type: 'toggle',
-        default: true,
-      },
-      {
-        name: 'notch1',
-        type: 'slider',
-        min: 0.01,
-        step: 0.01,
-        max: 0.99,
-        default: 0.33,
-      },
-      {
-        name: 'notch2',
-        type: 'slider',
-        min: 0.01,
-        step: 0.01,
-        max: 0.99,
-        default: 0.66,
-      },
-      {
-        name: 'notches',
-        type: 'radioButton',
-        choices: [
-          { value: 1, display: '1' },
-          { value: 2, display: '2' },
-        ],
-        default: 1,
-      },
-    ],
-  )
-  .withLayers((template) => {
+    {
+      name: 'size',
+      type: 'incremental',
+      min: 100,
+      step: 50,
+      max: 1000,
+      default: 550,
+    },
+    {
+      name: 'small',
+      display: 'Small Box',
+      type: 'toggle',
+      default: false,
+    },
+    {
+      name: 'clip',
+      display: 'Only ngons in bbox',
+      type: 'toggle',
+      default: false,
+    },
+    {
+      name: 'filterShort',
+      display: 'Remove short curves',
+      type: 'toggle',
+      default: true,
+    },
+    {
+      name: 'notch1',
+      type: 'slider',
+      min: 0.01,
+      step: 0.01,
+      max: 0.99,
+      default: 0.33,
+    },
+    {
+      name: 'notch2',
+      type: 'slider',
+      min: 0.01,
+      step: 0.01,
+      max: 0.99,
+      default: 0.66,
+    },
+    {
+      name: 'notches',
+      type: 'radioButton',
+      choices: [
+        { value: 1, display: '1' },
+        { value: 2, display: '2' },
+      ],
+      default: 1,
+    },
+  ],
+  (params) => {
     // let bbox = template.bbox.withPadding(1500)
-    let bbox = template.bbox
-    console.log('template', template)
+    // let bbox = template.bbox
+    console.log('params', params)
+    let { bbox, start, size, notches, angle, pattern, onlyNgonsInsideBBox } = params
+    let grid = new VertexGrid({
+      bbox,
+      start,
+      size,
+      angle: 0,
+      pattern,
+      iterations: -1,
+    }).generate()
+    console.log('grid', grid)
+    let faces = onlyNgonsInsideBBox ? grid.getFacesInBBox() : grid.getFaces()
+    // console.log('template', template)
+    console.log('faces', faces)
     let layers = [0, 1, 2]
-      .map((seed) =>
-        generateTruchetGrid(
-          template.tilingFaces,
-          new Random(seed),
-          template.notches,
-          template.size,
-        ),
-      )
+      .map((seed) => generateTruchetGrid(faces, new Random(seed), notches, size))
       .map(({ continuousCurves, closedCurves, faces }) => {
         // let closed = closedCurves.map((curve) => curve.clip(bbox)).flat()
-        template.filterShort = true // for debug only
-        template.filterPerimeter = true // for debug only
-        if (template.filterShort) {
+        let filterShort = true // for debug only
+        let filterPerimeter = true // for debug only
+        if (filterShort) {
           console.log(
             'curve lengths',
             closedCurves.map((curve) => curve.curve.curve.curves.length),
@@ -255,7 +261,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         }
 
         closedCurves = closedCurves.map((curve) => curve.clip(bbox)).flat()
-        if (template.filterPerimeter) {
+        if (filterPerimeter) {
           console.log(
             'curve connectors',
             closedCurves.map((curve) => curve.curve.curve.curves.some((c) => c.meta.isConnector)),
@@ -278,7 +284,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
     const spacing = 30
     return {
       edges: {
-        curves: vertexListsToLines(template.grid.faces.map((face) => face.ngon.vertices)),
+        curves: vertexListsToLines(faces.map((face) => face.vertices)),
         color: 'black',
         pen: pens.CrayolaSuperTips,
       },
@@ -286,7 +292,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         curves: layers[0].closedCurves.map((curve) => curve.boundaryCurve()).flat(), //layers[0].continuousCurves,
         fill: {
           curves: layers[0].closedCurves,
-          direction: 20,
+          direction: 35,
           spacing,
         },
         color: 'hsl(42, 100%, 40%)', // '#C0A870', 'yellow'
@@ -297,7 +303,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         curves: layers[1].closedCurves.map((curve) => curve.boundaryCurve()).flat(), //curves: layers[1].continuousCurves,
         fill: {
           curves: layers[1].closedCurves,
-          direction: 80,
+          direction: 95,
           spacing,
         },
         color: 'hsl(208, 80%, 32%)', //'#976f83', 'cyan'
@@ -308,7 +314,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         curves: layers[2].closedCurves.map((curve) => curve.boundaryCurve()).flat(), // curves: layers[2].continuousCurves,
         fill: {
           curves: layers[2].closedCurves,
-          direction: 140,
+          direction: 155,
           spacing,
         },
         color: 'hsl(330, 80%, 60%)', //'#386287', 'magenta'
@@ -316,74 +322,73 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         dontOptimize: true,
       },
     }
-  })
+  },
+)
 
-const TricolorThicknessFillTiling = new Scene('TricolorThicknessFillTruchetTiling')
-  .withTemplate(
-    genericTruchetGrid,
-    (bbox, { size, small, pattern, notches, clip }) => {
-      // let
-      return {
-        bbox: small ? bbox.withPadding(1000) : bbox,
-        start: bbox.center(),
-        size,
-        pattern,
-        // notches: notches == 1 ? [notch1] : [notch1, notch2],
-        notches: [0.33],
-        onlyNgonsInsideBBox: clip,
-      }
+const TricolorThicknessFillTiling = new Scene('TricolorThicknessFillTruchetTiling').withTemplate(
+  genericTruchetGrid,
+  (bbox, { size, small, pattern, notches, clip }) => {
+    // let
+    return {
+      bbox: small ? bbox.withPadding(1000) : bbox,
+      start: bbox.center(),
+      size,
+      pattern,
+      // notches: notches == 1 ? [notch1] : [notch1, notch2],
+      notches: [0.33],
+      onlyNgonsInsideBBox: clip,
+    }
+  },
+  [
+    {
+      name: 'pattern',
+      type: 'dropdown',
+      options: [
+        ...regularTilings,
+        ...semiregularTilings,
+        ...uniform2Tilings,
+        ...uniform3Tilings,
+        ...uniform4Tilings,
+      ].map((tiling) => ({ name: tiling.string(), value: tiling })),
+      default: semiregularTilings[0],
     },
-    [
-      {
-        name: 'pattern',
-        type: 'dropdown',
-        options: [
-          ...regularTilings,
-          ...semiregularTilings,
-          ...uniform2Tilings,
-          ...uniform3Tilings,
-          ...uniform4Tilings,
-        ].map((tiling) => ({ name: tiling.string(), value: tiling })),
-        default: semiregularTilings[0],
-      },
-      {
-        name: 'size',
-        type: 'incremental',
-        min: 100,
-        step: 50,
-        max: 1000,
-        default: 550,
-      },
-      {
-        name: 'small',
-        display: 'Small Box',
-        type: 'toggle',
-        default: false,
-      },
-      {
-        name: 'clip',
-        display: 'Only ngons in bbox',
-        type: 'toggle',
-        default: false,
-      },
-      {
-        name: 'filterShort',
-        display: 'Remove short curves',
-        type: 'toggle',
-        default: true,
-      },
-      {
-        name: 'notches',
-        type: 'radioButton',
-        choices: [
-          { value: 1, display: '1' },
-          { value: 2, display: '2' },
-        ],
-        default: 1,
-      },
-    ],
-  )
-  .withLayers((template) => {
+    {
+      name: 'size',
+      type: 'incremental',
+      min: 100,
+      step: 50,
+      max: 1000,
+      default: 550,
+    },
+    {
+      name: 'small',
+      display: 'Small Box',
+      type: 'toggle',
+      default: false,
+    },
+    {
+      name: 'clip',
+      display: 'Only ngons in bbox',
+      type: 'toggle',
+      default: false,
+    },
+    {
+      name: 'filterShort',
+      display: 'Remove short curves',
+      type: 'toggle',
+      default: true,
+    },
+    {
+      name: 'notches',
+      type: 'radioButton',
+      choices: [
+        { value: 1, display: '1' },
+        { value: 2, display: '2' },
+      ],
+      default: 1,
+    },
+  ],
+  (template) => {
     // let bbox = template.bbox.withPadding(1500)
     let bbox = template.bbox
     let notches = [0.8, 0.5, 0.2]
@@ -466,7 +471,8 @@ const TricolorThicknessFillTiling = new Scene('TricolorThicknessFillTruchetTilin
         dontOptimize: true,
       },
     }
-  })
+  },
+)
 
 const scenes = {
   PlaneTree,

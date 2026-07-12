@@ -411,73 +411,6 @@ function catalanFragment(line, curve, notchPoints, isConnector) {
     { curve: (c) => c.split('').reverse().join('') }, // reversers
   )
 }
-// // CatalanFragment is a wrapper around a line, with extra information to help position it among other curves, and get directionality
-// class CatalanFragment {
-//   constructor(curve, line, points) {
-//     this.curve = curve
-//     this.line = line
-//     this.notchPoints = points
-//     this.type = 'CatalanFragment'
-//   }
-
-//   d() {
-//     return this.line.d()
-//   }
-
-//   repr() {
-//     return this.line.repr()
-//   }
-
-//   contour() {
-//     return this.line.contour()
-//   }
-
-//   startpoint() {
-//     return this.line.startpoint()
-//   }
-
-//   endpoint() {
-//     return this.line.endpoint()
-//   }
-
-//   dContinued() {
-//     return this.line.dContinued()
-//   }
-
-//   bbox() {
-//     return this.line.bbox()
-//   }
-
-//   intersectLineU(line) {
-//     return this.line.intersectLineU(line)
-//   }
-
-//   at(t) {
-//     return this.line.at(t)
-//   }
-
-//   length() {
-//     return this.line.length()
-//   }
-
-//   tangentAt(t) {
-//     // console.log('this.line', this.line)
-//     return this.line.tangentAt(t)
-//   }
-
-//   reverse() {
-//     return new CatalanFragment(
-//       this.curve.split('').reverse().join(''),
-//       this.line.reverse(),
-//       this.notchPoints,
-//     )
-//   }
-
-//   clip(bbox) {
-//     // console.log('this curve', this.curve)
-//     return this.line.clip(bbox)
-//   }
-// }
 
 function generateTruchetGrid(grid, random, notches, size) {
   // will return an array of top-level closed curves, along with individual curve fragments
@@ -489,7 +422,7 @@ function generateTruchetGrid(grid, random, notches, size) {
         notches,
         size,
       ),
-      n: random.int(1289904147324), // 1289904147324 is C24
+      // n: random.int(1289904147324), // 1289904147324 is C24
     }))
   }
 
@@ -499,7 +432,9 @@ function generateTruchetGrid(grid, random, notches, size) {
     let byNGon = {}
     for (let face of faces) {
       let curves = []
-      for (let [id, curve] of enumerate(face.tile.getCatalanTile({ n: face.n }))) {
+      for (let [id, curve] of enumerate(
+        face.tile.getCatalanTile({ n: random.int(1289904147324) }),
+      )) {
         curves.push({
           id: `${face.ngon.id}.${id}`,
           faceID: face.ngon.id,
@@ -534,30 +469,19 @@ function generateTruchetGrid(grid, random, notches, size) {
     let curves = []
     while (Object.keys(unprocessed).length > 0) {
       let start = Object.values(unprocessed)[0] // pick a 'random' curve to start with
-      // console.log('start, end', start)
       let end = start // initially the start and end are the same
       delete unprocessed[start.id]
-      // console.log('start', start)
       let aggregate = new CompositeCurve(start.curve)
       while (!aggregate.closed()) {
         let found = false
         // if the last element is a connector (straight stroke along perimeter), consider curves in the same face,
         // otherwise look at the current face's neighbors
         let neighbors = end.curve.meta.isConnector ? [end.faceID] : neighborNGonIDs[end.faceID]
-        // console.log(
-        //   'neighbors',
-        //   neighbors,
-        //   end.isConnector,
-        //   end.faceID,
-        //   neighborNGonIDs,
-        //   neighborNGonIDs[end.faceID],
-        // )
         for (let neighborNGonID of neighbors) {
           if (!(neighborNGonID in curveFragmentsByNgons)) {
             continue
           }
           let neighborNGon = curveFragmentsByNgons[neighborNGonID]
-          // console.log('curveFragmentsByNgons', curveFragmentsByNgons[neighborNGonID])
           for (let curve of neighborNGon) {
             if (!(curve.id in unprocessed)) {
               continue
@@ -572,9 +496,6 @@ function generateTruchetGrid(grid, random, notches, size) {
               // the curve needs to be reversed before it can be added
               // console.log('reversing curve', curve)
               curve.curve = curve.curve.reverse()
-              // console.log('reversed curve', curve)
-              // curve.meta.curve = curve.meta.curve.reverse()
-
               aggregate.add(curve.curve)
               end = curve
               delete unprocessed[curve.id]
@@ -590,7 +511,6 @@ function generateTruchetGrid(grid, random, notches, size) {
         if (!found && !end.curve.meta.isConnector) {
           // if we've run out of truchet curves to add to the end, add a straight line segment to the 'neighbor' notch of
           // the endpoint's notch. This should only be happening on the perimeter, where there is no neighbor ngon to connect to
-          // console.log('end', end)
           let endpointVertexID = hexToNumerical(end.curve.meta.curve[1]) - 1
           let otherVertexNum =
             endpointVertexID % 2 == 0 ? endpointVertexID + 1 : endpointVertexID - 1
@@ -603,7 +523,6 @@ function generateTruchetGrid(grid, random, notches, size) {
               true, // isConnector
             ),
             faceID: end.faceID,
-            // isConnector: true,
           }
           aggregate.add(end.curve)
           found = true
@@ -615,11 +534,6 @@ function generateTruchetGrid(grid, random, notches, size) {
       // the curve is completed, i.e. it is closed, or we cannot make any progress on the curve
       curves.push(aggregate)
     }
-    // console.log(
-    //   'libex curves',
-    //   curves,
-    //   curves.map((curve) => curve.isContinousDebug()),
-    // )
     if (curves.some((curve) => !curve.isContinousDebug())) {
       throw `continuousTruchetCurves returning a non-continuous element`
     }
@@ -632,30 +546,11 @@ function generateTruchetGrid(grid, random, notches, size) {
       .map((curve) => new ClosedCurve(curve))
     let nested = nestClosedCurves(curves)
     enumerate(nested).forEach(([id, curve]) => (curve.id = id.toString()))
-    // if (nested.length > 78) {
-    //   console.log('nested', nested[78], nested[78].repr())
-    // }
     return nested
   }
 
-  // console.log('curveFragmentsByNgons', curveFragmentsByNgons)
   let continuousCurves = continuousTruchetCurves(curveFragmentsByNgons, neighborNGonIDs)
   let closedCurves = closedTruchetCurves(continuousCurves)
-  // let pt = new Point(916.4999999999987, 8739.127944162881)
-  // for (let curve of closedCurves) {
-  //   if (curve.inside(pt)) {
-  //     console.log('match', curve, curve.repr())
-  //   }
-  // }
-  // console.log(
-  //   'continuousCurves',
-  //   continuousCurves,
-  //   continuousCurves.every((curve) => curve.isContinousDebug()),
-  //   'closedCurves',
-  //   closedCurves,
-  //   closedCurves.every((curve) => curve.curve.curve.isContinousDebug()),
-  // )
-  // console.log('continuous abc', closedCurves[0].curve.curve.isContinousDebug())
   return {
     continuousCurves,
     closedCurves,

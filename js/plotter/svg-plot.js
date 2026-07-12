@@ -134,6 +134,7 @@ const svgPlot = {
       return new Layer('frame').withCurves([this.canvas.continuousCurve()])
     },
     layers() {
+      console.log('calling this.scene.place with configs', this.scene.configs)
       let layerDict = this.scene.place(this.canvas, this.scene.configs).layers
       return layerDict
     },

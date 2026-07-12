@@ -44,13 +44,14 @@ class Scene {
     this.layers = []
     this.rawTemplate = {}
     this.parameterFn = (bbox) => {}
-    this.layerFn = (template) => []
+    this.templateLayerFn = null
+    this.layerFn = null
 
     this.options = []
     this.configs = {}
   }
 
-  withTemplate(template, parameterFn, options) {
+  withTemplate(template, parameterFn, options, layerFn) {
     this.rawTemplate = template
     this.parameterFn = parameterFn
     this.options = options
@@ -58,19 +59,31 @@ class Scene {
     for (let option of options) {
       this.configs[option.name] = option.default
     }
+    this.templateLayerFn = layerFn
     return this
   }
 
-  withLayers(layerFn) {
+  withOptions(parameterFn, options, layerFn) {
+    this.parameterFn = parameterFn
+    this.options = options
+    for (let option of options) {
+      this.configs[option.name] = option.default
+    }
     this.layerFn = layerFn
     return this
   }
 
   place(bbox, options) {
     this.parameters = this.parameterFn(bbox, options)
-    console.log('parameters', options)
-    this.template = applyTemplate(this.rawTemplate, this.parameters)
-    let layers = this.layerFn(this.template)
+    console.log('parameters', options, this.parameters)
+    let layers
+    if (this.rawTemplate && this.templateLayerFn) {
+      this.template = applyTemplate(this.rawTemplate, this.parameters)
+      layers = this.templateLayerFn(this.template)
+    } else {
+      // no template, use layerFn directly
+      layers = this.layerFn(this.parameters)
+    }
     if (clipToBBox) {
       let newLayers = {}
       for (let [name, layer] of Object.entries(layers)) {

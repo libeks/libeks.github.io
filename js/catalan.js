@@ -55,13 +55,11 @@ const generateIterativeCatalanNumeric = memoize(genIterCatalanNumericalExpensive
 function genIterNumber(n, i) {
   let res = generateIterativeCatalanNumeric(n, i)
   let result = res.map((char) => numericalToHex(char)).join('')
-  // console.log('genIterNumber', n, i, result)
   return result
 }
 
 // Return a balanced-parenthesis representation of the Catalan Structure Cn with index i
 const generateIterativeCatalanParenthesisExpensive = function (n, i) {
-  // console.log(`catalan n=${n}, i=${i}`)
   let ii = i
   if (n == 0) {
     return ''
@@ -80,37 +78,21 @@ const generateIterativeCatalanParenthesisExpensive = function (n, i) {
   if (i == cn - 1) {
     return '('.repeat(n) + ')'.repeat(n)
   }
-  // console.log(`Catalan n=${n}, i=${i}, Cn=${cn}`)
 
   let iter = 0
   for (let a1 = 0; a1 <= n - 1; a1++) {
     let ca1 = catalanNumber(a1)
     let a2 = n - a1 - 1
     let ca2 = catalanNumber(a2)
-    // console.log(
-    //   `iter n=${n}, i=${ii}, i=${i}, a1=${a1}, C(${a1})=${ca1}, a2=${a2}, C(${a2})=${ca2}`,
-    // )
 
     if (i < ca1 * ca2) {
       let j = Math.floor(i / ca2)
       i = i - ca2 * j
-      // console.log(`getting C(${a1}, ${j}) and C(${a2}, ${i})`)
       const result = `(${generateIterativeCatalanParentheses(a1, j)})${generateIterativeCatalanParentheses(a2, i)}`
-      // console.log(`returning n=${n}, i=${ii} $C(${a1}, ${j}) and $C(${a2}, ${i})`, result)
       return result
     } else {
       i = i - ca1 * ca2
     }
-
-    // for (let j = 0; j < ca1; j++) {
-    //   if (i < ca2) {
-    //     console.log(`getting C(${a1}, ${j}) and C(${a2}, ${i})`)
-    //     const result = `(${generateIterativeCatalanParentheses(a1, j)})${generateIterativeCatalanParentheses(a2, i)}`
-    //     console.log(`returning n=${n}, i=${ii}`, a1, `j=${j}`, a2, result)
-    //     return result
-    //   }
-    //   i -= ca2
-    // }
   }
   return 'unknown'
 }
@@ -299,10 +281,8 @@ function generateCatalanNumberSet(n) {
 function rotateParenthesis(element) {
   // find the matching parenthesis for the last closing parenthesis
   let numerical = parenthesesToNumerical(element)
-  // console.log('parenthesisToPartitions', element, numerical)
   let breakpoint = 0
   for (let i = 0; i < numerical.length; i += 2) {
-    // console.log('i', i, numerical[i + 1], hexToNumerical(numerical[i + 1]), element.length)
     if (hexToNumerical(numerical[i + 1]) == element.length) {
       breakpoint = hexToNumerical(numerical[i]) - 1
       break
@@ -313,7 +293,6 @@ function rotateParenthesis(element) {
   if (breakpoint + 1 < element.length - 2) {
     y = element.substring(breakpoint + 1, element.length - 1)
   }
-  // console.log('breakpoint', element, breakpoint, x, y)
   let response = `(${x})${y}`
   if (response.length != element.length) {
     throw `Invalid length ${response} ${response.length}, ${element} ${element.length}`
@@ -324,11 +303,9 @@ function rotateParenthesis(element) {
 function generateRotations(element) {
   let el = element
   let set = [element]
-  // for (let i = 0; i < 3; i++) {
   while (true || set.length > 200) {
     let before = el
     el = rotateParenthesis(el)
-    // console.log('rotate', before, el)
     if (el == element) {
       return set
     }
@@ -353,18 +330,15 @@ function partitionCatalanParenthesisSet(set) {
 
 function getParenthesisPartitions(n) {
   let set = generateCatalanParenthesisSet(n).map((el) => el.join(''))
-  // console.log('set', set)
   let partitions = partitionCatalanParenthesisSet(set)
   let newMap = {}
   for (let [k, v] of Object.entries(partitions)) {
     newMap[parenthesesToHex(k)] = v.map((a) => parenthesesToHex(a))
   }
-  // console.log('getParenthesisPartitions', set.length, partitions, newMap)
   return newMap
 }
 
 function get2DWalkFromParentheses(parentheses) {
-  // let p = parentheses.substring(1, parentheses.lenght - 1)
   let result = []
   for (let i = 1; i < parentheses.length - 1; i += 2) {
     let st = parentheses.substring(i, i + 2)
@@ -388,9 +362,6 @@ function getBinaryTree(tileParentheses) {
   let depth = -1
   let nNodes = 1
   let nodes = {}
-  // let root = { id: 0, left: null, right: null, parent: null, depth: 0 }
-  // nodes[root.id] = root
-  // let current = root
   let current
   let root
   for (let char of tileParentheses) {

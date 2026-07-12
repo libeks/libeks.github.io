@@ -1,4 +1,5 @@
 import { enumerate } from '/js/utils.js'
+import { pens } from '/js/plotter/pens.js'
 
 // consts used as kill switches for debugging
 const clipToBBox = true
@@ -49,8 +50,11 @@ class Scene {
 
     this.options = []
     this.configs = {}
+    this.pens = {}
   }
 
+  // render layers based on a pre-existing Vue template
+  // layerFn: ({template}) => ({namedLayers...}), note that it doesn't receive any of the parameters directly
   withTemplate(template, parameterFn, options, layerFn) {
     this.rawTemplate = template
     this.parameterFn = parameterFn
@@ -63,6 +67,8 @@ class Scene {
     return this
   }
 
+  // render layers directly from options, without a Vue template
+  // layerFn: ({parameters...}) => ({namedLayers...})
   withOptions(parameterFn, options, layerFn) {
     this.parameterFn = parameterFn
     this.options = options
@@ -73,9 +79,14 @@ class Scene {
     return this
   }
 
+  withPens(pens) {
+    // pens is an object, each pen has {pen: , color:} fields
+    this.pens = pens
+    return this
+  }
+
   place(bbox, options) {
     this.parameters = this.parameterFn(bbox, options)
-    console.log('parameters', options, this.parameters)
     let layers
     if (this.rawTemplate && this.templateLayerFn) {
       this.template = applyTemplate(this.rawTemplate, this.parameters)
@@ -93,17 +104,15 @@ class Scene {
         let curves = []
         let fill = []
 
-        // if (layer.fill) {
-        //   console.log(
-        //     'fill curve continuous before',
-        //     layer.fill.curves.map((curve) => curve.curve.curve.isContinousDebug()),
-        //   )
-        // }
+        if (name in this.pens) {
+          layer.pen = this.pens[name]
+        } else {
+          layer.pen = { pen: pens.Micron005, color: 'black' }
+        }
+
         if (clipToBBox) {
-          // console.log('bbox', bbox)
           for (let curve of layer.curves) {
             let clipped = curve.clip(bbox)
-            // console.log('clipping of ', curve, 'got', clipped)
             if (
               layer.fill &&
               layer.fill.curves.some((curve) => !curve.curve.curve.isContinousDebug())
@@ -112,24 +121,11 @@ class Scene {
             }
             curves.push(...clipped)
           }
-          // console.log('setting layer', name, 'to have curves', curves)
           layer.curves = curves
           if (layer.fill) {
-            // console.log(
-            //   'fill curve continuous after',
-            //   layer.fill.curves.map(
-            //     (curve) =>
-            //       curve.curve.curve.isContinousDebug() &&
-            //       curve.minus.every((c) => c.curve.curve.isContinousDebug()),
-            //   ),
-            //   layer.fill.curves.map((curve) => curve.curve.curve.isContinousDebug()),
-            // )
             let c = layer.fill.curves[3]
-            // console.log('curves[3]', c.curve.curve.isContinousDebug(), c)
             for (let curve of layer.fill.curves) {
-              // console.log('fill curve continuous', curve.curve.curve.isContinousDebug())
               if (!curve.curve.curve.isContinousDebug()) {
-                // console.log('curve', curve)
                 console.trace()
                 throw `fill layer has a non-continuous curve`
               }
@@ -161,12 +157,7 @@ class Scene {
         if (layer.fill.direction) {
           direction = layer.fill.direction
         }
-        // console.log('curves before fill', layer.curves)
-        // console.log('fill curves', layer.fill.curves)
-        // layer.curves = [layer.curves[0]]
         for (let curve of layer.fill.curves) {
-          // console.log('filling curve', curve, curve.id)
-
           let fill = curve.fill(spacing, direction)
           if (curve.id) {
             enumerate(fill).forEach(([id, c]) => (c.id = `${curve.id}.${id}`))

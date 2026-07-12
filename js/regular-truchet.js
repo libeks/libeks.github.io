@@ -112,7 +112,6 @@ class GenericTruchetTile {
     if (cn1 > cn2) {
       throw `getCurve got unordered curve ${curve}`
     }
-    // console.log('notch points', this.notchPoints)
     let p1 = this.notchPoints[cn1]
     let p2 = this.notchPoints[cn2]
     let c1star = this.stars[cn1]
@@ -342,9 +341,7 @@ class GenericTruchetTile {
         p1plus = this.stars[cn1 + 1]
         p2plus = this.stars[cn2 - 1]
       }
-      // console.log('this.stars', this.stars)
       const mid = p1plus.midpoint(p2plus)
-      // console.log('funny', curve, p1plus, p2plus, mid, cn1, cn2, cn1 + 1, cn2 - 1)
       return new CompositeCurve(
         new CubicBezier(p1, c1star, p1plus, mid),
         new CubicBezier(mid, p2plus, c2star, p2),
@@ -380,7 +377,6 @@ class GenericTruchetTile {
     }
     let curves = getPairs(tile)
     this.computePoints()
-    // console.log('notchpoints', this.notchPoints)
     let lines = curves.map((curve) =>
       catalanFragment(
         this.getCurve(curve),
@@ -389,13 +385,6 @@ class GenericTruchetTile {
         false, // isConnector
       ),
     )
-    // console.log(
-    //   'getCatalanTile',
-    //   curves,
-    //   lines,
-    //   // lines.map((line) => line.meta.notchPoints.length),
-    //   // this.vertices.length,
-    // )
     return lines
   }
 }
@@ -465,7 +454,6 @@ function generateTruchetGrid(grid, random, notches, size) {
       }
     }
 
-    // console.log('unprocessed', unprocessed)
     let curves = []
     while (Object.keys(unprocessed).length > 0) {
       let start = Object.values(unprocessed)[0] // pick a 'random' curve to start with
@@ -494,7 +482,6 @@ function generateTruchetGrid(grid, random, notches, size) {
               break
             } else if (curve.curve.endpoint().same(end.curve.endpoint())) {
               // the curve needs to be reversed before it can be added
-              // console.log('reversing curve', curve)
               curve.curve = curve.curve.reverse()
               aggregate.add(curve.curve)
               end = curve
@@ -611,7 +598,7 @@ const genericTruchetGrid = {
   },
   computed: {
     random() {
-      console.log('random for pattern and seed', this.pattern, this.seed)
+      console.log('random for pattern and seed', this.pattern, this.seed) // this is necesary to ensure the RNG is initialized every time pattern is changed
       return new Random(this.seed)
     },
     tilingFaces() {

@@ -1,5 +1,7 @@
 import { average } from '/js/math.js'
 
+// utils.js is a collection of mostly array-based utility functions, some of which mirror similar functions in python
+
 // given a list, return pairs
 // [1,2,3] => [[1,2], [2,3]]
 function pairs(list) {
@@ -67,12 +69,9 @@ function crossProduct(list) {
   if (!Array.isArray(list)) {
     throw `crossProduct got a non-array argument`
   }
-  // console.log('cross product of', list, Array.isArray(list))
   let result = []
   for (let a = 0; a < list.length; a++) {
-    // console.log('cross a', a)
     for (let b = a + 1; b < list.length; b++) {
-      // console.log('cross b', b)
       result.push([list[a], list[b]])
     }
   }

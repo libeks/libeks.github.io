@@ -307,7 +307,6 @@ const rootedTree = {
         } else {
           rows[node.depth] = [node]
         }
-        // console.log('traverse node', node)
       }
       traverse(this.tree.root)
       this.tree.rows = rows
@@ -325,19 +324,10 @@ const rootedTree = {
       this.tree.offsetY = 50
       this.tree.verticalStep = this.bbox.height() / (this.tree.maxDepth + 1)
       const tree = this.tree // capture to be used in setPosition
-      // console.log(
-      //   'bbox',
-      //   this.bbox,
-      //   this.bbox.height(),
-      //   this.tree.maxDepth + 1,
-      //   this.bbox.height() / (this.tree.maxDepth + 1),
-      // )
-      // console.log('tree', tree)
       function setPosition(node) {
         node.y = (node.depth + 0.5) * tree.verticalStep
         let offset = node.x - node.width / 2
         node.pt = new Point(node.x, node.y)
-        // console.log('node.pt', node.pt)
         for (let child of node.children) {
           child.x = offset + child.width / 2
           offset += child.width
@@ -355,12 +345,9 @@ const rootedTree = {
       let edges = []
       const truncatedLine = true // whether the line connecting nodes should "go quiet" close to the node
       function getEdges(node) {
-        // console.log('node', node)
         for (let child of node.children) {
-          // console.log('child', node, child)
           let ptA = node.pt
           let ptB = child.pt
-          // console.log('pts', ptA, ptB)
           let line
           if (truncatedLine) {
             let vect = ptA.vectTo(ptB).unit()
@@ -378,8 +365,6 @@ const rootedTree = {
           getEdges(child)
         }
       }
-      // console.log('this', this)
-      // console.log('tree root', this.tree.root)
       getEdges(this.positionedTree.root)
       return edges
     },
@@ -584,7 +569,6 @@ const danglingBinaryTree = {
       return tree
     },
     nodes() {
-      // console.log('nodes', this.positionedTree.nodes)
       return Object.values(this.positionedTree.nodes)
     },
     edges() {
@@ -683,13 +667,11 @@ class Triangulation {
     let edgePairs = []
     let triangles = []
     let internal = []
-    // let vertices = this.vertices // capture in scope for function
     function gatherEdges(node) {
       if (node.left != null) {
         gatherEdges(node.left)
         internal.push(node.leftData)
       } else {
-        // console.log
         edgePairs.push(node.leftData)
       }
       edgePairs.push(node.data)
@@ -744,7 +726,6 @@ const polygonTriangulation = {
     },
     tree() {
       let triangulation = this.triangulation
-      // console.log('edgeIDs', triangulation.edgeIDs)
       return this.triangulation.tree
     },
     n() {

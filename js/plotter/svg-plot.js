@@ -199,6 +199,7 @@ const svgPlot = {
           layerObj = layerObj.withColor(layer.color)
         }
         if (layer.pen) {
+          console.log('layer pen', layer.pen)
           layerObj = layerObj.withPen(layer.pen)
         }
         if (layer.dontOptimize) {
@@ -228,11 +229,11 @@ const svgPlot = {
               new StraightStroke(new Point(500, 300), new Point(500, 700)).move(offset),
               new StraightStroke(new Point(300, 500), new Point(700, 500)).move(offset),
             ])
-            .withPen(layer.pen)
+            .withPen({ pen: layer.pen, color: layer.color })
 
-          if (layer.color) {
-            layerObj = layerObj.withColor(layer.color)
-          }
+          // if (layer.color) {
+          //   layerObj = layerObj.withColor(layer.color)
+          // }
           layer.attachChild(layerObj) // make sure the real layer has the guide layer as a child
           layers.push(layerObj)
           offset = offset.add(new Vector(1000, 0))

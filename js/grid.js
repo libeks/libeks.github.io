@@ -700,10 +700,8 @@ class VertexGrid {
       if (face.isComplete()) {
         continue
       }
-      // console.log(`face ${face.id} is not complete, has potentialGenera`, face.potentialGenera)
       if (!face.potentialGenera) {
         face.potentialGenera = this.pattern.getFaceHints(face.face.tile)
-        // console.log(`Setting face ${face.id} potential genera to`, face.potentialGenera)
       }
 
       // first, filter out any patterns that don't apply to the current vertex setup
@@ -715,9 +713,6 @@ class VertexGrid {
           for (let [vertex, gen] of zip(face.vertices, pat)) {
             let potentialGenera = vertex.getPossibleGenera()
             if (!potentialGenera.includes(gen)) {
-              // console.log(
-              //   `face ${face.id} pattern ${pat} is invalid, for vertex ${vertex.id} potential genera ${potentialGenera} doesn't include ${gen}`,
-              // )
               validPattern = false
               isUpdate = true
               break
@@ -725,14 +720,11 @@ class VertexGrid {
           }
           if (validPattern) {
             newPatterns.push(pat)
-          } else {
-            // console.log(`face ${face.id} pattern ${pat} is invalid`)
           }
         }
         if (newPatterns.length == 0) {
           throw `Face ${face.id} got unexpected zero new patterns`
         }
-        // console.log(`face ${face.id} setting potential genera to `, newPatterns)
         face.potentialGenera = newPatterns
       } else if (face.potentialGenera.length == 0) {
         throw `Face ${face.id} has no potential genera`
@@ -746,18 +738,9 @@ class VertexGrid {
         let newList = []
         for (let pat of vertex.patternPotentials) {
           let genus = pat.genus
-          // console.log(
-          //   `face ${face.id} vertex ${vertex.id} has pattern ${pat.pattern} and genus ${genus}, compared to potentials ${potentials}`,
-          // )
           if (potentials.includes(genus)) {
-            // console.log(
-            //   `face ${face.id} vertex ${vertex.id} pattern ${pat.pattern} and genus ${genus} matches`,
-            // )
             newList.push(pat)
           } else {
-            // console.log(
-            //   `face ${face.id} vertex ${vertex.id} pattern ${pat.pattern} and genus ${genus} was rejected`,
-            // )
           }
         }
         if (newList.length != vertex.patternPotentials.length) {
@@ -766,10 +749,6 @@ class VertexGrid {
           }
           vertex.patternPotentials = newList
           if (vertex.patternPotentials.length == 1) {
-            // console.log(
-            //   `face ${face.id} vertex ${vertex.id} can only have one pattern`,
-            //   vertex.patternPotentials,
-            // )
             vertex.finalPattern = vertex.patternPotentials[0]
             let updates = vertex.computeMissing()
             if (updates.length == 0) {
@@ -777,13 +756,8 @@ class VertexGrid {
             }
             for (let [tile, angle] of updates) {
               let face = new NGon({ tile, side: this.size, angle, firstVertex: vertex })
-              // console.log(`adding face`, face)
               this.addFace(face)
             }
-            // console.log(
-            //   `face ${face.id} after adding new face has potential genera`,
-            //   face.potentialGenera,
-            // )
             return 1 // success
           } else {
             return 0

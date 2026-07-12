@@ -55,11 +55,14 @@ class Layer {
     return this
   }
 
-  withPen(pen) {
+  withPen(params) {
+    console.log('withPen got', params, this.name)
+    let { pen, color } = params
     if (pen.type != 'Pen') {
       throw `Layer.withPen got unexpected argument ${pen.type}`
     }
     this.pen = pen
+    this.color = color
     return this // allow chaining
   }
 

@@ -201,7 +201,7 @@ class BBox {
       }
     }
     console.trace()
-    // console.log('point', point, 'bbox', this, distances)
+    console.warn('point', point, 'bbox', this, distances)
     throw `Point ${point.string()} doesn't appear to be on the perimeter of bbox, distance of ${distances}`
   }
 
@@ -209,7 +209,6 @@ class BBox {
   // if a > b, pass through the upper right corner
   // t-values correspond to the at(t) method
   perimeterPath(a, b) {
-    // console.log(`bbox.perimeterpath from ${a} to ${b}`)
     if (a == b) {
       return new CompositeCurve(new StraightStroke(this.at(a), this.at(b)))
     }
@@ -239,11 +238,9 @@ class BBox {
     }
     ts.sort((a, b) => a - b)
     let intervals = reduceIntervals(ts, (t) => this.inside(line.at(t)))
-    // console.log('intervals', intervals)
     let ans = reduceIntervals(ts, (t) => this.inside(line.at(t))).map(
       ([a, b]) => new StraightStroke(line.at(a), line.at(b)),
     )
-    // console.log('clipLine returns', ans)
     return ans
   }
 

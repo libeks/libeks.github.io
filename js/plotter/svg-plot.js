@@ -14,7 +14,7 @@ const svgPlot = {
         <svg viewBox="0,0,13333,10000"  version="1.1" sodipodi:docname="test_inkscape.svg" inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
           <metadata class="configs" v-html="rawHTMLComment" > </metadata>
           <g v-for="layer in visibleLayers" inkscape:groupmode="layer" :inkscape:label="layer.displayName" :transform="layer.transform()">
-            <path v-for="curve in layer.curves" :d="curve.d()" :stroke="layer.color" fill="none" :stroke-width="layer.pen.spacing" stroke-opacity="0.6" :data-line="curve.id"> </path>
+            <path v-for="curve in layer.curves" :d="curve.d()" :stroke="pens[layer.id].color" fill="none" :stroke-width="pens[layer.id].pen.spacing" stroke-opacity="0.6" :data-line="curve.id"> </path>
           </g>
         </svg>
       </div>
@@ -33,24 +33,24 @@ const svgPlot = {
             <tr v-for="(layer, id) in allLayers">
               <td>{{layer.displayName}}</td>
               <td style="text-align: right">{{prettyTime(layer.statistics().time)}}</td>
-              <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1" :style="{color: pens[layer.name].color}">
+              <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1" :style="{color: pens[layer.id].color}">
                 <div style="display: flex; gap: 10px">
-                  <select v-model="pens[layer.name].pen">
+                  <select v-model="pens[layer.id].pen">
                     <option v-for="pen of allPens" :value="pen">{{pen.name}}</option>
                   </select>
-                  <div class="colorSquare" @click="$refs['dialog-'+layer.id][0].showModal()" :style="{'background-color':pens[layer.name].color}"></div>
+                  <div class="colorSquare" @click="$refs['dialog-'+layer.id][0].showModal()" :style="{'background-color':pens[layer.id].color}"></div>
                 </div>
                 <dialog :id="'dialog-'+layer.id" :ref="'dialog-'+layer.id" closedby="any">
                   <div style="display:flex; gap: 10px;">
-                    <div v-for="color of pens[layer.name].pen.colors" class="colorSquare" @click="pens[layer.name].color = color; $refs['dialog-'+layer.id][0].close()" :style="{'background-color': color}"></div>
+                    <div v-for="color of pens[layer.id].pen.colors" class="colorSquare" @click="changeColor(layer, color); $refs['dialog-'+layer.id][0].close()" :style="{'background-color': color}"></div>
                   </div>
                   <p>Contents of modal dialog</p>
                   <button :commandfor="'dialog-'+layer.id" command="close">Close</button>
                 </dialog>
               </td>
               <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1">
-                <input type="checkbox" :id="'visibility-'+id" v-model="hidden[layer.name]" />
-                <label :for="'visibility-'+id">{{ hidden[layer.name] ? 'Hidden' : 'Visible' }}</label>
+                <input type="checkbox" :id="'visibility-'+id" v-model="hidden[layer.id]" />
+                <label :for="'visibility-'+id">{{ hidden[layer.id] ? 'Hidden' : 'Visible' }}</label>
               </td> 
             </tr>
           </tbody>
@@ -116,11 +116,10 @@ const svgPlot = {
       immediate: true, // ensures this is run on the initial computation of allLayers
       handler: function (newObj, oldObj) {
         console.log('allLayers has changed', newObj, oldObj)
-        newObj.forEach((o) => {
-          this.hidden[o.name] = o.hidden
-          this.pens[o.name] = { pen: o.pen, color: o.color }
+        newObj.forEach((layer) => {
+          this.hidden[layer.id] = layer.hidden
+          this.pens[layer.id] = { pen: layer.pen, color: layer.color }
         })
-        console.log('pens', this.pens)
       },
     },
   },
@@ -153,6 +152,12 @@ const svgPlot = {
       let minutesChunk = minutes > 0 ? `${minutes}m` : ''
       let secondsChunk = `${seconds}s` // display '0s' as a last resort
       return `${hoursChunk}${minutesChunk}${secondsChunk}`
+    },
+    changeColor(layer, color) {
+      this.pens[layer.id].color = color
+      if (layer.parent) {
+        this.pens[layer.parent.id].color = color
+      }
     },
   },
   components: {
@@ -254,11 +259,12 @@ const svgPlot = {
     visibleLayers() {
       let retval = this.allLayers.filter((layer) => {
         if (layer.child) {
-          return !this.hidden[layer.child.name]
+          return !this.hidden[layer.child.id]
         }
-        return !this.hidden[layer.name]
+        return !this.hidden[layer.id]
       })
       console.log('this.allLayers hidden', this.hidden, retval)
+      console.log('pens', this.pens)
       return retval
     },
     allLayers() {

@@ -33,9 +33,8 @@ const svgPlot = {
             <tr v-for="(layer, id) in allLayers">
               <td>{{layer.displayName}}</td>
               <td style="text-align: right">{{prettyTime(layer.statistics().time)}}</td>
-              <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1" :style="{color: layer.color}">{{layer.pen.name}}</td>
-              <td>{{layer.hidden}}, {{id}}</td>
-              <td>
+              <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1" :style="{color: pens[layer.name].color}">{{pens[layer.name].pen.name}}</td>
+              <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1">
                 <input type="checkbox" :id="'visibility-'+id" v-model="hidden[layer.name]" />
                 <label :for="'visibility-'+id">{{ hidden[layer.name] ? 'Hidden' : 'Visible' }}</label>
               </td> 
@@ -105,8 +104,9 @@ const svgPlot = {
         console.log('allLayers has changed', newObj, oldObj)
         newObj.forEach((o) => {
           this.hidden[o.name] = o.hidden
-          this.pens[o.name] = o.pen
+          this.pens[o.name] = { pen: o.pen, color: o.color }
         })
+        console.log('pens', this.pens)
       },
     },
   },
@@ -238,11 +238,14 @@ const svgPlot = {
       return layers
     },
     visibleLayers() {
-      console.log(
-        'this.allLayers hidden',
-        this.allLayers.map((layer) => this.hidden[layer.name]),
-      )
-      return this.allLayers.filter((layer) => !this.hidden[layer.name])
+      let retval = this.allLayers.filter((layer) => {
+        if (layer.child) {
+          return !this.hidden[layer.child.name]
+        }
+        return !this.hidden[layer.name]
+      })
+      console.log('this.allLayers hidden', this.hidden, retval)
+      return retval
     },
     allLayers() {
       let layers = []
@@ -262,8 +265,6 @@ const svgPlot = {
               new StraightStroke(new Point(300, 500), new Point(700, 500)).move(offset),
             ])
             .withPen({ pen: layer.pen, color: layer.color })
-
-          layerObj.hidden = true // temp
 
           // if (layer.color) {
           //   layerObj = layerObj.withColor(layer.color)

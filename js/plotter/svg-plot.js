@@ -13,7 +13,7 @@ const svgPlot = {
       <div class='plot' ref="plot" style="border: solid 1px black">
         <svg viewBox="0,0,13333,10000"  version="1.1" sodipodi:docname="test_inkscape.svg" inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
           <metadata class="configs" v-html="rawHTMLComment" > </metadata>
-          <g v-for="layer in allLayers" inkscape:groupmode="layer" :inkscape:label="layer.displayName" :transform="layer.transform()">
+          <g v-for="layer in visibleLayers" inkscape:groupmode="layer" :inkscape:label="layer.displayName" :transform="layer.transform()">
             <path v-for="curve in layer.curves" :d="curve.d()" :stroke="layer.color" fill="none" :stroke-width="layer.pen.spacing" stroke-opacity="0.6" :data-line="curve.id"> </path>
           </g>
         </svg>
@@ -26,16 +26,23 @@ const svgPlot = {
               <th scope="col">Name</th>
               <th scope="col">Time</th>
               <th scope="col">Pen</th>
+              <th scope="col">Visibility</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="layer in allLayers">
+            <tr v-for="(layer, id) in allLayers">
               <td>{{layer.displayName}}</td>
               <td style="text-align: right">{{prettyTime(layer.statistics().time)}}</td>
               <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1" :style="{color: layer.color}">{{layer.pen.name}}</td>
+              <td>{{layer.hidden}}, {{id}}</td>
+              <td>
+                <input type="checkbox" :id="'visibility-'+id" v-model="hidden[layer.name]" />
+                <label :for="'visibility-'+id">{{ hidden[layer.name] ? 'Hidden' : 'Visible' }}</label>
+              </td> 
             </tr>
           </tbody>
         </table>
+        <p>{{hidden}}</p>
         <div class="options">
           <div v-for="option in scene.options">
             <div class="name">{{option.name}}</div>
@@ -84,6 +91,24 @@ const svgPlot = {
     bbox: Object,
     withFrame: Boolean,
     withGuides: Boolean,
+  },
+  data() {
+    return {
+      hidden: {},
+      pens: {},
+    }
+  },
+  watch: {
+    allLayers: {
+      immediate: true, // ensures this is run on the initial computation of allLayers
+      handler: function (newObj, oldObj) {
+        console.log('allLayers has changed', newObj, oldObj)
+        newObj.forEach((o) => {
+          this.hidden[o.name] = o.hidden
+          this.pens[o.name] = o.pen
+        })
+      },
+    },
   },
   methods: {
     getSVG() {
@@ -212,6 +237,13 @@ const svgPlot = {
       }
       return layers
     },
+    visibleLayers() {
+      console.log(
+        'this.allLayers hidden',
+        this.allLayers.map((layer) => this.hidden[layer.name]),
+      )
+      return this.allLayers.filter((layer) => !this.hidden[layer.name])
+    },
     allLayers() {
       let layers = []
       if (this.withFrame) {
@@ -231,6 +263,8 @@ const svgPlot = {
             ])
             .withPen({ pen: layer.pen, color: layer.color })
 
+          layerObj.hidden = true // temp
+
           // if (layer.color) {
           //   layerObj = layerObj.withColor(layer.color)
           // }
@@ -245,6 +279,7 @@ const svgPlot = {
         layer.displayName = `${id} - ${layer.name}`
       }
 
+      console.log('allLayers', layers)
       return layers
     },
   },

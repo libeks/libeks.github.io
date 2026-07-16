@@ -25,6 +25,8 @@ class Layer {
     this.child = null
     this.parent = null
 
+    this.hidden = false
+
     this.type = 'Layer'
   }
 

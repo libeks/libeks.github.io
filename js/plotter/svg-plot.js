@@ -33,7 +33,21 @@ const svgPlot = {
             <tr v-for="(layer, id) in allLayers">
               <td>{{layer.displayName}}</td>
               <td style="text-align: right">{{prettyTime(layer.statistics().time)}}</td>
-              <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1" :style="{color: pens[layer.name].color}">{{pens[layer.name].pen.name}}</td>
+              <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1" :style="{color: pens[layer.name].color}">
+                <div style="display: flex; gap: 10px">
+                  <select v-model="pens[layer.name].pen">
+                    <option v-for="pen of allPens" :value="pen">{{pen.name}}</option>
+                  </select>
+                  <div class="colorSquare" @click="$refs['dialog-'+layer.id][0].showModal()" :style="{'background-color':pens[layer.name].color}"></div>
+                </div>
+                <dialog :id="'dialog-'+layer.id" :ref="'dialog-'+layer.id" closedby="any">
+                  <div style="display:flex; gap: 10px;">
+                    <div v-for="color of pens[layer.name].pen.colors" class="colorSquare" @click="pens[layer.name].color = color; $refs['dialog-'+layer.id][0].close()" :style="{'background-color': color}"></div>
+                  </div>
+                  <p>Contents of modal dialog</p>
+                  <button :commandfor="'dialog-'+layer.id" command="close">Close</button>
+                </dialog>
+              </td>
               <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1">
                 <input type="checkbox" :id="'visibility-'+id" v-model="hidden[layer.name]" />
                 <label :for="'visibility-'+id">{{ hidden[layer.name] ? 'Hidden' : 'Visible' }}</label>
@@ -41,11 +55,10 @@ const svgPlot = {
             </tr>
           </tbody>
         </table>
-        <p>{{hidden}}</p>
         <div class="options">
           <div v-for="option in scene.options">
             <div class="name">{{option.name}}</div>
-            <select v-if="option.type=='dropdown' "v-model="scene.configs[option.name]">
+            <select v-if="option.type=='dropdown'" v-model="scene.configs[option.name]">
               <option v-for="elt of option.options" :value="elt.value">{{elt.name}}</option>
             </select>
             <incremental-buttons 
@@ -95,6 +108,7 @@ const svgPlot = {
     return {
       hidden: {},
       pens: {},
+      allPens: pens,
     }
   },
   watch: {
@@ -278,6 +292,7 @@ const svgPlot = {
       // prefix each layer with a numerical index
       for (let [id, layer] of enumerate(layers)) {
         layer.displayName = `${id} - ${layer.name}`
+        layer.id = id
       }
 
       console.log('allLayers', layers)

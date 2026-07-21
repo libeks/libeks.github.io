@@ -16,9 +16,13 @@ class Layer {
   constructor(name) {
     this.name = name
     this.curves = []
+    this.fillCurves = [] // the outlines of the fill curves for this layer
+    this.filledCurves = {}
     this.drawGuides = false // can be changed with .withGuides()
-    this.color = 'black' // can be changed with .withColor(color)
-    this.pen = pens.Micron005 // can be changed with .withPen(pen)
+    this.spacing = 20
+    this.direction = 13
+    // this.color = 'black' // can be changed with .withColor(color)
+    // this.pen = pens.Micron005 // can be changed with .withPen(pen)
     this.canOptimize = true // whether curves should be rearranged to minimine uptime, can be disabled with .withoutOptimize()
 
     // child/parent relationships, used to render time table, set with .attachChild(child)
@@ -28,6 +32,21 @@ class Layer {
     this.hidden = false
 
     this.type = 'Layer'
+  }
+
+  getAllCurves(spacing) {
+    if (this.fillCurves.length > 0) {
+      if (!(spacing in this.filledCurves)) {
+        this.filledCurves[spacing] = this.fill(spacing, this.direction)
+        // console.log(`layer['${this.name}'].fillCurves[${spacing}] is`, this.filledCurves[spacing])
+      }
+      // console.log(`layer['${this.name}'].getAllCurves returning`, [
+      //   ...this.curves,
+      //   ...this.filledCurves[spacing],
+      // ])
+      return [...this.curves, ...this.filledCurves[spacing]]
+    }
+    return this.curves
   }
 
   withGuides() {
@@ -47,6 +66,16 @@ class Layer {
     return this // allow chaining
   }
 
+  withFillCurves(curves) {
+    for (let curve of curves) {
+      if (curve.type != 'ClosedCurveWithMinus') {
+        throw `withFill got unexpected curve ${curve.type}`
+      }
+    }
+    this.fillCurves.push(...curves)
+    return this // allow chaining
+  }
+
   withColor(color) {
     this.color = color
     return this // allow chaining
@@ -58,7 +87,7 @@ class Layer {
   }
 
   withPen(params) {
-    console.log('withPen got', params, this.name)
+    // console.log('withPen got', params, this.name)
     let { pen, color } = params
     if (pen.type != 'Pen') {
       throw `Layer.withPen got unexpected argument ${pen.type}`
@@ -68,7 +97,21 @@ class Layer {
     return this // allow chaining
   }
 
-  // rearrange the layer to minimize pen uptime
+  fill(spacing, direction) {
+    let fillCurves = []
+    for (let curve of this.fillCurves) {
+      let fill = curve.fill(spacing, direction)
+      if (curve.id) {
+        enumerate(fill).forEach(([id, c]) => (c.id = `${curve.id}.${id}`))
+      }
+      // layer.curves.push(...fill)
+      fillCurves.push(...fill)
+    }
+    return fillCurves
+  }
+
+  // rearrange the layer to minimize pen uptime, only affect non-fill curves, filled curves should be drawn in the given order to
+  // minimize felt-tip layering effects
   optimize() {
     if (!this.canOptimize) {
       return this
@@ -128,12 +171,13 @@ class Layer {
     layer.parent = this
   }
 
-  statistics() {
+  statistics(spacing) {
+    console.log(`layer ${this.name} statistics computed for spacing`, spacing)
     // TODO: take curvature into account when computing down distance, the pen moves slower on curves
     let downLength = 0
-    // console.log('this.curves', this.curves)
-    for (let curve of this.curves) {
-      // console.log('curve.length', curve)
+    console.log(`layer ${this.name} curve length`, this.getAllCurves(spacing).length)
+    for (let curve of this.getAllCurves(spacing)) {
+      console.log('curve.length', curve, curve.length())
       // console.log('curve.length2', curve.length())
       downLength += curve.length()
     }
@@ -154,7 +198,7 @@ class Layer {
     let totalDistance = downLength + upLength
     let meters = imageSpaceToMeters(totalDistance)
     let seconds = metersToSeconds(meters) + upDownCount * 0.5 // each up-down action takes some time as well
-    return {
+    let ret = {
       downLength,
       upLength,
       total: totalDistance,
@@ -162,12 +206,14 @@ class Layer {
       upDownCount, // number of times the pen has to lift and descend
       nCurves: this.curves.length, // number of curves, some may be continuous
     }
+    console.log(`layer ${this.name} statistics`, ret)
+    return ret
   }
 
-  // the transform property of the <g> element, to position the pen correctly relative to the comb
-  transform() {
-    return `translate(${-this.pen.xOffset} ${-this.pen.yOffset})`
-  }
+  // // the transform property of the <g> element, to position the pen correctly relative to the comb
+  // transform() {
+  //   return `translate(${-this.pen.xOffset} ${-this.pen.yOffset})`
+  // }
 }
 
 export { Layer }

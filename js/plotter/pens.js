@@ -7,6 +7,11 @@ class Pen {
     this.type = 'Pen'
     this.colors = colors
   }
+
+  // the transform property of the <g> element, to position the pen correctly relative to the comb
+  transform() {
+    return `translate(${-this.xOffset} ${-this.yOffset})`
+  }
 }
 
 const pens = {

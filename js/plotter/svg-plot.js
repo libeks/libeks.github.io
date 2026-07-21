@@ -13,8 +13,8 @@ const svgPlot = {
       <div class='plot' ref="plot" style="border: solid 1px black">
         <svg viewBox="0,0,13333,10000"  version="1.1" sodipodi:docname="test_inkscape.svg" inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
           <metadata class="configs" v-html="rawHTMLComment" > </metadata>
-          <g v-for="layer in visibleLayers" inkscape:groupmode="layer" :inkscape:label="layer.displayName" :transform="layer.transform()">
-            <path v-for="curve in layer.curves" :d="curve.d()" :stroke="pens[layer.id].color" fill="none" :stroke-width="pens[layer.id].pen.spacing" stroke-opacity="0.6" :data-line="curve.id"> </path>
+          <g v-for="layer in visibleLayers" inkscape:groupmode="layer" :inkscape:label="layer.displayName" :transform="layerPens[layer.id].transform()">
+            <path v-for="curve in layer.getAllCurves(layerPens[layer.id].spacing)" :d="curve.d()" :stroke="colors[layer.id]" fill="none" :stroke-width="layerPens[layer.id].spacing" stroke-opacity="0.6" :data-line="curve.id"> </path>
           </g>
         </svg>
       </div>
@@ -32,19 +32,19 @@ const svgPlot = {
           <tbody>
             <tr v-for="(layer, id) in allLayers">
               <td>{{layer.displayName}}</td>
-              <td style="text-align: right">{{prettyTime(layer.statistics().time)}}</td>
+              <td style="text-align: right">{{prettyTime(layer.statistics(layerPens[layer.id].spacing).time)}}</td>
               <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1" :style="{color: pens[layer.id].color}">
                 <div style="display: flex; gap: 10px">
-                  <select v-model="pens[layer.id].pen">
+                  <select v-model="pens[layer.id]">
                     <option v-for="pen of allPens" :value="pen">{{pen.name}}</option>
                   </select>
-                  <div class="colorSquare" @click="$refs['dialog-'+layer.id][0].showModal()" :style="{'background-color':pens[layer.id].color}"></div>
+                  <div class="colorSquare" @click="$refs['dialog-'+layer.id][0].showModal()" :style="{'background-color': colors[layer.id]}"></div>
                 </div>
                 <dialog :id="'dialog-'+layer.id" :ref="'dialog-'+layer.id" closedby="any">
+                  <p>Pick a color for {{pens[layer.id].name}}</p>
                   <div style="display:flex; gap: 10px;">
-                    <div v-for="color of pens[layer.id].pen.colors" class="colorSquare" @click="changeColor(layer, color); $refs['dialog-'+layer.id][0].close()" :style="{'background-color': color}"></div>
+                    <div v-for="color of pens[layer.id].colors" class="colorSquare" @click="changeColor(layer, color); $refs['dialog-'+layer.id][0].close()" :style="{'background-color': color}"></div>
                   </div>
-                  <p>Contents of modal dialog</p>
                   <button :commandfor="'dialog-'+layer.id" command="close">Close</button>
                 </dialog>
               </td>
@@ -108,17 +108,27 @@ const svgPlot = {
     return {
       hidden: {},
       pens: {},
+      colors: {},
       allPens: pens,
     }
   },
   watch: {
-    allLayers: {
+    layerSkeletons: {
       immediate: true, // ensures this is run on the initial computation of allLayers
       handler: function (newObj, oldObj) {
         console.log('allLayers has changed', newObj, oldObj)
         newObj.forEach((layer) => {
           this.hidden[layer.id] = layer.hidden
-          this.pens[layer.id] = { pen: layer.pen, color: layer.color }
+          if (layer.pen) {
+            this.pens[layer.id] = layer.pen
+          } else {
+            this.pens[layer.id] = pens.Micron005 // default pen
+          }
+          if (layer.color) {
+            this.colors[layer.id] = layer.color
+          } else {
+            this.colors[layer.id] = 'black' // default color
+          }
         })
       },
     },
@@ -154,11 +164,18 @@ const svgPlot = {
       return `${hoursChunk}${minutesChunk}${secondsChunk}`
     },
     changeColor(layer, color) {
-      this.pens[layer.id].color = color
+      this.colors[layer.id] = color
       if (layer.parent) {
-        this.pens[layer.parent.id].color = color
+        this.colors[layer.parent.id] = color
       }
     },
+    // changePen(layer, pen) {
+    //   console.log('pen', layer, pen)
+    //   this.pens[layer.id].pen = pen
+    //   if (layer.parent) {
+    //     this.pens[layer.parent.id].pen = pen
+    //   }
+    // },
   },
   components: {
     incrementalButtons,
@@ -173,6 +190,32 @@ const svgPlot = {
       }
       const framePadding = 1000
       return new BBox(0, yOffset, 13333, 10000).withIndividualPadding(500, 1000, 1000, 500)
+    },
+    layerPens() {
+      // console.log('layerPens this.pens', this.pens)
+      let ret = {}
+      console.log('this.pens', this.pens)
+      for (let layerID of Object.keys(this.pens)) {
+        let pen = this.pens[layerID]
+        if (!(layerID in ret)) {
+          // don't overwrite the value set by the parent logic below
+          ret[layerID] = pen
+        }
+        let layer = this.layersByID[layerID]
+        if (layer.parent) {
+          // console.log('layer has parent', layer.id, layer.parent.id)
+          ret[layer.parent.id] = pen
+        }
+      }
+      console.log('layerPens', ret)
+      return ret
+    },
+    layersByID() {
+      let ret = {}
+      for (let layer of this.allLayers) {
+        ret[layer.id] = layer
+      }
+      return ret
     },
     guideFrameLayer() {
       return new Layer('frame').withCurves([this.canvas.continuousCurve()])
@@ -239,6 +282,9 @@ const svgPlot = {
       let layers = []
       for (let [name, layer] of Object.entries(this.layers)) {
         let layerObj = new Layer(name).withCurves(layer.curves).withGuides()
+        if (layer.fill) {
+          layerObj = layerObj.withFillCurves(layer.fill.curves)
+        }
         if (layer.color) {
           layerObj = layerObj.withColor(layer.color)
         }
@@ -263,9 +309,44 @@ const svgPlot = {
         }
         return !this.hidden[layer.id]
       })
-      console.log('this.allLayers hidden', this.hidden, retval)
-      console.log('pens', this.pens)
       return retval
+    },
+    layerSkeletons() {
+      let layers = []
+      if (this.withFrame) {
+        layers.push(this.guideFrameLayer)
+      }
+      if (this.withGuides && this.combLayer) {
+        layers.push(this.combLayer)
+      }
+
+      let offset = new Vector(0, 0)
+      for (let layer of this.namedLayers) {
+        if (layer.drawGuides) {
+          let layerObj = new Layer(`guide - ${layer.name}`)
+            // .withCurves([
+            //   new StraightStroke(new Point(500, 300), new Point(500, 700)).move(offset),
+            //   new StraightStroke(new Point(300, 500), new Point(700, 500)).move(offset),
+            // ])
+            .withPen({ pen: layer.pen, color: layer.color })
+
+          // if (layer.color) {
+          //   layerObj = layerObj.withColor(layer.color)
+          // }
+          layer.attachChild(layerObj) // make sure the real layer has the guide layer as a child
+          layers.push(layerObj)
+          offset = offset.add(new Vector(1000, 0))
+        }
+        layers.push(layer)
+      }
+      // prefix each layer with a numerical index
+      for (let [id, layer] of enumerate(layers)) {
+        layer.displayName = `${id} - ${layer.name}`
+        layer.id = id
+      }
+
+      console.log('layerSkeletons', layers)
+      return layers
     },
     allLayers() {
       let layers = []
@@ -279,6 +360,7 @@ const svgPlot = {
       let offset = new Vector(0, 0)
       for (let layer of this.namedLayers) {
         if (layer.drawGuides) {
+          // let pen = layerPens[layer]
           let layerObj = new Layer(`guide - ${layer.name}`)
             .withCurves([
               new StraightStroke(new Point(500, 300), new Point(500, 700)).move(offset),

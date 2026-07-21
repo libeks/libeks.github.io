@@ -154,7 +154,10 @@ const Tiling = new Scene('TruchetTiling').withTemplate(
 
 const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
   .withOptions(
-    (bbox, { size, small, pattern, notch1, notch2, notches, clip }) => {
+    (
+      bbox,
+      { size, small, pattern, notch1, notch2, notches, clip, filterShort, filterPerimeter },
+    ) => {
       // let
       return {
         bbox: small ? bbox.withPadding(1000) : bbox,
@@ -163,6 +166,8 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         pattern,
         notches: notches == 1 ? [notch1] : [notch1, notch2],
         onlyNgonsInsideBBox: clip,
+        filterShort,
+        filterPerimeter,
       }
     },
     [
@@ -205,6 +210,12 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         default: true,
       },
       {
+        name: 'filterPerimeter',
+        display: 'Remove curves that touch the perimeter',
+        type: 'toggle',
+        default: true,
+      },
+      {
         name: 'notch1',
         type: 'slider',
         min: 0.01,
@@ -231,7 +242,18 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
       },
     ],
     (params) => {
-      let { bbox, start, size, notches, angle, pattern, onlyNgonsInsideBBox } = params
+      console.log('params', params)
+      let {
+        bbox,
+        start,
+        size,
+        notches,
+        angle,
+        pattern,
+        onlyNgonsInsideBBox,
+        filterShort,
+        filterPerimeter,
+      } = params
       let grid = new VertexGrid({
         bbox,
         start,
@@ -245,8 +267,8 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         .map((seed) => generateTruchetGrid(faces, new Random(seed), notches, size))
         .map(({ continuousCurves, closedCurves, faces }) => {
           // let closed = closedCurves.map((curve) => curve.clip(bbox)).flat()
-          let filterShort = true // for debug only
-          let filterPerimeter = true // for debug only
+          // let filterShort = true // for debug only
+          // let filterPerimeter = true // for debug only
           if (filterShort) {
             // console.log(
             //   'curve lengths',
@@ -256,6 +278,8 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
           }
 
           closedCurves = closedCurves.map((curve) => curve.clip(bbox)).flat()
+          console.log('filterShort', filterShort)
+          console.log('filterPerimeter', filterPerimeter)
           if (filterPerimeter) {
             // console.log(
             //   'curve connectors',

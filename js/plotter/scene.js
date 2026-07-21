@@ -140,33 +140,54 @@ class Scene {
     }
     this.layers = layers
     if (fill) {
-      this.fill()
+      let paramMap = {}
+      for (let layerName of Object.keys(layers)) {
+        let layer = layers[layerName]
+        if (layer.fill) {
+          paramMap[layerName] = { spacing: layer.fill.spacing, direciton: layer.fill.direction }
+        }
+      }
+      this.layerFill = this.fill(paramMap)
     }
     return this
   }
 
-  fill() {
+  fill(paramMap) {
     console.log('filling...')
+    let layers = {}
     for (let layer of Object.values(this.layers)) {
+      let spacing = 20 // default if the layer doesn't specify its fill
+      let direction = 13 // default if the layer doesn't specify its fill
+      if (layer.name in paramMap) {
+        let p = paramMap[layer.name]
+        spacing = p.spacing
+        direction = p.direction
+        // { spacing, direction } = paramMap[layer.name]
+      }
+      console.log('layer', layer, spacing, direction)
+
       if (layer.fill && layer.fill.curves.length > 0) {
-        let spacing = 20
-        if (layer.fill.spacing) {
-          spacing = layer.fill.spacing
-        }
-        let direction = 13
-        if (layer.fill.direction) {
-          direction = layer.fill.direction
-        }
+        let curves = []
+        // let spacing = 20 // default if the layer doesn't specify its fill
+        // if (layer.fill.spacing) {
+        //   spacing = layer.fill.spacing
+        // }
+        // let direction = 13 // default if the layer doesn't specify its fill
+        // if (layer.fill.direction) {
+        //   direction = layer.fill.direction
+        // }
         for (let curve of layer.fill.curves) {
           let fill = curve.fill(spacing, direction)
           if (curve.id) {
             enumerate(fill).forEach(([id, c]) => (c.id = `${curve.id}.${id}`))
           }
-          layer.curves.push(...fill)
+          // layer.curves.push(...fill)
+          layers[layer.name] = curves
         }
       }
     }
     console.log('done filling')
+    return layers
   }
 }
 

@@ -164,7 +164,7 @@ class Scene {
         direction = p.direction
         // { spacing, direction } = paramMap[layer.name]
       }
-      console.log('layer', layer, spacing, direction)
+      // console.log('layer', layer, spacing, direction)
 
       if (layer.fill && layer.fill.curves.length > 0) {
         let curves = []

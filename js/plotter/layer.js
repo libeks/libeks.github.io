@@ -172,28 +172,30 @@ class Layer {
   }
 
   statistics(spacing) {
-    console.log(`layer ${this.name} statistics computed for spacing`, spacing)
+    // console.log(`layer ${this.name} statistics computed for spacing`, spacing)
     // TODO: take curvature into account when computing down distance, the pen moves slower on curves
     let downLength = 0
-    console.log(`layer ${this.name} curve length`, this.getAllCurves(spacing).length)
-    for (let curve of this.getAllCurves(spacing)) {
-      console.log('curve.length', curve, curve.length())
+    // console.log(`layer ${this.name} curve length`, this.getAllCurves(spacing).length)
+    let curves = this.getAllCurves(spacing)
+    for (let curve of curves) {
+      // console.log('curve.length', curve, curve.length())
       // console.log('curve.length2', curve.length())
       downLength += curve.length()
     }
     let upLength = 0
     let upDownCount = 0
-    for (let [a, b] of pairs(this.curves)) {
+    for (let [a, b] of pairs(curves)) {
       let distance = a.endpoint().vectTo(b.startpoint()).len()
       if (distance > 0) {
         upDownCount += 1
       }
       upLength += distance
     }
-    if (this.curves.length > 0) {
+    if (curves.length > 0) {
+      // add distance from origin to startpoint, and from last line back to origin
       upLength +=
-        this.curves[0].startpoint().vectTo(Point2DOrigin).len() +
-        this.curves[this.curves.length - 1].endpoint().vectTo(Point2DOrigin).len()
+        curves[0].startpoint().vectTo(Point2DOrigin).len() +
+        curves[curves.length - 1].endpoint().vectTo(Point2DOrigin).len()
     }
     let totalDistance = downLength + upLength
     let meters = imageSpaceToMeters(totalDistance)
@@ -203,6 +205,7 @@ class Layer {
       upLength,
       total: totalDistance,
       time: seconds,
+      meters,
       upDownCount, // number of times the pen has to lift and descend
       nCurves: this.curves.length, // number of curves, some may be continuous
     }

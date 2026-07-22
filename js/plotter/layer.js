@@ -171,12 +171,12 @@ class Layer {
     layer.parent = this
   }
 
-  statistics(spacing) {
-    // console.log(`layer ${this.name} statistics computed for spacing`, spacing)
+  statistics(spacing, showFill) {
+    // console.log(`layer ${this.name} statistics computed for spacing`, spacing, showFill)
     // TODO: take curvature into account when computing down distance, the pen moves slower on curves
     let downLength = 0
     // console.log(`layer ${this.name} curve length`, this.getAllCurves(spacing).length)
-    let curves = this.getAllCurves(spacing)
+    let curves = this.getAllCurves(spacing, showFill)
     for (let curve of curves) {
       // console.log('curve.length', curve, curve.length())
       // console.log('curve.length2', curve.length())

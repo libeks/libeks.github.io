@@ -63,94 +63,99 @@ function vertexListsToLines(vertexLists) {
   return lines
 }
 
-const Tiling = new Scene('TruchetTiling').withTemplate(
-  genericTruchetGrid,
-  (bbox, { size, pattern, notch1, notch2, notches, padding }) => {
-    // let
-    return {
-      // bbox: bbox.withPadding(1000),
-      // bbox: padding ? bbox.withPadding(size * 3.3) : bbox,
-      bbox,
-      start: bbox.center(),
-      size,
-      pattern,
-      notches: notches == 1 ? [notch1] : [notch1, notch2],
-      onlyNgonsInsideBBox: true,
-    }
-  },
-  [
-    {
-      name: 'pattern',
-      type: 'dropdown',
-      options: [
-        ...regularTilings,
-        ...semiregularTilings,
-        ...uniform2Tilings,
-        ...uniform3Tilings,
-        ...uniform4Tilings,
-      ].map((tiling) => ({ name: tiling.string(), value: tiling })),
-      default: uniform4Tilings[5],
+const Tiling = new Scene('TruchetTiling')
+  .withTemplate(
+    genericTruchetGrid,
+    (bbox, { size, pattern, notch1, notch2, notches, padding }) => {
+      // let
+      return {
+        // bbox: bbox.withPadding(1000),
+        // bbox: padding ? bbox.withPadding(size * 3.3) : bbox,
+        bbox,
+        start: bbox.center(),
+        size,
+        pattern,
+        notches: notches == 1 ? [notch1] : [notch1, notch2],
+        onlyNgonsInsideBBox: true,
+      }
     },
-    {
-      name: 'size',
-      type: 'incremental',
-      min: 100,
-      step: 50,
-      max: 1000,
-      default: 400,
-    },
-    {
-      name: 'notch1',
-      type: 'slider',
-      min: 0.01,
-      step: 0.01,
-      max: 0.99,
-      default: 0.33,
-    },
-    {
-      name: 'notch2',
-      type: 'slider',
-      min: 0.01,
-      step: 0.01,
-      max: 0.99,
-      default: 0.66,
-    },
-    {
-      name: 'notches',
-      type: 'radioButton',
-      choices: [
-        { value: 1, display: '1' },
-        { value: 2, display: '2' },
-      ],
-      default: 1,
-    },
-    {
-      name: 'padding',
-      default: 1000,
-    },
-  ],
-  (template) => {
-    let grid = generateTruchetGrid(
-      template.tilingFaces,
-      new Random(100),
-      template.notches,
-      template.size,
-    )
-    // layer.closedCurves.
-    return {
-      edges: {
-        curves: vertexListsToLines(template.grid.faces.map((face) => face.ngon.vertices)),
-        color: 'black',
-        pen: pens.CrayolaSuperTips,
+    [
+      {
+        name: 'pattern',
+        type: 'dropdown',
+        options: [
+          ...regularTilings,
+          ...semiregularTilings,
+          ...uniform2Tilings,
+          ...uniform3Tilings,
+          ...uniform4Tilings,
+        ].map((tiling) => ({ name: tiling.string(), value: tiling })),
+        default: uniform4Tilings[5],
       },
-      curve: {
-        curves: template.continuousTruchetCurves,
-        color: 'blue',
-        pen: pens.CrayolaSuperTips,
+      {
+        name: 'size',
+        type: 'incremental',
+        min: 100,
+        step: 50,
+        max: 1000,
+        default: 400,
       },
-    }
-  },
-)
+      {
+        name: 'notch1',
+        type: 'slider',
+        min: 0.01,
+        step: 0.01,
+        max: 0.99,
+        default: 0.33,
+      },
+      {
+        name: 'notch2',
+        type: 'slider',
+        min: 0.01,
+        step: 0.01,
+        max: 0.99,
+        default: 0.66,
+      },
+      {
+        name: 'notches',
+        type: 'radioButton',
+        choices: [
+          { value: 1, display: '1' },
+          { value: 2, display: '2' },
+        ],
+        default: 1,
+      },
+      {
+        name: 'padding',
+        default: 1000,
+      },
+    ],
+    (template) => {
+      let grid = generateTruchetGrid(
+        template.tilingFaces,
+        new Random(100),
+        template.notches,
+        template.size,
+      )
+      // layer.closedCurves.
+      return {
+        edges: {
+          curves: vertexListsToLines(template.grid.faces.map((face) => face.ngon.vertices)),
+          color: 'black',
+          pen: pens.CrayolaSuperTips,
+        },
+        curve: {
+          curves: template.continuousTruchetCurves,
+          color: 'blue',
+          pen: pens.CrayolaSuperTips,
+        },
+      }
+    },
+  )
+  .withPens({
+    edges: { pen: pens.CrayolaSuperTips, color: 'black' },
+    curve: { pen: pens.CrayolaSuperTips, color: 'hsl(200, 85%, 40%)' },
+  })
 
 const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
   .withOptions(
@@ -266,25 +271,12 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
       let layers = [0, 1, 2]
         .map((seed) => generateTruchetGrid(faces, new Random(seed), notches, size))
         .map(({ continuousCurves, closedCurves, faces }) => {
-          // let closed = closedCurves.map((curve) => curve.clip(bbox)).flat()
-          // let filterShort = true // for debug only
-          // let filterPerimeter = true // for debug only
           if (filterShort) {
-            // console.log(
-            //   'curve lengths',
-            //   closedCurves.map((curve) => curve.curve.curve.curves.length),
-            // )
             closedCurves = closedCurves.filter((curve) => curve.curve.curve.curves.length > 10)
           }
 
           closedCurves = closedCurves.map((curve) => curve.clip(bbox)).flat()
-          // console.log('filterShort', filterShort)
-          // console.log('filterPerimeter', filterPerimeter)
           if (filterPerimeter) {
-            // console.log(
-            //   'curve connectors',
-            //   closedCurves.map((curve) => curve.curve.curve.curves.some((c) => c.meta.isConnector)),
-            // )
             closedCurves = closedCurves.filter(
               (curve) =>
                 !curve.curve.curve.curves.some(
@@ -296,50 +288,37 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
             closedCurves,
           }
         })
-      // console.log('scene layers', layers)
       for (let layer of layers) {
         if (layer.closedCurves.some((c) => !c.curve.curve.isContinousDebug())) {
           throw `TricolorFillTiling has non-continuous fill curves`
         }
       }
-      const spacing = 30
       return {
         edges: {
           curves: vertexListsToLines(faces.map((face) => face.vertices)),
-          // color: 'black',
-          // pen: pens.CrayolaSuperTips,
         },
         'fill-yellow': {
-          curves: layers[0].closedCurves.map((curve) => curve.boundaryCurve()).flat(), //layers[0].continuousCurves,
+          curves: layers[0].closedCurves.map((curve) => curve.boundaryCurve()).flat(),
           fill: {
             curves: layers[0].closedCurves,
             direction: 35,
-            spacing,
           },
-          // color: 'hsl(42, 100%, 40%)', // '#C0A870', 'yellow'
-          // pen: pens.CrayolaSuperTips,
           dontOptimize: true,
         },
         'fill-cyan': {
-          curves: layers[1].closedCurves.map((curve) => curve.boundaryCurve()).flat(), //curves: layers[1].continuousCurves,
+          curves: layers[1].closedCurves.map((curve) => curve.boundaryCurve()).flat(),
           fill: {
             curves: layers[1].closedCurves,
             direction: 95,
-            spacing,
           },
-          // color: 'hsl(208, 80%, 32%)', //'#976f83', 'cyan'
-          // pen: pens.CrayolaSuperTips,
           dontOptimize: true,
         },
         'fill-magenta': {
-          curves: layers[2].closedCurves.map((curve) => curve.boundaryCurve()).flat(), // curves: layers[2].continuousCurves,
+          curves: layers[2].closedCurves.map((curve) => curve.boundaryCurve()).flat(),
           fill: {
             curves: layers[2].closedCurves,
             direction: 155,
-            spacing,
           },
-          // color: 'hsl(330, 80%, 60%)', //'#386287', 'magenta'
-          // pen: pens.CrayolaSuperTips,
           dontOptimize: true,
         },
       }

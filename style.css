@@ -251,7 +251,7 @@ div.button-block {
     display: inline-block;
   }
 
-  div.button {
+  .button {
     display: inline-block;
     padding: 0 0.4em;
     /*margin: 0.2em;*/
@@ -264,7 +264,7 @@ div.button-block {
       background-color: hsl(0, 0%, 90%);
     }
 
-    & + div.button {
+    & + .button {
       border-left: 2px solid hsl(0, 0%, 70%);
     }
 
@@ -281,12 +281,12 @@ div.button-block {
     }
   }
 
-  div.button:first-of-type {
+  .button:first-of-type {
     border-top-left-radius: 0.2em;
     border-bottom-left-radius: 0.2em;
   }
 
-  div.button:last-of-type {
+  .button:last-of-type {
     border-top-right-radius: 0.2em;
     border-bottom-right-radius: 0.2em;
   }

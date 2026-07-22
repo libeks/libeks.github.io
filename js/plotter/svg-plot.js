@@ -27,7 +27,9 @@ const svgPlot = {
           </g>
         </svg>
       </div>
-      <a ref="download" @click="getSVG" >⤓ Download SVG</a>
+      <div class="button-block" style="display:flex; justify-content: center; padding: 10px;">
+        <a class="button" ref="download" @click="getSVG">⤓ Download SVG</a>
+      </div>
       <div class="flex-block">
         <div class="plot-statistics">
           <table>
@@ -42,7 +44,7 @@ const svgPlot = {
             <tbody>
               <tr v-for="(layer, id) in allLayers">
                 <td>{{layer.displayName}}</td>
-                <td style="text-align: right">{{prettyTime(layer.statistics(layerPens[layer.id].spacing).time)}}</td>
+                <td style="text-align: right">{{prettyTime(layer.statistics(layerPens[layer.id].spacing, showFill).time)}}</td>
                 <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1" :style="{color: pens[layer.id].color}">
                   <div style="display: flex; gap: 10px">
                     <select v-model="pens[layer.id]" :disabled="disabled[layer.id]">
@@ -129,10 +131,24 @@ const svgPlot = {
     }
   },
   watch: {
+    scene: {
+      immediate: true,
+      handler: function (newObj, oldObj) {
+        console.log('scene has changed, resetting all fields', newObj, oldObj)
+        this.hidden = {}
+        this.pens = {}
+        this.disabled = {}
+        this.colors = {}
+      },
+    },
     layerSkeletons: {
       immediate: true, // ensures this is run on the initial computation of allLayers
       handler: function (newObj, oldObj) {
         console.log('allLayers has changed', newObj, oldObj)
+        if (Object.keys(this.pens).length > 0) {
+          // don't do anything
+          return
+        }
         newObj.forEach((layer) => {
           this.hidden[layer.id] = layer.hidden
           if (layer.pen) {
@@ -235,6 +251,7 @@ const svgPlot = {
           ret[layerID] = pen
         }
         let layer = this.layersByID[layerID]
+        console.log('layer', layer, layerID)
         if (layer.parent) {
           // console.log('layer has parent', layer.id, layer.parent.id)
           ret[layer.parent.id] = pen
@@ -326,15 +343,16 @@ const svgPlot = {
           layerObj = layerObj.withColor(layer.color)
         }
         if (layer.pen) {
-          console.log('layer pen', layer.pen)
+          // console.log('layer pen', layer.pen)
           layerObj = layerObj.withPen(layer.pen)
         }
         if (layer.dontOptimize) {
           layerObj = layerObj.withoutOptimize()
         }
-        console.log('before', layerObj.name, layerObj.statistics())
+        // console.log('this.pens', this.pens)
+        // console.log('before', layerObj.name, layerObj.statistics(20, this.showFill))
         layerObj = layerObj.optimize()
-        console.log('after', layerObj.name, layerObj.statistics())
+        // console.log('after', layerObj.name, layerObj.statistics(20, this.showFill))
         layers.push(layerObj)
       }
       return layers

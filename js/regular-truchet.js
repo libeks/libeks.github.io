@@ -372,9 +372,11 @@ class GenericTruchetTile {
   }
 
   getCatalanTile({ n, tile }) {
+    console.log('getCatalanTile got', n, tile)
     if (n != undefined && !tile) {
       tile = this.getTile(n)
     }
+    console.log('get catalan tile after getTile', tile)
     let curves = getPairs(tile)
     this.computePoints()
     let lines = curves.map((curve) =>

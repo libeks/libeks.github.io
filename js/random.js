@@ -50,6 +50,11 @@ class Random {
   int(n) {
     return Math.floor(this.float() * n)
   }
+
+  choose(list) {
+    let i = this.int(list.length)
+    return list[i]
+  }
 }
 
 export { randomInt, Random }

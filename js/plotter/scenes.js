@@ -5,6 +5,7 @@ import { Point } from '/js/geometry.js'
 import { pairs, circularPairs } from '/js/utils.js'
 import { StraightStroke } from '/js/lines.js'
 import { Random } from '/js/random.js'
+import { parenthesesToHex } from '/js/catalan.js'
 
 import {
   regularTilings,
@@ -279,7 +280,8 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
             console.log('generate face', face, face.ngon.vertices.length)
             // if (face.ngon.id > 0 && face.ngon.id < 5) {
             if (face.ngon.vertices.length == 12 && face.ngon.id < 10) {
-              return { n: face.ngon.id * 1001 }
+              // return { n: face.ngon.id * 1001 }
+              return { tile: parenthesesToHex('(((((((((((())))))))))))') }
             }
             return {
               n: seeds[seed].int(1289904147324),

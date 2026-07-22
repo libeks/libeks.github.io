@@ -1,4 +1,4 @@
-import { pairs, reduceIntervals, enumerate, crossProduct } from '/js/utils.js'
+import { pairs, reduceIntervals, enumerate, crossProduct, reversed } from '/js/utils.js'
 import { Point, Vector, Line, Point2DOrigin } from '/js/geometry.js'
 import { average, quadratic, cubic } from '/js/math.js'
 import { BBox, bboxFromPointCloud } from '/js/bbox.js'
@@ -98,7 +98,8 @@ class ClosedCurveWithMinus {
     tValues.sort((a, b) => a - b)
     let allCurves = [this.curve, ...this.minus]
     let lines = []
-    for (let i = tValues[0]; i < tValues[tValues.length - 1]; i++) {
+    let min = Math.ceil(tValues[0]) // round up to an integer
+    for (let i = min; i < tValues[tValues.length - 1]; i++) {
       let line = new Line(perpLine.at(i), vect)
       let tvalues = []
       for (let curve of allCurves) {
@@ -109,6 +110,10 @@ class ClosedCurveWithMinus {
         let midpoint = line.at(t)
         return this.curve.inside(midpoint) && !this.minus.some((c) => c.inside(midpoint))
       })
+      if (i % 2 == 0) {
+        // reverse even lines so the fill follows a back-and-forth pattern
+        intervals = reversed(intervals)
+      }
       for (let [t1, t2] of intervals) {
         let p1 = line.at(t1)
         let p2 = line.at(t2)

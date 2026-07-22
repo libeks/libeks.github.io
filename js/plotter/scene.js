@@ -139,21 +139,22 @@ class Scene {
       }
     }
     this.layers = layers
-    if (fill) {
-      let paramMap = {}
-      for (let layerName of Object.keys(layers)) {
-        let layer = layers[layerName]
-        if (layer.fill) {
-          paramMap[layerName] = { spacing: layer.fill.spacing, direciton: layer.fill.direction }
-        }
-      }
-      this.layerFill = this.fill(paramMap)
-    }
+    // if (fill) {
+    //   let paramMap = {}
+    //   for (let layerName of Object.keys(layers)) {
+    //     let layer = layers[layerName]
+    //     if (layer.fill) {
+    //       paramMap[layerName] = { spacing: layer.fill.spacing, direciton: layer.fill.direction }
+    //     }
+    //   }
+    //   this.layerFill = this.fill(paramMap)
+    // }
     return this
   }
 
   fill(paramMap) {
     console.log('filling...')
+    console.trace()
     let layers = {}
     for (let layer of Object.values(this.layers)) {
       let spacing = 20 // default if the layer doesn't specify its fill

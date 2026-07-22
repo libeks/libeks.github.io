@@ -34,8 +34,8 @@ class Layer {
     this.type = 'Layer'
   }
 
-  getAllCurves(spacing) {
-    if (this.fillCurves.length > 0) {
+  getAllCurves(spacing, withFill) {
+    if (withFill && this.fillCurves.length > 0) {
       if (!(spacing in this.filledCurves)) {
         this.filledCurves[spacing] = this.fill(spacing, this.direction)
         // console.log(`layer['${this.name}'].fillCurves[${spacing}] is`, this.filledCurves[spacing])

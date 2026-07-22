@@ -14,48 +14,62 @@ const svgPlot = {
         <svg viewBox="0,0,13333,10000"  version="1.1" sodipodi:docname="test_inkscape.svg" inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
           <metadata class="configs" v-html="rawHTMLComment" > </metadata>
           <g v-for="layer in visibleLayers" inkscape:groupmode="layer" :inkscape:label="layer.displayName" :transform="layerPens[layer.id].transform()">
-            <path v-for="curve in layer.getAllCurves(layerPens[layer.id].spacing)" :d="curve.d()" :stroke="colors[layer.id]" fill="none" :stroke-width="layerPens[layer.id].spacing" stroke-opacity="0.6" :data-line="curve.id"> </path>
+            <path 
+              v-for="curve in layer.getAllCurves(layerPens[layer.id].spacing, showFill)" 
+              :d="curve.d()" 
+              :stroke="colors[layer.id]" 
+              fill="none"
+              
+              :stroke-width="layerPens[layer.id].spacing" 
+              stroke-opacity="0.6" 
+              :data-line="curve.id"
+            > </path>
           </g>
         </svg>
       </div>
       <a ref="download" @click="getSVG" >⤓ Download SVG</a>
-      <div class="plot-statistics">
-        <table>
-          <thead>
-            <tr>
-              <th scope="col">Name</th>
-              <th scope="col">Time</th>
-              <th scope="col">Pen</th>
-              <th scope="col">Visibility</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(layer, id) in allLayers">
-              <td>{{layer.displayName}}</td>
-              <td style="text-align: right">{{prettyTime(layer.statistics(layerPens[layer.id].spacing).time)}}</td>
-              <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1" :style="{color: pens[layer.id].color}">
-                <div style="display: flex; gap: 10px">
-                  <select v-model="pens[layer.id]" :disabled="disabled[layer.id]">
-                    <option v-for="pen of allPens" :value="pen">{{pen.name}}</option>
-                  </select>
-                  <div v-if="!disabled[layer.id]" class="colorSquare" @click="$refs['dialog-'+layer.id][0].showModal()" :style="{'background-color': colors[layer.id]}"></div>
-                </div>
-                <dialog :id="'dialog-'+layer.id" :ref="'dialog-'+layer.id" closedby="any">
-                  <p>Pick a color for {{pens[layer.id].name}}</p>
-                  <div style="display:flex; gap: 10px;">
-                    <div v-for="color of pens[layer.id].colors" class="colorSquare" @click="changeColor(layer, color); $refs['dialog-'+layer.id][0].close()" :style="{'background-color': color}"></div>
+      <div class="flex-block">
+        <div class="plot-statistics">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Time</th>
+                <th scope="col">Pen</th>
+                <th scope="col">Visibility</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(layer, id) in allLayers">
+                <td>{{layer.displayName}}</td>
+                <td style="text-align: right">{{prettyTime(layer.statistics(layerPens[layer.id].spacing).time)}}</td>
+                <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1" :style="{color: pens[layer.id].color}">
+                  <div style="display: flex; gap: 10px">
+                    <select v-model="pens[layer.id]" :disabled="disabled[layer.id]">
+                      <option v-for="pen of allPens" :value="pen">{{pen.name}}</option>
+                    </select>
+                    <div v-if="!disabled[layer.id]" class="colorSquare" @click="$refs['dialog-'+layer.id][0].showModal()" :style="{'background-color': colors[layer.id]}"></div>
                   </div>
-                  <button :commandfor="'dialog-'+layer.id" command="close">Close</button>
-                </dialog>
-              </td>
-              <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1">
-                <input type="checkbox" :id="'visibility-'+id" v-model="hidden[layer.id]" />
-                <label :for="'visibility-'+id">{{ hidden[layer.id] ? 'Hidden' : 'Visible' }}</label>
-              </td> 
-            </tr>
-          </tbody>
-        </table>
+                  <dialog :id="'dialog-'+layer.id" :ref="'dialog-'+layer.id" closedby="any">
+                    <p>Pick a color for {{pens[layer.id].name}}</p>
+                    <div style="display:flex; gap: 10px;">
+                      <div v-for="color of pens[layer.id].colors" class="colorSquare" @click="changeColor(layer, color); $refs['dialog-'+layer.id][0].close()" :style="{'background-color': color}"></div>
+                    </div>
+                    <button :commandfor="'dialog-'+layer.id" command="close">Close</button>
+                  </dialog>
+                </td>
+                <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1">
+                  <input type="checkbox" :id="'visibility-'+id" v-model="hidden[layer.id]" />
+                  <label :for="'visibility-'+id">{{ hidden[layer.id] ? 'Hidden' : 'Visible' }}</label>
+                </td> 
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <div class="options">
+          <div class="button-block">
+            <toggle-button text="Show fill" :active="showFill" @toggle-choice="showFill = !showFill"></toggle-button>
+          </div>
           <div v-for="option in scene.options">
             <div class="name">{{option.name}}</div>
             <select v-if="option.type=='dropdown'" v-model="scene.configs[option.name]">
@@ -111,6 +125,7 @@ const svgPlot = {
       colors: {},
       disabled: {}, // first two layers should not allow for pen or color choice
       allPens: pens,
+      showFill: false,
     }
   },
   watch: {
@@ -331,6 +346,7 @@ const svgPlot = {
         }
         return !this.hidden[layer.id]
       })
+      console.log('visibleLayers', retval)
       return retval
     },
     layerSkeletons() {

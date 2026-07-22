@@ -401,7 +401,7 @@ function catalanFragment(line, curve, notchPoints, isConnector) {
   )
 }
 
-function generateTruchetGrid(grid, random, notches, size) {
+function generateTruchetGrid(grid, notches, size, faceFunction) {
   // will return an array of top-level closed curves, along with individual curve fragments
   function getTruchetGrid(faces) {
     return faces.map((ngon) => ({
@@ -421,9 +421,7 @@ function generateTruchetGrid(grid, random, notches, size) {
     let byNGon = {}
     for (let face of faces) {
       let curves = []
-      for (let [id, curve] of enumerate(
-        face.tile.getCatalanTile({ n: random.int(1289904147324) }),
-      )) {
+      for (let [id, curve] of enumerate(face.tile.getCatalanTile(faceFunction(face)))) {
         curves.push({
           id: `${face.ngon.id}.${id}`,
           faceID: face.ngon.id,
@@ -615,7 +613,9 @@ const genericTruchetGrid = {
     },
     grid() {
       // let faces = this.onlyNgonsInsideBBox ? grid.getFacesInBBox() : grid.getFaces()
-      return generateTruchetGrid(this.tilingFaces, this.random, this.notches, this.size)
+      return generateTruchetGrid(this.tilingFaces, this.notches, this.size, (face) => ({
+        n: random.int(1289904147324),
+      }))
     },
     continuousTruchetCurves() {
       return this.grid.continuousCurves

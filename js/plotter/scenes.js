@@ -131,11 +131,12 @@ const Tiling = new Scene('TruchetTiling')
       },
     ],
     (template) => {
+      let random = new Random(0)
       let grid = generateTruchetGrid(
         template.tilingFaces,
-        new Random(100),
         template.notches,
         template.size,
+        (face) => ({ n: random.int(1289904147324) }),
       )
       // layer.closedCurves.
       return {
@@ -161,7 +162,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
   .withOptions(
     (
       bbox,
-      { size, small, pattern, notch1, notch2, notches, clip, filterShort, filterPerimeter },
+      { size, small, pattern, notch1, notch2, notches, clip, filterShort, filterPerimeter, seed },
     ) => {
       // let
       return {
@@ -173,6 +174,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         onlyNgonsInsideBBox: clip,
         filterShort,
         filterPerimeter,
+        seed,
       }
     },
     [
@@ -212,13 +214,13 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         name: 'filterShort',
         display: 'Remove short curves',
         type: 'toggle',
-        default: true,
+        default: false,
       },
       {
         name: 'filterPerimeter',
         display: 'Remove curves that touch the perimeter',
         type: 'toggle',
-        default: true,
+        default: false,
       },
       {
         name: 'notch1',
@@ -268,8 +270,22 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         iterations: -1,
       }).generate()
       let faces = onlyNgonsInsideBBox ? grid.getFacesInBBox() : grid.getFaces()
+
+      let initialRandom = new Random(params.seed)
+      let seeds = [0, 1, 2].map((seed) => new Random(initialRandom.int(10000000))) // initialize three separate random seeders, one for each layer
       let layers = [0, 1, 2]
-        .map((seed) => generateTruchetGrid(faces, new Random(seed), notches, size))
+        .map((seed) =>
+          generateTruchetGrid(faces, notches, size, (face) => {
+            console.log('generate face', face, face.ngon.vertices.length)
+            // if (face.ngon.id > 0 && face.ngon.id < 5) {
+            if (face.ngon.vertices.length == 12 && face.ngon.id < 10) {
+              return { n: face.ngon.id * 1001 }
+            }
+            return {
+              n: seeds[seed].int(1289904147324),
+            }
+          }),
+        )
         .map(({ continuousCurves, closedCurves, faces }) => {
           if (filterShort) {
             closedCurves = closedCurves.filter((curve) => curve.curve.curve.curves.length > 10)
@@ -400,28 +416,35 @@ const TricolorThicknessFillTiling = new Scene('TricolorThicknessFillTruchetTilin
       let bbox = template.bbox
       let notches = [0.8, 0.5, 0.2]
       console.log('template', template)
+      let initialRandom = new Random(template.seed)
+      let seeds = [0, 1, 2].map((seed) => new Random(initialRandom.int(10000000)))
       let layers = [0, 1, 2]
         .map((seed) =>
-          generateTruchetGrid(template.tilingFaces, new Random(0), [notches[seed]], template.size),
+          generateTruchetGrid(template.tilingFaces, [notches[seed]], template.size, (face) => {
+            console.log('generate face', face)
+            return {
+              n: seeds[seed].int(1289904147324),
+            }
+          }),
         )
         .map(({ continuousCurves, closedCurves, faces }) => {
           // let closed = closedCurves.map((curve) => curve.clip(bbox)).flat()
           template.filterShort = false // for debug only
           template.filterPerimeter = false // for debug only
           if (template.filterShort) {
-            console.log(
-              'curve lengths',
-              closedCurves.map((curve) => curve.curve.curve.curves.length),
-            )
+            // console.log(
+            //   'curve lengths',
+            //   closedCurves.map((curve) => curve.curve.curve.curves.length),
+            // )
             closedCurves = closedCurves.filter((curve) => curve.curve.curve.curves.length > 10)
           }
 
           closedCurves = closedCurves.map((curve) => curve.clip(bbox)).flat()
           if (template.filterPerimeter) {
-            console.log(
-              'curve connectors',
-              closedCurves.map((curve) => curve.curve.curve.curves.some((c) => c.meta.isConnector)),
-            )
+            // console.log(
+            //   'curve connectors',
+            //   closedCurves.map((curve) => curve.curve.curve.curves.some((c) => c.meta.isConnector)),
+            // )
             closedCurves = closedCurves.filter(
               (curve) =>
                 !curve.curve.curve.curves.some(

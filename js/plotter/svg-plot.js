@@ -71,6 +71,16 @@ const svgPlot = {
         <div class="options">
           <div class="button-block">
             <toggle-button text="Show fill" :active="showFill" @toggle-choice="showFill = !showFill"></toggle-button>
+            <div>
+              <p>Seed</p>
+              <incremental-buttons 
+                :n="globalSeed" 
+                :min="0"  
+                :max="10000"
+                :step="1"
+                @value="(n) => globalSeed = n">
+              </incremental-buttons> 
+            </div>
           </div>
           <div v-for="option in scene.options">
             <div class="name">{{option.name}}</div>
@@ -128,6 +138,7 @@ const svgPlot = {
       disabled: {}, // first two layers should not allow for pen or color choice
       allPens: pens,
       showFill: false,
+      globalSeed: 0,
     }
   },
   watch: {
@@ -218,13 +229,6 @@ const svgPlot = {
         this.colors[layer.parent.id] = color
       }
     },
-    // changePen(layer, pen) {
-    //   console.log('pen', layer, pen)
-    //   this.pens[layer.id].pen = pen
-    //   if (layer.parent) {
-    //     this.pens[layer.parent.id].pen = pen
-    //   }
-    // },
   },
   components: {
     incrementalButtons,
@@ -275,8 +279,14 @@ const svgPlot = {
       return new Layer('frame').withCurves([this.canvas.continuousCurve()])
     },
     layers() {
-      console.log('calling this.scene.place with configs', this.scene.configs)
-      let layerDict = this.scene.place(this.canvas, this.scene.configs).layers
+      // console.log('calling this.scene.place with configs', this.scene.configs)
+      // let configs = structuredClone(this.scene.configs)
+      // console.log('configs', configs)
+      let configs = this.scene.configs
+      configs['seed'] = this.globalSeed
+      // console.log('configs', configs)
+      // this.scene.configs['seed'] = glob
+      let layerDict = this.scene.place(this.canvas, configs).layers
       return layerDict
     },
     rawHTMLComment() {

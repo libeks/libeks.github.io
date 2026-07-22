@@ -86,6 +86,7 @@ class Scene {
   }
 
   place(bbox, options) {
+    // console.log('place', options)
     this.parameters = this.parameterFn(bbox, options)
     let layers
     if (this.rawTemplate && this.templateLayerFn) {
@@ -139,16 +140,6 @@ class Scene {
       }
     }
     this.layers = layers
-    // if (fill) {
-    //   let paramMap = {}
-    //   for (let layerName of Object.keys(layers)) {
-    //     let layer = layers[layerName]
-    //     if (layer.fill) {
-    //       paramMap[layerName] = { spacing: layer.fill.spacing, direciton: layer.fill.direction }
-    //     }
-    //   }
-    //   this.layerFill = this.fill(paramMap)
-    // }
     return this
   }
 

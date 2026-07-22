@@ -35,10 +35,10 @@ const svgPlot = {
               <td style="text-align: right">{{prettyTime(layer.statistics(layerPens[layer.id].spacing).time)}}</td>
               <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1" :style="{color: pens[layer.id].color}">
                 <div style="display: flex; gap: 10px">
-                  <select v-model="pens[layer.id]">
+                  <select v-model="pens[layer.id]" :disabled="disabled[layer.id]">
                     <option v-for="pen of allPens" :value="pen">{{pen.name}}</option>
                   </select>
-                  <div class="colorSquare" @click="$refs['dialog-'+layer.id][0].showModal()" :style="{'background-color': colors[layer.id]}"></div>
+                  <div v-if="!disabled[layer.id]" class="colorSquare" @click="$refs['dialog-'+layer.id][0].showModal()" :style="{'background-color': colors[layer.id]}"></div>
                 </div>
                 <dialog :id="'dialog-'+layer.id" :ref="'dialog-'+layer.id" closedby="any">
                   <p>Pick a color for {{pens[layer.id].name}}</p>
@@ -109,6 +109,7 @@ const svgPlot = {
       hidden: {},
       pens: {},
       colors: {},
+      disabled: {}, // first two layers should not allow for pen or color choice
       allPens: pens,
     }
   },
@@ -129,23 +130,21 @@ const svgPlot = {
           } else {
             this.colors[layer.id] = 'black' // default color
           }
+          this.disabled[layer.id] = layer.id < 2 // the first two layers shouldn't allow for pen or color choice
         })
       },
     },
     penNames: {
+      // watching the computed 'penNames' since deep-watching an object doesn't return different old and new objects, so I can't
+      // figure out what has changed
+      // https://stackoverflow.com/questions/62729380/vue-watch-outputs-same-oldvalue-and-newvalue
       handler(newObj, oldObj) {
-        // console.log('pens names', oldObj, newObj, zip(oldObj, newObj))
-
-        for (let [i, ob] of enumerate(zip(oldObj, newObj))) {
-          // console.log('i,ob', i.ob)
-          let [a, b] = ob
+        for (let [i, [a, b]] of enumerate(zip(oldObj, newObj))) {
+          // let [a, b] = ob
           if (a != b) {
             console.log('detected change in pens index', i, a, b, Object.keys(pens)[i])
-            // console.log('pens', pens)
             let [layerID, pen] = Object.entries(this.pens)[i]
             let layer = this.layersByID[layerID]
-            // console.log('layer', layerID, pen, layer)
-            // colors[layerId] = pen.colors[0]
             this.changeColor(layer, pen.colors[0])
           }
         }

@@ -242,7 +242,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
       },
     ],
     (params) => {
-      console.log('params', params)
+      // console.log('params', params)
       let {
         bbox,
         start,
@@ -278,8 +278,8 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
           }
 
           closedCurves = closedCurves.map((curve) => curve.clip(bbox)).flat()
-          console.log('filterShort', filterShort)
-          console.log('filterPerimeter', filterPerimeter)
+          // console.log('filterShort', filterShort)
+          // console.log('filterPerimeter', filterPerimeter)
           if (filterPerimeter) {
             // console.log(
             //   'curve connectors',
@@ -296,7 +296,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
             closedCurves,
           }
         })
-      console.log('scene layers', layers)
+      // console.log('scene layers', layers)
       for (let layer of layers) {
         if (layer.closedCurves.some((c) => !c.curve.curve.isContinousDebug())) {
           throw `TricolorFillTiling has non-continuous fill curves`

@@ -1,7 +1,7 @@
 import { StraightStroke, Polygon } from '/js/lines.js'
 import { Point, Vector } from '/js/geometry.js'
 import { BBox } from '/js/bbox.js'
-import { range, enumerate } from '/js/utils.js'
+import { range, enumerate, zip } from '/js/utils.js'
 import { incrementalButtons, radioButtons, toggleButton } from '/js/buttons.js'
 
 import { pens } from '/js/plotter/pens.js'
@@ -132,6 +132,25 @@ const svgPlot = {
         })
       },
     },
+    penNames: {
+      handler(newObj, oldObj) {
+        // console.log('pens names', oldObj, newObj, zip(oldObj, newObj))
+
+        for (let [i, ob] of enumerate(zip(oldObj, newObj))) {
+          // console.log('i,ob', i.ob)
+          let [a, b] = ob
+          if (a != b) {
+            console.log('detected change in pens index', i, a, b, Object.keys(pens)[i])
+            // console.log('pens', pens)
+            let [layerID, pen] = Object.entries(this.pens)[i]
+            let layer = this.layersByID[layerID]
+            // console.log('layer', layerID, pen, layer)
+            // colors[layerId] = pen.colors[0]
+            this.changeColor(layer, pen.colors[0])
+          }
+        }
+      },
+    },
   },
   methods: {
     getSVG() {
@@ -209,6 +228,10 @@ const svgPlot = {
       }
       console.log('layerPens', ret)
       return ret
+    },
+    penNames() {
+      // used to watch changes in pens, watching on pens directly doesn't work since deep watching of objects doesn't provide the old value
+      return Object.values(this.pens).map((pen) => pen.name)
     },
     layersByID() {
       let ret = {}

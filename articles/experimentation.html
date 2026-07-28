@@ -133,6 +133,7 @@
               :d="curve.d()"
               :style="{stroke: 'black', fill: 'none'}"
             ></path>
+            <path v-for="curve of debug" :d="curve.d()"></path>
           </svg-box>
         </figure>
       </section>
@@ -146,6 +147,7 @@
       const { createApp, ref, defineComponent } = Vue
       import { BBox, svgBox } from '/js/bbox.js'
       import { Point2DOrigin, Point, Vector, NGon } from '/js/geometry.js'
+      import { catalanFragment } from '/js/regular-truchet.js'
       import {
         StraightStroke,
         QuadraticBezier,
@@ -153,6 +155,7 @@
         CompositeCurve,
         ClosedCurve,
         ClosedCurveWithMinus,
+        MetaFragment,
         nestClosedCurves,
       } from '/js/lines.js'
       import { dToLines, dToClosedCurvesWithMinus } from '/js/svg-utils.js'
@@ -1873,7 +1876,273 @@
               // problemCurve,
               // candidate1,
               // candidate2,
-              candidate5,
+              // candidate5,
+              new ClosedCurveWithMinus(
+                new ClosedCurve(
+                  new CompositeCurve(
+                    new MetaFragment(
+                      new QuadraticBezier(
+                        new Point(11732.25, 9000),
+                        new Point(11732.25, 8815.75),
+                        new Point(11916.5, 8815.75),
+                      ),
+                    ).withMeta({
+                      curve: '81',
+                      notchPoints:
+                        '[new Point(11916.5, 8815.75), new Point(11916.5, 8634.25), new Point(11732.25, 8450), new Point(11550.75, 8450), new Point(11366.5, 8634.25), new Point(11366.5, 8815.75), new Point(11550.75, 9000), new Point(11732.25, 9000)]',
+                      isConnector: false,
+                      type: 'catalanFragment',
+                    }),
+                    new MetaFragment(
+                      new CubicBezier(
+                        new Point(11916.5, 8815.75),
+                        new Point(12100.75, 8815.75),
+                        new Point(12282.25, 8634.25),
+                        new Point(12282.25, 8450),
+                      ),
+                    ).withMeta({
+                      curve: '63',
+                      notchPoints:
+                        '[new Point(12466.5, 8815.75), new Point(12466.5, 8634.25), new Point(12282.25, 8450), new Point(12100.75, 8450), new Point(11916.5, 8634.25), new Point(11916.5, 8815.75), new Point(12100.75, 9000), new Point(12282.25, 9000)]',
+                      isConnector: false,
+                      type: 'catalanFragment',
+                    }),
+                    new MetaFragment(
+                      new CubicBezier(
+                        new Point(12282.25, 8450),
+                        new Point(12282.25, 8321.025),
+                        new Point(12100.75, 8321.025),
+                        new Point(12100.75, 8450),
+                      ),
+                    ).withMeta({
+                      curve: '87',
+                      notchPoints:
+                        '[new Point(12466.5, 8265.75), new Point(12466.5, 8084.25), new Point(12282.25, 7900), new Point(12100.75, 7900), new Point(11916.5, 8084.25), new Point(11916.5, 8265.75), new Point(12100.75, 8450), new Point(12282.25, 8450)]',
+                      isConnector: false,
+                      type: 'catalanFragment',
+                    }),
+                    new MetaFragment(
+                      new QuadraticBezier(
+                        new Point(12100.75, 8450),
+                        new Point(12100.75, 8634.25),
+                        new Point(11916.5, 8634.25),
+                      ),
+                    ).withMeta({
+                      curve: '45',
+                      notchPoints:
+                        '[new Point(12466.5, 8815.75), new Point(12466.5, 8634.25), new Point(12282.25, 8450), new Point(12100.75, 8450), new Point(11916.5, 8634.25), new Point(11916.5, 8815.75), new Point(12100.75, 9000), new Point(12282.25, 9000)]',
+                      isConnector: false,
+                      type: 'catalanFragment',
+                    }),
+                    new MetaFragment(
+                      new QuadraticBezier(
+                        new Point(11916.5, 8634.25),
+                        new Point(11732.25, 8634.25),
+                        new Point(11732.25, 8450),
+                      ),
+                    ).withMeta({
+                      curve: '23',
+                      notchPoints:
+                        '[new Point(11916.5, 8815.75), new Point(11916.5, 8634.25), new Point(11732.25, 8450), new Point(11550.75, 8450), new Point(11366.5, 8634.25), new Point(11366.5, 8815.75), new Point(11550.75, 9000), new Point(11732.25, 9000)]',
+                      isConnector: false,
+                      type: 'catalanFragment',
+                    }),
+                    new MetaFragment(
+                      new QuadraticBezier(
+                        new Point(11732.25, 8450),
+                        new Point(11732.25, 8265.75),
+                        new Point(11916.5, 8265.75),
+                      ),
+                    ).withMeta({
+                      curve: '81',
+                      notchPoints:
+                        '[new Point(11916.5, 8265.75), new Point(11916.5, 8084.25), new Point(11732.25, 7900), new Point(11550.75, 7900), new Point(11366.5, 8084.25), new Point(11366.5, 8265.75), new Point(11550.75, 8450), new Point(11732.25, 8450)]',
+                      isConnector: false,
+                      type: 'catalanFragment',
+                    }),
+                    new MetaFragment(
+                      new CubicBezier(
+                        new Point(11916.5, 8265.75),
+                        new Point(12045.475, 8265.75),
+                        new Point(12045.475, 8084.25),
+                        new Point(11916.5, 8084.25),
+                      ),
+                    ).withMeta({
+                      curve: '65',
+                      notchPoints:
+                        '[new Point(12466.5, 8265.75), new Point(12466.5, 8084.25), new Point(12282.25, 7900), new Point(12100.75, 7900), new Point(11916.5, 8084.25), new Point(11916.5, 8265.75), new Point(12100.75, 8450), new Point(12282.25, 8450)]',
+                      isConnector: false,
+                      type: 'catalanFragment',
+                    }),
+                    new MetaFragment(
+                      new CubicBezier(
+                        new Point(11916.5, 8084.25),
+                        new Point(11732.25, 8084.25),
+                        new Point(11550.75, 8265.75),
+                        new Point(11550.75, 8450),
+                      ),
+                    ).withMeta({
+                      curve: '27',
+                      notchPoints:
+                        '[new Point(11916.5, 8265.75), new Point(11916.5, 8084.25), new Point(11732.25, 7900), new Point(11550.75, 7900), new Point(11366.5, 8084.25), new Point(11366.5, 8265.75), new Point(11550.75, 8450), new Point(11732.25, 8450)]',
+                      isConnector: false,
+                      type: 'catalanFragment',
+                    }),
+                    new MetaFragment(
+                      new QuadraticBezier(
+                        new Point(11550.75, 8450),
+                        new Point(11550.75, 8634.25),
+                        new Point(11366.5, 8634.25),
+                      ),
+                    ).withMeta({
+                      curve: '45',
+                      notchPoints:
+                        '[new Point(11916.5, 8815.75), new Point(11916.5, 8634.25), new Point(11732.25, 8450), new Point(11550.75, 8450), new Point(11366.5, 8634.25), new Point(11366.5, 8815.75), new Point(11550.75, 9000), new Point(11732.25, 9000)]',
+                      isConnector: false,
+                      type: 'catalanFragment',
+                    }),
+                    new MetaFragment(
+                      new StraightStroke(new Point(11366.5, 8634.25), new Point(10816.5, 8634.25)),
+                    ).withMeta({
+                      curve: '25',
+                      notchPoints:
+                        '[new Point(11366.5, 8815.75), new Point(11366.5, 8634.25), new Point(11182.25, 8450), new Point(11000.75, 8450), new Point(10816.5, 8634.25), new Point(10816.5, 8815.75), new Point(11000.75, 9000), new Point(11182.25, 9000)]',
+                      isConnector: false,
+                      type: 'catalanFragment',
+                    }),
+                    new MetaFragment(
+                      new QuadraticBezier(
+                        new Point(10816.5, 8634.25),
+                        new Point(10632.25, 8634.25),
+                        new Point(10632.25, 8450),
+                      ),
+                    ).withMeta({
+                      curve: '45',
+                      notchPoints:
+                        '[new Point(10450.75, 9000), new Point(10632.25, 9000), new Point(10816.5, 8815.75), new Point(10816.5, 8634.25), new Point(10632.25, 8450), new Point(10450.75, 8450), new Point(10266.5, 8634.25), new Point(10266.5, 8815.75)]',
+                      isConnector: false,
+                      type: 'catalanFragment',
+                    }),
+                    new MetaFragment(
+                      new CubicBezier(
+                        new Point(10632.25, 8450),
+                        new Point(10632.25, 8321.025),
+                        new Point(10450.75, 8321.025),
+                        new Point(10450.75, 8450),
+                      ),
+                    ).withMeta({
+                      curve: '87',
+                      notchPoints:
+                        '[new Point(10816.5, 8265.75), new Point(10816.5, 8084.25), new Point(10632.25, 7900), new Point(10450.75, 7900), new Point(10266.5, 8084.25), new Point(10266.5, 8265.75), new Point(10450.75, 8450), new Point(10632.25, 8450)]',
+                      isConnector: false,
+                      type: 'catalanFragment',
+                    }),
+                    new MetaFragment(
+                      new QuadraticBezier(
+                        new Point(10450.75, 8450),
+                        new Point(10450.75, 8634.25),
+                        new Point(10266.5, 8634.25),
+                      ),
+                    ).withMeta({
+                      curve: '67',
+                      notchPoints:
+                        '[new Point(10450.75, 9000), new Point(10632.25, 9000), new Point(10816.5, 8815.75), new Point(10816.5, 8634.25), new Point(10632.25, 8450), new Point(10450.75, 8450), new Point(10266.5, 8634.25), new Point(10266.5, 8815.75)]',
+                      isConnector: false,
+                      type: 'catalanFragment',
+                    }),
+                    new MetaFragment(
+                      new CubicBezier(
+                        new Point(10266.5, 8634.25),
+                        new Point(10137.525, 8634.25),
+                        new Point(10137.525, 8815.75),
+                        new Point(10266.5, 8815.75),
+                      ),
+                    ).withMeta({
+                      curve: '43',
+                      notchPoints:
+                        '[new Point(9900.75, 9000), new Point(10082.25, 9000), new Point(10266.5, 8815.75), new Point(10266.5, 8634.25), new Point(10082.25, 8450), new Point(9900.75, 8450), new Point(9716.5, 8634.25), new Point(9716.5, 8815.75)]',
+                      isConnector: false,
+                      type: 'catalanFragment',
+                    }),
+                    new MetaFragment(
+                      new StraightStroke(new Point(10266.5, 8815.75), new Point(10816.5, 8815.75)),
+                    ).withMeta({
+                      curve: '83',
+                      notchPoints:
+                        '[new Point(10450.75, 9000), new Point(10632.25, 9000), new Point(10816.5, 8815.75), new Point(10816.5, 8634.25), new Point(10632.25, 8450), new Point(10450.75, 8450), new Point(10266.5, 8634.25), new Point(10266.5, 8815.75)]',
+                      isConnector: false,
+                      type: 'catalanFragment',
+                    }),
+                    new MetaFragment(
+                      new QuadraticBezier(
+                        new Point(10816.5, 8815.75),
+                        new Point(11000.75, 8815.75),
+                        new Point(11000.75, 9000),
+                      ),
+                    ).withMeta({
+                      curve: '67',
+                      notchPoints:
+                        '[new Point(11366.5, 8815.75), new Point(11366.5, 8634.25), new Point(11182.25, 8450), new Point(11000.75, 8450), new Point(10816.5, 8634.25), new Point(10816.5, 8815.75), new Point(11000.75, 9000), new Point(11182.25, 9000)]',
+                      isConnector: false,
+                      type: 'catalanFragment',
+                    }),
+                    new MetaFragment(
+                      new CompositeCurve(
+                        new StraightStroke(new Point(11000.75, 9000), new Point(11182.25, 9000)),
+                      ),
+                    ).withMeta({ isConnector: true, type: 'framePerimeter' }),
+                    new MetaFragment(
+                      new QuadraticBezier(
+                        new Point(11182.25, 9000),
+                        new Point(11182.25, 8815.75),
+                        new Point(11366.5, 8815.75),
+                      ),
+                    ).withMeta({
+                      curve: '81',
+                      notchPoints:
+                        '[new Point(11366.5, 8815.75), new Point(11366.5, 8634.25), new Point(11182.25, 8450), new Point(11000.75, 8450), new Point(10816.5, 8634.25), new Point(10816.5, 8815.75), new Point(11000.75, 9000), new Point(11182.25, 9000)]',
+                      isConnector: false,
+                      type: 'catalanFragment',
+                    }),
+                    new MetaFragment(
+                      new QuadraticBezier(
+                        new Point(11366.5, 8815.75),
+                        new Point(11550.75, 8815.75),
+                        new Point(11550.75, 9000),
+                      ),
+                    ).withMeta({
+                      curve: '67',
+                      notchPoints:
+                        '[new Point(11916.5, 8815.75), new Point(11916.5, 8634.25), new Point(11732.25, 8450), new Point(11550.75, 8450), new Point(11366.5, 8634.25), new Point(11366.5, 8815.75), new Point(11550.75, 9000), new Point(11732.25, 9000)]',
+                      isConnector: false,
+                      type: 'catalanFragment',
+                    }),
+                    new MetaFragment(
+                      new CubicBezier(
+                        new Point(11550.75, 9000),
+                        new Point(11550.75, 9000),
+                        new Point(11550.75, 9000),
+                        new Point(11550.75, 9000),
+                      ),
+                    ).withMeta({
+                      curve: '63',
+                      notchPoints:
+                        '[new Point(11550.75, 9550), new Point(11732.25, 9550), new Point(11916.5, 9365.75), new Point(11916.5, 9184.25), new Point(11732.25, 9000), new Point(11550.75, 9000), new Point(11366.5, 9184.25), new Point(11366.5, 9365.75)]',
+                      isConnector: false,
+                      type: 'catalanFragment',
+                    }),
+                    new MetaFragment(
+                      new CompositeCurve(
+                        new StraightStroke(
+                          new Point(11550.75, 9000),
+                          new Point(11732.250000000002, 9000),
+                        ),
+                      ),
+                    ).withMeta({ isConnector: true, type: 'framePerimeter' }),
+                  ),
+                ),
+                [],
+              ),
               // candidate4,
             ],
           }
@@ -1884,10 +2153,10 @@
               'clipped curve type',
               this.curves.map((curve) => curve),
             )
-            console.log(
-              'winding',
-              this.curves.map((curve) => curve.curve.isCounterClockwise()),
-            )
+            // console.log(
+            //   'winding',
+            //   this.curves.map((curve) => curve.curve.isCounterClockwise()),
+            // )
             let ret = this.curves.map((curve) => curve.clipDebug(this.bbox))
             console.log('ret', ret)
             return ret
@@ -1896,7 +2165,7 @@
             // return new BBox(500, 250, 1000, 600)
             // return new BBox(0, 7700, 6000, 9500)
             // return new BBox(500, 7700, 4000, 9000)
-            return new BBox(500, 1300, 12333, 9000)
+            return new BBox(7000, 7300, 12333, 10000)
             // return new BBox(1000, 1300, 7300, 2000)
             // return new BBox(0, 0, 13333, 10000)
             // console.log('this.curves', this.curves, this.curves[0].bbox())
@@ -1911,7 +2180,7 @@
             return new BBox(500, 1300, 12333, 9000)
           },
           flat() {
-            let v = new Vector(-2000, 0)
+            let v = new Vector(-2000, -600)
             // let v = new Vector(0, 0)
             let curves = this.curves
               .map((curve) => curve.allComponents())
@@ -1944,15 +2213,26 @@
           },
           specialPoints() {
             return [
-              // new Point(916.4999999999987, 8739.127944162881),
+              new Point(11550.75, 9000),
               // new Point(2507.6599999999985, 8902.627944162881),
               // new Point(1307.6599999999987, 9402.627944162881),
             ]
+          },
+          degrees() {
+            return [79.27033960048041, 96.79744242619279]
           },
           bboxes() {
             let allCurves = this.curves.map((curve) => curve.allComponents()).flat()
             console.log('allcurves', allCurves)
             return allCurves.map((curve) => curve.contour())
+          },
+          debug() {
+            for (let curve of this.curves) {
+              for (let pt of this.specialPoints) {
+                // console.log('inside', curve.inside(pt))
+              }
+            }
+            return []
           },
         },
         methods: { BBox },

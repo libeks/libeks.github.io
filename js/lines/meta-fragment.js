@@ -54,8 +54,22 @@ class MetaFragment {
     if (Object.keys(this.meta) == 0) {
       return `new MetaFragment(${this.curve.repr()})`
     }
-    let metaStr = Object.entires(this.meta)
-      .map(([key, value]) => `'${key}': ${value}`)
+    let metaStr = Object.entries(this.meta)
+      .map(([key, value]) => {
+        if (Array.isArray(value)) {
+          value = value.map((o) => {
+            if ('repr' in o) {
+              return o.repr()
+            }
+            return o
+          })
+          value = '[' + value.join(', ') + ']'
+        }
+        if (typeof value === 'string') {
+          value = "'" + value + "'"
+        }
+        return `'${key}': ${value}`
+      })
       .join(', ')
     return `new MetaFragment(${this.curve.repr()}).withMeta({${metaStr}})`
   }
@@ -101,6 +115,10 @@ class MetaFragment {
 
   length() {
     return this.curve.length()
+  }
+
+  move(v) {
+    return this.curve.move(v)
   }
 
   tangentAt(t) {

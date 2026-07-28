@@ -97,6 +97,31 @@ const incrementalButtons = {
   emits: ['value'],
 }
 
+const selector = {
+  template: `
+    <select :value="value" @input="value=>{pick(value, 'input')}" @value="value=>{pick(value, 'value')}" @change="value=>{pick(value, 'change')}">
+      <option v-for="elt of options" :value="elt.name">{{elt.name}}</option>
+    </select>
+  `,
+  methods: {
+    pick: function (event, v) {
+      let selected = event.target.value
+      for (let elt of this.options) {
+        console.log('element', elt)
+        if (elt.name == selected) {
+          console.log('selector is emitting event @value', elt)
+          this.$emit('value', elt)
+        }
+      }
+    },
+  },
+  props: {
+    options: Object,
+    value: String,
+  },
+  emits: ['value'],
+}
+
 export {
   playControls,
   radioButtons,
@@ -104,4 +129,5 @@ export {
   collapsibleButton,
   integerButtons,
   incrementalButtons,
+  selector,
 }

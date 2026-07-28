@@ -5,7 +5,7 @@ import { Point } from '/js/geometry.js'
 import { pairs, circularPairs } from '/js/utils.js'
 import { StraightStroke } from '/js/lines.js'
 import { Random } from '/js/random.js'
-import { parenthesesToHex } from '/js/catalan.js'
+import { parenthesesToHex, rotateParenthesis, getParenthesisRotationSet } from '/js/catalan.js'
 
 import {
   regularTilings,
@@ -159,11 +159,33 @@ const Tiling = new Scene('TruchetTiling')
     curve: { pen: pens.CrayolaSuperTips, color: 'hsl(200, 85%, 40%)' },
   })
 
+let pipeParenthesesSets = {
+  3: getParenthesisRotationSet('((()))'),
+  4: getParenthesisRotationSet('(((())))'),
+  6: getParenthesisRotationSet('(((((())))))'),
+  8: getParenthesisRotationSet('(((((((())))))))'),
+  12: getParenthesisRotationSet('(((((((((((())))))))))))'),
+  16: getParenthesisRotationSet('(((((((((((((((())))))))))))))))'),
+  24: getParenthesisRotationSet('(((((((((((((((((((((((())))))))))))))))))))))))'),
+}
+
 const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
   .withOptions(
     (
       bbox,
-      { size, small, pattern, notch1, notch2, notches, clip, filterShort, filterPerimeter, seed },
+      {
+        size,
+        small,
+        pattern,
+        notch1,
+        notch2,
+        notches,
+        clip,
+        filterShort,
+        filterPerimeter,
+        seed,
+        cellChoice,
+      },
     ) => {
       // let
       return {
@@ -176,6 +198,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         filterShort,
         filterPerimeter,
         seed,
+        cellChoice,
       }
     },
     [
@@ -189,7 +212,8 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
           ...uniform3Tilings,
           ...uniform4Tilings,
         ].map((tiling) => ({ name: tiling.string(), value: tiling })),
-        default: semiregularTilings[0],
+        // default: semiregularTilings[0],
+        default: regularTilings[2],
       },
       {
         name: 'size',
@@ -248,6 +272,28 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         ],
         default: 1,
       },
+      {
+        name: 'cellChoice',
+        type: 'dropdown-2',
+        options: [
+          {
+            name: 'random',
+            value: (random) => (face) => ({
+              n: random.int(1289904147324),
+            }),
+          },
+          {
+            name: 'tubes',
+            value: (random) => (face) => {
+              let n = face.tile.notchPoints.length / 2
+              return {
+                tile: parenthesesToHex(random.choose(pipeParenthesesSets[n])),
+              }
+            },
+          },
+        ],
+        default: 'random',
+      },
     ],
     (params) => {
       // console.log('params', params)
@@ -261,6 +307,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         onlyNgonsInsideBBox,
         filterShort,
         filterPerimeter,
+        cellChoice,
       } = params
       let grid = new VertexGrid({
         bbox,
@@ -273,19 +320,17 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
       let faces = onlyNgonsInsideBBox ? grid.getFacesInBBox() : grid.getFaces()
 
       let initialRandom = new Random(params.seed)
+
+      // console.log('cellChoice', cellChoice)
+      // let initial = '(((((((((((())))))))))))'
+      // let twelveParentheses = getParenthesisRotationSet(initial)
       let seeds = [0, 1, 2].map((seed) => new Random(initialRandom.int(10000000))) // initialize three separate random seeders, one for each layer
       let layers = [0, 1, 2]
         .map((seed) =>
           generateTruchetGrid(faces, notches, size, (face) => {
-            console.log('generate face', face, face.ngon.vertices.length)
-            // if (face.ngon.id > 0 && face.ngon.id < 5) {
-            if (face.ngon.vertices.length == 12 && face.ngon.id < 10) {
-              // return { n: face.ngon.id * 1001 }
-              return { tile: parenthesesToHex('(((((((((((())))))))))))') }
-            }
-            return {
-              n: seeds[seed].int(1289904147324),
-            }
+            // console.log('generate face', face, face.ngon.vertices.length)
+            let random = seeds[seed]
+            return cellChoice.value(random)(face)
           }),
         )
         .map(({ continuousCurves, closedCurves, faces }) => {
@@ -293,6 +338,11 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
             closedCurves = closedCurves.filter((curve) => curve.curve.curve.curves.length > 10)
           }
 
+          // console.log('curve clip', closedCurves, bbox)
+          for (let curve of closedCurves) {
+            // console.log('curve', curve)
+            curve.clip(bbox)
+          }
           closedCurves = closedCurves.map((curve) => curve.clip(bbox)).flat()
           if (filterPerimeter) {
             closedCurves = closedCurves.filter(
@@ -417,13 +467,13 @@ const TricolorThicknessFillTiling = new Scene('TricolorThicknessFillTruchetTilin
       // let bbox = template.bbox.withPadding(1500)
       let bbox = template.bbox
       let notches = [0.8, 0.5, 0.2]
-      console.log('template', template)
+      // console.log('template', template)
       let initialRandom = new Random(template.seed)
       let seeds = [0, 1, 2].map((seed) => new Random(initialRandom.int(10000000)))
       let layers = [0, 1, 2]
         .map((seed) =>
           generateTruchetGrid(template.tilingFaces, [notches[seed]], template.size, (face) => {
-            console.log('generate face', face)
+            // console.log('generate face', face)
             return {
               n: seeds[seed].int(1289904147324),
             }

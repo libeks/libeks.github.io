@@ -80,7 +80,7 @@ function crossProduct(list) {
 
 // reduceIntervals reduces a list of t-values and a filter function (c)=>Bool to return a list of pairs inside which the function is true
 // the filter function is assumed to be constant in between the provided t-values
-// the t-values are assumed to be sorted
+// the t-values are assumed to be sorted and distinct
 // reduceIntervals([1,2,3,4,5,6],(c)=> (c>1&&c<3) || (c>4 && c<5)) => [[1,3], [4,5]]
 function reduceIntervals(tValues, filterFunction) {
   let intervals = pairs(tValues).filter(([a, b]) => filterFunction(average(a, b)))
@@ -99,6 +99,22 @@ function reduceIntervals(tValues, filterFunction) {
   return intervals
 }
 
+// given a list oft-values, sort them and remove duplicates, so that all the values are distinct
+function sortAndRemoveDuplicates(tValues) {
+  if (tValues.length == 0) {
+    return tValues
+  }
+  tValues.sort((a, b) => a - b)
+
+  let newList = [tValues[0]]
+  for (let [a, b] of pairs(tValues)) {
+    if (a != b) {
+      newList.push(b)
+    }
+  }
+  return newList
+}
+
 export {
   pairs,
   circularPairs,
@@ -110,4 +126,5 @@ export {
   range,
   crossProduct,
   reduceIntervals,
+  sortAndRemoveDuplicates,
 }

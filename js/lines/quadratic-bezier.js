@@ -1,4 +1,10 @@
-import { pairs, reduceIntervals, enumerate, crossProduct } from '/js/utils.js'
+import {
+  pairs,
+  reduceIntervals,
+  enumerate,
+  crossProduct,
+  sortAndRemoveDuplicates,
+} from '/js/utils.js'
 import { Point, Vector, Line, Point2DOrigin } from '/js/geometry.js'
 import { average, quadratic, cubic } from '/js/math.js'
 import { BBox, bboxFromPointCloud } from '/js/bbox.js'
@@ -97,7 +103,8 @@ class QuadraticBezier {
     //   return []
     // }
     ts.push(0, 1)
-    ts.sort((a, b) => a - b)
+    ts = sortAndRemoveDuplicates(ts)
+    // ts.sort((a, b) => a - b)
     // console.log('Quadratic: returning for ts', ts)
     let ret = reduceIntervals(ts, (t) => bbox.inside(this.at(t))).map(([a, b]) =>
       this.subsection(a, b),

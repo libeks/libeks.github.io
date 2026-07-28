@@ -73,7 +73,11 @@ class Scene {
     this.parameterFn = parameterFn
     this.options = options
     for (let option of options) {
-      this.configs[option.name] = option.default
+      if (option.type == 'dropdown-2') {
+        this.configs[option.name] = option.options.filter((o) => o.name == option.default)[0]
+      } else {
+        this.configs[option.name] = option.default
+      }
     }
     this.layerFn = layerFn
     return this

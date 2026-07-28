@@ -134,8 +134,6 @@ class ClosedCurveWithMinus {
       .corners()
       .map((corner) => perpLine.pointProjectionTValue(corner))
     tValues.sort((a, b) => a - b)
-    // console.log('tvalues', tValues)
-    // tValues = [216.86693101272223, 217]
     let allCurves = [this.curve, ...this.minus]
     let lines = []
     for (let i = tValues[0]; i < tValues[tValues.length - 1]; i++) {
@@ -208,6 +206,7 @@ class ClosedCurveWithMinus {
     // all the clipped components should have their endpoints on the perimeter of the bbox
     for (let component of components) {
       let clipped = component.clipComponents(bbox)
+      // console.log('pushing to bits', clipped)
       bits.push(...clipped)
     }
     let debugClip = components[0].curve.curves
@@ -224,14 +223,14 @@ class ClosedCurveWithMinus {
     // let startpoints = []
     // let endpoints = []
     let allpoints = []
+    // console.log('open', open)
     for (let [i, curve] of enumerate(open)) {
       // processed[i] = false
       // console.log('open curve', open[i], open[i].startpoint(), open[i].endpoint())
       // console.log('this.repr', this.repr(), bbox)
+      // console.log('perimeter point for', i, curve)
       let start = bbox.perimeterPointT(open[i].startpoint())
       let end = bbox.perimeterPointT(open[i].endpoint())
-      // startpoints.push([start, i])
-      // endpoints.push([end, i])
       allpoints.push([start, i, 'start'], [end, i, 'end'])
     }
     if (allpoints.length % 2 == 1) {
@@ -423,7 +422,7 @@ class ClosedCurveWithMinus {
     // endpoints.sort(([a, aID], [b, bID]) => a - b)
     allpoints.sort(([a, aid, at], [b, bid, bt]) => a - b)
     // console.log('start-end points', startpoints, endpoints)
-    console.log('allpoints', allpoints)
+    // console.log('allpoints', allpoints)
     return {
       bits,
       components,

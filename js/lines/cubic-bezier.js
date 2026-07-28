@@ -1,4 +1,10 @@
-import { pairs, reduceIntervals, enumerate, crossProduct } from '/js/utils.js'
+import {
+  pairs,
+  reduceIntervals,
+  enumerate,
+  crossProduct,
+  sortAndRemoveDuplicates,
+} from '/js/utils.js'
 import { Point, Vector, Line, Point2DOrigin } from '/js/geometry.js'
 import { average, quadratic, cubic } from '/js/math.js'
 import { BBox, bboxFromPointCloud } from '/js/bbox.js'
@@ -136,13 +142,16 @@ class CubicBezier {
       }
     }
 
-    // if (ts.length == 0) {
-    //   // appears that the bezier doesn't intersect the boundary of the box
-    //   return []
-    // }
     ts.push(0, 1)
-    ts.sort((a, b) => a - b)
+    ts = sortAndRemoveDuplicates(ts)
+    // ts.sort((a, b) => a - b)
+    // for (let [a,b] of pairs(ts)) {
+    //   if (a!=b) {
+
+    //   }
+    // }
     // console.log('Cubic: returning for ts', ts)
+    // console.log('CubicBezier.clip', ts)
     let ret = reduceIntervals(ts, (t) => bbox.inside(this.at(t))).map(([a, b]) =>
       this.subsection(a, b),
     )
@@ -185,6 +194,11 @@ class CubicBezier {
   // return two cubic bezier curves, one from [0, t], the other from [t, 1]
   // this is helpful: https://pomax.github.io/bezierinfo/#splitting
   subdivide(t) {
+    if (isNaN(t)) {
+      console.trace()
+      throw `CubicBezier.subdivide got NaN argument`
+    }
+    // console.log('CubicBezier subdivide', this, t)
     let start = this.from
     let end = this.to
 
@@ -212,6 +226,7 @@ class CubicBezier {
 
   // if the original line goes from t=[0,1], return a new line that goes from t=[from, to]
   subsection(from, to) {
+    // console.log('CubicBezier.subsection', this, from, to)
     if (to < from) {
       throw `CubicBezier.subsection parameters out of order ${from} ${to}`
     }

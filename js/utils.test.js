@@ -1,5 +1,5 @@
 import { expect, test, describe } from 'vitest'
-import { reduceIntervals } from '/js/utils.js'
+import { reduceIntervals, sortAndRemoveDuplicates } from '/js/utils.js'
 
 describe('reduceIntervals', () => {
   let fn = (c) => (c > 1 && c < 3) || (c > 4 && c < 5)
@@ -41,6 +41,28 @@ describe('reduceIntervals', () => {
   test.each(cases)(`$input`, ({ input, want }) => {
     let result = reduceIntervals(input, fn)
     // console.log('want ', answer, 'got', result)
+    expect(result).toStrictEqual(want)
+  })
+})
+
+describe('sortAndRemoveDuplicates', () => {
+  const cases = [
+    {
+      input: [0, 0, 1, 1],
+      want: [0, 1],
+    },
+    {
+      input: [-0, 0, 1, 1],
+      want: [-0, 1],
+    },
+    {
+      input: [1, 0, 0.9, 0.5],
+      want: [0, 0.5, 0.9, 1],
+    },
+  ]
+
+  test.each(cases)(`$input`, ({ input, want }) => {
+    let result = sortAndRemoveDuplicates(input)
     expect(result).toStrictEqual(want)
   })
 })

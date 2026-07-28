@@ -2,7 +2,7 @@ import { StraightStroke, Polygon } from '/js/lines.js'
 import { Point, Vector } from '/js/geometry.js'
 import { BBox } from '/js/bbox.js'
 import { range, enumerate, zip } from '/js/utils.js'
-import { incrementalButtons, radioButtons, toggleButton } from '/js/buttons.js'
+import { incrementalButtons, radioButtons, toggleButton, selector } from '/js/buttons.js'
 
 import { pens } from '/js/plotter/pens.js'
 import { Layer } from '/js/plotter/layer.js'
@@ -87,6 +87,7 @@ const svgPlot = {
             <select v-if="option.type=='dropdown'" v-model="scene.configs[option.name]">
               <option v-for="elt of option.options" :value="elt.value">{{elt.name}}</option>
             </select>
+            <selector v-if="option.type=='dropdown-2'" :options="option.options" :value="scene.configs[option.name].name" @value="elt => {console.log('selector emitted', elt); scene.configs[option.name] = elt}"></selector>
             <incremental-buttons 
               v-if="option.type=='incremental'" 
               :n="scene.configs[option.name]" 
@@ -234,6 +235,7 @@ const svgPlot = {
     incrementalButtons,
     radioButtons,
     toggleButton,
+    selector,
   },
   computed: {
     canvas() {
@@ -295,9 +297,11 @@ const svgPlot = {
         let key = option.name
         let value =
           option.name in this.scene.configs ? this.scene.configs[option.name] : option.default
-
-        if (option.type == 'dropdown') {
+        // console.log('value', value, this.scene.configs)
+        if (option.type == 'dropdown' && typeof value === 'object' && 'string' in value) {
           value = value.string() // FIXME: this won't work for other types of dropdowns
+        } else if (option.type == 'dropdown-2') {
+          value = value.name
         }
         output.push(`${key}: ${value}`)
       }

@@ -176,14 +176,22 @@ class CompositeCurve {
     // extend a ray from the point in the 0x direction, count the number of intersections with the closed curve
     // if odd, the point must be inside (modulo floating-point imprecisions)
     // let lines = [new Line(pt, new Vector(1, 0)), new Line(pt, new Vector(0, 1))]
-    let lines = [0, 1].map((n) => new Line(pt, new Vector(1, 0).rotateDeg(180 * Math.random()))) // temporary solution, randomly rotate the rays
+    let degrees = [0, 1].map((n) => 180 * Math.random())
+    let lines = [0, 1].map((n) => new Line(pt, new Vector(1, 0).rotateDeg(degrees[n]))) // temporary solution, randomly rotate the rays
     let lengths = lines.map(
       (line) => [...new Set(this.intersectLineU(line).filter((t) => t > 0))].length,
     )
     let parities = lengths.map((l) => l % 2 == 1)
     let allEqual = parities.every((p) => p === parities[0])
     if (!allEqual) {
-      console.warn(`CompositeCurve.inside got ambiguous results`, lengths)
+      console.warn(`CompositeCurve.inside got ambiguous results`, lengths, pt, degrees)
+      console.log('repr', this.repr())
+      // FIXME: This is a temporary solution, can we do better?
+      // it seems that computing the distance between a point an a curve is nontrivial, and requires some math
+      // https://inria.hal.science/file/index/docid/518379/filename/Xiao-DiaoChen2007c.pdf
+      // and https://en.wikipedia.org/wiki/Sturm%27s_theorem
+      return true
+
       throw `CompositeCureve.inside got ambiguous results`
     }
     // let intersections = this.intersectLineU(line)
@@ -297,11 +305,15 @@ class CompositeCurve {
     }
     let joined = []
     let current
+    // console.log('clipped', clipped)
     for (let elt of clipped) {
       if (current == null) {
         current = elt
         continue
       }
+      // if (isNaN(current.startpoint().x) || isNaN(current.endpoint().x)) {
+      //   throw `current ${current.repr()} has NaN for x coodinate`
+      // }
       if (current.endpoint().same(elt.startpoint())) {
         // if (current.type == 'CompositeCurve') {
         //   current.add(elt) // FIXME: This might modify the underlying curve?
@@ -311,11 +323,13 @@ class CompositeCurve {
         // }
         current = new CompositeCurve(current, elt)
       } else {
+        // console.log('pushing current to joined', current)
         joined.push(current)
         current = elt
       }
     }
     if (current != null) {
+      // console.log('adding current to joined', current)
       joined.push(current)
     }
     if (joined.length == 1) {
@@ -332,6 +346,7 @@ class CompositeCurve {
       // )
       // joined[0] = new CompositeCurve(joined[joined.length - 1], joined[0])
       // joined.splice(joined.length - 1, 1) //remove the last item, it has been merged with the first one
+      // console.log('joined before slicing', joined)
       joined = [
         new CompositeCurve(joined[joined.length - 1], joined[0]),
         ...joined.slice(1, joined.length - 1),

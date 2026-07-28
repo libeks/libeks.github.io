@@ -6,6 +6,10 @@ const DIVISOR_THRESHOLD = 1e-8
 
 class Point {
   constructor(x, y) {
+    if (isNaN(x) || isNaN(y)) {
+      console.trace()
+      throw `Point received non-numerical arguments (${x}, ${y})`
+    }
     this.x = x
     this.y = y
     this.type = 'Point'

@@ -338,6 +338,17 @@ function getParenthesisPartitions(n) {
   return newMap
 }
 
+// given a parenthesis notation, return the full set obtained by rotating the notation
+function getParenthesisRotationSet(initial) {
+  let retArray = [initial]
+  let current = rotateParenthesis(initial)
+  while (current != initial) {
+    retArray.push(current)
+    current = rotateParenthesis(current)
+  }
+  return retArray
+}
+
 function get2DWalkFromParentheses(parentheses) {
   let result = []
   for (let i = 1; i < parentheses.length - 1; i += 2) {
@@ -617,8 +628,12 @@ export {
   numericalToHex,
   hexToNumerical,
 
+  // miscellaneous
+  rotateParenthesis,
+
   // partitions
   getParenthesisPartitions,
+  getParenthesisRotationSet,
 
   // 2D walk
   get2DWalkFromParentheses,

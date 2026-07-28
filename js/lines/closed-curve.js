@@ -143,6 +143,11 @@ class ClosedCurve {
     // the returned clipped curves should either be closed, or their start and endpoints lie on the perimeter of bbox
 
     let ret = this.curve.clip(bbox)
+    // console.log(
+    //   'clipComponents startpoints',
+    //   this.curve.curves.map((c) => c.startpoint()),
+    //   // ret.curve.startpoint(),
+    // )
     // console.log('clipComponents', this, bbox, ret)
     return ret
   }

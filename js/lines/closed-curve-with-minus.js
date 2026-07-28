@@ -112,7 +112,7 @@ class ClosedCurveWithMinus {
       })
       if (i % 2 == 0) {
         // reverse even lines so the fill follows a back-and-forth pattern
-        intervals = reversed(intervals)
+        intervals = reversed(intervals.map((int) => int.reverse()))
       }
       for (let [t1, t2] of intervals) {
         let p1 = line.at(t1)

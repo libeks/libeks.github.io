@@ -251,12 +251,14 @@ div.button-block {
     display: inline-block;
   }
 
+  &.small {
+    font-size: 0.9rem;
+  }
+
   .button {
     display: inline-block;
     padding: 0 0.4em;
-    /*margin: 0.2em;*/
     background-color: hsl(0, 0%, 80%);
-    /*border-radius: 0.2em;*/
     user-select: none;
     webkit-user-select: none; /* For Safari only */
 

@@ -159,9 +159,47 @@ const Tiling = new Scene('TruchetTiling')
     curve: { pen: pens.CrayolaSuperTips, color: 'hsl(200, 85%, 40%)' },
   })
 
+let sizeOptions = [
+  { value: 300, display: '300' },
+  { value: 350, display: '350' },
+  { value: 400, display: '400' },
+  { value: 450, display: '450' },
+  { value: 500, display: '500' },
+  { value: 550, display: '550' },
+  { value: 600, display: '600' },
+  { value: 650, display: '650' },
+  { value: 700, display: '700' },
+  { value: 750, display: '750' },
+  { value: 800, display: '800' },
+  { value: 850, display: '850' },
+  { value: 900, display: '900' },
+  { value: 950, display: '950' },
+  { value: 1000, display: '1000' },
+]
+
 let pipeParenthesesSets = {
   3: getParenthesisRotationSet('((()))'),
   4: getParenthesisRotationSet('(((())))'),
+  6: getParenthesisRotationSet('(((((())))))'),
+  8: getParenthesisRotationSet('(((((((())))))))'),
+  12: getParenthesisRotationSet('(((((((((((())))))))))))'),
+  16: getParenthesisRotationSet('(((((((((((((((())))))))))))))))'),
+  24: getParenthesisRotationSet('(((((((((((((((((((((((())))))))))))))))))))))))'),
+}
+
+let pipeOnlyParenthesesSets = {
+  3: getParenthesisRotationSet('((()))'),
+  4: ['(((())))', '(())(())'],
+  6: getParenthesisRotationSet('(((((())))))'),
+  8: getParenthesisRotationSet('(((((((())))))))'),
+  12: getParenthesisRotationSet('(((((((((((())))))))))))'),
+  16: getParenthesisRotationSet('(((((((((((((((())))))))))))))))'),
+  24: getParenthesisRotationSet('(((((((((((((((((((((((())))))))))))))))))))))))'),
+}
+
+let pipeThreeConnectorParenthesesSets = {
+  3: ['(()())'],
+  4: ['(((())))', '(())(())'],
   6: getParenthesisRotationSet('(((((())))))'),
   8: getParenthesisRotationSet('(((((((())))))))'),
   12: getParenthesisRotationSet('(((((((((((())))))))))))'),
@@ -187,7 +225,6 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         cellChoice,
       },
     ) => {
-      // let
       return {
         bbox: small ? bbox.withPadding(1000) : bbox,
         start: bbox.center(),
@@ -211,16 +248,14 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
           ...uniform2Tilings,
           ...uniform3Tilings,
           ...uniform4Tilings,
-        ].map((tiling) => ({ name: tiling.string(), value: tiling })),
+        ].map((tiling) => ({ display: tiling.string(), value: tiling })),
         // default: semiregularTilings[0],
         default: regularTilings[2],
       },
       {
         name: 'size',
-        type: 'incremental',
-        min: 100,
-        step: 50,
-        max: 1000,
+        type: 'dropdown',
+        options: sizeOptions,
         default: 550,
       },
       {
@@ -277,17 +312,35 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         type: 'dropdown-2',
         options: [
           {
-            name: 'random',
+            display: 'random',
             value: (random) => (face) => ({
               n: random.int(1289904147324),
             }),
           },
           {
-            name: 'tubes',
+            display: 'tubes',
             value: (random) => (face) => {
               let n = face.tile.notchPoints.length / 2
               return {
                 tile: parenthesesToHex(random.choose(pipeParenthesesSets[n])),
+              }
+            },
+          },
+          {
+            display: 'tubes-four',
+            value: (random) => (face) => {
+              let n = face.tile.notchPoints.length / 2
+              return {
+                tile: parenthesesToHex(random.choose(pipeOnlyParenthesesSets[n])),
+              }
+            },
+          },
+          {
+            display: 'tubes-four-three-connect',
+            value: (random) => (face) => {
+              let n = face.tile.notchPoints.length / 2
+              return {
+                tile: parenthesesToHex(random.choose(pipeThreeConnectorParenthesesSets[n])),
               }
             },
           },
@@ -309,6 +362,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         filterPerimeter,
         cellChoice,
       } = params
+      console.log('size', size)
       let grid = new VertexGrid({
         bbox,
         start,

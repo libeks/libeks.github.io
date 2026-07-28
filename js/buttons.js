@@ -9,6 +9,7 @@ const playControls = {
   props: {
     active: Boolean,
   },
+  emits: ['previousFrame', 'togglePlay', 'nextFrame'],
 }
 
 const radioButtons = {
@@ -21,6 +22,7 @@ const radioButtons = {
     value: [String, Number],
     choices: Object,
   },
+  emits: ['setChoice'],
 }
 
 const toggleButton = {
@@ -33,6 +35,7 @@ const toggleButton = {
     text: String,
     active: Boolean,
   },
+  emits: ['toggleChoice'],
 }
 
 const collapsibleButton = {
@@ -100,7 +103,7 @@ const incrementalButtons = {
 const selector = {
   template: `
     <select :value="value" @input="value=>{pick(value, 'input')}" @value="value=>{pick(value, 'value')}" @change="value=>{pick(value, 'change')}">
-      <option v-for="elt of options" :value="elt.name">{{elt.name}}</option>
+      <option v-for="elt of options" :value="elt.name">{{elt.display}}</option>
     </select>
   `,
   methods: {
@@ -108,7 +111,7 @@ const selector = {
       let selected = event.target.value
       for (let elt of this.options) {
         console.log('element', elt)
-        if (elt.name == selected) {
+        if (elt.display == selected) {
           console.log('selector is emitting event @value', elt)
           this.$emit('value', elt)
         }

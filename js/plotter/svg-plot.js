@@ -15,7 +15,7 @@ const svgPlot = {
           <metadata class="configs" v-html="rawHTMLComment" > </metadata>
           <g v-for="layer in visibleLayers" inkscape:groupmode="layer" :inkscape:label="layer.displayName" :transform="layerPens[layer.id].transform()">
             <path 
-              v-for="curve in layer.getAllCurves(layerPens[layer.id].spacing, showFill)" 
+              v-for="curve in layer.getAllCurves(layerPens[layer.id].spacing * penMultipliers[layer.id], showFill)" 
               :d="curve.d()" 
               :stroke="colors[layer.id]" 
               fill="none"
@@ -44,13 +44,24 @@ const svgPlot = {
             <tbody>
               <tr v-for="(layer, id) in allLayers">
                 <td>{{layer.displayName}}</td>
-                <td style="text-align: right">{{prettyTime(layer.statistics(layerPens[layer.id].spacing, showFill).time)}}</td>
+                <td style="text-align: right">{{prettyTime(layer.statistics(layerPens[layer.id].spacing * penMultipliers[layer.id], showFill).time)}}</td>
                 <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1" :style="{color: pens[layer.id].color}">
-                  <div style="display: flex; gap: 10px">
-                    <select v-model="pens[layer.id]" :disabled="disabled[layer.id]">
-                      <option v-for="pen of allPens" :value="pen">{{pen.name}}</option>
-                    </select>
-                    <div v-if="!disabled[layer.id]" class="colorSquare" @click="$refs['dialog-'+layer.id][0].showModal()" :style="{'background-color': colors[layer.id]}"></div>
+                  <div>
+                    <div style="display: flex; gap: 10px">
+                      <select v-model="pens[layer.id]" :disabled="disabled[layer.id]">
+                        <option v-for="pen of allPens" :value="pen">{{pen.name}}</option>
+                      </select>
+                      <div v-if="!disabled[layer.id]" class="colorSquare" @click="$refs['dialog-'+layer.id][0].showModal()" :style="{'background-color': colors[layer.id]}"></div>
+                    </div>
+                    <div v-if="layer.parent && layer.parent.fillCurves.length > 0" >
+                      <radio-buttons 
+                        class="inline-buttons button-block small" 
+                        :choices="[{value:1, display: '1.0'}, {value:1.1, display:'1.1'}, {value:1.2, display: '1.2'},{value:1.5, display: '1.5'}, {value:2, display: '2.0'}]" 
+                        :value="penMultipliers[layer.id]" 
+                        @setChoice="val=> changeThicknessMultiplier(layer, val)"
+                      > 
+                      </radio-buttons>
+                    </div>
                   </div>
                   <dialog :id="'dialog-'+layer.id" :ref="'dialog-'+layer.id" closedby="any">
                     <p>Pick a color for {{pens[layer.id].name}}</p>
@@ -85,9 +96,14 @@ const svgPlot = {
           <div v-for="option in scene.options">
             <div class="name">{{option.name}}</div>
             <select v-if="option.type=='dropdown'" v-model="scene.configs[option.name]">
-              <option v-for="elt of option.options" :value="elt.value">{{elt.name}}</option>
+              <option v-for="elt of option.options" :value="elt.value">{{elt.display}}</option>
             </select>
-            <selector v-if="option.type=='dropdown-2'" :options="option.options" :value="scene.configs[option.name].name" @value="elt => {console.log('selector emitted', elt); scene.configs[option.name] = elt}"></selector>
+            <selector 
+              v-if="option.type=='dropdown-2'" 
+              :options="option.options" 
+              :value="scene.configs[option.name].display" 
+              @value="elt => {scene.configs[option.name] = elt}"
+            ></selector>
             <incremental-buttons 
               v-if="option.type=='incremental'" 
               :n="scene.configs[option.name]" 
@@ -135,6 +151,7 @@ const svgPlot = {
     return {
       hidden: {},
       pens: {},
+      penMultipliers: {},
       colors: {},
       disabled: {}, // first two layers should not allow for pen or color choice
       allPens: pens,
@@ -151,6 +168,7 @@ const svgPlot = {
         this.pens = {}
         this.disabled = {}
         this.colors = {}
+        this.penMultipliers = {}
       },
     },
     layerSkeletons: {
@@ -168,6 +186,7 @@ const svgPlot = {
           } else {
             this.pens[layer.id] = pens.Micron005 // default pen
           }
+          this.penMultipliers[layer.id] = 1.0
           if (layer.color) {
             this.colors[layer.id] = layer.color
           } else {
@@ -230,6 +249,12 @@ const svgPlot = {
         this.colors[layer.parent.id] = color
       }
     },
+    changeThicknessMultiplier(layer, thickness) {
+      this.penMultipliers[layer.id] = thickness
+      if (layer.parent) {
+        this.penMultipliers[layer.parent.id] = thickness
+      }
+    },
   },
   components: {
     incrementalButtons,
@@ -268,7 +293,7 @@ const svgPlot = {
     },
     penNames() {
       // used to watch changes in pens, watching on pens directly doesn't work since deep watching of objects doesn't provide the old value
-      return Object.values(this.pens).map((pen) => pen.name)
+      return Object.values(this.pens).map((pen) => pen.display)
     },
     layersByID() {
       let ret = {}
@@ -301,7 +326,7 @@ const svgPlot = {
         if (option.type == 'dropdown' && typeof value === 'object' && 'string' in value) {
           value = value.string() // FIXME: this won't work for other types of dropdowns
         } else if (option.type == 'dropdown-2') {
-          value = value.name
+          value = value.display
         }
         output.push(`${key}: ${value}`)
       }

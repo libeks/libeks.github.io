@@ -87,7 +87,7 @@ class ClosedCurveWithMinus {
   }
 
   // fill fills the closed curve with parallel lines, all at 'directionDeg' angle (degrees)
-  fill(gap, directionDeg) {
+  fillWide(gap, directionDeg) {
     let vect = new Vector(1, 0).rotateDeg(directionDeg).mult(gap)
     let perpVect = vect.perp()
     let perpLine = new Line(Point2DOrigin, perpVect)
@@ -109,6 +109,57 @@ class ClosedCurveWithMinus {
       let intervals = reduceIntervals(tvalues, (t) => {
         let midpoint = line.at(t)
         return this.curve.inside(midpoint) && !this.minus.some((c) => c.inside(midpoint))
+      })
+      if (i % 2 == 0) {
+        // reverse even lines so the fill follows a back-and-forth pattern
+        intervals = reversed(intervals.map((int) => int.reverse()))
+      }
+      for (let [t1, t2] of intervals) {
+        let p1 = line.at(t1)
+        let p2 = line.at(t2)
+        lines.push(new StraightStroke(p1, p2))
+      }
+    }
+    return lines
+  }
+
+  // fill fills the closed curve with parallel lines, all at 'directionDeg' angle (degrees)
+  // it is 'conservative' in that it models the line as a rectangle, and only returns rectangles that are fully inside the curve
+  fill(gap, directionDeg) {
+    // console.log('fillConservative')
+    const ratio = 0.8 // ratio of the width of the rectangle to the gap
+    let vect = new Vector(1, 0).rotateDeg(directionDeg).mult(gap)
+    let perpVect = vect.perp()
+    let perpLine = new Line(Point2DOrigin, perpVect)
+    // get the t-values of the corners of the bbox with respect to the vector
+    let tValues = this.bbox()
+      .corners()
+      .map((corner) => perpLine.pointProjectionTValue(corner))
+    tValues.sort((a, b) => a - b)
+    let allCurves = [this.curve, ...this.minus]
+    let lines = []
+    let min = Math.ceil(tValues[0]) // round up to an integer
+    for (let i = min; i < tValues[tValues.length - 1]; i++) {
+      let a = i - ratio / 2
+      let b = i + ratio / 2
+      let line = new Line(perpLine.at(i), vect)
+      let lineA = new Line(perpLine.at(a), vect)
+      let lineB = new Line(perpLine.at(b), vect)
+      let tvalues = []
+      for (let curve of allCurves) {
+        tvalues.push(...curve.intersectLineU(lineA))
+        tvalues.push(...curve.intersectLineU(lineB))
+      }
+      tvalues.sort((a, b) => a - b)
+      let intervals = reduceIntervals(tvalues, (t) => {
+        let midpointA = lineA.at(t)
+        let midpointB = lineB.at(t)
+        return (
+          this.curve.inside(midpointA) &&
+          this.curve.inside(midpointB) &&
+          !this.minus.some((c) => c.inside(midpointA)) &&
+          !this.minus.some((c) => c.inside(midpointB))
+        )
       })
       if (i % 2 == 0) {
         // reverse even lines so the fill follows a back-and-forth pattern

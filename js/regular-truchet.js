@@ -152,6 +152,27 @@ class GenericTruchetTile {
     )
   }
 
+  getHexagonalCurve(curve) {
+    if (this.vertices.length % 2 == 1) {
+      throw `getTrackCurve with odd number of vertices ${this.vertices.length}`
+    }
+    let c1 = curve[0]
+    let c2 = curve[1]
+    let cn1 = hexToNumerical(c1) - 1 // iterative starts at 1, not 0
+    let cn2 = hexToNumerical(c2) - 1 // iterative starts at 1, not 0
+    if (cn1 > cn2) {
+      throw `getCurve got unordered curve ${curve}`
+    }
+    let p1 = this.notchPoints[cn1]
+    let p2 = this.notchPoints[cn2]
+    let c1star = this.stars[cn1]
+    let c2star = this.stars[cn2]
+    if (['18', '27', '3A', '49', '5C', '6B'].includes(curve)) {
+      return new StraightStroke(p1, p2)
+    }
+    return this.getTrackCurve(curve)
+  }
+
   getSquareCurve(curve) {
     if (this.vertices.length % 2 == 1) {
       throw `getTrackCurve with odd number of vertices ${this.vertices.length}`
@@ -362,6 +383,10 @@ class GenericTruchetTile {
 
     if (this.vertices.length == 4) {
       return this.getSquareCurve(curve)
+    }
+
+    if (this.vertices.length == 6) {
+      return this.getHexagonalCurve(curve)
     }
 
     return this.getTrackCurve(curve)
@@ -616,7 +641,7 @@ const genericTruchetGrid = {
     grid() {
       // let faces = this.onlyNgonsInsideBBox ? grid.getFacesInBBox() : grid.getFaces()
       return generateTruchetGrid(this.tilingFaces, this.notches, this.size, (face) => ({
-        n: random.int(1289904147324),
+        n: this.random.int(1289904147324),
       }))
     },
     continuousTruchetCurves() {

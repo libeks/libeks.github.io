@@ -5,7 +5,12 @@ import { Point } from '/js/geometry.js'
 import { pairs, circularPairs } from '/js/utils.js'
 import { StraightStroke } from '/js/lines.js'
 import { Random } from '/js/random.js'
-import { parenthesesToHex, rotateParenthesis, getParenthesisRotationSet } from '/js/catalan.js'
+import {
+  parenthesesToHex,
+  rotateParenthesis,
+  getParenthesisRotationSet,
+  getParenthesisEvenRotationSet,
+} from '/js/catalan.js'
 
 import {
   regularTilings,
@@ -105,11 +110,11 @@ let pipeOnlyParenthesesSets = {
 let pipeThreeConnectorParenthesesSets = {
   3: ['(()())'],
   4: ['(((())))', '(())(())'],
-  6: getParenthesisRotationSet('(((((())))))'),
-  8: getParenthesisRotationSet('(((((((())))))))'),
-  12: getParenthesisRotationSet('(((((((((((())))))))))))'),
-  16: getParenthesisRotationSet('(((((((((((((((())))))))))))))))'),
-  24: getParenthesisRotationSet('(((((((((((((((((((((((())))))))))))))))))))))))'),
+  6: getParenthesisEvenRotationSet('(((((())))))'),
+  8: getParenthesisEvenRotationSet('(((((((())))))))'),
+  12: getParenthesisEvenRotationSet('(((((((((((())))))))))))'),
+  16: getParenthesisEvenRotationSet('(((((((((((((((())))))))))))))))'),
+  24: getParenthesisEvenRotationSet('(((((((((((((((((((((((())))))))))))))))))))))))'),
 }
 
 const Tiling = new Scene('TruchetTiling')

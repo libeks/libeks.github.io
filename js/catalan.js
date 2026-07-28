@@ -349,6 +349,17 @@ function getParenthesisRotationSet(initial) {
   return retArray
 }
 
+// the same as getParenthesisRotationSet, but only return every other element
+function getParenthesisEvenRotationSet(initial) {
+  let retArray = [initial]
+  let current = rotateParenthesis(rotateParenthesis(initial))
+  while (current != initial) {
+    retArray.push(current)
+    current = rotateParenthesis(rotateParenthesis(current))
+  }
+  return retArray
+}
+
 function get2DWalkFromParentheses(parentheses) {
   let result = []
   for (let i = 1; i < parentheses.length - 1; i += 2) {
@@ -634,6 +645,7 @@ export {
   // partitions
   getParenthesisPartitions,
   getParenthesisRotationSet,
+  getParenthesisEvenRotationSet,
 
   // 2D walk
   get2DWalkFromParentheses,

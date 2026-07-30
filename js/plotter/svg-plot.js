@@ -201,6 +201,7 @@ const svgPlot = {
       // figure out what has changed
       // https://stackoverflow.com/questions/62729380/vue-watch-outputs-same-oldvalue-and-newvalue
       handler(newObj, oldObj) {
+        console.log('penNames changed', oldObj, newObj)
         for (let [i, [a, b]] of enumerate(zip(oldObj, newObj))) {
           // let [a, b] = ob
           if (a != b) {
@@ -293,7 +294,7 @@ const svgPlot = {
     },
     penNames() {
       // used to watch changes in pens, watching on pens directly doesn't work since deep watching of objects doesn't provide the old value
-      return Object.values(this.pens).map((pen) => pen.display)
+      return Object.values(this.pens).map((pen) => pen.name)
     },
     layersByID() {
       let ret = {}

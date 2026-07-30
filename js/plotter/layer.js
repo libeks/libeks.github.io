@@ -209,7 +209,7 @@ class Layer {
       upDownCount, // number of times the pen has to lift and descend
       nCurves: this.curves.length, // number of curves, some may be continuous
     }
-    console.log(`layer ${this.name} statistics`, ret)
+    console.info(`layer ${this.name} statistics`, ret)
     return ret
   }
 

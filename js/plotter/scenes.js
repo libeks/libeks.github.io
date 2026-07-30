@@ -491,7 +491,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         filterPerimeter,
         cellChoice,
       } = params
-      console.log('size', size)
+      // console.log('size', size)
       let grid = new VertexGrid({
         bbox,
         start,

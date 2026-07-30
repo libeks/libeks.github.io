@@ -201,7 +201,7 @@ const svgPlot = {
       // figure out what has changed
       // https://stackoverflow.com/questions/62729380/vue-watch-outputs-same-oldvalue-and-newvalue
       handler(newObj, oldObj) {
-        console.log('penNames changed', oldObj, newObj)
+        // console.log('penNames changed', oldObj, newObj)
         for (let [i, [a, b]] of enumerate(zip(oldObj, newObj))) {
           // let [a, b] = ob
           if (a != b) {
@@ -275,7 +275,7 @@ const svgPlot = {
     layerPens() {
       // console.log('layerPens this.pens', this.pens)
       let ret = {}
-      console.log('this.pens', this.pens)
+      // console.log('this.pens', this.pens)
       for (let layerID of Object.keys(this.pens)) {
         let pen = this.pens[layerID]
         if (!(layerID in ret)) {
@@ -283,13 +283,13 @@ const svgPlot = {
           ret[layerID] = pen
         }
         let layer = this.layersByID[layerID]
-        console.log('layer', layer, layerID)
+        // console.log('layer', layer, layerID)
         if (layer.parent) {
           // console.log('layer has parent', layer.id, layer.parent.id)
           ret[layer.parent.id] = pen
         }
       }
-      console.log('layerPens', ret)
+      // console.log('layerPens', ret)
       return ret
     },
     penNames() {

@@ -79,7 +79,7 @@ class Scene {
         this.configs[option.name] = option.default
       }
     }
-    console.log('configs', this.configs)
+    // console.log('configs', this.configs)
     this.layerFn = layerFn
     return this
   }

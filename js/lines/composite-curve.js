@@ -184,8 +184,8 @@ class CompositeCurve {
     let parities = lengths.map((l) => l % 2 == 1)
     let allEqual = parities.every((p) => p === parities[0])
     if (!allEqual) {
-      console.warn(`CompositeCurve.inside got ambiguous results`, lengths, pt, degrees)
-      console.log('repr', this.repr())
+      // console.warn(`CompositeCurve.inside got ambiguous results`, lengths, pt, degrees)
+      // console.log('repr', this.repr())
       // FIXME: This is a temporary solution, can we do better?
       // it seems that computing the distance between a point an a curve is nontrivial, and requires some math
       // https://inria.hal.science/file/index/docid/518379/filename/Xiao-DiaoChen2007c.pdf

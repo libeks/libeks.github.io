@@ -167,6 +167,9 @@ class GenericTruchetTile {
     let p2 = this.notchPoints[cn2]
     let c1star = this.stars[cn1]
     let c2star = this.stars[cn2]
+    if (this.notches.length == 2) {
+      return this.getTrackCurve(curve)
+    }
     if (['18', '27', '3A', '49', '5C', '6B'].includes(curve)) {
       return new StraightStroke(p1, p2)
     }

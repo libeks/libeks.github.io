@@ -118,7 +118,6 @@ class Scene {
 
         if (clipToBBox) {
           for (let curve of layer.curves) {
-            console.log('clip', curve)
             let clipped = curve.clip(bbox)
             if (
               layer.fill &&
@@ -150,7 +149,7 @@ class Scene {
   }
 
   fill(paramMap) {
-    console.log('filling...')
+    console.info('filling...')
     console.trace()
     let layers = {}
     for (let layer of Object.values(this.layers)) {
@@ -160,31 +159,20 @@ class Scene {
         let p = paramMap[layer.name]
         spacing = p.spacing
         direction = p.direction
-        // { spacing, direction } = paramMap[layer.name]
       }
-      // console.log('layer', layer, spacing, direction)
 
       if (layer.fill && layer.fill.curves.length > 0) {
         let curves = []
-        // let spacing = 20 // default if the layer doesn't specify its fill
-        // if (layer.fill.spacing) {
-        //   spacing = layer.fill.spacing
-        // }
-        // let direction = 13 // default if the layer doesn't specify its fill
-        // if (layer.fill.direction) {
-        //   direction = layer.fill.direction
-        // }
         for (let curve of layer.fill.curves) {
           let fill = curve.fill(spacing, direction)
           if (curve.id) {
             enumerate(fill).forEach(([id, c]) => (c.id = `${curve.id}.${id}`))
           }
-          // layer.curves.push(...fill)
           layers[layer.name] = curves
         }
       }
     }
-    console.log('done filling')
+    console.info('done filling')
     return layers
   }
 }

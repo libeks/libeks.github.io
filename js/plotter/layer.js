@@ -38,12 +38,7 @@ class Layer {
     if (withFill && this.fillCurves.length > 0) {
       if (!(spacing in this.filledCurves)) {
         this.filledCurves[spacing] = this.fill(spacing, this.direction)
-        // console.log(`layer['${this.name}'].fillCurves[${spacing}] is`, this.filledCurves[spacing])
       }
-      // console.log(`layer['${this.name}'].getAllCurves returning`, [
-      //   ...this.curves,
-      //   ...this.filledCurves[spacing],
-      // ])
       return [...this.curves, ...this.filledCurves[spacing]]
     }
     return this.curves
@@ -87,7 +82,6 @@ class Layer {
   }
 
   withPen(params) {
-    // console.log('withPen got', params, this.name)
     let { pen, color } = params
     if (pen.type != 'Pen') {
       throw `Layer.withPen got unexpected argument ${pen.type}`
@@ -119,7 +113,7 @@ class Layer {
     if (this.curves.length == 0) {
       return this
     }
-    console.log(`optimizing ${this.curves.length} curves`)
+    console.info(`optimizing ${this.curves.length} curves`)
     let allCurves = Array.from(enumerate(this.curves).map(([i, curve]) => ({ curve, i })))
     let curves = [allCurves[0]]
     let toProcess = allCurves.slice(1)
@@ -159,7 +153,7 @@ class Layer {
       curves.push(candidate)
     }
     this.curves = curves.map(({ curve }) => curve)
-    console.log(`done optimizing ${this.curves.length} curves`)
+    console.info(`done optimizing ${this.curves.length} curves`)
     return this // allow chaining
   }
 
@@ -172,14 +166,10 @@ class Layer {
   }
 
   statistics(spacing, showFill) {
-    // console.log(`layer ${this.name} statistics computed for spacing`, spacing, showFill)
     // TODO: take curvature into account when computing down distance, the pen moves slower on curves
     let downLength = 0
-    // console.log(`layer ${this.name} curve length`, this.getAllCurves(spacing).length)
     let curves = this.getAllCurves(spacing, showFill)
     for (let curve of curves) {
-      console.log('curve.length', curve)
-      // console.log('curve.length2', curve.length())
       downLength += curve.length()
     }
     let upLength = 0

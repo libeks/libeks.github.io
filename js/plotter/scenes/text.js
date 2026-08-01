@@ -52,11 +52,9 @@ const TextTest = new Scene('TextTest')
     (params) => {
       let { bbox, start, size, text } = params
       text = text.value
-      console.log('TextTest text', text)
 
       let renderedText = renderText(palatinoFont, text, size)
 
-      console.log('renderedText', renderedText, renderedText.bbox)
       let displacementVector = renderedText.bbox.center().vectTo(bbox.center())
       renderedText = renderedText.move(displacementVector)
       let ret = {
@@ -71,7 +69,6 @@ const TextTest = new Scene('TextTest')
           dontOptimize: true,
         },
       }
-      console.log('ret', ret)
       return ret
     },
   )

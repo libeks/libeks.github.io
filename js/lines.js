@@ -35,39 +35,22 @@ function nestClosedCurves(curves) {
     if (curveA.id == '78.0') {
       let abox = curveA.bbox()
       let bbox = curveB.bbox()
-      // console.log(
-      //   '78.0',
-      //   abox,
-      //   bbox,
-      //   abox.boxInside(bbox),
-      //   bbox.boxInside(abox),
-      //   curveB.inside(curveA.at(t)),
-      //   curveA.inside(curveB.at(t)),
-      // )
     }
     let ptA = curveA.at(t)
     let ptB = curveB.at(t)
     if (curveB.bbox().inside(ptA) && curveB.inside(ptA)) {
       // get at 0.34 to not coincide with boundaries
       // curveA is a descendant of curveB
-      // console.log(`curve ${a} is a descendant of ${b}`, curveA.at(t).repr())
       descendants[b].push(a)
       ancestors[a].push(b)
     } else if (curveA.bbox().inside(ptB) && curveA.inside(ptB)) {
       // get at 0.35 to not fall on a boundary
       // curveB is a descendant of curveA
-      // console.log(`curve ${b} is a descendant of ${a}`, curveB.at(t).repr())
       descendants[a].push(b)
       ancestors[b].push(a)
     }
   }
 
-  // console.log(
-  //   'descendants and ancestors',
-  //   curves.map((curve) => curve.id),
-  //   descendants,
-  //   ancestors,
-  // )
   for (let [i, curve] of enumerate(curves)) {
     if (ancestors[i].length > 0) {
       let depth = ancestors[i].length
@@ -133,7 +116,6 @@ function rayLineRayCurve(r1, line, r2) {
 }
 
 function compositeQuadraticBezier(...pointsWithTags) {
-  console.log('pointsWithTags', pointsWithTags)
   if (pointsWithTags.length == 0) {
     // pointsWithTags = []
     return

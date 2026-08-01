@@ -404,7 +404,7 @@ const svgPlot = {
         }
         return !this.hidden[layer.id]
       })
-      console.log('visibleLayers', retval)
+      // console.log('visibleLayers', retval)
       return retval
     },
     layerSkeletons() {
@@ -441,7 +441,7 @@ const svgPlot = {
         layer.id = id
       }
 
-      console.log('layerSkeletons', layers)
+      // console.log('layerSkeletons', layers)
       return layers
     },
     allLayers() {
@@ -479,7 +479,7 @@ const svgPlot = {
         layer.id = id
       }
 
-      console.log('allLayers', layers)
+      // console.log('allLayers', layers)
       return layers
     },
   },

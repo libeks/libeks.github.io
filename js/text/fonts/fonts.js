@@ -117,7 +117,6 @@ class GlyphShape {
       size,
       new Point(0, 0),
     )
-    console.log('Rendering GlyphShape', this, 'got', ret)
     return ret
   }
 }
@@ -133,9 +132,7 @@ class Font {
   }
 
   // renders the given text at Point(0,0) at the given size
-  // FIXME: size is currently ignored
   renderText(text, size) {
-    // console.log('text', text)
     let sizeRatio = size / this.size
     let characters = []
     let xPosition = 0
@@ -146,8 +143,6 @@ class Font {
       }
       let glyph = this.shapes[c1]
       let renderedCharacter = glyph.render(size)
-      // console.log('shape', charShapes)
-      // charShapes = charShapes.map((shape) => shape.move(new Vector(xPosition, 0))) // move character to the right by xPosition
       renderedCharacter = renderedCharacter.move(new Vector(xPosition, 0))
       characters.push(renderedCharacter)
       xPosition += this.advances[c1] * sizeRatio
@@ -158,31 +153,6 @@ class Font {
     return new RenderedText(characters, text, size)
   }
 }
-
-// // given a shape map in input format (rune: [][]PointOnLine), return a native rune: ClosedCurveWithMinus representation
-// function convertShapeMap(shapeMap) {
-//   let newMap = {}
-//   for (let key of Object.keys(shapeMap)) {
-//     console.log('Converting character', key)
-//     let contours = shapeMap[key]
-//     let convertedContours = []
-//     for (let contour of contours) {
-//       let annotatedPoints = contour.map(([x, y, onCurve]) => ({
-//         point: new Point(x, y),
-//         onCurve: onCurve == 1, // the input is an int 0/1, we translate to boolean
-//       }))
-//       if (annotatedPoints.length > 0) {
-//         // add first point in back as the last point, to close the curve
-//         annotatedPoints.push(annotatedPoints[0])
-//       }
-//       let convertedContour = new ClosedCurve(compositeQuadraticBezier(...annotatedPoints))
-//       convertedContours.push(convertedContour)
-//     }
-//     let character = nestClosedCurves(convertedContours)
-//     newMap[key] = character
-//   }
-//   return newMap
-// }
 
 function convertShapeMap(shapeMap, size) {
   let newMap = {}

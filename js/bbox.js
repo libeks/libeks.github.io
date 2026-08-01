@@ -1,6 +1,6 @@
 import { Point, Vector, Line } from '/js/geometry.js'
 import { StraightStroke, CompositeCurve } from '/js/lines.js'
-import { reduceIntervals, enumerate, pairs } from '/js/utils.js'
+import { reduceIntervals, enumerate, pairs, range } from '/js/utils.js'
 
 const THRESHOLD = 0.1
 
@@ -223,6 +223,25 @@ class BBox {
     controls.push(b % 4)
     let components = pairs(controls).map(([a, b]) => new StraightStroke(this.at(a), this.at(b)))
     return new CompositeCurve(...components)
+  }
+
+  // partition the bbox into rows and columns, returning an array of {row, column, bbox}
+  partition(rows, columns) {
+    let ret = []
+    let colWidth = this.width() / columns
+    let rowHeight = this.height() / rows
+    for (let rowID of range(rows)) {
+      for (let columnID of range(columns)) {
+        let upperLeft = this.upperLeft().addVect(new Vector(colWidth * columnID, rowHeight * rowID))
+        let lowerRight = upperLeft.addVect(new Vector(colWidth, rowHeight))
+        ret.push({
+          bbox: new BBox(upperLeft.x, upperLeft.y, lowerRight.x, lowerRight.y),
+          row: rowID,
+          column: columnID,
+        })
+      }
+    }
+    return ret
   }
 
   clipLine(line) {

@@ -4,6 +4,17 @@ import { Point, Vector } from '/js/geometry.js'
 import { BBox, composeBBoxes } from '/js/bbox.js'
 import { ClosedCurve } from '/js/lines/closed-curve.js'
 import { compositeQuadraticBezier, nestClosedCurves } from '/js/lines.js'
+
+import { arialBlackFontRaw } from '/js/text/fonts/arial-black.js'
+import { avenirFontRaw } from '/js/text/fonts/avenir.js'
+import { courierFontRaw } from '/js/text/fonts/courier.js'
+import { dinAlternateBoldFontRaw } from '/js/text/fonts/din-alternate-bold.js'
+import { futuraFontRaw } from '/js/text/fonts/futura.js'
+import { genevaFontRaw } from '/js/text/fonts/geneva.js'
+import { lucidaGrandeFontRaw } from '/js/text/fonts/lucida-grande.js'
+import { menloFontRaw } from '/js/text/fonts/menlo.js'
+import { monacoFontRaw } from '/js/text/fonts/monaco.js'
+import { newYorkFontRaw } from '/js/text/fonts/new-york.js'
 import { palatinoFontRaw } from '/js/text/fonts/palatino.js'
 
 // a file that exports all of the available fonts
@@ -163,10 +174,44 @@ function convertShapeMap(shapeMap, size) {
   return newMap
 }
 
+const arialBlackFont = new Font(arialBlackFontRaw)
+const avenirFont = new Font(avenirFontRaw)
+const courierFont = new Font(courierFontRaw)
+const dinAlternateBoldFont = new Font(dinAlternateBoldFontRaw)
+const futuraFont = new Font(futuraFontRaw)
+const genevaFont = new Font(genevaFontRaw)
+const lucidaGrandeFont = new Font(lucidaGrandeFontRaw)
+const menloFont = new Font(menloFontRaw)
+const monacoFont = new Font(monacoFontRaw)
+const newYorkFont = new Font(newYorkFontRaw)
 const palatinoFont = new Font(palatinoFontRaw)
 
 const fonts = {
+  arialBlackFont,
+  avenirFont,
+  courierFont,
+  dinAlternateBoldFont,
+  futuraFont,
+  genevaFont,
+  lucidaGrandeFont,
+  menloFont,
+  monacoFont,
+  newYorkFont,
   palatinoFont,
 }
 
-export { Font, fonts, palatinoFont }
+export {
+  Font,
+  fonts,
+  palatinoFont,
+  arialBlackFont,
+  avenirFont,
+  courierFont,
+  dinAlternateBoldFont,
+  futuraFont,
+  genevaFont,
+  lucidaGrandeFont,
+  menloFont,
+  monacoFont,
+  newYorkFont,
+}

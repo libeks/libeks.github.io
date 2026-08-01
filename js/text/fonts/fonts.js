@@ -130,7 +130,7 @@ function convertShapeMap(shapeMap) {
     for (let contour of contours) {
       let annotatedPoints = contour.map(([x, y, onCurve]) => ({
         point: new Point(x, y),
-        onCurve,
+        onCurve: onCurve == 1,
       }))
       if (annotatedPoints.length > 0) {
         // add first point in back as the last point, to close the curve

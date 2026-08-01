@@ -10,7 +10,7 @@ import { pens } from '/js/plotter/pens.js'
 import { renderText } from '/js/text/text.js'
 import { palatinoFont } from '/js/text/fonts/fonts.js'
 
-let textSizeOptions = [10, 15, 20, 25, 30, 35, 40, 45, 50].map((value) => ({
+let textSizeOptions = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000].map((value) => ({
   value,
   display: value.toString(),
 }))
@@ -30,11 +30,11 @@ const TextTest = new Scene('TextTest')
         name: 'size',
         type: 'dropdown',
         options: textSizeOptions,
-        default: 20,
+        default: 200,
       },
       {
         name: 'text',
-        type: 'dropdown',
+        type: 'dropdown-2',
         options: [
           {
             value:
@@ -51,6 +51,7 @@ const TextTest = new Scene('TextTest')
     ],
     (params) => {
       let { bbox, start, size, text } = params
+      text = text.value
       console.log('TextTest text', text)
 
       let renderedText = renderText(palatinoFont, text, size)

@@ -118,6 +118,7 @@ class Scene {
 
         if (clipToBBox) {
           for (let curve of layer.curves) {
+            console.log('clip', curve)
             let clipped = curve.clip(bbox)
             if (
               layer.fill &&

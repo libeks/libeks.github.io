@@ -249,6 +249,17 @@ class BBox {
   }
 }
 
+function composeBBoxes(bboxes) {
+  if (bboxes.length == 0) {
+    return new BBox(0, 0, 0, 0)
+  }
+  let bbox = bboxes[0]
+  for (let [_, box] of pairs(bboxes)) {
+    bbox = bbox.add(box)
+  }
+  return bbox
+}
+
 function bboxFromPointCloud(...points) {
   for (let pt of points) {
     if (pt.type != 'Point') {
@@ -271,4 +282,4 @@ const svgBox = {
   },
 }
 
-export { BBox, svgBox, bboxFromPointCloud }
+export { BBox, svgBox, bboxFromPointCloud, composeBBoxes }

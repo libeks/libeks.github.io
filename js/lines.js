@@ -133,6 +133,7 @@ function rayLineRayCurve(r1, line, r2) {
 }
 
 function compositeQuadraticBezier(...pointsWithTags) {
+  console.log('pointsWithTags', pointsWithTags)
   if (pointsWithTags.length == 0) {
     // pointsWithTags = []
     return

@@ -46,10 +46,20 @@ class ClosedCurveWithMinus {
   }
 
   move(v) {
-    return new CompositeCurveWithMinus(
+    return new ClosedCurveWithMinus(
       this.curve.move(v),
-      ...this.minus.map((curve) => curve.move(v)),
+      this.minus.map((curve) => curve.move(v)),
     )
+  }
+
+  length() {
+    console.log('this.curve', this.curve)
+    let sum = this.curve.length()
+    for (let chunk of this.minus) {
+      console.log('chunk', chunk)
+      sum += chunk.length()
+    }
+    return sum
   }
 
   // return a copy of the curve that is counter-clockwise, including all of the minuses being clockwise

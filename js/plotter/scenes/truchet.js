@@ -1,4 +1,3 @@
-import { rootedTree } from '/js/catalan-structures.js'
 import { BBox } from '/js/bbox.js'
 import { genericTruchetGrid, generateTruchetGrid } from '/js/regular-truchet.js'
 import { Point } from '/js/geometry.js'

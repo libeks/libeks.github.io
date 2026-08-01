@@ -57,6 +57,10 @@ class ClosedCurve {
     return val > this.curve.curves.length / 2
   }
 
+  length() {
+    return this.curve.length()
+  }
+
   debugCounterClockwisePoints() {
     const t = 0.24
     const length = 50

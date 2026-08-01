@@ -1,4 +1,4 @@
-font = {
+const font = {
   name: 'Palatino; 18.0d1e19; 2021-11-10',
   shapes: {
     a: [
@@ -5356,4 +5356,4 @@ font = {
   },
 }
 
-export { font as palatinoFont }
+export { font as palatinoFontRaw }

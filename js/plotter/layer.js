@@ -178,7 +178,7 @@ class Layer {
     // console.log(`layer ${this.name} curve length`, this.getAllCurves(spacing).length)
     let curves = this.getAllCurves(spacing, showFill)
     for (let curve of curves) {
-      // console.log('curve.length', curve, curve.length())
+      console.log('curve.length', curve)
       // console.log('curve.length2', curve.length())
       downLength += curve.length()
     }

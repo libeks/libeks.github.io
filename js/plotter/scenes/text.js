@@ -7,7 +7,7 @@ import { Random } from '/js/random.js'
 import { Scene } from '/js/plotter/scene.js'
 import { pens } from '/js/plotter/pens.js'
 
-import { renderText } from '/js/text/text.js'
+import { renderTextLine } from '/js/text/text.js'
 import { fonts } from '/js/text/allFonts.js'
 
 let textSizeOptions = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000].map((value) => ({
@@ -87,7 +87,7 @@ const TextTest = new Scene('TextTest')
         bbox = bbox.bbox
         console.log('bbox', bbox, bbox.center(), 'font', font)
 
-        let renderedText = renderText(font, fontText, size)
+        let renderedText = renderTextLine(font, fontText, size)
 
         let displacementVector = renderedText.bbox.center().vectTo(bbox.center())
         console.log('displacementVector', displacementVector)

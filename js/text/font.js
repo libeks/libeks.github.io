@@ -44,16 +44,46 @@ class RenderedCharacter {
 }
 
 class RenderedText {
+  constructor(lines, size) {
+    // console.log('RenderedText', lines, size)
+    for (let line of lines) {
+      if (line.type != 'RenderedTextLine') {
+        throw `RenderedText received a line of unexpected type ${line.type}`
+      }
+      this.lines = lines
+    }
+    this.lines = lines
+    this.size = size
+  }
+
+  get closedCurves() {
+    return this.lines.map((line) => line.closedCurves).flat()
+  }
+
+  outlines() {
+    return this.lines.map((line) => line.outlines()).flat()
+  }
+
+  get bboxes() {
+    return this.lines.map((line) => line.bbox).flat()
+  }
+
+  get bbox() {
+    return composeBBoxes(this.lines.map((line) => line.bbox))
+  }
+}
+
+class RenderedTextLine {
   constructor(characterShapes, text, size) {
     for (let shape of characterShapes) {
       if (shape.type != 'RenderedCharacter') {
-        throw `RenderedText received a character of unexpected type ${shape.type}`
+        throw `RenderedTextLine received a character of unexpected type ${shape.type}`
       }
     }
     this.characters = characterShapes
     this.text = text
     this.size = size
-    this.type = 'RenderedText'
+    this.type = 'RenderedTextLine'
   }
 
   get closedCurves() {
@@ -78,7 +108,7 @@ class RenderedText {
     if (v.type != 'Vector') {
       throw `RenderText.move got unexpected argument ${v.type}`
     }
-    return new RenderedText(
+    return new RenderedTextLine(
       this.characters.map((char) => char.move(v)),
       this.text,
       this.size,
@@ -143,7 +173,8 @@ class Font {
   }
 
   // renders the given text at Point(0,0) at the given size
-  renderText(text, size) {
+  // this should not be provided with multiline text, since renderText doesn't handle positioning
+  renderTextLine(text, size) {
     let sizeRatio = size / this.size
     let characters = []
     let xPosition = 0
@@ -183,7 +214,7 @@ class Font {
         xPosition += this.kerning[c1 + c2] * sizeRatio
       }
     }
-    return new RenderedText(characters, text, size)
+    return new RenderedTextLine(characters, text, size)
   }
 }
 
@@ -199,4 +230,4 @@ function convertShapeMap(shapeMap, size) {
   return newMap
 }
 
-export { Font }
+export { Font, RenderedText }

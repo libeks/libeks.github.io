@@ -21,7 +21,6 @@ function renderTextToBBox(font, text, size, bbox, halign, valign) {
   let lines = text.split('\n').map((textLine) => renderTextLine(font, textLine, size))
   let newLines = []
   let height = size * lines.length
-  // console.log('height', height, lines.length, size, bbox.height())
   for (let [i, line] of enumerate(lines)) {
     let x, y
 
@@ -34,6 +33,7 @@ function renderTextToBBox(font, text, size, bbox, halign, valign) {
     } else {
       throw `Invalid halign ${halign}`
     }
+    // the y-position has to include the height of the line itself, since the origin is at the bottom left of the line
     if (valign == 'top') {
       y = (i + 1) * size
     } else if (valign == 'bottom') {
@@ -43,10 +43,8 @@ function renderTextToBBox(font, text, size, bbox, halign, valign) {
     } else {
       throw `Invalid valign ${valign}`
     }
-    // console.log('y', y, i)
     newLines.push(line.move(new Vector(x, y)))
   }
-  // console.log('newLines', newLines)
   return new RenderedText(newLines, size)
 }
 
@@ -56,9 +54,8 @@ const svgText = {
     <path 
       v-for="curve in curves" 
       :d="curve.d()" 
-      stroke="black" 
-      fill="none"
-      
+      :stroke="filled? 'none' : 'black'" 
+      :fill="filled ? 'black' : 'none'"
       :stroke-width="width" 
       stroke-opacity="0.6" 
     > </path>
@@ -80,10 +77,13 @@ const svgText = {
       type: String,
       default: 'center',
     },
+    filled: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
     curves() {
-      // let curves = renderTextLine(this.font, this.text, this.size)
       let curves = renderTextToBBox(
         this.font,
         this.text,
@@ -92,13 +92,9 @@ const svgText = {
         this.halign,
         this.valign,
       )
-      // let bbox = curves.bbox
-      // let displacement
-      // if (this.align == 'left') {
-      //   displacement =
-      // }
-      // displacement = bbox.center().vectTo(this.bbox.center())
-      // curves = curves.move(displacement)
+      if (this.filled) {
+        return curves.closedCurves
+      }
       return curves.outlines()
     },
   },

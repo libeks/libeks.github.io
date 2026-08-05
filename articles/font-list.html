@@ -31,7 +31,8 @@
           <div v-for="font in fonts" :style="{border: '1px solid black', 'border-radius': '10px'}">
             <figure>
               <svg-box v-for="bbox of [new BBox(0,0,1500,300)]" :bbox="bbox">
-                <svg-text :text="text" :font="font" :size="50" :bbox="bbox"> </svg-text>
+                <svg-text :text="text" :font="font" :size="40" :bbox="bbox" :filled="false">
+                </svg-text>
               </svg-box>
               <figcaption>{{font.name}}</figcaption>
             </figure>
@@ -52,7 +53,7 @@
       const fontApp = createApp({
         data() {
           return {
-            text: '0123456789!"#$%&\'()*+,-./:;<=>?@[\\]^_{|}~ `"\nABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz', // '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz',
+            text: '0123456789!"#$%&\'()*+,-./:;<=>?@[\\]^_{|}~ `"\nABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz',
           }
         },
         computed: {

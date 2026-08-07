@@ -28,12 +28,25 @@ const radioButtons = {
 const toggleButton = {
   template: `
     <div>
-      <div :class="{button:true, 'button-checkbox': true, active:modelValue}" @click="$emit('update:modelValue', !modelValue)">{{text}}</div>
+      <div :class="{button:true, 'button-checkbox': true, active:modelValue}" @click="update(!modelValue)">{{text}}</div>
     </div>
   `,
+  methods: {
+    update(newValue) {
+      this.$emit('update:modelValue', newValue)
+      // console.log('this', this)
+      // console.log('URL', this.updateUrl)
+      if (this.updateUrl != undefined) {
+        let urlParams = new URLSearchParams(window.location.search)
+        urlParams.set(this.updateUrl, newValue ? '1' : '0')
+        window.history.pushState({ path: 'home' }, '', `?${urlParams.toString()}`)
+      }
+    },
+  },
   props: {
     text: String,
     modelValue: Boolean,
+    updateUrl: String,
   },
   emits: ['update:modelValue'],
 }
@@ -116,16 +129,18 @@ const selector = {
       let selected = event.target.value
       for (let elt of this.options) {
         if (elt.display == selected) {
-          console.log('selector emitting', elt)
-          this.$emit('value', elt)
           this.$emit('update:modelValue', elt)
+          if (this.updateUrl != undefined) {
+            let urlParams = new URLSearchParams(window.location.search)
+            urlParams.set(this.updateUrl, elt.display)
+            window.history.pushState({ path: 'home' }, '', `?${urlParams.toString()}`)
+          }
         }
       }
     },
   },
   computed: {
     selectedValue() {
-      // return the value ({display, value}) that is selected
       let key
       if (typeof this.modelValue === 'string') {
         key = this.modelValue
@@ -163,6 +178,7 @@ const selector = {
       },
     },
     modelValue: [String, Object], // either the 'display' string value of the selection, or an object with the 'display' key (in case of {display, value} the 'value' key will be ignored)
+    updateUrl: String, // will update this URL parameter with the 'display' value when selected
   },
   emits: ['value', 'update:modelValue'], // emits the full option {display, value} object
 }

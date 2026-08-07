@@ -153,7 +153,7 @@ class GlyphShape {
 }
 
 class Font {
-  constructor({ name, familyname, shapes, hints, advances, size, leftBearings, ligatures }) {
+  constructor({ name, familyname, shapes, hints, advances, size, ligatures }) {
     this.name = name
     this.familyname = familyname
     try {
@@ -163,12 +163,11 @@ class Font {
     }
     this.kerning = hints
     this.advances = advances
-    this.leftBearings = leftBearings
     this.size = size
     this.ligatures = Object.fromEntries(ligatures.map((lig) => [lig, true]))
-    if (ligatures.length > 0) {
-      console.log(`font ${this.name} as ligatures`, ligatures)
-    }
+    // if (ligatures.length > 0) {
+    //   console.log(`font ${this.name} as ligatures`, ligatures)
+    // }
     this.type = 'Font'
   }
 

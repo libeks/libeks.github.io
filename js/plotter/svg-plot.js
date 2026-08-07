@@ -101,8 +101,7 @@ const svgPlot = {
             <selector 
               v-if="option.type=='dropdown-2'" 
               :options="option.options" 
-              :value="scene.configs[option.name].display" 
-              @value="elt => {scene.configs[option.name] = elt}"
+              v-model="scene.configs[option.name]"
             ></selector>
             <incremental-buttons 
               v-if="option.type=='incremental'" 

@@ -102,27 +102,69 @@ const incrementalButtons = {
 
 const selector = {
   template: `
-    <select :value="value" @input="value=>{pick(value, 'input')}" @value="value=>{pick(value, 'value')}" @change="value=>{pick(value, 'change')}">
-      <option v-for="elt of options" :value="elt.name">{{elt.display}}</option>
+    <select :value="selectedValue.display" @input="value=>{pick(value, 'input')}" @change="value=>{pick(value, 'change')}">
+      <option v-for="elt of options">{{elt.display}}</option>
     </select>
   `,
+  data() {
+    console.log('selector input value is', this.value)
+    return {}
+  },
   methods: {
     pick: function (event, v) {
+      console.log('value', this.value)
       let selected = event.target.value
       for (let elt of this.options) {
-        console.log('element', elt)
         if (elt.display == selected) {
-          console.log('selector is emitting event @value', elt)
+          console.log('selector emitting', elt)
           this.$emit('value', elt)
+          this.$emit('update:modelValue', elt)
+        }
+      }
+    },
+  },
+  computed: {
+    selectedValue() {
+      // return the value ({display, value}) that is selected
+      let key
+      if (typeof this.modelValue === 'string') {
+        key = this.modelValue
+      } else {
+        key = this.modelValue.display
+      }
+      for (let opt of this.options) {
+        if (opt.display == key) {
+          return opt
         }
       }
     },
   },
   props: {
-    options: Object,
-    value: String,
+    options: {
+      validator(value, props) {
+        console.log('got options props with', value, props)
+        if (!Array.isArray(value)) {
+          console.error(`<selector> options is not an array`, value)
+          return false
+        }
+        for (let elt of value) {
+          if (!(typeof elt === 'object' && !Array.isArray(elt) && elt !== null)) {
+            console.error(`<selector> option isn't an object`, elt)
+            return false
+          }
+          for (let need of ['display', 'value']) {
+            if (!(need in elt)) {
+              console.error(`<selector> option doesn't have key ${need}`, elt)
+              return false
+            }
+          }
+        }
+        return true
+      },
+    },
+    modelValue: [String, Object], // either the 'display' string value of the selection, or an object with the 'display' key (in case of {display, value} the 'value' key will be ignored)
   },
-  emits: ['value'],
+  emits: ['value', 'update:modelValue'], // emits the full option {display, value} object
 }
 
 export {

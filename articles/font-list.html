@@ -27,14 +27,47 @@
         <p>Here is a list of available SVG fonts.</p>
       </section>
       <section>
-        <div id="plot">
-          <div v-for="font in fonts" :style="{border: '1px solid black', 'border-radius': '10px'}">
+        <div id="font-list">
+          <div
+            class="button-block"
+            style="display: flex; justify-content: center; column-gap: 1em; padding-bottom: 1em"
+          >
+            <toggle-button
+              :active="showFill"
+              @toggle-choice="showFill = !showFill"
+              text="Show fill"
+            >
+            </toggle-button>
+            <select v-model="text">
+              <option disabled>Select a text to display</option>
+              <option v-for="opt of textOptions" :value="opt.value">{{opt.display}}</option>
+            </select>
+            <select v-model="size">
+              <option disabled>Font size</option>
+              <option v-for="opt of sizeOptions" :value="opt.value">{{opt.display}}</option>
+            </select>
+          </div>
+          <div
+            v-for="font in fonts"
+            :id="font.name"
+            :style="{border: '1px solid black', 'border-radius': '10px'}"
+          >
             <figure>
               <svg-box v-for="bbox of [new BBox(0,0,1500,300)]" :bbox="bbox">
-                <svg-text :text="text" :font="font" :size="40" :bbox="bbox" :filled="false">
+                <svg-text
+                  :text="text == '_font_name' ? font.name : text"
+                  :font="font"
+                  :size="size"
+                  :bbox="bbox"
+                  :filled="showFill"
+                >
                 </svg-text>
               </svg-box>
-              <figcaption>{{font.name}}</figcaption>
+              <figcaption>
+                <a style="text-decoration: none; color: black" :href="'#'+font.name"
+                  >{{font.name}}</a
+                >
+              </figcaption>
             </figure>
           </div>
         </div>
@@ -49,21 +82,76 @@
       import { BBox, svgBox } from '/js/bbox.js'
       import { fonts } from '/js/text/allFonts.js'
       import { svgText } from '/js/text/text.js'
+      import { toggleButton } from '/js/buttons.js'
 
       const fontApp = createApp({
         data() {
+          let params = new URLSearchParams(window.location.search)
+          // console.log('URL parameters', params)
+          // console.log('size', params.has('size'), params['size'], params.size, params.get('size'))
           return {
-            text: '0123456789!"#$%&\'()*+,-./:;<=>?@[\\]^_{|}~ `"\nABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz',
+            text: params.has('text')
+              ? params.get('text')
+              : '0123456789!"#$%&\'()*+,-./:;<=>?@[\\]^_{|}~ `"\nABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz',
+            showFill: params.has('showFill') ? params.get('showFill') : false,
+            size: params.has('size') ? parseInt(params.get('size')) : 40,
+
+            textOptions: [
+              {
+                value:
+                  '0123456789!"#$%&\'()*+,-./:;<=>?@[\\]^_{|}~ `"\nABCDEFGHIJKLMNOPQRSTUVWXYZ\nabcdefghijklmnopqrstuvwxyz',
+                display: 'ASCII',
+              },
+              { value: '_font_name', display: 'Font Name' },
+              { value: 'ff fi fl ft fj', display: 'Ligatures' },
+              {
+                value: 'The quick brown fox jumps over the lazy dog.',
+                display: 'The quick brown fox',
+              },
+            ],
+            sizeOptions: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((val) => ({
+              value: val,
+              display: val.toString(),
+            })),
           }
+        },
+        watch: {
+          text: {
+            immediate: true,
+            handler: function (newObj, oldObj) {
+              if (oldObj == undefined) {
+                return
+              }
+              let urlParams = new URLSearchParams(window.location.search)
+              urlParams.set('text', newObj)
+              window.history.pushState({ path: 'home' }, '', `?${urlParams.toString()}`)
+            },
+          },
+          size: {
+            immediate: true,
+            handler: function (newObj, oldObj) {
+              if (oldObj == undefined) {
+                return
+              }
+              let urlParams = new URLSearchParams(window.location.search)
+              urlParams.set('size', newObj)
+              window.history.pushState({ path: 'home' }, '', `?${urlParams.toString()}`)
+            },
+          },
         },
         computed: {
           fonts() {
+            let urlParams = new URLSearchParams(window.location.search)
+            // console.log('url', this.$route, urlParams)
             let processedFonts = {}
             for (let key of Object.keys(fonts)) {
-              processedFonts[key] = fonts[key]()
+              processedFonts[key] = fonts[key]() // "activate" font before using it
             }
             return processedFonts
           },
+          // url() {
+          //   console.log('url', this.$route)
+          // },
         },
         methods: {
           BBox,
@@ -71,8 +159,9 @@
         components: {
           svgText,
           svgBox,
+          toggleButton,
         },
-      }).mount('#plot')
+      }).mount('#font-list')
     </script>
   </body>
 </html>

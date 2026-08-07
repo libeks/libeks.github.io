@@ -54,8 +54,8 @@ const TextTest = new Scene('TextTest')
             display: 'fontname',
           },
         ],
-        // default: 'ASCII',
-        default: 'fontname',
+        default: 'ASCII',
+        // default: 'fontname',
       },
     ],
     (params) => {

@@ -91,7 +91,6 @@ class Scene {
   }
 
   place(bbox, options) {
-    // console.log('place', options)
     this.parameters = this.parameterFn(bbox, options)
     let layers
     if (this.rawTemplate && this.templateLayerFn) {
@@ -150,7 +149,7 @@ class Scene {
 
   fill(paramMap) {
     console.info('filling...')
-    console.trace()
+    // console.trace()
     let layers = {}
     for (let layer of Object.values(this.layers)) {
       let spacing = 20 // default if the layer doesn't specify its fill

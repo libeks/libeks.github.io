@@ -29,11 +29,9 @@
       <section>
         <div id="plot">
           <div class="selector">
-            <select v-model="scene">
-              <option v-for="scene of scenes" :value="scene">{{scene.name}}</option>
-            </select>
+            <selector v-model="scene" :options="scenes" update-url="scene"> </selector>
           </div>
-          <svg-plot :scene="scene" with-frame with-guides> </svg-plot>
+          <svg-plot :scene="scene.value" with-frame with-guides> </svg-plot>
         </div>
       </section>
     </main>
@@ -45,17 +43,19 @@
       const { createApp, ref, defineComponent } = Vue
       import { svgPlot } from '/js/plotter/svg-plot.js'
       import { TextTest, TricolorFillTiling, scenes } from '/js/plotter/scenes.js'
+      import { selector, getSelectorURLOption } from '/js/buttons.js'
 
       const fullTriangleApp = createApp({
         data() {
+          let sceneOptions = Object.values(scenes).map((val) => ({ display: val.name, value: val }))
           return {
-            // scene: TricolorFillTiling,
-            scene: TextTest,
-            scenes,
+            scene: getSelectorURLOption(sceneOptions, 'scene', sceneOptions[4]),
+            scenes: sceneOptions,
           }
         },
         components: {
           svgPlot,
+          selector,
         },
       }).mount('#plot')
     </script>

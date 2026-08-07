@@ -62,19 +62,14 @@ const TextTest = new Scene('TextTest')
       let { bbox, start, size, text } = params
       text = text.value
 
-      // let displayFonts = fonts
-      // let displayFonts = { newYorkFont: fonts['newYorkFont'] }
-      // let displayFonts = { arialBlackFont: fonts['arialBlackFont'] }
       let displayFonts = {}
       let offset = 180
-      // console.log('keys', Object.keys(fonts).slice(0, 10))
       for (let fontName of Object.keys(fonts).slice(offset, offset + 10)) {
         displayFonts[fontName] = fonts[fontName]
       }
-      // displayFonts = { NewYorkRegularFont: fonts['NewYorkRegularFont']() }
       let bboxes = bbox.partition(Object.keys(displayFonts).length, 1)
-      console.log('bboxes', bboxes)
-      console.log('fonts', displayFonts)
+      // console.log('bboxes', bboxes)
+      // console.log('fonts', displayFonts)
 
       let texts = []
       for (let [bbox, font] of zip(bboxes, Object.values(displayFonts))) {
@@ -83,18 +78,18 @@ const TextTest = new Scene('TextTest')
         if (fontText == '_fontname_') {
           fontText = font.name
         }
-        console.log('fontText', fontText)
+        // console.log('fontText', fontText)
         bbox = bbox.bbox
-        console.log('bbox', bbox, bbox.center(), 'font', font)
+        // console.log('bbox', bbox, bbox.center(), 'font', font)
 
         let renderedText = renderTextLine(font, fontText, size)
 
         let displacementVector = renderedText.bbox.center().vectTo(bbox.center())
-        console.log('displacementVector', displacementVector)
+        // console.log('displacementVector', displacementVector)
         renderedText = renderedText.move(displacementVector)
         texts.push(renderedText)
       }
-      console.log('texts', texts)
+      // console.log('texts', texts)
       let ret = {
         fill: {
           curves: texts

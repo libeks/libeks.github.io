@@ -37,7 +37,7 @@ const toggleButton = {
       if (this.updateUrl != undefined) {
         let urlParams = new URLSearchParams(window.location.search)
         urlParams.set(this.updateUrl, newValue ? '1' : '0')
-        window.history.pushState({ path: 'home' }, '', `?${urlParams.toString()}`)
+        window.history.replaceState({ path: 'home' }, '', `?${urlParams.toString()}`)
       }
     },
   },
@@ -126,7 +126,7 @@ const selector = {
           if (this.updateUrl != undefined) {
             let urlParams = new URLSearchParams(window.location.search)
             urlParams.set(this.updateUrl, elt.display)
-            window.history.pushState({ path: 'home' }, '', `?${urlParams.toString()}`)
+            window.history.replaceState({ path: 'home' }, '', `?${urlParams.toString()}`)
           }
         }
       }

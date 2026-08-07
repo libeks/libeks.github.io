@@ -34,8 +34,6 @@ const toggleButton = {
   methods: {
     update(newValue) {
       this.$emit('update:modelValue', newValue)
-      // console.log('this', this)
-      // console.log('URL', this.updateUrl)
       if (this.updateUrl != undefined) {
         let urlParams = new URLSearchParams(window.location.search)
         urlParams.set(this.updateUrl, newValue ? '1' : '0')
@@ -119,13 +117,8 @@ const selector = {
       <option v-for="elt of options">{{elt.display}}</option>
     </select>
   `,
-  data() {
-    console.log('selector input value is', this.value)
-    return {}
-  },
   methods: {
     pick: function (event, v) {
-      console.log('value', this.value)
       let selected = event.target.value
       for (let elt of this.options) {
         if (elt.display == selected) {
@@ -157,7 +150,6 @@ const selector = {
   props: {
     options: {
       validator(value, props) {
-        console.log('got options props with', value, props)
         if (!Array.isArray(value)) {
           console.error(`<selector> options is not an array`, value)
           return false
@@ -183,6 +175,27 @@ const selector = {
   emits: ['value', 'update:modelValue'], // emits the full option {display, value} object
 }
 
+// given a list of {display, value} objects, and an URL parameter key, return the object that matches, or the fallback
+function getSelectorURLOption(options, key, fallback) {
+  let params = new URLSearchParams(window.location.search)
+  if (!params.has(key)) {
+    return fallback
+  }
+  let display = params.get(key)
+  for (let elt of options) {
+    if (elt.display == display) {
+      return elt
+    }
+  }
+  return fallback
+}
+
+function getBoolURL(key, fallback) {
+  let params = new URLSearchParams(window.location.search)
+  if (!params.has('showFill')) return fallback
+  return params.get('showFill') == '1'
+}
+
 export {
   playControls,
   radioButtons,
@@ -191,4 +204,6 @@ export {
   integerButtons,
   incrementalButtons,
   selector,
+  getSelectorURLOption,
+  getBoolURL,
 }

@@ -72,7 +72,7 @@
       import { BBox, svgBox } from '/js/bbox.js'
       import { fonts } from '/js/text/allFonts.js'
       import { svgText } from '/js/text/text.js'
-      import { toggleButton, selector } from '/js/buttons.js'
+      import { toggleButton, selector, getSelectorURLOption, getBoolURL } from '/js/buttons.js'
 
       const fontApp = createApp({
         data() {
@@ -95,18 +95,13 @@
             display: val.toString(),
           }))
           let ret = {
-            text: params.has('text')
-              ? textOptions.filter((elt) => elt.display == params.get('text'))[0]
-              : textOptions[0],
-            showFill: params.has('showFill') ? params.get('showFill') == '1' : false,
-            size: params.has('size')
-              ? sizeOptions.filter((elt) => elt.display == params.get('size'))[0]
-              : sizeOptions[3],
+            showFill: getBoolURL('showFill', false),
+            size: getSelectorURLOption(sizeOptions, 'size', sizeOptions[3]),
+            text: getSelectorURLOption(textOptions, 'text', textOptions[0]),
 
             textOptions,
             sizeOptions,
           }
-          console.log('ret', ret, params.get('size'), typeof params.get('size'))
           return ret
         },
         computed: {

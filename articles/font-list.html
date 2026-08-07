@@ -32,12 +32,7 @@
             class="button-block"
             style="display: flex; justify-content: center; column-gap: 1em; padding-bottom: 1em"
           >
-            <toggle-button
-              :active="showFill"
-              @toggle-choice="showFill = !showFill"
-              text="Show fill"
-            >
-            </toggle-button>
+            <toggle-button v-model="showFill" text="Show fill"> </toggle-button>
             <select v-model="text">
               <option disabled>Select a text to display</option>
               <option v-for="opt of textOptions" :value="opt.value">{{opt.display}}</option>

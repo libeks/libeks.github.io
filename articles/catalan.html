@@ -910,12 +910,7 @@
               @decrease="n--; i=Math.floor(Math.random() * catalanNumber(n))"
             ></integer-buttons>
             <div class="button-block">
-              <toggle-button
-                text="Shuffle mode"
-                :active="shuffle"
-                @toggle-choice="shuffle=!shuffle"
-              >
-              </toggle-button>
+              <toggle-button text="Shuffle mode" v-model="shuffle"> </toggle-button>
             </div>
             <play-controls
               :active="active"

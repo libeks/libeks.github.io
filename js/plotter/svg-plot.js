@@ -81,7 +81,7 @@ const svgPlot = {
         </div>
         <div class="options">
           <div class="button-block">
-            <toggle-button text="Show fill" :active="showFill" @toggle-choice="showFill = !showFill"></toggle-button>
+            <toggle-button text="Show fill" v-model="showFill"></toggle-button>
             <div>
               <p>Seed</p>
               <incremental-buttons 
@@ -130,8 +130,7 @@ const svgPlot = {
               <toggle-button 
                 v-if="option.type=='toggle'" 
                 :text="option.display" 
-                :active="scene.configs[option.name]"
-                @toggle-choice="scene.configs[option.name] = !scene.configs[option.name]"
+                v-model="scene.configs[option.name]"
               > </toggle-button>
             </div>
           </div>

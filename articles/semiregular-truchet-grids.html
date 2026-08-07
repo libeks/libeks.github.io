@@ -554,11 +554,7 @@
               </template>
             </select>
             <div class="button-block">
-              <toggle-button
-                :active="showEdges"
-                @toggle-choice="showEdges = !showEdges"
-                text="Show edges"
-              ></toggle-button>
+              <toggle-button v-model="showEdges" text="Show edges"></toggle-button>
               <radio-buttons
                 :choices="[{value:'1', display: '1'},{value:'2', display:'2'}]"
                 :value="nNotches"

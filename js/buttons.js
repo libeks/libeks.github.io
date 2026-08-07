@@ -28,14 +28,14 @@ const radioButtons = {
 const toggleButton = {
   template: `
     <div>
-      <div :class="{button:true, 'button-checkbox': true, active:active}" @click="$emit('toggleChoice')">{{text}}</div>
+      <div :class="{button:true, 'button-checkbox': true, active:modelValue}" @click="$emit('update:modelValue', !modelValue)">{{text}}</div>
     </div>
   `,
   props: {
     text: String,
-    active: Boolean,
+    modelValue: Boolean,
   },
-  emits: ['toggleChoice'],
+  emits: ['update:modelValue'],
 }
 
 const collapsibleButton = {

@@ -152,54 +152,26 @@
             </select>
 
             <div class="button-block">
-              <toggle-button
-                :active="showBBox"
-                @toggle-choice="showBBox = !showBBox"
-                text="Show bbox"
-              ></toggle-button>
+              <toggle-button v-model="showBBox" text="Show bbox"></toggle-button>
             </div>
             <div class="button-block">
-              <toggle-button
-                :active="showVertices"
-                @toggle-choice="showVertices = !showVertices"
-                text="Show vertices"
-              ></toggle-button>
+              <toggle-button v-model="showVertices" text="Show vertices"></toggle-button>
             </div>
             <div class="button-block">
-              <toggle-button
-                :active="showVertexNumbers"
-                @toggle-choice="showVertexNumbers = !showVertexNumbers"
-                text="Show vertex numbers"
-              ></toggle-button>
+              <toggle-button v-model="showVertexNumbers" text="Show vertex numbers"></toggle-button>
             </div>
 
             <div class="button-block">
-              <toggle-button
-                :active="showFaces"
-                @toggle-choice="showFaces = !showFaces"
-                text="Show faces"
-              ></toggle-button>
+              <toggle-button v-model="showFaces" text="Show faces"></toggle-button>
             </div>
             <div class="button-block">
-              <toggle-button
-                :active="showFaceColors"
-                @toggle-choice="showFaceColors = !showFaceColors"
-                text="Show face colors"
-              ></toggle-button>
+              <toggle-button v-model="showFaceColors" text="Show face colors"></toggle-button>
             </div>
             <div class="button-block">
-              <toggle-button
-                :active="showFaceNumbers"
-                @toggle-choice="showFaceNumbers = !showFaceNumbers"
-                text="Show face numbers"
-              ></toggle-button>
+              <toggle-button v-model="showFaceNumbers" text="Show face numbers"></toggle-button>
             </div>
             <div class="button-block">
-              <toggle-button
-                :active="showDual"
-                @toggle-choice="showDual = !showDual"
-                text="Show dual"
-              ></toggle-button>
+              <toggle-button v-model="showDual" text="Show dual"></toggle-button>
             </div>
           </figcaption>
         </figure>

@@ -30,11 +30,11 @@ const TextTest = new Scene('TextTest')
         name: 'size',
         type: 'dropdown',
         options: textSizeOptions,
-        default: 800,
+        default: '800',
       },
       {
         name: 'text',
-        type: 'dropdown-2',
+        type: 'dropdown',
         options: [
           {
             value:
@@ -61,6 +61,7 @@ const TextTest = new Scene('TextTest')
     (params) => {
       let { bbox, start, size, text } = params
       text = text.value
+      size = size.value
 
       let displayFonts = {}
       let offset = 180

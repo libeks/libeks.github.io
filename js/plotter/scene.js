@@ -61,7 +61,11 @@ class Scene {
     this.options = options
 
     for (let option of options) {
-      this.configs[option.name] = option.default
+      if (option.type == 'dropdown') {
+        this.configs[option.name] = option.options.filter((o) => o.display == option.default)[0]
+      } else {
+        this.configs[option.name] = option.default
+      }
     }
     this.templateLayerFn = layerFn
     return this
@@ -73,8 +77,10 @@ class Scene {
     this.parameterFn = parameterFn
     this.options = options
     for (let option of options) {
-      if (option.type == 'dropdown-2') {
+      if (option.type == 'dropdown') {
+        // console.log('option.options', option.options, option.default)
         this.configs[option.name] = option.options.filter((o) => o.display == option.default)[0]
+        // console.log('choice', this.configs[option.name])
       } else {
         this.configs[option.name] = option.default
       }

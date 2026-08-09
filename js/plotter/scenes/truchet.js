@@ -123,13 +123,13 @@ const Tiling = new Scene('TruchetTiling')
           ...uniform3Tilings,
           ...uniform4Tilings,
         ].map((tiling) => ({ display: tiling.string(), value: tiling })),
-        default: regularTilings[2],
+        default: '[4.4.4.4]',
       },
       {
         name: 'size',
         type: 'dropdown',
         options: sizeOptions,
-        default: 550,
+        default: '550',
       },
       {
         name: 'small',
@@ -182,7 +182,7 @@ const Tiling = new Scene('TruchetTiling')
       },
       {
         name: 'cellChoice',
-        type: 'dropdown-2',
+        type: 'dropdown',
         options: [
           {
             display: 'random',
@@ -235,6 +235,8 @@ const Tiling = new Scene('TruchetTiling')
         cellChoice,
       } = params
       console.log('size', size)
+      size = size.value
+      pattern = pattern.value
       let grid = new VertexGrid({
         bbox,
         start,
@@ -344,13 +346,13 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
           ...uniform4Tilings,
         ].map((tiling) => ({ display: tiling.string(), value: tiling })),
         // default: semiregularTilings[0],
-        default: regularTilings[2],
+        default: '[4.4.4.4]',
       },
       {
         name: 'size',
         type: 'dropdown',
         options: sizeOptions,
-        default: 550,
+        default: '550',
       },
       {
         name: 'small',
@@ -403,7 +405,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
       },
       {
         name: 'cellChoice',
-        type: 'dropdown-2',
+        type: 'dropdown',
         options: [
           {
             display: 'random',
@@ -455,6 +457,8 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         filterPerimeter,
         cellChoice,
       } = params
+      size = size.value
+      pattern = pattern.value
       // console.log('size', size)
       let grid = new VertexGrid({
         bbox,
@@ -548,7 +552,7 @@ const TricolorThicknessFillTiling = new Scene('TricolorThicknessFillTruchetTilin
         bbox: small ? bbox.withPadding(1000) : bbox,
         start: bbox.center(),
         size,
-        pattern,
+        pattern: pattern.value,
         notches: [0.33],
         onlyNgonsInsideBBox: clip,
       }
@@ -563,8 +567,8 @@ const TricolorThicknessFillTiling = new Scene('TricolorThicknessFillTruchetTilin
           ...uniform2Tilings,
           ...uniform3Tilings,
           ...uniform4Tilings,
-        ].map((tiling) => ({ name: tiling.string(), value: tiling })),
-        default: semiregularTilings[0],
+        ].map((tiling) => ({ display: tiling.string(), value: tiling })),
+        default: '[3.12.12]',
       },
       {
         name: 'size',
@@ -604,6 +608,7 @@ const TricolorThicknessFillTiling = new Scene('TricolorThicknessFillTruchetTilin
     ],
     (template) => {
       // let bbox = template.bbox.withPadding(1500)
+      console.log('template', template)
       let bbox = template.bbox
       let notches = [0.8, 0.5, 0.2]
       let initialRandom = new Random(template.seed)

@@ -95,11 +95,8 @@ const svgPlot = {
           </div>
           <div v-for="option in scene.options">
             <div class="name">{{option.name}}</div>
-            <select v-if="option.type=='dropdown'" v-model="scene.configs[option.name]">
-              <option v-for="elt of option.options" :value="elt.value">{{elt.display}}</option>
-            </select>
             <selector 
-              v-if="option.type=='dropdown-2'" 
+              v-if="option.type=='dropdown'" 
               :options="option.options" 
               v-model="scene.configs[option.name]"
             ></selector>
@@ -322,9 +319,7 @@ const svgPlot = {
         let value =
           option.name in this.scene.configs ? this.scene.configs[option.name] : option.default
         // console.log('value', value, this.scene.configs)
-        if (option.type == 'dropdown' && typeof value === 'object' && 'string' in value) {
-          value = value.string() // FIXME: this won't work for other types of dropdowns
-        } else if (option.type == 'dropdown-2') {
+        if (option.type == 'dropdown') {
           value = value.display
         }
         output.push(`${key}: ${value}`)

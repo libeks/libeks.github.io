@@ -15,7 +15,7 @@ import {Font} from '/js/text/font.js'
 	},
 			size: 400,
 			ligatures: [
-		"ff", "fi", "fl", "ft", "ff"
+		"ff", "fi", "fl", "ft"
 	],
 		}
 

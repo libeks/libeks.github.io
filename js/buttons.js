@@ -97,28 +97,38 @@ const integerButtons = {
 const incrementalButtons = {
   template: `
     <div class="controls button-block">
-      <div class="button" @click="n>=min+step ? $emit('value', n-step) : null">-</div>
-      <div class="button disabled">{{n}}</div>
-      <div class="button" @click="n<=max-step ? $emit('value', n+step) : null">+</div>
+      <div class="button" @click="change(modelValue-step)">-</div>
+      <div class="button disabled">{{modelValue}}</div>
+      <div class="button" @click="change(modelValue+step)">+</div>
     </div>
   `,
+  methods: {
+    change(val) {
+      if (val < this.min || val > this.max) {
+        return // don't emit events
+      }
+      this.$emit('update:modelValue', val)
+      this.$emit('value', val)
+    },
+  },
   props: {
-    n: Number,
+    modelValue: Number,
     min: Number,
     max: Number,
     step: Number,
   },
-  emits: ['value'],
+  emits: ['value', 'update:modelValue'],
 }
 
 const selector = {
   template: `
-    <select :value="selectedValue.display" @input="value=>{pick(value, 'input')}" @change="value=>{pick(value, 'change')}">
+    <select :value="selectedValue.display" @input="value=>{pick(value, 'input')}">
       <option v-for="elt of options">{{elt.display}}</option>
     </select>
   `,
   methods: {
     pick: function (event, v) {
+      // console.log('got event', v)
       let selected = event.target.value
       for (let elt of this.options) {
         if (elt.display == selected) {
@@ -172,7 +182,7 @@ const selector = {
     modelValue: [String, Object], // either the 'display' string value of the selection, or an object with the 'display' key (in case of {display, value} the 'value' key will be ignored)
     updateUrl: String, // will update this URL parameter with the 'display' value when selected
   },
-  emits: ['value', 'update:modelValue'], // emits the full option {display, value} object
+  emits: ['value', 'update:modelValue'], // emits the full option {display, value} object. @value can be used for side-effects in addition to v-model
 }
 
 // given a list of {display, value} objects, and an URL parameter key, return the object that matches, or the fallback

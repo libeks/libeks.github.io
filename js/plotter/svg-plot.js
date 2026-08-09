@@ -85,11 +85,11 @@ const svgPlot = {
             <div>
               <p>Seed</p>
               <incremental-buttons 
-                :n="globalSeed" 
+                v-model="globalSeed" 
                 :min="0"  
                 :max="10000"
                 :step="1"
-                @value="(n) => globalSeed = n">
+              >
               </incremental-buttons> 
             </div>
           </div>
@@ -102,11 +102,11 @@ const svgPlot = {
             ></selector>
             <incremental-buttons 
               v-if="option.type=='incremental'" 
-              :n="scene.configs[option.name]" 
+              v-model="scene.configs[option.name]" 
               :min="option.min" 
               :max="option.max" 
               :step="option.step"
-              @value="(n) => scene.configs[option.name] = n"/>
+            > </incremental-buttons>
             <radio-buttons
               v-if="option.type=='radioButton'"
               :choices="option.choices"

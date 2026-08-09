@@ -15,14 +15,24 @@ const playControls = {
 const radioButtons = {
   template: `
     <div class="radio button-block">
-      <div v-for="choice in choices" :class="{button:true, 'button-radio': true, active:choice.value==value}" @click="$emit('setChoice', choice.value)">{{choice.display}}</div>
+      <div 
+        v-for="choice in choices" 
+        :class="{button:true, 'button-radio': true, active:choice.value==modelValue}" 
+        @click="change(choice.value)"
+      >{{choice.display}}</div>
     </div
   `,
+  methods: {
+    change(val) {
+      this.$emit('update:modelValue', val)
+      this.$emit('value', val)
+    },
+  },
   props: {
-    value: [String, Number],
+    modelValue: [String, Number],
     choices: Object,
   },
-  emits: ['setChoice'],
+  emits: ['value', 'update:modelValue'],
 }
 
 const toggleButton = {

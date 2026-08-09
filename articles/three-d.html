@@ -81,8 +81,7 @@
               <radio-buttons
                 class="inline-buttons button-block"
                 :choices="[{value:'parallel', display:'Isometric'}, {value:'projective', display:'Projective'}]"
-                :value="camera"
-                @set-choice="(v) => camera = v"
+                v-model="camera"
               >
               </radio-buttons>
             </figcaption>
@@ -126,8 +125,7 @@
               <radio-buttons
                 class="inline-buttons button-block"
                 :choices="[{value:'parallel', display:'Isometric'}, {value:'projective', display:'Projective'}]"
-                :value="camera"
-                @set-choice="(v) => camera = v"
+                v-model="camera"
               >
               </radio-buttons>
             </figcaption>
@@ -162,8 +160,7 @@
               <radio-buttons
                 class="inline-buttons button-block"
                 :choices="[{value:'parallel', display:'Isometric'}, {value:'projective', display:'Projective'}]"
-                :value="camera"
-                @set-choice="(v) => camera = v"
+                v-model="camera"
               >
               </radio-buttons>
             </figcaption>
@@ -203,8 +200,7 @@
               <radio-buttons
                 class="inline-buttons button-block"
                 :choices="[{value:'parallel', display:'Isometric'}, {value:'projective', display:'Projective'}]"
-                :value="camera"
-                @set-choice="(v) => camera = v"
+                v-model="camera"
               >
               </radio-buttons>
             </figcaption>
@@ -234,8 +230,7 @@
               <radio-buttons
                 class="inline-buttons button-block"
                 :choices="[{value:'parallel', display:'Isometric'}, {value:'projective', display:'Projective'}]"
-                :value="camera"
-                @set-choice="(v) => camera = v"
+                v-model="camera"
               >
               </radio-buttons>
             </figcaption>
@@ -266,15 +261,13 @@
             <radio-buttons
               class="inline-buttons button-block"
               :choices="[{value:'parallel', display:'Isometric'}, {value:'projective', display:'Projective'}]"
-              :value="camera"
-              @set-choice="(v) => camera = v"
+              v-model="camera"
             >
             </radio-buttons>
             <radio-buttons
               class="inline-buttons button-block"
               :choices="[{value:'wireframe', display:'Wireframe'}, {value: 'segments', display:'Segments'}, {value:'transparent', display: 'Transparent'}, {value:'faces', display:'Faces'}]"
-              :value="displayMode"
-              @set-choice="(v) => displayMode = v"
+              v-model="displayMode"
             >
             </radio-buttons>
           </figcaption>

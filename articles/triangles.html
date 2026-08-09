@@ -1185,8 +1185,7 @@
               <radio-buttons
                 class="inline-buttons button-block"
                 :choices="[{value:'xyr', display:'xyR'}, {value:'xyz', display:'xyz'}, {value: 'yb', display:'yb'}]"
-                :value="coordinates"
-                @set-choice="(v) => coordinates = v"
+                v-model="coordinates"
               >
               </radio-buttons>
             </figcaption>

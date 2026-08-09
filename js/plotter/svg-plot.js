@@ -57,8 +57,8 @@ const svgPlot = {
                       <radio-buttons 
                         class="inline-buttons button-block small" 
                         :choices="[{value:1, display: '1.0'}, {value:1.1, display:'1.1'}, {value:1.2, display: '1.2'},{value:1.5, display: '1.5'}, {value:2, display: '2.0'}]" 
-                        :value="penMultipliers[layer.id]" 
-                        @setChoice="val=> changeThicknessMultiplier(layer, val)"
+                        v-model="penMultipliers[layer.id]" 
+                        @value="val=> changeThicknessMultiplier(layer, val)"
                       > 
                       </radio-buttons>
                     </div>
@@ -110,8 +110,7 @@ const svgPlot = {
             <radio-buttons
               v-if="option.type=='radioButton'"
               :choices="option.choices"
-              :value="scene.configs[option.name]"
-              @set-choice="(v) => scene.configs[option.name] = v"
+              v-model="scene.configs[option.name]"
             > </radio-buttons>
             <input
               v-if="option.type=='slider'"

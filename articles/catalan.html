@@ -732,8 +732,7 @@
                 <radio-buttons
                   class="button-block"
                   :choices="[{value: 'dual', display:'Dual'}, {value:'triangle', display:'Triangle'}]"
-                  :value="radioChoice"
-                  @set-choice="(v) => {console.log('v',v); radioChoice = v}"
+                  v-model="radioChoice"
                 ></radio-buttons>
                 <!-- </div> -->
               </figcaption>

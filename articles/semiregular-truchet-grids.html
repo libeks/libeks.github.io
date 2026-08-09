@@ -557,8 +557,7 @@
               <toggle-button v-model="showEdges" text="Show edges"></toggle-button>
               <radio-buttons
                 :choices="[{value:'1', display: '1'},{value:'2', display:'2'}]"
-                :value="nNotches"
-                @set-choice="(v) => nNotches = v"
+                v-model="nNotches"
               >
               </radio-buttons>
             </div>

@@ -83,7 +83,7 @@
       import { BBox } from '/js/bbox.js'
       import { Point2DOrigin, Point, NGon } from '/js/geometry.js'
       import { degToRad } from '/js/math.js'
-      import { playControls, radioButtons, toggleButton } from '/js/buttons.js'
+      import { playControls, toggleButton } from '/js/buttons.js'
       import { genericTriangulationGrid } from '/js/regular-truchet.js'
       import { numericalToHex } from '/js/catalan.js'
 
@@ -108,7 +108,7 @@
           Point,
         },
         computed: {},
-        components: { genericTriangulationGrid, toggleButton, radioButtons },
+        components: { genericTriangulationGrid, toggleButton },
       }).mount('#grid')
     </script>
   </body>

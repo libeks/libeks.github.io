@@ -26,11 +26,15 @@ const radioButtons = {
     change(val) {
       this.$emit('update:modelValue', val)
       this.$emit('value', val)
+      if (this.updateUrl != undefined) {
+        updateURLParameter(this.updateUrl, val)
+      }
     },
   },
   props: {
     modelValue: [String, Number],
     choices: Object,
+    updateUrl: String,
   },
   emits: ['value', 'update:modelValue'],
 }
@@ -104,6 +108,9 @@ const incrementalButtons = {
       }
       this.$emit('update:modelValue', val)
       this.$emit('value', val)
+      if (this.updateUrl != undefined) {
+        updateURLParameter(this.updateUrl, val)
+      }
     },
   },
   props: {
@@ -120,6 +127,7 @@ const incrementalButtons = {
       type: Number,
       default: 1,
     },
+    updateUrl: String, // will update this URL parameter with the value
   },
   emits: ['value', 'update:modelValue'],
 }
@@ -140,6 +148,9 @@ const slider = {
       let val = event.target.value
       this.$emit('update:modelValue', val)
       this.$emit('value', val)
+      if (this.updateUrl != undefined) {
+        updateURLParameter(this.updateUrl, val)
+      }
     },
   },
   props: {
@@ -156,6 +167,7 @@ const slider = {
       type: Number,
       default: 1,
     },
+    updateUrl: String, // will update this URL parameter with the value
   },
   emits: ['value', 'update:modelValue'],
 }

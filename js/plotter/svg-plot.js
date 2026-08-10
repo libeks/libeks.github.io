@@ -81,7 +81,7 @@ const svgPlot = {
         </div>
         <div class="options">
           <div class="button-block">
-            <toggle-button text="Show fill" v-model="showFill"></toggle-button>
+            <toggle-button text="Show fill" v-model="showFill" :update-url="showFill"></toggle-button>
             <div>
               <p>Seed</p>
               <incremental-buttons 
@@ -89,6 +89,7 @@ const svgPlot = {
                 :min="0"  
                 :max="10000"
                 :step="1"
+                update-url="seed"
               >
               </incremental-buttons> 
             </div>
@@ -99,6 +100,7 @@ const svgPlot = {
               v-if="option.type=='dropdown'" 
               :options="option.options" 
               v-model="scene.configs[option.name]"
+              :update-url="option.name"
             ></selector>
             <incremental-buttons 
               v-if="option.type=='incremental'" 
@@ -106,11 +108,13 @@ const svgPlot = {
               :min="option.min" 
               :max="option.max" 
               :step="option.step"
+              :update-url="option.name"
             > </incremental-buttons>
             <radio-buttons
               v-if="option.type=='radioButton'"
               :choices="option.choices"
               v-model="scene.configs[option.name]"
+              :update-url="option.name"
             > </radio-buttons>
             <slider
               v-if="option.type=='slider'"
@@ -119,12 +123,14 @@ const svgPlot = {
               :max="option.max"
               :step="option.step"
               v-model="scene.configs[option.name]"
+              :update-url="option.name"
             > </slider>
             <div class="button-block">
               <toggle-button 
                 v-if="option.type=='toggle'" 
                 :text="option.display" 
                 v-model="scene.configs[option.name]"
+                :update-url="option.name"
               > </toggle-button>
             </div>
           </div>

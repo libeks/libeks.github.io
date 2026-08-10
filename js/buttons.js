@@ -44,10 +44,9 @@ const toggleButton = {
   methods: {
     update(newValue) {
       this.$emit('update:modelValue', newValue)
+      this.$emit('value', newValue)
       if (this.updateUrl != undefined) {
-        let urlParams = new URLSearchParams(window.location.search)
-        urlParams.set(this.updateUrl, newValue ? '1' : '0')
-        window.history.replaceState({ path: 'home' }, '', `?${urlParams.toString()}`)
+        updateURLParameter(this.updateUrl, newValue ? '1' : '0')
       }
     },
   },
@@ -56,7 +55,7 @@ const toggleButton = {
     modelValue: Boolean,
     updateUrl: String,
   },
-  emits: ['update:modelValue'],
+  emits: ['value', 'update:modelValue'],
 }
 
 const collapsibleButton = {
@@ -90,20 +89,6 @@ const collapsibleButton = {
   },
 }
 
-const integerButtons = {
-  template: `
-    <div class="controls button-block">
-      <div class="button" @click="$emit('decrease')">-</div>
-      <div class="button">{{n}}</div>
-      <div class="button" @click="$emit('increase')">+</div>
-    </div>
-  `,
-  props: {
-    n: Number,
-  },
-  emits: ['increase', 'decrease'],
-}
-
 const incrementalButtons = {
   template: `
     <div class="controls button-block">
@@ -123,9 +108,54 @@ const incrementalButtons = {
   },
   props: {
     modelValue: Number,
-    min: Number,
-    max: Number,
-    step: Number,
+    min: {
+      type: Number,
+      default: 0,
+    },
+    max: {
+      type: Number,
+      default: 1000000,
+    },
+    step: {
+      type: Number,
+      default: 1,
+    },
+  },
+  emits: ['value', 'update:modelValue'],
+}
+
+const slider = {
+  template: `
+  <input
+    type="range"
+    :min="min"
+    :max="max"
+    :step="step"
+    :value="modelValue"
+    @input="val => change(val)"
+  />
+  `,
+  methods: {
+    change(event) {
+      let val = event.target.value
+      this.$emit('update:modelValue', val)
+      this.$emit('value', val)
+    },
+  },
+  props: {
+    modelValue: Number,
+    min: {
+      type: Number,
+      default: 0,
+    },
+    max: {
+      type: Number,
+      default: 10000000,
+    },
+    step: {
+      type: Number,
+      default: 1,
+    },
   },
   emits: ['value', 'update:modelValue'],
 }
@@ -144,9 +174,7 @@ const selector = {
         if (elt.display == selected) {
           this.$emit('update:modelValue', elt)
           if (this.updateUrl != undefined) {
-            let urlParams = new URLSearchParams(window.location.search)
-            urlParams.set(this.updateUrl, elt.display)
-            window.history.replaceState({ path: 'home' }, '', `?${urlParams.toString()}`)
+            updateURLParameter(this.updateUrl, elt.display)
           }
         }
       }
@@ -216,14 +244,20 @@ function getBoolURL(key, fallback) {
   return params.get('showFill') == '1'
 }
 
+function updateURLParameter(key, value) {
+  let urlParams = new URLSearchParams(window.location.search)
+  urlParams.set(key, value)
+  window.history.replaceState({ path: 'home' }, '', `?${urlParams.toString()}`)
+}
+
 export {
   playControls,
   radioButtons,
   toggleButton,
   collapsibleButton,
-  integerButtons,
   incrementalButtons,
   selector,
+  slider,
   getSelectorURLOption,
   getBoolURL,
 }

@@ -903,11 +903,12 @@
 
         <div id="catalan-gallery-timer">
           <div class="flex-block flex-center">
-            <integer-buttons
-              :n="n"
-              @increase="n++; i=Math.floor(Math.random() * catalanNumber(n))"
-              @decrease="n--; i=Math.floor(Math.random() * catalanNumber(n))"
-            ></integer-buttons>
+            <incremental-buttons
+              v-model="n"
+              :min="1"
+              :max="30"
+              @value="i=Math.floor(Math.random() * catalanNumber(n))"
+            ></incremental-buttons>
             <div class="button-block">
               <toggle-button text="Shuffle mode" v-model="shuffle"> </toggle-button>
             </div>
@@ -1103,7 +1104,7 @@
       } from '/js/catalan.js'
       import {
         collapsibleButton,
-        integerButtons,
+        incrementalButtons,
         playControls,
         toggleButton,
         radioButtons,
@@ -1558,7 +1559,7 @@
           circleChords,
           latticePaths,
           polygonTriangulation,
-          integerButtons,
+          incrementalButtons,
           playControls,
           toggleButton,
           murasakiDiagram,

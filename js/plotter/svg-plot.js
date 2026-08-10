@@ -2,7 +2,7 @@ import { StraightStroke, Polygon } from '/js/lines.js'
 import { Point, Vector } from '/js/geometry.js'
 import { BBox } from '/js/bbox.js'
 import { range, enumerate, zip } from '/js/utils.js'
-import { incrementalButtons, radioButtons, toggleButton, selector } from '/js/buttons.js'
+import { incrementalButtons, radioButtons, toggleButton, selector, slider } from '/js/buttons.js'
 
 import { pens } from '/js/plotter/pens.js'
 import { Layer } from '/js/plotter/layer.js'
@@ -112,16 +112,14 @@ const svgPlot = {
               :choices="option.choices"
               v-model="scene.configs[option.name]"
             > </radio-buttons>
-            <input
+            <slider
               v-if="option.type=='slider'"
               class="slider"
-              type="range"
-              :name="option.name"
               :min="option.min"
               :max="option.max"
               :step="option.step"
-              v-model.number="scene.configs[option.name]"
-            />
+              v-model="scene.configs[option.name]"
+            > </slider>
             <div class="button-block">
               <toggle-button 
                 v-if="option.type=='toggle'" 
@@ -256,6 +254,7 @@ const svgPlot = {
     radioButtons,
     toggleButton,
     selector,
+    slider,
   },
   computed: {
     canvas() {

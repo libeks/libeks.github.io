@@ -252,8 +252,14 @@ function getSelectorURLOption(options, key, fallback) {
 
 function getBoolURL(key, fallback) {
   let params = new URLSearchParams(window.location.search)
-  if (!params.has('showFill')) return fallback
-  return params.get('showFill') == '1'
+  if (!params.has(key)) return fallback
+  return params.get(key) == '1'
+}
+
+function getNumberURL(key, fallback) {
+  let params = new URLSearchParams(window.location.search)
+  if (!params.has(key)) return fallback
+  return Number(params.get(key))
 }
 
 function updateURLParameter(key, value) {
@@ -272,4 +278,5 @@ export {
   slider,
   getSelectorURLOption,
   getBoolURL,
+  getNumberURL,
 }

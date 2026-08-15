@@ -2,7 +2,14 @@ import { StraightStroke, Polygon } from '/js/lines.js'
 import { Point, Vector } from '/js/geometry.js'
 import { BBox } from '/js/bbox.js'
 import { range, enumerate, zip } from '/js/utils.js'
-import { incrementalButtons, radioButtons, toggleButton, selector, slider } from '/js/buttons.js'
+import {
+  incrementalButtons,
+  radioButtons,
+  toggleButton,
+  selector,
+  slider,
+  getNumberURL,
+} from '/js/buttons.js'
 
 import { pens } from '/js/plotter/pens.js'
 import { Layer } from '/js/plotter/layer.js'
@@ -81,7 +88,7 @@ const svgPlot = {
         </div>
         <div class="options">
           <div class="button-block">
-            <toggle-button text="Show fill" v-model="showFill" :update-url="showFill"></toggle-button>
+            <toggle-button text="Show fill" v-model="showFill" update-url="showFill"></toggle-button>
             <div>
               <p>Seed</p>
               <incremental-buttons 
@@ -154,7 +161,7 @@ const svgPlot = {
       disabled: {}, // first two layers should not allow for pen or color choice
       allPens: pens,
       showFill: false,
-      globalSeed: 0,
+      globalSeed: getNumberURL('seed', 0),
     }
   },
   watch: {

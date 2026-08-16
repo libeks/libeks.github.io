@@ -170,14 +170,15 @@ const svgPlot = {
     scene: {
       immediate: true,
       handler: function (newObj, oldObj) {
-        console.log('scene has changed, resetting all fields', newObj, oldObj)
         if (oldObj == undefined) {
-          // initial render, these values are handled by data()
+          // initial render, setting of these values are handled by data()
           return
         }
+        console.log('scene has changed, resetting all fields', newObj, oldObj)
+        // reset all URL parameters, preserving only the 'scene' field
         let urlParams = new URLSearchParams(window.location.search)
         let newURLParams = new URLSearchParams()
-        console.log('urlParams', urlParams)
+        // console.log('urlParams', urlParams)
         if (urlParams.has('scene')) {
           newURLParams.set('scene', urlParams.get('scene'))
         }
@@ -330,6 +331,8 @@ const svgPlot = {
       return layerDict
     },
     rawHTMLComment() {
+      let search = window.location.search
+      console.log('url', search, this.configs)
       let output = []
       for (let option of this.scene.options) {
         let key = option.name
@@ -339,7 +342,7 @@ const svgPlot = {
         }
         output.push(`${key}: ${value}`)
       }
-      return `<!-- ${output} -->`
+      return `<!-- ${search} -->`
     },
     combLayer() {
       // return the combs for the guides to be printed into

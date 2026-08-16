@@ -36,10 +36,13 @@ class Layer {
   }
 
   getAllCurves(spacing, withFill) {
+    console.log('getAllCurves', this, spacing, this.hasFillCurves(), this.filledCurves, withFill)
     if (withFill && this.hasFillCurves()) {
       if (!(spacing in this.filledCurves)) {
+        console.log('filling with spacing', spacing)
         this.filledCurves[spacing] = this.fill(spacing, this.direction)
       }
+      console.log('returning filled curves', this.filledCurves[spacing])
       return [...this.curves, ...this.filledCurves[spacing]]
     }
     if (!this.hasFillCurves()) {

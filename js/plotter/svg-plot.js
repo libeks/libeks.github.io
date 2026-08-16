@@ -22,7 +22,7 @@ const svgPlot = {
           <metadata class="configs" v-html="rawHTMLComment" > </metadata>
           <g v-for="layer in visibleLayers" inkscape:groupmode="layer" :inkscape:label="layer.displayName" :transform="layerPens[layer.id].transform()">
             <path 
-              v-for="curve in layer.getAllCurves(layerPens[layer.id].spacing * penMultipliers[layer.id], showFill)" 
+              v-for="curve in layer.getAllCurves(layerPens[layer.id].spacing * penMultipliers[layer.id].value, showFill)" 
               :d="curve.d()" 
               :stroke="colors[layer.id]"
               :fill="(layer.id <2 || showFill) ? 'none' : colors[layer.id]"
@@ -52,7 +52,7 @@ const svgPlot = {
             <tbody>
               <tr v-for="(layer, id) in allLayers">
                 <td>{{layer.displayName}}</td>
-                <td style="text-align: right">{{prettyTime(layer.statistics(layerPens[layer.id].spacing * penMultipliers[layer.id], showFill).time)}}</td>
+                <td style="text-align: right">{{prettyTime(layer.statistics(layerPens[layer.id].spacing * penMultipliers[layer.id].value, showFill).time)}}</td>
                 <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1" :style="{color: pens[layer.id].color}">
                   <div>
                     <div style="display: flex; gap: 10px">

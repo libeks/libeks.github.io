@@ -245,10 +245,6 @@ class ClosedCurveWithMinus {
   }
 
   clip(bbox) {
-    // console.log(
-    //   'clip closed continuity',
-    //   pairs(this.curve.curve.curves).map(([a, b]) => a.endpoint().same(b.startpoint())),
-    // )
     if (bbox.boxInside(this.bbox())) {
       // nothing to clip
       return [this]
@@ -259,15 +255,12 @@ class ClosedCurveWithMinus {
       return [this]
     }
     let counterClockwise = this.counterClockwise()
-    // let counterClockwise = this
     let components = counterClockwise.allComponents()
-    // console.log('components', components)
 
     let bits = []
     // all the clipped components should have their endpoints on the perimeter of the bbox
     for (let component of components) {
       let clipped = component.clipComponents(bbox)
-      // console.log('pushing to bits', clipped)
       bits.push(...clipped)
     }
     let debugClip = components[0].curve.curves
@@ -281,15 +274,8 @@ class ClosedCurveWithMinus {
     if (open.length + closed.length != bits.length) {
       throw `Open and closed curves don't add up ${closed.length} ${open.length} ${bits.length}`
     }
-    // let startpoints = []
-    // let endpoints = []
     let allpoints = []
-    // console.log('open', open)
     for (let [i, curve] of enumerate(open)) {
-      // processed[i] = false
-      // console.log('open curve', open[i], open[i].startpoint(), open[i].endpoint())
-      // console.log('this.repr', this.repr(), bbox)
-      // console.log('perimeter point for', i, curve)
       let start = bbox.perimeterPointT(open[i].startpoint())
       let end = bbox.perimeterPointT(open[i].endpoint())
       allpoints.push([start, i, 'start'], [end, i, 'end'])
@@ -297,11 +283,7 @@ class ClosedCurveWithMinus {
     if (allpoints.length % 2 == 1) {
       throw `allpoints is of odd length ${allpoints.length}`
     }
-    // startpoints.sort(([a, aID], [b, bID]) => a - b)
-    // endpoints.sort(([a, aID], [b, bID]) => a - b)
     allpoints.sort(([a, aid, at], [b, bid, bt]) => a - b)
-    // console.log('start-end points', startpoints, endpoints)
-    // console.log('allpoints', allpoints)
     for (let [[a, aid, at], [b, bid, bt]] of pairs(allpoints)) {
       if (at == bt) {
         console.log('this', this, this.repr())
@@ -311,11 +293,7 @@ class ClosedCurveWithMinus {
     }
     if (allpoints.length > 0 && allpoints[0][2] != 'end') {
       // if first element is not an 'end' (i.e. it is a start), move it to the end, so that the sequence always starts with 'end'
-      // allpoints.push(allpoints[allpoints.length - 1]) // add first element to the end
-      // allpoints.splice(0, 1) // remove first element ('start'), it now is at the end
-      // console.log('allpoints: moving beginning to end', allpoints)
       allpoints = [...allpoints.slice(1), allpoints[0]]
-      // console.log('allpoints2', allpoints)
     }
 
     let pairMapping = {} // mapping from the id of the endpoint to the id of the startpoint
@@ -331,7 +309,6 @@ class ClosedCurveWithMinus {
       })
       connectors[aid] = perimeter
     }
-    // console.log('pairMapping, connectors', pairMapping, connectors)
 
     let loops = []
     let processed = {}
@@ -352,14 +329,11 @@ class ClosedCurveWithMinus {
       loops.push(loop)
     }
 
-    // console.log('loops', loops)
-
     for (let loop of loops) {
       let components = []
       for (let id of loop) {
         components.push(open[id], connectors[id])
       }
-      // console.log('components', components)
       closed.push(new ClosedCurve(new CompositeCurve(...components)))
     }
 
@@ -370,22 +344,7 @@ class ClosedCurveWithMinus {
       enumerate(trueClosed).forEach(([id, curve]) => (curve.id = `${this.id}.${id}`))
     }
 
-    // for (let a of trueClosed) {
-    //   // console.log('aaa', a.curve.curves[0])
-    //   if (
-    //     a.curve.curves[0].type == 'CubicBezier' &&
-    //     a.curve.curves[0].from.x == 1466.4999999999986
-    //   ) {
-    //     // console.log('match', this, this.repr())
-    //   }
-    // }
-    // if (this.id == '78') {
-    //   console.log('trueClosed', trueClosed)
-    // }
     let answer = nestClosedCurves(trueClosed).flat()
-    // if (this.id == '78') {
-    //   console.log('answer', answer)
-    // }
     if (this.id) {
       enumerate(answer).forEach(([id, curve]) => (curve.id = `${this.id}.${id}`))
     }
@@ -559,6 +518,11 @@ class ClosedCurveWithMinus {
       closedBits,
       openBits,
     }
+  }
+
+  // return a list of closed curves that are involved
+  closedComponents() {
+    return this.allComponents().map((curve) => curve.curve)
   }
 
   // return the boundary curve of this curve, with box perimeter connectors removed

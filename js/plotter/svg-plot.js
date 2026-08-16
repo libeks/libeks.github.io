@@ -24,8 +24,8 @@ const svgPlot = {
             <path 
               v-for="curve in layer.getAllCurves(layerPens[layer.id].spacing * penMultipliers[layer.id], showFill)" 
               :d="curve.d()" 
-              :stroke="colors[layer.id]" 
-              fill="none"
+              :stroke="(showFill || !layer.hasFillCurves()) ? colors[layer.id] : 'none'"
+              :fill="(layer.id <2 || showFill) ? 'none' : colors[layer.id]"
               
               :stroke-width="layerPens[layer.id].spacing" 
               stroke-opacity="0.6" 
@@ -482,6 +482,7 @@ const svgPlot = {
         layer.displayName = `${id} - ${layer.name}`
         layer.id = id
       }
+      console.log('layers', layers)
 
       // console.log('allLayers', layers)
       return layers

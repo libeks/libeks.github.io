@@ -15,6 +15,7 @@ function imageSpaceToMeters(l) {
 class Layer {
   constructor(name) {
     this.name = name
+    this.id = 0
     this.curves = []
     this.fillCurves = [] // the outlines of the fill curves for this layer
     this.filledCurves = {}
@@ -35,13 +36,30 @@ class Layer {
   }
 
   getAllCurves(spacing, withFill) {
-    if (withFill && this.fillCurves.length > 0) {
+    if (withFill && this.hasFillCurves()) {
       if (!(spacing in this.filledCurves)) {
         this.filledCurves[spacing] = this.fill(spacing, this.direction)
       }
       return [...this.curves, ...this.filledCurves[spacing]]
     }
-    return this.curves
+    if (!this.hasFillCurves()) {
+      return this.curves
+    }
+    // return this.curves
+    // for (let curve of this.fillCurves) {
+    //   // console.log('curve', curve)
+    //   console.log(
+    //     'clockwiseness',
+    //     curve.curve.isCounterClockwise(),
+    //     curve.minus.map((c) => c.curve.isCounterClockwise()),
+    //   )
+    // }
+    // let ret = this.fillCurves.map((curve) => curve.closedComponents()).flat()
+    // console.log('getAllCurves', ret)
+    // return ret
+
+    // if fill is not shown, return the fill curves
+    return this.fillCurves
   }
 
   withGuides() {
@@ -89,6 +107,10 @@ class Layer {
     this.pen = pen
     this.color = color
     return this // allow chaining
+  }
+
+  hasFillCurves() {
+    return this.fillCurves.length > 0
   }
 
   fill(spacing, direction) {
@@ -167,6 +189,11 @@ class Layer {
 
   statistics(spacing, showFill) {
     // TODO: take curvature into account when computing down distance, the pen moves slower on curves
+    if (!showFill && this.hasFillCurves()) {
+      // don't compute statistics if fill is off, since there might be ClosedCurveWithMinus in the input, which doesn't have a well
+      // defined .startpoint() (remember, the minuses are distinct curves)
+      return {}
+    }
     let downLength = 0
     let curves = this.getAllCurves(spacing, showFill)
     for (let curve of curves) {
@@ -174,6 +201,7 @@ class Layer {
     }
     let upLength = 0
     let upDownCount = 0
+    console.log('curves', curves)
     for (let [a, b] of pairs(curves)) {
       let distance = a.endpoint().vectTo(b.startpoint()).len()
       if (distance > 0) {

@@ -331,18 +331,20 @@ const svgPlot = {
       return layerDict
     },
     rawHTMLComment() {
-      let search = window.location.search
-      console.log('url', search, this.configs)
-      let output = []
+      let search = new URLSearchParams()
       for (let option of this.scene.options) {
-        let key = option.name
         let value = option.name in this.configs ? this.configs[option.name] : option.default
-        if (option.type == 'dropdown') {
+        if (option.type == 'dropdown' || option.type == 'radioButton') {
           value = value.display
+        } else if (option.type == 'toggle') {
+          value = value ? '1' : '0'
         }
-        output.push(`${key}: ${value}`)
+        search.set(option.name, value)
       }
-      return `<!-- ${search} -->`
+      if ('seed' in this.configs) {
+        search.set('seed', this.configs['seed'])
+      }
+      return `<!-- ${search.toString()} -->`
     },
     combLayer() {
       // return the combs for the guides to be printed into

@@ -329,7 +329,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
         start: bbox.center(),
         size,
         pattern,
-        notches: notches == 1 ? [notch1] : [notch1, notch2],
+        notches: notches.value == 1 ? [notch1] : [notch1, notch2],
         onlyNgonsInsideBBox: clip,
         filterShort,
         filterPerimeter,
@@ -462,7 +462,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
       } = params
       size = size.value
       pattern = pattern.value
-      notches = notches.value
+      // notches = notches.value
       console.log('notches', notches)
       let grid = new VertexGrid({
         bbox,

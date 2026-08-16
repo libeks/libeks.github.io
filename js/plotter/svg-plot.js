@@ -172,15 +172,24 @@ const svgPlot = {
       handler: function (newObj, oldObj) {
         console.log('scene has changed, resetting all fields', newObj, oldObj)
         if (oldObj == undefined) {
+          // initial render, these values are handled by data()
           return
         }
+        let urlParams = new URLSearchParams(window.location.search)
+        let newURLParams = new URLSearchParams()
+        console.log('urlParams', urlParams)
+        if (urlParams.has('scene')) {
+          newURLParams.set('scene', urlParams.get('scene'))
+        }
+        window.history.replaceState({ path: 'home' }, '', `?${newURLParams.toString()}`)
         this.hidden = {}
-        this.configs = newObj.getConfigs()
+        this.configs = newObj.getConfigs() // fetch configs from default (URL params are reset above)
         this.pens = {}
         this.disabled = {}
         this.colors = {}
         this.penMultipliers = {}
         this.showFill = false
+        this.globalSeed = 0
       },
     },
     layerSkeletons: {

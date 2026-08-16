@@ -24,8 +24,9 @@ const svgPlot = {
             <path 
               v-for="curve in layer.getAllCurves(layerPens[layer.id].spacing * penMultipliers[layer.id], showFill)" 
               :d="curve.d()" 
-              :stroke="(showFill || !layer.hasFillCurves()) ? colors[layer.id] : 'none'"
+              :stroke="colors[layer.id]"
               :fill="(layer.id <2 || showFill) ? 'none' : colors[layer.id]"
+              fill-opacity="0.6"
               
               :stroke-width="layerPens[layer.id].spacing" 
               stroke-opacity="0.6" 
@@ -35,7 +36,7 @@ const svgPlot = {
         </svg>
       </div>
       <div class="button-block" style="display:flex; justify-content: center; padding: 10px;">
-        <a class="button" ref="download" @click="getSVG">⤓ Download SVG</a>
+        <a v-if="showFill" class="button" ref="download" @click="getSVG">⤓ Download SVG</a>
       </div>
       <div class="flex-block">
         <div class="plot-statistics">
@@ -156,6 +157,7 @@ const svgPlot = {
     return {
       hidden: {},
       pens: {},
+      configs: this.scene.getConfigs(),
       penMultipliers: {},
       colors: {},
       disabled: {}, // first two layers should not allow for pen or color choice
@@ -170,10 +172,12 @@ const svgPlot = {
       handler: function (newObj, oldObj) {
         console.log('scene has changed, resetting all fields', newObj, oldObj)
         this.hidden = {}
+        this.configs = newObj.getConfigs()
         this.pens = {}
         this.disabled = {}
         this.colors = {}
         this.penMultipliers = {}
+        this.showFill = false
       },
     },
     layerSkeletons: {
@@ -279,9 +283,7 @@ const svgPlot = {
       return new BBox(0, yOffset, 13333, 10000).withIndividualPadding(500, 1000, 1000, 500)
     },
     layerPens() {
-      // console.log('layerPens this.pens', this.pens)
       let ret = {}
-      // console.log('this.pens', this.pens)
       for (let layerID of Object.keys(this.pens)) {
         let pen = this.pens[layerID]
         if (!(layerID in ret)) {
@@ -289,13 +291,10 @@ const svgPlot = {
           ret[layerID] = pen
         }
         let layer = this.layersByID[layerID]
-        // console.log('layer', layer, layerID)
         if (layer.parent) {
-          // console.log('layer has parent', layer.id, layer.parent.id)
           ret[layer.parent.id] = pen
         }
       }
-      // console.log('layerPens', ret)
       return ret
     },
     penNames() {
@@ -313,13 +312,8 @@ const svgPlot = {
       return new Layer('frame').withCurves([this.canvas.continuousCurve()])
     },
     layers() {
-      // console.log('calling this.scene.place with configs', this.scene.configs)
-      // let configs = structuredClone(this.scene.configs)
-      // console.log('configs', configs)
       let configs = this.scene.configs
       configs['seed'] = this.globalSeed
-      // console.log('configs', configs)
-      // this.scene.configs['seed'] = glob
       let layerDict = this.scene.place(this.canvas, configs).layers
       return layerDict
     },
@@ -329,7 +323,6 @@ const svgPlot = {
         let key = option.name
         let value =
           option.name in this.scene.configs ? this.scene.configs[option.name] : option.default
-        // console.log('value', value, this.scene.configs)
         if (option.type == 'dropdown') {
           value = value.display
         }
@@ -387,16 +380,12 @@ const svgPlot = {
           layerObj = layerObj.withColor(layer.color)
         }
         if (layer.pen) {
-          // console.log('layer pen', layer.pen)
           layerObj = layerObj.withPen(layer.pen)
         }
         if (layer.dontOptimize) {
           layerObj = layerObj.withoutOptimize()
         }
-        // console.log('this.pens', this.pens)
-        // console.log('before', layerObj.name, layerObj.statistics(20, this.showFill))
         layerObj = layerObj.optimize()
-        // console.log('after', layerObj.name, layerObj.statistics(20, this.showFill))
         layers.push(layerObj)
       }
       return layers
@@ -408,7 +397,6 @@ const svgPlot = {
         }
         return !this.hidden[layer.id]
       })
-      // console.log('visibleLayers', retval)
       return retval
     },
     layerSkeletons() {
@@ -423,16 +411,11 @@ const svgPlot = {
       let offset = new Vector(0, 0)
       for (let layer of this.namedLayers) {
         if (layer.drawGuides) {
-          let layerObj = new Layer(`guide - ${layer.name}`)
-            // .withCurves([
-            //   new StraightStroke(new Point(500, 300), new Point(500, 700)).move(offset),
-            //   new StraightStroke(new Point(300, 500), new Point(700, 500)).move(offset),
-            // ])
-            .withPen({ pen: layer.pen, color: layer.color })
+          let layerObj = new Layer(`guide - ${layer.name}`).withPen({
+            pen: layer.pen,
+            color: layer.color,
+          })
 
-          // if (layer.color) {
-          //   layerObj = layerObj.withColor(layer.color)
-          // }
           layer.attachChild(layerObj) // make sure the real layer has the guide layer as a child
           layers.push(layerObj)
           offset = offset.add(new Vector(1000, 0))
@@ -444,8 +427,6 @@ const svgPlot = {
         layer.displayName = `${id} - ${layer.name}`
         layer.id = id
       }
-
-      // console.log('layerSkeletons', layers)
       return layers
     },
     allLayers() {
@@ -460,7 +441,6 @@ const svgPlot = {
       let offset = new Vector(0, 0)
       for (let layer of this.namedLayers) {
         if (layer.drawGuides) {
-          // let pen = layerPens[layer]
           let layerObj = new Layer(`guide - ${layer.name}`)
             .withCurves([
               new StraightStroke(new Point(500, 300), new Point(500, 700)).move(offset),
@@ -468,9 +448,6 @@ const svgPlot = {
             ])
             .withPen({ pen: layer.pen, color: layer.color })
 
-          // if (layer.color) {
-          //   layerObj = layerObj.withColor(layer.color)
-          // }
           layer.attachChild(layerObj) // make sure the real layer has the guide layer as a child
           layers.push(layerObj)
           offset = offset.add(new Vector(1000, 0))
@@ -484,7 +461,6 @@ const svgPlot = {
       }
       console.log('layers', layers)
 
-      // console.log('allLayers', layers)
       return layers
     },
   },

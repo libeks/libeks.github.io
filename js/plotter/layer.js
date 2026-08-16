@@ -45,20 +45,6 @@ class Layer {
     if (!this.hasFillCurves()) {
       return this.curves
     }
-    // return this.curves
-    // for (let curve of this.fillCurves) {
-    //   // console.log('curve', curve)
-    //   console.log(
-    //     'clockwiseness',
-    //     curve.curve.isCounterClockwise(),
-    //     curve.minus.map((c) => c.curve.isCounterClockwise()),
-    //   )
-    // }
-    // let ret = this.fillCurves.map((curve) => curve.closedComponents()).flat()
-    // console.log('getAllCurves', ret)
-    // return ret
-
-    // if fill is not shown, return the fill curves
     return this.fillCurves
   }
 
@@ -171,7 +157,6 @@ class Layer {
       }
       let candidate = toProcess[candidateIdx]
       toProcess.splice(candidateIdx, 1)
-      // toProcess = [...toProcess.slice(0, candidateIdx - 1), ...toProcess.slice(candidateIdx + 1)]
       curves.push(candidate)
     }
     this.curves = curves.map(({ curve }) => curve)
@@ -230,11 +215,6 @@ class Layer {
     console.info(`layer ${this.name} statistics`, ret)
     return ret
   }
-
-  // // the transform property of the <g> element, to position the pen correctly relative to the comb
-  // transform() {
-  //   return `translate(${-this.pen.xOffset} ${-this.pen.yOffset})`
-  // }
 }
 
 export { Layer }

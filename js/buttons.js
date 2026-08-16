@@ -262,6 +262,12 @@ function getNumberURL(key, fallback) {
   return Number(params.get(key))
 }
 
+function getStringURL(key, fallback) {
+  let params = new URLSearchParams(window.location.search)
+  if (!params.has(key)) return fallback
+  return params.get(key)
+}
+
 function updateURLParameter(key, value) {
   let urlParams = new URLSearchParams(window.location.search)
   urlParams.set(key, value)
@@ -279,4 +285,5 @@ export {
   getSelectorURLOption,
   getBoolURL,
   getNumberURL,
+  getStringURL,
 }

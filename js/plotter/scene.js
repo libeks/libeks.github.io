@@ -1,5 +1,6 @@
 import { enumerate } from '/js/utils.js'
 import { pens } from '/js/plotter/pens.js'
+import { getSelectorURLOption, getBoolURL, getNumberURL, getStringURL } from '/js/buttons.js'
 
 // consts used as kill switches for debugging
 const clipToBBox = true
@@ -21,7 +22,6 @@ function applyTemplate(template, parameters) {
       }
     }
   }
-  // for (let [prop, val] of Object.entries(parameters))
   if (template.computed) {
     for (let [name, value] of Object.entries(template.computed)) {
       Object.defineProperty(obj, name, {
@@ -78,16 +78,31 @@ class Scene {
     this.options = options
     for (let option of options) {
       if (option.type == 'dropdown') {
-        // console.log('option.options', option.options, option.default)
         this.configs[option.name] = option.options.filter((o) => o.display == option.default)[0]
-        // console.log('choice', this.configs[option.name])
       } else {
         this.configs[option.name] = option.default
       }
     }
-    // console.log('configs', this.configs)
     this.layerFn = layerFn
     return this
+  }
+
+  // return an object with the config values populated either from the URL, or from the option defaults
+  getConfigs() {
+    let configs = {}
+    for (let option of this.options) {
+      if (option.type == 'dropdown') {
+        configs[option.name] = getSelectorURLOption(option.options, option.name, option.default)
+      } else if (option.type == 'toggle') {
+        configs[option.name] = getBoolURL(option.name, option.default)
+      } else if (option.type == 'slider' || option.type == 'incremental') {
+        configs[option.name] = getNumberURL(option.name, option.default)
+      } else {
+        configs[option.name] = getStringURL(option.name, option.default)
+      }
+    }
+    console.log('getConfigs', configs)
+    return configs
   }
 
   withPens(pens) {
@@ -155,7 +170,6 @@ class Scene {
 
   fill(paramMap) {
     console.info('filling...')
-    // console.trace()
     let layers = {}
     for (let layer of Object.values(this.layers)) {
       let spacing = 20 // default if the layer doesn't specify its fill

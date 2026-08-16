@@ -60,13 +60,13 @@ class Scene {
     this.parameterFn = parameterFn
     this.options = options
 
-    for (let option of options) {
-      if (option.type == 'dropdown') {
-        this.configs[option.name] = option.options.filter((o) => o.display == option.default)[0]
-      } else {
-        this.configs[option.name] = option.default
-      }
-    }
+    // for (let option of options) {
+    //   if (option.type == 'dropdown') {
+    //     this.configs[option.name] = option.options.filter((o) => o.display == option.default)[0]
+    //   } else {
+    //     this.configs[option.name] = option.default
+    //   }
+    // }
     this.templateLayerFn = layerFn
     return this
   }
@@ -76,13 +76,13 @@ class Scene {
   withOptions(parameterFn, options, layerFn) {
     this.parameterFn = parameterFn
     this.options = options
-    for (let option of options) {
-      if (option.type == 'dropdown') {
-        this.configs[option.name] = option.options.filter((o) => o.display == option.default)[0]
-      } else {
-        this.configs[option.name] = option.default
-      }
-    }
+    // for (let option of options) {
+    //   if (option.type == 'dropdown') {
+    //     this.configs[option.name] = option.options.filter((o) => o.display == option.default)[0]
+    //   } else {
+    //     this.configs[option.name] = option.default
+    //   }
+    // }
     this.layerFn = layerFn
     return this
   }
@@ -93,6 +93,8 @@ class Scene {
     for (let option of this.options) {
       if (option.type == 'dropdown') {
         configs[option.name] = getSelectorURLOption(option.options, option.name, option.default)
+      } else if (option.type == 'radioButton') {
+        configs[option.name] = getSelectorURLOption(option.choices, option.name, option.default)
       } else if (option.type == 'toggle') {
         configs[option.name] = getBoolURL(option.name, option.default)
       } else if (option.type == 'slider' || option.type == 'incremental') {

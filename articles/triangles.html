@@ -1114,7 +1114,7 @@
                 <g
                   class="x-coord coord"
                   :style="toTransform(grid.mapXCoord(selected))"
-                  :class="{visible: selected && (coordinates=='xyz' || coordinates=='xyr')}"
+                  :class="{visible: selected && (coordinates.value=='xyz' || coordinates.value=='xyr')}"
                 >
                   <text>
                     x =
@@ -1134,7 +1134,7 @@
                 <g
                   class="z-coord coord"
                   :style="toTransform(grid.mapZCoord(selected))"
-                  :class="{visible: selected && coordinates=='xyz'}"
+                  :class="{visible: selected && coordinates.value=='xyz'}"
                 >
                   <text>
                     z =
@@ -1144,7 +1144,7 @@
                 <g
                   class="b-coord coord"
                   :style="toTransform(grid.mapBCoord(selected))"
-                  :class="{visible: selected && coordinates=='yb'}"
+                  :class="{visible: selected && coordinates.value=='yb'}"
                 >
                   <text>
                     b =
@@ -1163,7 +1163,7 @@
                 >
                   <polygon class="polygon" points="0,0 -50,86.6 50,86.6" />
                   <text x="0" y="75" text-anchor="middle">
-                    <component :is="coordinates" :tri="tri"></component>
+                    <component :is="coordinates.value" :tri="tri"></component>
                   </text>
                 </g>
                 <g
@@ -1176,7 +1176,7 @@
                 >
                   <polygon class="polygon" points="0,86.6 -50,0 50,0" />
                   <text x="0" y="25" text-anchor="middle">
-                    <component :is="coordinates" :tri="tri"></component>
+                    <component :is="coordinates.value" :tri="tri"></component>
                   </text>
                 </g>
               </g>
@@ -1399,7 +1399,7 @@
               }),
               size: 100,
             }),
-            coordinates: 'xyr',
+            coordinates: { value: 'xyr', display: 'xyR' },
           }
         },
         methods: {

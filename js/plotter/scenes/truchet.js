@@ -104,7 +104,7 @@ const Tiling = new Scene('TruchetTiling')
         start: bbox.center(),
         size,
         pattern,
-        notches: notches == 1 ? [notch1] : [notch1, notch2],
+        notches: notches.value == 1 ? [notch1] : [notch1, notch2],
         onlyNgonsInsideBBox: clip,
         filterShort,
         filterPerimeter,
@@ -178,7 +178,7 @@ const Tiling = new Scene('TruchetTiling')
           { value: 1, display: '1' },
           { value: 2, display: '2' },
         ],
-        default: 1,
+        default: '1',
       },
       {
         name: 'cellChoice',
@@ -235,8 +235,11 @@ const Tiling = new Scene('TruchetTiling')
         cellChoice,
       } = params
       console.log('size', size)
+      console.log('notches', notches)
       size = size.value
       pattern = pattern.value
+      // notches = notches.value
+      console.log('notches', notches)
       let grid = new VertexGrid({
         bbox,
         start,
@@ -401,7 +404,7 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
           { value: 1, display: '1' },
           { value: 2, display: '2' },
         ],
-        default: 1,
+        default: '1',
       },
       {
         name: 'cellChoice',
@@ -459,7 +462,8 @@ const TricolorFillTiling = new Scene('TricolorFillTruchetTiling')
       } = params
       size = size.value
       pattern = pattern.value
-      // console.log('size', size)
+      notches = notches.value
+      console.log('notches', notches)
       let grid = new VertexGrid({
         bbox,
         start,

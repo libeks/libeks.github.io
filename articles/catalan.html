@@ -722,8 +722,8 @@
                 <polygon-triangulation
                   :tile="generateIterativeCatalanParentheses(10, i)"
                   :bbox="bbox"
-                  :show-dual-graph="radioChoice=='dual'"
-                  :show-triangles="radioChoice!='dual'"
+                  :show-dual-graph="radioChoice.value=='dual'"
+                  :show-triangles="radioChoice.value!='dual'"
                 ></polygon-triangulation>
               </svg-box>
               <figcaption>
@@ -1379,7 +1379,7 @@
         data() {
           return {
             i: Math.floor(Math.random() * 16796),
-            radioChoice: 'dual',
+            radioChoice: { display: 'Dual', value: 'dual' },
           }
         },
         methods: {

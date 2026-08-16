@@ -242,11 +242,11 @@
               :frame="t"
               :scene="scene"
               :screen="screen"
-              :show-faces="displayMode == 'faces'"
-              :show-intersection-points="displayMode == 'wireframe' || displayMode == 'segments' || displayMode == 'transparent'"
-              :show-wireframe="displayMode == 'wireframe'"
-              :show-transparent-faces="displayMode == 'transparent'"
-              :show-visible-lines="displayMode == 'segments'"
+              :show-faces="displayMode.value == 'faces'"
+              :show-intersection-points="displayMode.value == 'wireframe' || displayMode.value == 'segments' || displayMode.value == 'transparent'"
+              :show-wireframe="displayMode.value == 'wireframe'"
+              :show-transparent-faces="displayMode.value == 'transparent'"
+              :show-visible-lines="displayMode.value == 'segments'"
             />
           </svg>
           <figcaption>
@@ -503,13 +503,13 @@
           return {
             t: 0,
             scene: new Scene3D(cube),
-            camera: 'projective',
+            camera: { value: 'projective', display: 'Projective' },
             active: true,
           }
         },
         computed: {
           screen() {
-            if (this.camera == 'projective') {
+            if (this.camera.value == 'projective') {
               return new Screen(600, 300, new ProjectiveCamera(1))
             }
             return new Screen(600, 300, new IsometricCamera(200))
@@ -530,13 +530,13 @@
           return {
             t: 0,
             scene: new Scene3D(cube),
-            camera: 'projective',
+            camera: { value: 'projective', display: 'Projective' },
             active: true,
           }
         },
         computed: {
           screen() {
-            if (this.camera == 'projective') {
+            if (this.camera.value == 'projective') {
               return new Screen(600, 300, new ProjectiveCamera(1))
             }
             return new Screen(600, 300, new IsometricCamera(200))
@@ -557,13 +557,13 @@
           return {
             t: 25,
             scene: new Scene3D(cube, farRectangle),
-            camera: 'projective',
+            camera: { value: 'projective', display: 'Projective' },
             active: true,
           }
         },
         computed: {
           screen() {
-            if (this.camera == 'projective') {
+            if (this.camera.value == 'projective') {
               return new Screen(600, 300, new ProjectiveCamera(1))
             }
             return new Screen(600, 300, new IsometricCamera(200))
@@ -584,13 +584,13 @@
           return {
             t: 0,
             scene: new Scene3D(cube, farRectangle),
-            camera: 'projective',
+            camera: { value: 'projective', display: 'Projective' },
             active: true,
           }
         },
         computed: {
           screen() {
-            if (this.camera == 'projective') {
+            if (this.camera.value == 'projective') {
               return new Screen(600, 300, new ProjectiveCamera(1))
             }
             return new Screen(600, 300, new IsometricCamera(200))
@@ -611,13 +611,13 @@
           return {
             t: 0,
             scene: new Scene3D(cube, farRectangle),
-            camera: 'projective',
+            camera: { value: 'projective', display: 'Projective' },
             active: true,
           }
         },
         computed: {
           screen() {
-            if (this.camera == 'projective') {
+            if (this.camera.value == 'projective') {
               return new Screen(600, 300, new ProjectiveCamera(1))
             }
             return new Screen(600, 300, new IsometricCamera(200))
@@ -646,14 +646,14 @@
               cubeGray5,
               cubeGray6,
             ),
-            camera: 'parallel',
+            camera: { value: 'projective', display: 'Projective' },
             active: true,
-            displayMode: 'faces',
+            displayMode: { value: 'faces', display: 'Faces' },
           }
         },
         computed: {
           screen() {
-            if (this.camera == 'projective') {
+            if (this.camera.value == 'projective') {
               return new Screen(3000, 1500, new ProjectiveCamera(1))
             }
             return new Screen(3000, 1500, new IsometricCamera(300))

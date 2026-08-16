@@ -107,12 +107,12 @@ const svgPlot = {
             <selector 
               v-if="option.type=='dropdown'" 
               :options="option.options" 
-              v-model="scene.configs[option.name]"
+              v-model="configs[option.name]"
               :update-url="option.name"
             ></selector>
             <incremental-buttons 
               v-if="option.type=='incremental'" 
-              v-model="scene.configs[option.name]" 
+              v-model="configs[option.name]" 
               :min="option.min" 
               :max="option.max" 
               :step="option.step"
@@ -121,7 +121,7 @@ const svgPlot = {
             <radio-buttons
               v-if="option.type=='radioButton'"
               :choices="option.choices"
-              v-model="scene.configs[option.name]"
+              v-model="configs[option.name]"
               :update-url="option.name"
             > </radio-buttons>
             <slider
@@ -130,14 +130,14 @@ const svgPlot = {
               :min="option.min"
               :max="option.max"
               :step="option.step"
-              v-model="scene.configs[option.name]"
+              v-model="configs[option.name]"
               :update-url="option.name"
             > </slider>
             <div class="button-block">
               <toggle-button 
                 v-if="option.type=='toggle'" 
                 :text="option.display" 
-                v-model="scene.configs[option.name]"
+                v-model="configs[option.name]"
                 :update-url="option.name"
               > </toggle-button>
             </div>
@@ -171,6 +171,9 @@ const svgPlot = {
       immediate: true,
       handler: function (newObj, oldObj) {
         console.log('scene has changed, resetting all fields', newObj, oldObj)
+        if (oldObj == undefined) {
+          return
+        }
         this.hidden = {}
         this.configs = newObj.getConfigs()
         this.pens = {}
@@ -195,7 +198,7 @@ const svgPlot = {
           } else {
             this.pens[layer.id] = pens.Micron005 // default pen
           }
-          this.penMultipliers[layer.id] = 1.0
+          this.penMultipliers[layer.id] = { display: '1.0', value: 1 }
           if (layer.color) {
             this.colors[layer.id] = layer.color
           } else {
@@ -312,7 +315,7 @@ const svgPlot = {
       return new Layer('frame').withCurves([this.canvas.continuousCurve()])
     },
     layers() {
-      let configs = this.scene.configs
+      let configs = this.configs
       configs['seed'] = this.globalSeed
       let layerDict = this.scene.place(this.canvas, configs).layers
       return layerDict
@@ -321,8 +324,7 @@ const svgPlot = {
       let output = []
       for (let option of this.scene.options) {
         let key = option.name
-        let value =
-          option.name in this.scene.configs ? this.scene.configs[option.name] : option.default
+        let value = option.name in this.configs ? this.configs[option.name] : option.default
         if (option.type == 'dropdown') {
           value = value.display
         }

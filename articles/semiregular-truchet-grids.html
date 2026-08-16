@@ -819,7 +819,7 @@
             tiling: uniform4Tilings[7],
             showEdges: true,
             start: new Point(500, 250),
-            nNotches: '1',
+            nNotches: { display: '1', value: 1 },
             notchPositions: [0.33, 0.66], // modified by nothces() computed property
             tilingClasses: {
               Regular: regularTilings,
@@ -837,8 +837,8 @@
         },
         computed: {
           notches() {
-            let nNotches = Number(this.nNotches)
-            if (nNotches == 1) {
+            console.log('this.nNotches', this.nNotches)
+            if (this.nNotches.value == 1) {
               return [this.notchPositions[0]]
             }
             return this.notchPositions

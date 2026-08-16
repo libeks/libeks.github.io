@@ -17,22 +17,36 @@ const radioButtons = {
     <div class="radio button-block">
       <div 
         v-for="choice in choices" 
-        :class="{button:true, 'button-radio': true, active:choice.value==modelValue}" 
-        @click="change(choice.value)"
+        :class="{button:true, 'button-radio': true, active:choice.display==modelValue.display}" 
+        @click="change(choice)"
       >{{choice.display}}</div>
     </div
   `,
+  data() {
+    console.log('radio modelValue', this.modelValue)
+    return {}
+  },
   methods: {
-    change(val) {
-      this.$emit('update:modelValue', val)
-      this.$emit('value', val)
+    change(elt) {
+      console.log('radio choice', elt)
+      // for (let elt of this.choices) {
+      //   if (elt.display == val) {
+      //   this.$emit('update:modelValue', elt)
+      //   this.$emit('value', elt)
+      //   if (this.updateUrl != undefined) {
+      //     updateURLParameter(this.updateUrl, elt.display)
+      //   }
+      // }
+      // }
+      this.$emit('update:modelValue', elt)
+      this.$emit('value', elt)
       if (this.updateUrl != undefined) {
-        updateURLParameter(this.updateUrl, val)
+        updateURLParameter(this.updateUrl, elt.display)
       }
     },
   },
   props: {
-    modelValue: [String, Number],
+    modelValue: Object,
     choices: Object,
     updateUrl: String,
   },
@@ -185,6 +199,7 @@ const selector = {
       for (let elt of this.options) {
         if (elt.display == selected) {
           this.$emit('update:modelValue', elt)
+          this.$emit('value', elt)
           if (this.updateUrl != undefined) {
             updateURLParameter(this.updateUrl, elt.display)
           }
@@ -238,17 +253,24 @@ const selector = {
 // given a list of {display, value} objects, and an URL parameter key, return the object that matches, or the fallback
 function getSelectorURLOption(options, key, fallback) {
   let params = new URLSearchParams(window.location.search)
-  if (!params.has(key)) {
-    return fallback
+  let display
+  if (params.has(key)) {
+    display = params.get(key)
+  } else {
+    display = fallback
   }
-  let display = params.get(key)
   for (let elt of options) {
     if (elt.display == display) {
       return elt
     }
   }
-  return fallback
+  console.warn(
+    `GetSelectorURLOption ${display} not among option display values ${options.map((opt) => opt.display)}, returning the first option`,
+  )
+  return options[0]
 }
+
+// function getRadioURLOption(choices, key, fallback) {}
 
 function getBoolURL(key, fallback) {
   let params = new URLSearchParams(window.location.search)

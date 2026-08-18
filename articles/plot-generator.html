@@ -50,7 +50,7 @@
         data() {
           let sceneOptions = Object.values(scenes).map((val) => ({ display: val.name, value: val }))
           return {
-            scene: getSelectorURLOption(sceneOptions, 'scene', sceneOptions[4]),
+            scene: getSelectorURLOption(sceneOptions, 'scene', 'TruchetTiling'),
             scenes: sceneOptions,
           }
         },

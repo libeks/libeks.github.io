@@ -237,6 +237,9 @@ const selector = {
 
 // given a list of {display, value} objects, and an URL parameter key, return the object that matches, or the fallback
 function getSelectorURLOption(options, key, fallback) {
+  if (typeof fallback === 'object' && 'display' in fallback) {
+    console.warn('getSelectorURLOption fallback value should be string, not option value')
+  }
   let params = new URLSearchParams(window.location.search)
   let display
   if (params.has(key)) {
@@ -244,6 +247,7 @@ function getSelectorURLOption(options, key, fallback) {
   } else {
     display = fallback
   }
+  console.log('display', display)
   for (let elt of options) {
     if (elt.display == display) {
       return elt

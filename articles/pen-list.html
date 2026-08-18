@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>List of Fonts</title>
+    <!-- <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script> -->
+    <script src="/js/vue.js"></script>
+    <link href="/style.css" rel="stylesheet" />
+    <!-- <link href="triangles.css" rel="stylesheet" /> -->
+    <link href="plot-generator.css" rel="stylesheet" />
+    <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Libertinus+Math&family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <header>
+      <h1>List of Pens</h1>
+      <div class="subhead"><a href="/index.html">Home</a></div>
+    </header>
+    <main>
+      <section>
+        <p>
+          Here is a list of pens available for
+          <a href="/articles/plot-generator.html">SVG plotting</a>.
+        </p>
+      </section>
+      <section>
+        <div id="pen-list">
+          <div
+            v-for="pen in pens"
+            :id="pen.name"
+            :style="{border: '1px solid black', 'border-radius': '10px', 'padding': '10px', display:'flex', margin: '5px'}"
+          >
+            <div style="width: 50%">
+              <p>{{pen.name}}</p>
+              <p>Spacing: {{pen.spacing}}</p>
+            </div>
+            <div style="width: 50%">
+              <div style="display: flex; flex-direction: column; gap: 10px">
+                <div v-for="color in pen.colors">
+                  <div
+                    class="colorSquare"
+                    :style="{'background-color': color, 'display':'inline-block'}"
+                  ></div>
+                  <div style="display: inline-block; padding-left: 10px">{{color}}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <p>No LLMs were consulted in the making of this site.</p>
+      <p>© 2026 Jānis Lībeks</p>
+    </footer>
+    <script type="module">
+      const { createApp, ref, defineComponent } = Vue
+      import { BBox, svgBox } from '/js/bbox.js'
+      import { pens } from '/js/plotter/pens.js'
+      import { toggleButton, selector, getSelectorURLOption, getBoolURL } from '/js/buttons.js'
+      const fontApp = createApp({
+        data() {
+          return {}
+        },
+        computed: {
+          pens() {
+            return pens
+          },
+        },
+        methods: {
+          BBox,
+        },
+        components: {
+          svgBox,
+        },
+      }).mount('#pen-list')
+    </script>
+  </body>
+</html>

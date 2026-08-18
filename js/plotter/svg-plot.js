@@ -20,15 +20,15 @@ const svgPlot = {
       <div class='plot' ref="plot" style="border: solid 1px black">
         <svg viewBox="0,0,13333,10000"  version="1.1" sodipodi:docname="test_inkscape.svg" inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
           <metadata class="configs" v-html="rawHTMLComment" > </metadata>
-          <g v-for="layer in visibleLayers" inkscape:groupmode="layer" :inkscape:label="layer.displayName" :transform="layerPens[layer.id].transform()">
+          <g v-for="layer in visibleLayers" inkscape:groupmode="layer" :inkscape:label="layer.displayName" :transform="pens[layer.penID].transform()">
             <path 
-              v-for="curve in layer.getAllCurves(layerPens[layer.id].spacing * penMultipliers[layer.id].value, showFill)" 
+              v-for="curve in layer.getAllCurves(pens[layer.penID].spacing * penMultipliers[layer.penID].value, showFill)" 
               :d="curve.d()" 
-              :stroke="colors[layer.id]"
-              :fill="(layer.id <2 || showFill) ? 'none' : colors[layer.id]"
+              :stroke="colors[layer.penID]"
+              :fill="(layer.penID <2 || showFill) ? 'none' : colors[layer.penID]"
               fill-opacity="0.6"
               
-              :stroke-width="layerPens[layer.id].spacing" 
+              :stroke-width="pens[layer.penID].spacing" 
               stroke-opacity="0.6" 
               :data-line="curve.id"
             > </path>
@@ -52,36 +52,36 @@ const svgPlot = {
             <tbody>
               <tr v-for="(layer, id) in allLayers">
                 <td>{{layer.displayName}}</td>
-                <td style="text-align: right">{{prettyTime(layer.statistics(layerPens[layer.id].spacing * penMultipliers[layer.id].value, showFill).time)}}</td>
-                <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1" :style="{color: pens[layer.id].color}">
+                <td style="text-align: right">{{prettyTime(layer.statistics(pens[layer.penID].spacing * penMultipliers[layer.penID].value, showFill).time)}}</td>
+                <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1" :style="{color: pens[layer.penID].color}">
                   <div>
                     <div style="display: flex; gap: 10px">
-                      <select v-model="pens[layer.id]" :disabled="disabled[layer.id]">
+                      <select v-model="pens[layer.penID]" :disabled="disabled[layer.penID]">
                         <option v-for="pen of allPens" :value="pen">{{pen.name}}</option>
                       </select>
-                      <div v-if="!disabled[layer.id]" class="colorSquare" @click="$refs['dialog-'+layer.id][0].showModal()" :style="{'background-color': colors[layer.id]}"></div>
+                      <div v-if="!disabled[layer.penID]" class="colorSquare" @click="$refs['dialog-'+layer.penID][0].showModal()" :style="{'background-color': colors[layer.penID]}"></div>
                     </div>
                     <div v-if="layer.parent && layer.parent.fillCurves.length > 0" >
                       <radio-buttons 
                         class="inline-buttons button-block small" 
                         :choices="[{value:1, display: '1.0'}, {value:1.1, display:'1.1'}, {value:1.2, display: '1.2'},{value:1.5, display: '1.5'}, {value:2, display: '2.0'}]" 
-                        v-model="penMultipliers[layer.id]" 
-                        @value="val=> changeThicknessMultiplier(layer, val)"
+                        v-model="penMultipliers[layer.penID]" 
+                        @value="val=> penMultipliers[layer.penID] = val"
                       > 
                       </radio-buttons>
                     </div>
                   </div>
-                  <dialog :id="'dialog-'+layer.id" :ref="'dialog-'+layer.id" closedby="any">
-                    <p>Pick a color for {{pens[layer.id].name}}</p>
+                  <dialog :id="'dialog-'+layer.penID" :ref="'dialog-'+layer.penID" closedby="any">
+                    <p>Pick a color for {{pens[layer.penID].name}}</p>
                     <div style="display:flex; gap: 10px;">
-                      <div v-for="color of pens[layer.id].colors" class="colorSquare" @click="changeColor(layer, color); $refs['dialog-'+layer.id][0].close()" :style="{'background-color': color}"></div>
+                      <div v-for="color of pens[layer.penID].colors" class="colorSquare" @click="colors[layer.penID] = color; $refs['dialog-'+layer.penID][0].close()" :style="{'background-color': color}"></div>
                     </div>
-                    <button :commandfor="'dialog-'+layer.id" command="close">Close</button>
+                    <button :commandfor="'dialog-'+layer.penID" command="close">Close</button>
                   </dialog>
                 </td>
                 <td v-if="!layer.child" :rowspan="layer.parent ? 2 : 1">
-                  <input type="checkbox" :id="'visibility-'+id" v-model="hidden[layer.id]" />
-                  <label :for="'visibility-'+id">{{ hidden[layer.id] ? 'Hidden' : 'Visible' }}</label>
+                  <input type="checkbox" :id="'visibility-'+id" v-model="hidden[layer.penID]" />
+                  <label :for="'visibility-'+id">{{ hidden[layer.penID] ? 'Hidden' : 'Visible' }}</label>
                 </td> 
               </tr>
             </tbody>
@@ -178,7 +178,6 @@ const svgPlot = {
         // reset all URL parameters, preserving only the 'scene' field
         let urlParams = new URLSearchParams(window.location.search)
         let newURLParams = new URLSearchParams()
-        // console.log('urlParams', urlParams)
         if (urlParams.has('scene')) {
           newURLParams.set('scene', urlParams.get('scene'))
         }
@@ -202,20 +201,21 @@ const svgPlot = {
           return
         }
         newObj.forEach((layer) => {
-          this.hidden[layer.id] = layer.hidden
+          this.hidden[layer.penID] = layer.hidden
           if (layer.pen) {
-            this.pens[layer.id] = layer.pen
+            this.pens[layer.penID] = layer.pen
           } else {
-            this.pens[layer.id] = pens.Micron005 // default pen
+            this.pens[layer.penID] = pens.Micron005 // default pen
           }
-          this.penMultipliers[layer.id] = { display: '1.0', value: 1 }
+          this.penMultipliers[layer.penID] = { display: '1.0', value: 1 }
           if (layer.color) {
-            this.colors[layer.id] = layer.color
+            this.colors[layer.penID] = layer.color
           } else {
-            this.colors[layer.id] = 'black' // default color
+            this.colors[layer.penID] = 'black' // default color
           }
-          this.disabled[layer.id] = layer.id < 2 // the first two layers shouldn't allow for pen or color choice
+          this.disabled[layer.penID] = layer.staticPen // the first two layers shouldn't allow for pen or color choice
         })
+        console.log('this.pens after layerSkeleton watcher', this.pens, newObj)
       },
     },
     penNames: {
@@ -230,7 +230,7 @@ const svgPlot = {
             console.log('detected change in pens index', i, a, b, Object.keys(pens)[i])
             let [layerID, pen] = Object.entries(this.pens)[i]
             let layer = this.layersByID[layerID]
-            this.changeColor(layer, pen.colors[0])
+            this.colors[layer.penID] = pen.colors[0]
           }
         }
       },
@@ -266,18 +266,6 @@ const svgPlot = {
       let secondsChunk = `${seconds}s` // display '0s' as a last resort
       return `${hoursChunk}${minutesChunk}${secondsChunk}`
     },
-    changeColor(layer, color) {
-      this.colors[layer.id] = color
-      if (layer.parent) {
-        this.colors[layer.parent.id] = color
-      }
-    },
-    changeThicknessMultiplier(layer, thickness) {
-      this.penMultipliers[layer.id] = thickness
-      if (layer.parent) {
-        this.penMultipliers[layer.parent.id] = thickness
-      }
-    },
   },
   components: {
     incrementalButtons,
@@ -294,21 +282,6 @@ const svgPlot = {
       }
       const framePadding = 1000
       return new BBox(0, yOffset, 13333, 10000).withIndividualPadding(500, 1000, 1000, 500)
-    },
-    layerPens() {
-      let ret = {}
-      for (let layerID of Object.keys(this.pens)) {
-        let pen = this.pens[layerID]
-        if (!(layerID in ret)) {
-          // don't overwrite the value set by the parent logic below
-          ret[layerID] = pen
-        }
-        let layer = this.layersByID[layerID]
-        if (layer.parent) {
-          ret[layer.parent.id] = pen
-        }
-      }
-      return ret
     },
     penNames() {
       // used to watch changes in pens, watching on pens directly doesn't work since deep watching of objects doesn't provide the old value
@@ -409,34 +382,45 @@ const svgPlot = {
     visibleLayers() {
       let retval = this.allLayers.filter((layer) => {
         if (layer.child) {
-          return !this.hidden[layer.child.id]
+          return !this.hidden[layer.child.penID]
         }
-        return !this.hidden[layer.id]
+        return !this.hidden[layer.penID]
       })
       return retval
     },
     layerSkeletons() {
       let layers = []
+      let penID = 0
       if (this.withFrame) {
-        layers.push(this.guideFrameLayer)
+        let layer = this.guideFrameLayer
+        layer = layer.withPenID(penID).withStaticPen()
+        penID += 1
+        layers.push(layer)
       }
       if (this.withGuides && this.combLayer) {
-        layers.push(this.combLayer)
+        let layer = this.combLayer
+        layer = layer.withPenID(penID).withStaticPen()
+        penID += 1
+        layers.push(layer)
       }
 
       let offset = new Vector(0, 0)
       for (let layer of this.namedLayers) {
         if (layer.drawGuides) {
-          let layerObj = new Layer(`guide - ${layer.name}`).withPen({
-            pen: layer.pen,
-            color: layer.color,
-          })
+          let layerObj = new Layer(`guide - ${layer.name}`)
+            .withPen({
+              pen: layer.pen,
+              color: layer.color,
+            })
+            .withPenID(penID)
 
           layer.attachChild(layerObj) // make sure the real layer has the guide layer as a child
           layers.push(layerObj)
           offset = offset.add(new Vector(1000, 0))
         }
+        layer = layer.withPenID(penID)
         layers.push(layer)
+        penID += 1
       }
       // prefix each layer with a numerical index
       for (let [id, layer] of enumerate(layers)) {
@@ -447,11 +431,18 @@ const svgPlot = {
     },
     allLayers() {
       let layers = []
+      let penID = 0
       if (this.withFrame) {
-        layers.push(this.guideFrameLayer)
+        let layer = this.guideFrameLayer
+        layer = layer.withPenID(penID).withStaticPen()
+        penID += 1
+        layers.push(layer)
       }
       if (this.withGuides && this.combLayer) {
-        layers.push(this.combLayer)
+        let layer = this.combLayer
+        layer = layer.withPenID(penID).withStaticPen()
+        penID += 1
+        layers.push(layer)
       }
 
       let offset = new Vector(0, 0)
@@ -463,12 +454,15 @@ const svgPlot = {
               new StraightStroke(new Point(300, 500), new Point(700, 500)).move(offset),
             ])
             .withPen({ pen: layer.pen, color: layer.color })
+            .withPenID(penID)
 
           layer.attachChild(layerObj) // make sure the real layer has the guide layer as a child
           layers.push(layerObj)
           offset = offset.add(new Vector(1000, 0))
         }
+        layer = layer.withPenID(penID)
         layers.push(layer)
+        penID += 1
       }
       // prefix each layer with a numerical index
       for (let [id, layer] of enumerate(layers)) {

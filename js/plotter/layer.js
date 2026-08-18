@@ -16,6 +16,8 @@ class Layer {
   constructor(name) {
     this.name = name
     this.id = 0
+    this.penID = 0 // the index of the pen, color, thickness that this layer will use, set by .withPenID()
+    this.staticPen = false // whether the pen of this layer can be changed. can be modified with .withStaticPen()
     this.curves = []
     this.fillCurves = [] // the outlines of the fill curves for this layer
     this.filledCurves = {}
@@ -76,6 +78,17 @@ class Layer {
     }
     this.fillCurves.push(...curves)
     return this // allow chaining
+  }
+
+  // the id of the pen that this layer will use
+  withPenID(id) {
+    this.penID = id
+    return this // allow chaining
+  }
+
+  withStaticPen() {
+    this.staticPen = true
+    return this
   }
 
   withColor(color) {

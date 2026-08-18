@@ -159,7 +159,8 @@ const slider = {
   `,
   methods: {
     change(event) {
-      let val = event.target.value
+      let val = Number(event.target.value)
+      console.log('slider val', val, typeof val)
       this.$emit('update:modelValue', val)
       this.$emit('value', val)
       if (this.updateUrl != undefined) {

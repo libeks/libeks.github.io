@@ -22,22 +22,8 @@ const radioButtons = {
       >{{choice.display}}</div>
     </div
   `,
-  data() {
-    console.log('radio modelValue', this.modelValue)
-    return {}
-  },
   methods: {
     change(elt) {
-      console.log('radio choice', elt)
-      // for (let elt of this.choices) {
-      //   if (elt.display == val) {
-      //   this.$emit('update:modelValue', elt)
-      //   this.$emit('value', elt)
-      //   if (this.updateUrl != undefined) {
-      //     updateURLParameter(this.updateUrl, elt.display)
-      //   }
-      // }
-      // }
       this.$emit('update:modelValue', elt)
       this.$emit('value', elt)
       if (this.updateUrl != undefined) {
@@ -160,7 +146,6 @@ const slider = {
   methods: {
     change(event) {
       let val = Number(event.target.value)
-      console.log('slider val', val, typeof val)
       this.$emit('update:modelValue', val)
       this.$emit('value', val)
       if (this.updateUrl != undefined) {
@@ -195,7 +180,6 @@ const selector = {
   `,
   methods: {
     pick: function (event, v) {
-      // console.log('got event', v)
       let selected = event.target.value
       for (let elt of this.options) {
         if (elt.display == selected) {

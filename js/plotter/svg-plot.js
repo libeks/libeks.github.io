@@ -223,9 +223,7 @@ const svgPlot = {
       // figure out what has changed
       // https://stackoverflow.com/questions/62729380/vue-watch-outputs-same-oldvalue-and-newvalue
       handler(newObj, oldObj) {
-        // console.log('penNames changed', oldObj, newObj)
         for (let [i, [a, b]] of enumerate(zip(oldObj, newObj))) {
-          // let [a, b] = ob
           if (a != b) {
             console.log('detected change in pens index', i, a, b, Object.keys(pens)[i])
             let [layerID, pen] = Object.entries(this.pens)[i]

@@ -75,6 +75,7 @@ function nestClosedCurves(curves) {
   return topLevel
 }
 
+// return a curve that starts and ends with a ray, and touches the line in the middle
 function rayLineRayCurve(r1, line, r2) {
   if (r1.type != 'Ray' || line.type != 'Line' || r2.type != 'Ray') {
     throw `RayLineRayCurve got unexpected arguments ${r1.type}, ${line.type}, ${r2.type}`
@@ -89,7 +90,10 @@ function rayLineRayCurve(r1, line, r2) {
     // the first ray doesn't intersect the line, they could be parallel, or the ray could be pointing in the wrong direction
     // return compositeQuadraticBezier({ point: r1.p, onCurve: true }, { point: r2.p, onCurve: true })
 
-    const secondPointDistance = 1.6
+    let endpointDistance = r1.p.distance(r2.p)
+    // console.log('endpointDistance', endpointDistance, r1.v.len())
+
+    let secondPointDistance = endpointDistance / (3 * r1.v.len())
     return compositeQuadraticBezier(
       { point: r1.p, onCurve: true },
       { point: r1.at(1), onCurve: false },
